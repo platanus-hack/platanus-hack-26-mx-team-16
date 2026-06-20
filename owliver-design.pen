@@ -13,5 +13,143 @@
       "fill": "#FFFFFF",
       "layout": "none"
     }
-  ]
+  ],
+  "variables": {
+    "primary": {
+      "type": "color",
+      "value": "#289080"
+    },
+    "primary-deep": {
+      "type": "color",
+      "value": "#1F7163"
+    },
+    "ink": {
+      "type": "color",
+      "value": "#111C28"
+    },
+    "surface": {
+      "type": "color",
+      "value": "#F9FAFB"
+    },
+    "card": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "surface-muted": {
+      "type": "color",
+      "value": "#F1F4F6"
+    },
+    "accent": {
+      "type": "color",
+      "value": "#EFA831"
+    },
+    "accent-deep": {
+      "type": "color",
+      "value": "#A86A12"
+    },
+    "text-secondary": {
+      "type": "color",
+      "value": "#5B646F"
+    },
+    "text-muted": {
+      "type": "color",
+      "value": "#80878F"
+    },
+    "border": {
+      "type": "color",
+      "value": "#DBDEE2"
+    },
+    "soc-bg": {
+      "type": "color",
+      "value": "#070E16"
+    },
+    "soc-card": {
+      "type": "color",
+      "value": "#111921"
+    },
+    "soc-line": {
+      "type": "color",
+      "value": "#182029"
+    },
+    "soc-cyan": {
+      "type": "color",
+      "value": "#2AD7D7"
+    },
+    "soc-amber": {
+      "type": "color",
+      "value": "#F2AF48"
+    },
+    "soc-red": {
+      "type": "color",
+      "value": "#F53C41"
+    },
+    "soc-green": {
+      "type": "color",
+      "value": "#67D283"
+    },
+    "soc-text": {
+      "type": "color",
+      "value": "#B7C7CD"
+    },
+    "soc-text-dim": {
+      "type": "color",
+      "value": "#66747B"
+    },
+    "grade-a": {
+      "type": "color",
+      "value": "#4AC06C"
+    },
+    "grade-b": {
+      "type": "color",
+      "value": "#8EC053"
+    },
+    "grade-c": {
+      "type": "color",
+      "value": "#E1B942"
+    },
+    "grade-d": {
+      "type": "color",
+      "value": "#EF852E"
+    },
+    "grade-e": {
+      "type": "color",
+      "value": "#EF5B36"
+    },
+    "grade-f": {
+      "type": "color",
+      "value": "#DF202E"
+    },
+    "sev-critical": {
+      "type": "color",
+      "value": "#DF202E"
+    },
+    "sev-high": {
+      "type": "color",
+      "value": "#EF852E"
+    },
+    "sev-medium": {
+      "type": "color",
+      "value": "#E1B942"
+    },
+    "sev-low": {
+      "type": "color",
+      "value": "#289080"
+    },
+    "sev-info": {
+      "type": "color",
+      "value": "#6B7B8C"
+    },
+    "font-ui": {
+      "type": "string",
+      "value": "Figtree"
+    },
+    "font-mono": {
+      "type": "string",
+      "value": "Geist Mono"
+    },
+    "radius": {
+      "type": "number",
+      "value": 12
+    }
+  }
 }

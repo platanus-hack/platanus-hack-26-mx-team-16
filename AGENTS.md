@@ -25,8 +25,8 @@ Las **decisiones de arquitectura** se registran como ADRs con el plugin
 `adr-writer` (marketplace `Codex-toolkit`). La **documentación de
 módulos / codebase** se genera con `codebase-documenter`.
 
-Decisiones históricas previas a la migración viven en los
-`product/plans/<feature>/<feature>.impl.md`. Consúltalas antes de re-litigar
+Decisiones históricas previas a la migración viven junto a su feature en
+`product/features/<feature>/plan.md`. Consúltalas antes de re-litigar
 algo ya zanjado; las decisiones **nuevas** van como ADRs vía `adr-writer`.
 
 ## Repository Structure

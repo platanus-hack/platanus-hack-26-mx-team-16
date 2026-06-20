@@ -9,13 +9,15 @@
 > Fecha: 2026-06-20.
 >
 > **Este archivo es el _overview + índice_.** El detalle por feature vive en
-> [`product/specs/NN-*`](specs/). Las secciones **§3–§14** se dividieron en
-> subspecs numerados (ver [§ Índice de subspecs](#índice-de-subspecs)); aquí
-> permanecen, con su numeración original intacta, las partes transversales:
-> **§1** visión, **§2** decisiones cerradas, **§5** diagrama de arquitectura,
-> **§12** alcance/features swing y **§15–§17** plan, riesgos y demo. Cualquier
-> referencia `§N`/`§N.M` desde los subspecs sigue resolviendo (las §3–§14 vía el
-> índice; las §1/§2/§5/§12/§15/§16/§17 a este documento).
+> [`product/features/NN-*/spec.md`](features/) (organización **feature-first**: el
+> QUÉ `spec.md` y el CÓMO `plan.md` co-habitan en cada carpeta-feature). Las
+> secciones **§3–§14** de esta spec se dividieron en subspecs numerados (ver
+> [§ Índice de subspecs](#índice-de-subspecs)); aquí permanecen, con su numeración
+> original intacta, las partes transversales: **§1** visión, **§2** decisiones
+> cerradas, **§5** diagrama de arquitectura, **§12** alcance/features swing y
+> **§15–§17** plan, riesgos y demo. Cualquier referencia `§N`/`§N.M` desde los
+> subspecs sigue resolviendo (las §3–§14 vía el índice; las §1/§2/§5/§12/§15/§16/§17
+> a este documento).
 
 ---
 
@@ -86,44 +88,50 @@ server, contenedor pesado aparte), `scheduler` (cron de re-escaneos).
 
 > El detalle de ejecución (patrón Docker DooD/subprocess, concurrencia, watchdog,
 > aislamiento de egress, cold-start, almacenamiento de evidencia) vive en
-> [`04-scanning-engine`](specs/04-scanning-engine/README.md); el diseño del Agno
+> [`04-scanning-engine`](features/04-scanning-engine/spec.md); el diseño del Agno
 > Team (orquestador + 2 subagentes, parsing fuera del LLM) en
-> [`05-agent-team`](specs/05-agent-team/README.md).
+> [`05-agent-team`](features/05-agent-team/spec.md).
 
 ---
 
 ## Índice de subspecs
 
 El detalle por feature (§3–§14 de la spec original + el sub-spec de frontend) se
-dividió en 13 subspecs numerados bajo [`product/specs/`](specs/). Cada uno fusiona
-el contenido autoritativo de `spec.md` con la profundidad de implementación del
-análisis de huecos, y lleva frontmatter (`status: pending`, `coverage: 0`).
+dividió en 13 subspecs numerados bajo [`product/features/`](features/). Cada uno
+fusiona el contenido autoritativo de `spec.md` con la profundidad de
+implementación del análisis de huecos, y lleva frontmatter (`status: pending`,
+`coverage: 0`).
 
 | # | Subspec | § origen | Qué cubre |
 |---|---------|----------|-----------|
-| 01 | [legal-ethics](specs/01-legal-ethics/README.md) | §3 | La invariante legal/ética aplicada en código: atestación persistida, automáticos solo pasivos, ranking público solo pasivo y "pasivo" definido como whitelist verificable. |
-| 02 | [attack-levels](specs/02-attack-levels/README.md) | §4 | Los tres niveles de intrusividad (pasivo/básico, intermedio, avanzado) y la batería de herramientas+flags del subagente OWASP web, con la whitelist `(is_gov, level)` y robots.txt. |
-| 03 | [agentic-surface](specs/03-agentic-surface/README.md) | §4 | Sondeo de chatbots/widgets LLM embebidos: detección por fingerprints + LLM, puente Playwright y LLM-juez con evidencia tipada. **El diferenciador.** |
-| 04 | [scanning-engine](specs/04-scanning-engine/README.md) | §5, §13 | Cómo el worker lanza los scanners: imagen fat vs. DooD por socket, redes aisladas, timeouts + watchdog, cold-start y stack de herramientas. |
-| 05 | [agent-team](specs/05-agent-team/README.md) | §6 | El Agno Team (Opus orquestador + 2 Sonnet) donde las tool-functions parsean a `Finding[]` en Python y el LLM queda fuera del camino de datos. |
-| 06 | [data-model](specs/06-data-model/README.md) | §7, §8 | El esquema Postgres del motor de pentest (sites, scans, findings, agentic_surface, scan_events, watchlist, magic_tokens) y los contratos Pydantic `Finding`/`AgenticResult`. |
-| 07 | [scoring](specs/07-scoring/README.md) | §9 | Doble sub-score web/agéntico → overall + grado A–F, con `penalty_raw` sin cap, cap por cobertura parcial y `agentic_status` de tres estados. |
-| 08 | [ranking-watchlists](specs/08-ranking-watchlists/README.md) | §10, §12 | Leaderboard público `.gob.mx` (solo pasivo, sembrado y pre-horneado), watchlists privadas y monitoreo/alertas vía cron de Arq + Resend/Slack. |
-| 09 | [reporting](specs/09-reporting/README.md) | §11 | Reporte de dos capas (ejecutiva con doble gauge A–F + párrafo de Opus, técnica en acordeón), export PDF y link público `/r/[token]` con exploits redactados. |
-| 10 | [realtime-live-view](specs/10-realtime-live-view/README.md) | §12.1 | Live view del pentest por SSE: Postgres es la verdad (`scan_events`), Redis solo el tail, con replay-then-tail y auth por cookie. |
-| 11 | [auth-magic-link](specs/11-auth-magic-link/README.md) | §12.2, §14.1 | Flujo magic-link sin contraseña: 4 pantallas en `(public)`, canje de `magic_tokens` y cookie HttpOnly que autentica la live-view SSE. |
-| 12 | [api](specs/12-api/README.md) | §14 | Superficie HTTP: encolado idempotente de scans, AuthZ anti-IDOR, cancelación/health, contrato SSE, CRUD watchlist, paginación y formato de error único. |
-| 13 | [frontend](specs/13-frontend/README.md) | `owliver-frontend.md` | Todo el frontend Next.js: Hall of Shame, gate de atestación, el Live Pentest Theater en modo SOC, reporte "Owliver te explica" y superficies públicas/privadas. |
+| 01 | [legal-ethics](features/01-legal-ethics/spec.md) | §3 | La invariante legal/ética aplicada en código: atestación persistida, automáticos solo pasivos, ranking público solo pasivo y "pasivo" definido como whitelist verificable. |
+| 02 | [attack-levels](features/02-attack-levels/spec.md) | §4 | Los tres niveles de intrusividad (pasivo/básico, intermedio, avanzado) y la batería de herramientas+flags del subagente OWASP web, con la whitelist `(is_gov, level)` y robots.txt. |
+| 03 | [agentic-surface](features/03-agentic-surface/spec.md) | §4 | Sondeo de chatbots/widgets LLM embebidos: detección por fingerprints + LLM, puente Playwright y LLM-juez con evidencia tipada. **El diferenciador.** |
+| 04 | [scanning-engine](features/04-scanning-engine/spec.md) | §5, §13 | Cómo el worker lanza los scanners: imagen fat vs. DooD por socket, redes aisladas, timeouts + watchdog, cold-start y stack de herramientas. |
+| 05 | [agent-team](features/05-agent-team/spec.md) | §6 | El Agno Team (Opus orquestador + 2 Sonnet) donde las tool-functions parsean a `Finding[]` en Python y el LLM queda fuera del camino de datos. |
+| 06 | [data-model](features/06-data-model/spec.md) | §7, §8 | El esquema Postgres del motor de pentest (sites, scans, findings, agentic_surface, scan_events, watchlist, magic_tokens) y los contratos Pydantic `Finding`/`AgenticResult`. |
+| 07 | [scoring](features/07-scoring/spec.md) | §9 | Doble sub-score web/agéntico → overall + grado A–F, con `penalty_raw` sin cap, cap por cobertura parcial y `agentic_status` de tres estados. |
+| 08 | [ranking-watchlists](features/08-ranking-watchlists/spec.md) | §10, §12 | Leaderboard público `.gob.mx` (solo pasivo, sembrado y pre-horneado), watchlists privadas y monitoreo/alertas vía cron de Arq + Resend/Slack. |
+| 09 | [reporting](features/09-reporting/spec.md) | §11 | Reporte de dos capas (ejecutiva con doble gauge A–F + párrafo de Opus, técnica en acordeón), export PDF y link público `/r/[token]` con exploits redactados. |
+| 10 | [realtime-live-view](features/10-realtime-live-view/spec.md) | §12.1 | Live view del pentest por SSE: Postgres es la verdad (`scan_events`), Redis solo el tail, con replay-then-tail y auth por cookie. |
+| 11 | [auth-magic-link](features/11-auth-magic-link/spec.md) | §12.2, §14.1 | Flujo magic-link sin contraseña: 4 pantallas en `(public)`, canje de `magic_tokens` y cookie HttpOnly que autentica la live-view SSE. |
+| 12 | [api](features/12-api/spec.md) | §14 | Superficie HTTP: encolado idempotente de scans, AuthZ anti-IDOR, cancelación/health, contrato SSE, CRUD watchlist, paginación y formato de error único. |
+| 13 | [frontend](features/13-frontend/spec.md) | `owliver-frontend.md` | Todo el frontend Next.js: Hall of Shame, gate de atestación, el Live Pentest Theater en modo SOC, reporte "Owliver te explica" y superficies públicas/privadas. |
 
-**Specs hermanas (boilerplate SaaS, no pentest):**
-[`specs/data-model`](specs/data-model/README.md),
-[`specs/roles-permissions`](specs/roles-permissions/README.md); los planes de
-implementación (CÓMO) viven en [`product/plans/`](plans/).
+**Features hermanas (boilerplate SaaS, ya implementado — no pentest):**
+[`data-model`](features/data-model/spec.md) y
+[`roles-permissions`](features/roles-permissions/spec.md) (con `spec.md`), más las
+que hoy solo tienen plan de implementación (CÓMO):
+[`auth`](features/auth/plan.md), [`tenants`](features/tenants/plan.md),
+[`devops`](features/devops/plan.md), [`frontend-shell`](features/frontend-shell/plan.md).
+En el esquema **feature-first** el QUÉ (`spec.md`) y el CÓMO (`plan.md`) viven en
+la misma carpeta-feature; ver el índice completo en
+[`product/features/README.md`](features/README.md).
 
 **Insumos del split (ya fusionados, históricos):**
-[`specs/_archive/`](specs/_archive/) contiene `spec-gaps.md` (refinamiento) y
-`spec-consistency-review.md` (auditoría aplicada). El brief de dirección visual
-es [`design-prompt.md`](design-prompt.md).
+[`product/_archive/`](_archive/) contiene `spec-gaps.md` (refinamiento) y
+`spec-consistency-review.md` (auditoría aplicada) más el `owliver-frontend.md`
+original. El brief de dirección visual es [`design-prompt.md`](design-prompt.md).
 
 ---
 
@@ -137,21 +145,21 @@ in-scope, con orden de recorte documentado en §15:
    Alertas por **Resend** (email) y/o **Slack webhook** cuando baja el grado o
    aparece un finding `critical` (compara `findings.first_seen` a nivel site vía
    `dedupe_key`). Alertas in-app = recorte. Detalle en
-   [`08-ranking-watchlists`](specs/08-ranking-watchlists/README.md).
+   [`08-ranking-watchlists`](features/08-ranking-watchlists/spec.md).
 2. **Vista en vivo del pentest:** el worker publica eventos a Redis pub/sub →
    FastAPI los expone por **SSE** → Next.js renderiza los pasos del agente. Alto
    impacto en demo. Esquema, replay y auth en
-   [`10-realtime-live-view`](specs/10-realtime-live-view/README.md).
-3. **Export PDF + link público:** [`09-reporting`](specs/09-reporting/README.md).
+   [`10-realtime-live-view`](features/10-realtime-live-view/spec.md).
+3. **Export PDF + link público:** [`09-reporting`](features/09-reporting/spec.md).
 4. **hexstrike-ai (power-up avanzado):** servidor MCP como tool del subagente
    OWASP solo en nivel avanzado. **Recortado a CERO desde el inicio del plan**
    (ver §15 y
-   [`04-scanning-engine`](specs/04-scanning-engine/README.md)); fallback = ZAP
+   [`04-scanning-engine`](features/04-scanning-engine/spec.md)); fallback = ZAP
    full active + Nuclei fuzzing.
 
 **Auth (default):** JWT + magic-link por email. Multi-tenant vía `owner_user_id` /
 `watchlist.user_id`. Las 4 pantallas del flujo en
-[`11-auth-magic-link`](specs/11-auth-magic-link/README.md).
+[`11-auth-magic-link`](features/11-auth-magic-link/spec.md).
 
 ---
 
@@ -169,7 +177,7 @@ El plan **no es secuencial**. Con 3–4 personas, una línea de tiempo en serie 
 4. **Decisión de infra** — **VPS Linux** (DigitalOcean/Hetzner, 8GB+ RAM) con docker-compose, redes aisladas `owliver_egress`/`owliver_internal`, `docker pull` + warm de imágenes (tags pineados, no `:latest`) + `nuclei -update-templates` a volumen con flag `-duc` en cada run. Patrón Docker: worker dentro de imagen `scanners` fat (`subprocess.run`) + socket mount (DooD, **no DinD**) solo para ZAP/hexstrike. **No PaaS gestionado.**
 5. **Secretos + `is_gov`** — `settings.py` (pydantic-settings) que **falla ruidosamente** al arranque si falta una key; `.env` en `.gitignore` desde el commit 0; cap de tokens en el dashboard de Anthropic. `is_gov = hostname.endswith('.gob.mx')` calculado al insertar el site.
 
-En el mismo bloque se fija **Arq** (no RQ: el worker hace `asyncio.gather`), el **partial unique index** de idempotencia, `scans.id` UUIDv4 y el `exception_handler` global de FastAPI, y se carga el **seed de fixtures del leaderboard** (ver §15 tabla y [`06-data-model`](specs/06-data-model/README.md)/[`08-ranking-watchlists`](specs/08-ranking-watchlists/README.md)).
+En el mismo bloque se fija **Arq** (no RQ: el worker hace `asyncio.gather`), el **partial unique index** de idempotencia, `scans.id` UUIDv4 y el `exception_handler` global de FastAPI, y se carga el **seed de fixtures del leaderboard** (ver §15 tabla y [`06-data-model`](features/06-data-model/spec.md)/[`08-ranking-watchlists`](features/08-ranking-watchlists/spec.md)).
 
 **Carriles (no se bloquean entre sí):**
 

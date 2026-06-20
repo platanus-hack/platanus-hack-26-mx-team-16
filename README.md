@@ -143,5 +143,5 @@ just stop-all           # Parar todos los contenedores
 | [CHEATSHEET.md](CHEATSHEET.md) | Referencia ultra compacta para pedir uso de MCPs y skills en prompts |
 | [PRODUCT.md](PRODUCT.md) | Direccion estrategica de producto y diseño |
 | [DESIGN.md](DESIGN.md) | Sistema visual (tokens, tipografia, componentes) |
-| [product/specs/](product/specs/) | Specs (QUE se construye) |
-| [product/plans/](product/plans/) | Planes (COMO, con referencia a codigo) |
+| [product/features/](product/features/) | Features (feature-first): cada carpeta con `spec.md` (QUE) + `plan.md` (COMO) |
+| [product/_archive/](product/_archive/) | Insumos historicos ya fusionados |
