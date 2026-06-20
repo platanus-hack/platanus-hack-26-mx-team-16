@@ -25,6 +25,10 @@ on:
         required: true
         type: string
 
+concurrency:
+  group: redeploy-${{ github.event.inputs.target_environment }}-${{ github.event.inputs.service }}
+  cancel-in-progress: false
+
 jobs:
   redeploy-backend:
     if: ${{ inputs.service == 'backend' || inputs.service == 'both' }}
