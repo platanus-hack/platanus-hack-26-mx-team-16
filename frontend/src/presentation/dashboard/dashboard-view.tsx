@@ -13,6 +13,8 @@ import {
   CardTitle,
 } from "@/src/presentation/components/ui/card";
 import { Skeleton } from "@/src/presentation/components/ui/skeleton";
+import { CountUp } from "@/src/presentation/components/common/count-up";
+import { Reveal } from "@/src/presentation/components/common/reveal";
 
 /**
  * Generic post-login landing for the SaaS boilerplate. Shows a short
@@ -39,63 +41,71 @@ export function DashboardView() {
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="size-4 text-primary" />
-              {t("membersCardTitle")}
-            </CardTitle>
-            <CardDescription>{t("membersCardDescription")}</CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-end justify-between gap-2">
-            {membersLoading ? (
-              <Skeleton className="h-9 w-12" />
-            ) : (
-              <span className="text-3xl font-semibold tabular-nums">
-                {memberCount}
+        <Reveal>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="size-4 text-primary" />
+                {t("membersCardTitle")}
+              </CardTitle>
+              <CardDescription>{t("membersCardDescription")}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex items-end justify-between gap-2">
+              {membersLoading ? (
+                <Skeleton className="h-9 w-12" />
+              ) : (
+                <CountUp
+                  to={memberCount}
+                  className="text-3xl font-semibold tabular-nums"
+                />
+              )}
+              <Link
+                href="/members"
+                className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              >
+                {t("membersLink")}
+                <ArrowRight className="size-3" />
+              </Link>
+            </CardContent>
+          </Card>
+        </Reveal>
+
+        <Reveal delay={60}>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="size-4 text-primary" />
+                {t("roleCardTitle")}
+              </CardTitle>
+              <CardDescription>{t("roleCardDescription")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="text-lg font-medium">
+                {tenantRole?.name ?? t("noRole")}
               </span>
-            )}
-            <Link
-              href="/members"
-              className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-            >
-              {t("membersLink")}
-              <ArrowRight className="size-3" />
-            </Link>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Reveal>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="size-4 text-primary" />
-              {t("roleCardTitle")}
-            </CardTitle>
-            <CardDescription>{t("roleCardDescription")}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <span className="text-lg font-medium">
-              {tenantRole?.name ?? t("noRole")}
-            </span>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="size-4 text-primary" />
-              {t("tenantCardTitle")}
-            </CardTitle>
-            <CardDescription>{t("tenantCardDescription")}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <span className="text-lg font-medium">
-              {tenant?.name ?? t("noTenant")}
-            </span>
-          </CardContent>
-        </Card>
+        <Reveal delay={120}>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="size-4 text-primary" />
+                {t("tenantCardTitle")}
+              </CardTitle>
+              <CardDescription>{t("tenantCardDescription")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <span className="text-lg font-medium">
+                {tenant?.name ?? t("noTenant")}
+              </span>
+            </CardContent>
+          </Card>
+        </Reveal>
       </div>
 
+      <Reveal delay={180}>
       <Card>
         <CardHeader>
           <CardTitle>{t("gettingStartedTitle")}</CardTitle>
@@ -118,6 +128,7 @@ export function DashboardView() {
           </ul>
         </CardContent>
       </Card>
+      </Reveal>
     </div>
   );
 }

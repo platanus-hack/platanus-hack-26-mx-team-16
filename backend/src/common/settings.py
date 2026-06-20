@@ -182,6 +182,24 @@ class Settings(BaseSettings):
     # Admin & Integrations
     ADMIN_API_KEY: str = secrets.token_urlsafe(32)
 
+    # -> SCANNING / ATTACK LEVELS (owned by 02-attack-levels)
+    # Feature-flag gate for hexstrike-ai. Default OFF: hexstrike is cut to zero
+    # from the start of the plan. When True, the advanced level *may* receive the
+    # hexstrike tool, but ONLY if the worker healthcheck also passes (the boolean
+    # `hexstrike_ok` fed to resolve_toolset). The healthcheck mechanics live in
+    # 04-scanning-engine §10; 02 only consumes the resulting boolean.
+    ENABLE_HEXSTRIKE: bool = False
+    # Real production budget for the advanced level (ZAP full active + Nuclei
+    # fuzzing + sqlmap), enforced by 04's watchdog. ~8 min.
+    SCAN_GLOBAL_BUDGET_SECONDS: int = 480
+    # Hard timeout for the curated demo profile (Nuclei subset + testssl + 1 probe
+    # against the own bot). MUST stay <= 90s and is intentionally distinct from
+    # SCAN_GLOBAL_BUDGET_SECONDS — the two numbers are never interchangeable.
+    DEMO_PROFILE_TIMEOUT_SECONDS: int = 90
+    # Identifiable scanner User-Agent used to evaluate/honor robots.txt and to run
+    # web requests. Rate-limit + UA policy detail lives in 01-legal-ethics.
+    SCANNER_USER_AGENT: str = "Owliver-Scanner/1.0 (+contacto)"
+
     @computed_field
     @property
     def all_cors_origins(self) -> list[str]:

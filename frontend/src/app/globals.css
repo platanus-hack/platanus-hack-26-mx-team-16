@@ -243,46 +243,46 @@
   --font-geist-mono: var(--font-roboto-mono), "Roboto Mono", ui-monospace,
     SFMono-Regular, Menlo, Monaco, monospace;
 
-  /* Surfaces / text */
-  --background: #f2faf7;
-  --foreground: #1e2b27;
+  /* Surfaces / text — near-white neutral base (Mercury-inspired) */
+  --background: #fafafc;
+  --foreground: #16161c;
   --card: #ffffff;
-  --card-foreground: #1e2b27;
+  --card-foreground: #16161c;
   --popover: #ffffff;
-  --popover-foreground: #1e2b27;
+  --popover-foreground: #16161c;
 
-  /* Core color roles */
-  --primary: #2c857a;
+  /* Core color roles — Mercury violet primary + bright-violet accent */
+  --primary: #5648e8;
   --primary-foreground: #ffffff;
-  --primary-container: #bef3e8;
-  --on-primary-container: #00201c;
-  --secondary: #d9ede8; /* secondary-container (tonal buttons) */
-  --secondary-foreground: #101f1c;
-  --secondary-container: #d9ede8;
-  --on-secondary-container: #101f1c;
-  --tertiary: #ffc95c; /* "owl-eyes" amber — CTA/alert. Text on amber = ink. */
-  --on-tertiary: #2a1f00;
-  --tertiary-container: #ffe9bc;
-  --on-tertiary-container: #2a1f00;
-  --muted: #e6f1ed;
-  --muted-foreground: #46524e;
-  --accent: #bef3e8; /* hover/selected tint = primary-container */
-  --accent-foreground: #00201c;
-  --destructive: #e5736e;
+  --primary-container: #e5e1ff;
+  --on-primary-container: #150b6b;
+  --secondary: #ececf2; /* secondary-container (tonal buttons) */
+  --secondary-foreground: #1a1a24;
+  --secondary-container: #ececf2;
+  --on-secondary-container: #1a1a24;
+  --tertiary: #6c5cf5; /* bright-violet "owl-eyes" — CTA/alert */
+  --on-tertiary: #ffffff;
+  --tertiary-container: #e9e5ff;
+  --on-tertiary-container: #160b6b;
+  --muted: #f1f1f5;
+  --muted-foreground: #5b5b66;
+  --accent: #e5e1ff; /* hover/selected tint = primary-container */
+  --accent-foreground: #150b6b;
+  --destructive: #d92d20;
   --destructive-foreground: #ffffff;
-  --destructive-deep: #7a1b18;
-  --border: #c6d2cc;
-  --input: #c6d2cc;
-  --ring: #2c857a;
-  --outline: #76827d;
-  --outline-variant: #c6d2cc;
+  --destructive-deep: #8a1a12;
+  --border: #e4e4ea;
+  --input: #e4e4ea;
+  --ring: #5648e8;
+  --outline: #8a8a95;
+  --outline-variant: #e4e4ea;
 
-  /* Tonal elevation surfaces */
+  /* Tonal elevation surfaces — neutral gray */
   --surface-container-lowest: #ffffff;
-  --surface-container-low: #ecf6f2;
-  --surface-container: #e6f1ed;
-  --surface-container-high: #e0ece8;
-  --surface-container-highest: #dae7e2;
+  --surface-container-low: #f6f6f9;
+  --surface-container: #f1f1f5;
+  --surface-container-high: #ebebf0;
+  --surface-container-highest: #e4e4eb;
 
   /* Grade scale (A–F) — semantic state color, not themed away */
   --grade-a: #5fc487;
@@ -292,11 +292,11 @@
   --grade-e: #ec7e63;
   --grade-f: #e0635f;
 
-  --chart-1: #2c857a;
+  --chart-1: #5648e8;
   --chart-2: #5fc487;
-  --chart-3: #4a9e92;
-  --chart-4: #ffc95c;
-  --chart-5: #e5736e;
+  --chart-3: #6c5cf5;
+  --chart-4: #eccb68;
+  --chart-5: #e0635f;
 
   /* Shape — M3 Expressive favors larger corners + pills */
   --radius: 1rem;
@@ -316,63 +316,63 @@
   --dur-medium: 300ms;
   --dur-long: 450ms;
 
-  --sidebar: #ecf6f2;
-  --sidebar-foreground: #2a3531;
-  --sidebar-primary: #2c857a;
+  --sidebar: #f1f1f5;
+  --sidebar-foreground: #2a2a33;
+  --sidebar-primary: #5648e8;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #bef3e8;
-  --sidebar-accent-foreground: #00201c;
-  --sidebar-border: #c6d2cc;
-  --sidebar-ring: #2c857a;
+  --sidebar-accent: #e5e1ff;
+  --sidebar-accent-foreground: #150b6b;
+  --sidebar-border: #e4e4ea;
+  --sidebar-ring: #5648e8;
 }
 
 .dark {
-  /* Material 3 Expressive — dark scheme */
-  --background: #0e1513;
-  --foreground: #dde4e1;
-  --card: #1a211e;
-  --card-foreground: #dde4e1;
-  --popover: #1a211e;
-  --popover-foreground: #dde4e1;
-  --primary: #7fd7cb;
-  --primary-foreground: #00382f;
-  --primary-container: #00504a;
-  --on-primary-container: #bef3e8;
-  --secondary: #324b46;
-  --secondary-foreground: #cce8e2;
-  --secondary-container: #324b46;
-  --on-secondary-container: #cce8e2;
-  --tertiary: #ffc95c;
-  --on-tertiary: #2a1f00;
-  --tertiary-container: #5b4300;
-  --on-tertiary-container: #ffe9bc;
-  --muted: #1e2623;
-  --muted-foreground: #bfc9c4;
-  --accent: #2a4641;
-  --accent-foreground: #bef3e8;
+  /* M3 Expressive — dark scheme (Mercury violet, neutral gray) */
+  --background: #131318;
+  --foreground: #e6e5ea;
+  --card: #1d1d23;
+  --card-foreground: #e6e5ea;
+  --popover: #1d1d23;
+  --popover-foreground: #e6e5ea;
+  --primary: #c5bdff;
+  --primary-foreground: #261aa0;
+  --primary-container: #3d31c2;
+  --on-primary-container: #e5e1ff;
+  --secondary: #46464f;
+  --secondary-foreground: #ececf2;
+  --secondary-container: #46464f;
+  --on-secondary-container: #ececf2;
+  --tertiary: #cdc2ff;
+  --on-tertiary: #2c1c8a;
+  --tertiary-container: #4a3cc0;
+  --on-tertiary-container: #e9e5ff;
+  --muted: #2a2a31;
+  --muted-foreground: #c8c6d0;
+  --accent: #2f2c50;
+  --accent-foreground: #e5e1ff;
   --destructive: #ffb4ab;
   --destructive-foreground: #690005;
   --destructive-deep: #ffb4ab;
-  --border: #303633;
-  --input: #3f4946;
-  --ring: #7fd7cb;
-  --outline: #899390;
-  --outline-variant: #3f4946;
-  --surface-container-lowest: #0a100e;
-  --surface-container-low: #1a211e;
-  --surface-container: #1e2623;
-  --surface-container-high: #29302d;
-  --surface-container-highest: #343b38;
+  --border: #3a3a42;
+  --input: #46464f;
+  --ring: #c5bdff;
+  --outline: #918f9b;
+  --outline-variant: #46464f;
+  --surface-container-lowest: #0e0e12;
+  --surface-container-low: #1a1a20;
+  --surface-container: #1d1d23;
+  --surface-container-high: #28282f;
+  --surface-container-highest: #33333b;
   --grade-a: #5fc487;
   --grade-b: #9fd06e;
   --grade-c: #eccb68;
   --grade-d: #f0a05e;
   --grade-e: #ec7e63;
   --grade-f: #e0635f;
-  --chart-1: #7fd7cb;
+  --chart-1: #c5bdff;
   --chart-2: #92dca8;
-  --chart-3: #86dede;
-  --chart-4: #f4c77e;
+  --chart-3: #cdc2ff;
+  --chart-4: #eccb68;
   --chart-5: #ffb4ab;
   --success: #92dca8;
   --success-foreground: #07351f;
@@ -380,14 +380,14 @@
   --warning: #f4c77e;
   --warning-foreground: #2a1f00;
   --warning-deep: #f4c77e;
-  --sidebar: #1a211e;
-  --sidebar-foreground: #dde4e1;
-  --sidebar-primary: #7fd7cb;
-  --sidebar-primary-foreground: #00382f;
-  --sidebar-accent: #2a4641;
-  --sidebar-accent-foreground: #bef3e8;
-  --sidebar-border: #303633;
-  --sidebar-ring: #7fd7cb;
+  --sidebar: #1a1a20;
+  --sidebar-foreground: #e6e5ea;
+  --sidebar-primary: #c5bdff;
+  --sidebar-primary-foreground: #261aa0;
+  --sidebar-accent: #2f2c50;
+  --sidebar-accent-foreground: #e5e1ff;
+  --sidebar-border: #3a3a42;
+  --sidebar-ring: #c5bdff;
 }
 
 /* Live-View "war room" — M3 dark, pastel-neon. Apply on the scan/live route only. */
@@ -496,4 +496,17 @@
 [data-scrollbars="classic"]
   .scrollbar-subtle[data-scrolling="true"]::-webkit-scrollbar-thumb:hover {
   background: color-mix(in oklab, var(--muted-foreground) 60%, transparent);
+}
+
+/* M3 Expressive — honor reduced-motion globally. Components also branch in JS
+   via useReducedMotion(), but this is the safety net for CSS animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

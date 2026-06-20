@@ -272,7 +272,7 @@ nunca hay `fetch` del browser a `Settings.apiBaseUrl`.
   `getCommonHeaders` en server (BFF). El BFF de login **Google**
   (`api/auth/login/route.ts` del boilerplate) **setea las cookies HttpOnly** (mismo
   patrón de [auth/frontend-auth.md](../auth/frontend-auth.md)).
-- **Formato de error único** `{error:{code,message,details}}` ([12-api](../12-api/plan.md)
+- **Formato de error** `{errors:[{code,message}], validation, timestamp}` ([12-api](../12-api/plan.md)
   §5.1): el BFF re-propaga status; el cliente mapea **422**→inline en form,
   **404**→página "no encontrado" (no confirma existencia), **410**→copy enlace
   caducado, **403**→toast (§F12).

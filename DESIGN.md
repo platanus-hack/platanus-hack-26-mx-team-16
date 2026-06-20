@@ -1,31 +1,31 @@
 ---
 name: Owliver
-description: AI-orchestrated pentest platform — Material 3 Expressive. Teal primary, amber "owl-eyes" accent, A–F grade scale, dark SOC live-view.
+description: AI-orchestrated pentest platform — Material 3 Expressive. Mercury-inspired violet primary on near-white neutral, A–F grade scale, dark SOC live-view.
 register: product
 designLanguage: Material 3 Expressive
 colors:
-  # M3 light scheme — pastel-expressive variant (reference hex)
-  primary: "#2C857A"
+  # M3 light scheme — Mercury-inspired violet on near-white neutral (reference hex)
+  primary: "#5648E8"
   on-primary: "#FFFFFF"
-  primary-container: "#BEF3E8"
-  on-primary-container: "#00201C"
-  secondary: "#5C7A74"
-  secondary-container: "#D9EDE8"
-  on-secondary-container: "#101F1C"
-  tertiary: "#FFC95C"          # the "owl-eyes" amber (pastel)
-  tertiary-container: "#FFE9BC"
-  on-tertiary-container: "#2A1F00"
-  error: "#E5736E"
-  error-container: "#FCE0DE"
-  surface: "#F2FAF7"
-  surface-container-low: "#ECF6F2"
-  surface-container: "#E6F1ED"
-  surface-container-high: "#E0ECE8"
-  surface-container-highest: "#DAE7E2"
-  on-surface: "#1E2B27"
-  on-surface-variant: "#46524E"
-  outline: "#76827D"
-  outline-variant: "#C6D2CC"
+  primary-container: "#E5E1FF"
+  on-primary-container: "#150B6B"
+  secondary: "#5B5B66"
+  secondary-container: "#ECECF2"
+  on-secondary-container: "#1A1A24"
+  tertiary: "#6C5CF5"          # bright-violet "owl-eyes" accent — CTA/alert
+  tertiary-container: "#E9E5FF"
+  on-tertiary-container: "#160B6B"
+  error: "#D92D20"
+  error-container: "#FCDAD5"
+  surface: "#FAFAFC"
+  surface-container-low: "#F6F6F9"
+  surface-container: "#F1F1F5"
+  surface-container-high: "#EBEBF0"
+  surface-container-highest: "#E4E4EB"
+  on-surface: "#16161C"
+  on-surface-variant: "#5B5B66"
+  outline: "#8A8A95"
+  outline-variant: "#E4E4EA"
   # Grade scale (pastel) — the single source of state color (A→F)
   grade-a: "#5FC487"
   grade-b: "#9FD06E"
@@ -134,16 +134,16 @@ Owliver keeps its three personality pillars — **sharp, trustworthy, approachab
 
 Material 3 **color roles**, not ad-hoc swatches. Every fill maps to a role so theming and contrast stay correct.
 
-The palette is the **pastel-expressive variant**: softer, lower-chroma tones that keep M3 contrast (filled-button and badge text stay legible) while feeling lighter and friendlier.
+The palette is **Mercury-inspired: a violet primary on near-white neutral surfaces** (M3 Expressive) — premium and minimal. Surfaces are clean near-white/light-gray (almost no hue); the brand energy is carried by the violet, with the A–F grade scale reserved for status. (Values below are our own approximations in the spirit of Mercury, not official brand hex.)
 
 ### Core roles (light)
-- **Primary** `#2C857A` / **on-primary** `#FFFFFF` — the instrument light: filled buttons, active nav, focus, primary charts. **Primary-container** `#BEF3E8` / on `#00201C` for quiet teal wells and selected states.
-- **Secondary** `#5C7A74` + **secondary-container** `#D9EDE8` — tonal buttons and neutral grouped actions.
-- **Tertiary** `#FFC95C` ("**owl-eyes amber**", pastel) + **tertiary-container** `#FFE9BC` — the energetic accent: hero CTAs, the owl's eyes, "needs attention" emphasis. Rare and meaningful; on a pastel amber, label text is **ink**, never white.
-- **Error** `#E5736E` + **error-container** `#FCE0DE` — destructive/danger only.
+- **Primary** `#5648E8` (violet) / **on-primary** `#FFFFFF` — filled buttons, active nav, focus, primary charts. **Primary-container** `#E5E1FF` / on `#150B6B` for quiet wells and selected states (the hover/selected tint, a.k.a. shadcn `--accent`).
+- **Secondary** `#5B5B66` (neutral) + **secondary-container** `#ECECF2` — tonal buttons and neutral grouped actions.
+- **Tertiary** `#6C5CF5` (bright-violet "**owl-eyes**") + **tertiary-container** `#E9E5FF` — the accent pop: hero CTAs, the owl's eyes, "needs attention" emphasis. Stays in the violet family (near-monochrome).
+- **Error** `#D92D20` + **error-container** `#FCDAD5` — destructive/danger only.
 
-### Tonal surfaces (elevation by color)
-`surface` `#F2FAF7` → `surface-container-low` `#ECF6F2` → `surface-container` `#E6F1ED` → `-high` `#E0ECE8` → `-highest` `#DAE7E2`. Text: **on-surface** `#1E2B27`, **on-surface-variant** `#46524E`. Lines: **outline** `#76827D`, **outline-variant** `#C6D2CC`.
+### Tonal surfaces (elevation by color) — near-white neutral
+`surface` `#FAFAFC` → `surface-container-low` `#F6F6F9` → `surface-container` `#F1F1F5` → `-high` `#EBEBF0` → `-highest` `#E4E4EB`. Text: **on-surface** `#16161C`, **on-surface-variant** `#5B5B66`. Lines: **outline** `#8A8A95`, **outline-variant** `#E4E4EA`.
 
 ### Grade scale — the single source of *state* color (pastel)
 A `#5FC487` · B `#9FD06E` · C `#ECCB68` · D `#F0A05E` · E `#EC7E63` · F `#E0635F`. Softened to pastel, but F still reads clearly as the worst — the Hall-of-Shame red wall is gentler, not gone. This ramp is the **only** place semantic red/amber/green appears (chips, gauges, leaderboard rows, the Hall-of-Shame "F" wall). It is intentionally **not** themed away by M3 — a grade's color is data.
