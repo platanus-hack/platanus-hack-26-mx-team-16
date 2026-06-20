@@ -254,9 +254,9 @@
                           "type": "frame",
                           "id": "g7z1dN",
                           "name": "Eyebrow",
-                          "fill": "#28908014",
+                          "fill": "#2C857A14",
                           "cornerRadius": 999,
-                          "stroke": "#28908033",
+                          "stroke": "#2C857A33",
                           "strokeWidth": 1,
                           "gap": 8,
                           "padding": [
@@ -4088,9 +4088,9 @@
                               "type": "frame",
                               "id": "xTpW1",
                               "name": "LivePill",
-                              "fill": "#F53C411A",
+                              "fill": "#EF8A861A",
                               "cornerRadius": 999,
-                              "stroke": "#F53C4140",
+                              "stroke": "#EF8A8640",
                               "strokeWidth": 1,
                               "gap": 7,
                               "padding": [
@@ -4548,7 +4548,7 @@
                                               "ref": "kUWFp",
                                               "name": "zap",
                                               "stroke": "$soc-amber",
-                                              "fill": "#F2AF480F",
+                                              "fill": "#F4C77E0F",
                                               "descendants": {
                                                 "fzUwx": {
                                                   "fill": "$soc-amber"
@@ -4591,7 +4591,7 @@
                                               "ref": "kUWFp",
                                               "name": "nikto",
                                               "stroke": "$soc-amber",
-                                              "fill": "#F2AF480F",
+                                              "fill": "#F4C77E0F",
                                               "descendants": {
                                                 "fzUwx": {
                                                   "fill": "$soc-amber"
@@ -4859,7 +4859,7 @@
                                               "name": "ic",
                                               "width": 20,
                                               "height": 20,
-                                              "fill": "#67D28322",
+                                              "fill": "#92DCA822",
                                               "cornerRadius": 999,
                                               "stroke": "$soc-green",
                                               "justifyContent": "center",
@@ -4903,7 +4903,7 @@
                                               "name": "ic",
                                               "width": 20,
                                               "height": 20,
-                                              "fill": "#67D28322",
+                                              "fill": "#92DCA822",
                                               "cornerRadius": 999,
                                               "stroke": "$soc-green",
                                               "justifyContent": "center",
@@ -4947,7 +4947,7 @@
                                               "name": "ic",
                                               "width": 20,
                                               "height": 20,
-                                              "fill": "#F2AF4822",
+                                              "fill": "#F4C77E22",
                                               "cornerRadius": 999,
                                               "stroke": "$soc-amber",
                                               "justifyContent": "center",
@@ -5024,7 +5024,7 @@
                                               "type": "frame",
                                               "id": "dOIGB",
                                               "name": "b",
-                                              "fill": "#67D28318",
+                                              "fill": "#92DCA818",
                                               "cornerRadius": 999,
                                               "padding": [
                                                 2,
@@ -5392,7 +5392,7 @@
                                   "ref": "Tw722",
                                   "name": "Fuga de system prompt — canary filtrado",
                                   "width": "fill_container",
-                                  "fill": "#F53C410F",
+                                  "fill": "#EF8A860F",
                                   "stroke": "#F53C41",
                                   "descendants": {
                                     "T8ZBV9": {
@@ -5419,7 +5419,7 @@
                                   "ref": "Tw722",
                                   "name": "Jailbreak DAN evade restricciones de seguridad",
                                   "width": "fill_container",
-                                  "fill": "#F53C410F",
+                                  "fill": "#EF8A860F",
                                   "stroke": "#F53C41",
                                   "descendants": {
                                     "T8ZBV9": {
@@ -5607,7 +5607,7 @@
                                   "id": "R832sq",
                                   "name": "Incoming",
                                   "width": "fill_container",
-                                  "fill": "#0B131C",
+                                  "fill": "#141B19",
                                   "cornerRadius": 10,
                                   "stroke": "$soc-line",
                                   "strokeWidth": {
@@ -5937,7 +5937,7 @@
                           "clip": true,
                           "width": "fill_container",
                           "height": 196,
-                          "fill": "#04080E",
+                          "fill": "#0C1311",
                           "cornerRadius": 14,
                           "stroke": "$soc-line",
                           "strokeWidth": 1,
@@ -6302,9 +6302,9 @@
                                   "type": "frame",
                                   "id": "g4uAXv",
                                   "name": "gob",
-                                  "fill": "#28908014",
+                                  "fill": "#2C857A14",
                                   "cornerRadius": 999,
-                                  "stroke": "#28908033",
+                                  "stroke": "#2C857A33",
                                   "strokeWidth": 1,
                                   "padding": [
                                     3,
@@ -6773,9 +6773,9 @@
                                           "type": "frame",
                                           "id": "QR4wT",
                                           "name": "dim",
-                                          "fill": "#EFA83118",
+                                          "fill": "#FFC95C18",
                                           "cornerRadius": 999,
-                                          "stroke": "#EFA83140",
+                                          "stroke": "#FFC95C40",
                                           "strokeWidth": 1,
                                           "gap": 5,
                                           "padding": [
@@ -6903,9 +6903,9 @@
                                           "type": "frame",
                                           "id": "b75iT",
                                           "name": "dim",
-                                          "fill": "#EFA83118",
+                                          "fill": "#FFC95C18",
                                           "cornerRadius": 999,
-                                          "stroke": "#EFA83140",
+                                          "stroke": "#FFC95C40",
                                           "strokeWidth": 1,
                                           "gap": 5,
                                           "padding": [
@@ -7030,9 +7030,9 @@
                                           "type": "frame",
                                           "id": "wEqiB",
                                           "name": "dim",
-                                          "fill": "#28908014",
+                                          "fill": "#2C857A14",
                                           "cornerRadius": 999,
-                                          "stroke": "#28908033",
+                                          "stroke": "#2C857A33",
                                           "strokeWidth": 1,
                                           "gap": 5,
                                           "padding": [
@@ -7178,7 +7178,7 @@
                                   "name": "ic",
                                   "width": 40,
                                   "height": 40,
-                                  "fill": "#28908014",
+                                  "fill": "#2C857A14",
                                   "cornerRadius": 10,
                                   "justifyContent": "center",
                                   "alignItems": "center",
@@ -7229,9 +7229,9 @@
                                   "type": "frame",
                                   "id": "X7G5r",
                                   "name": "bd",
-                                  "fill": "#4AC06C18",
+                                  "fill": "#5FC48718",
                                   "cornerRadius": 999,
-                                  "stroke": "#4AC06C40",
+                                  "stroke": "#5FC48740",
                                   "strokeWidth": 1,
                                   "gap": 6,
                                   "padding": [
@@ -7283,7 +7283,7 @@
                                   "name": "ic",
                                   "width": 40,
                                   "height": 40,
-                                  "fill": "#EFA83118",
+                                  "fill": "#FFC95C18",
                                   "cornerRadius": 10,
                                   "justifyContent": "center",
                                   "alignItems": "center",
@@ -7334,9 +7334,9 @@
                                   "type": "frame",
                                   "id": "S0nfM",
                                   "name": "bd",
-                                  "fill": "#EFA83118",
+                                  "fill": "#FFC95C18",
                                   "cornerRadius": 999,
-                                  "stroke": "#EFA83140",
+                                  "stroke": "#FFC95C40",
                                   "strokeWidth": 1,
                                   "gap": 6,
                                   "padding": [
@@ -7563,8 +7563,8 @@
                                       "id": "ZRytc",
                                       "name": "Head",
                                       "width": "fill_container",
-                                      "fill": "#DF202E0A",
-                                      "stroke": "#DF202E22",
+                                      "fill": "#E0635F0A",
+                                      "stroke": "#E0635F22",
                                       "strokeWidth": {
                                         "bottom": 1
                                       },
@@ -7623,9 +7623,9 @@
                                           "type": "frame",
                                           "id": "tBFcv",
                                           "name": "dim",
-                                          "fill": "#EFA83118",
+                                          "fill": "#FFC95C18",
                                           "cornerRadius": 999,
-                                          "stroke": "#EFA83140",
+                                          "stroke": "#FFC95C40",
                                           "strokeWidth": 1,
                                           "gap": 5,
                                           "padding": [
@@ -7871,9 +7871,9 @@
                                                       "id": "LQFJe",
                                                       "name": "Canary",
                                                       "width": "fill_container",
-                                                      "fill": "#EFA8311A",
+                                                      "fill": "#FFC95C1A",
                                                       "cornerRadius": 8,
-                                                      "stroke": "#EFA83140",
+                                                      "stroke": "#FFC95C40",
                                                       "strokeWidth": 1,
                                                       "gap": 10,
                                                       "padding": [
@@ -17775,9 +17775,9 @@
                           "type": "frame",
                           "id": "PzT64",
                           "name": "eb",
-                          "fill": "#28908014",
+                          "fill": "#2C857A14",
                           "cornerRadius": 999,
-                          "stroke": "#28908033",
+                          "stroke": "#2C857A33",
                           "strokeWidth": 1,
                           "gap": 7,
                           "padding": [
@@ -19267,9 +19267,9 @@
                               "type": "frame",
                               "id": "SLFma",
                               "name": "live",
-                              "fill": "#F53C411A",
+                              "fill": "#EF8A861A",
                               "cornerRadius": 999,
-                              "stroke": "#F53C4140",
+                              "stroke": "#EF8A8640",
                               "strokeWidth": 1,
                               "gap": 6,
                               "padding": [
@@ -19632,7 +19632,7 @@
                                   "ref": "kUWFp",
                                   "name": "zap",
                                   "stroke": "$soc-amber",
-                                  "fill": "#F2AF480F",
+                                  "fill": "#F4C77E0F",
                                   "descendants": {
                                     "fzUwx": {
                                       "fill": "$soc-amber"
@@ -19675,7 +19675,7 @@
                                   "ref": "kUWFp",
                                   "name": "nikto",
                                   "stroke": "$soc-amber",
-                                  "fill": "#F2AF480F",
+                                  "fill": "#F4C77E0F",
                                   "descendants": {
                                     "fzUwx": {
                                       "fill": "$soc-amber"
@@ -19830,7 +19830,7 @@
                                       "name": "ic",
                                       "width": 18,
                                       "height": 18,
-                                      "fill": "#67D28322",
+                                      "fill": "#92DCA822",
                                       "cornerRadius": 999,
                                       "stroke": "$soc-green",
                                       "justifyContent": "center",
@@ -19874,7 +19874,7 @@
                                       "name": "ic",
                                       "width": 18,
                                       "height": 18,
-                                      "fill": "#67D28322",
+                                      "fill": "#92DCA822",
                                       "cornerRadius": 999,
                                       "stroke": "$soc-green",
                                       "justifyContent": "center",
@@ -19918,7 +19918,7 @@
                                       "name": "ic",
                                       "width": 18,
                                       "height": 18,
-                                      "fill": "#F2AF4822",
+                                      "fill": "#F4C77E22",
                                       "cornerRadius": 999,
                                       "stroke": "$soc-amber",
                                       "justifyContent": "center",
@@ -20051,7 +20051,7 @@
                           "ref": "Tw722",
                           "name": "Fuga de system prompt — canary",
                           "width": "fill_container",
-                          "fill": "#F53C410F",
+                          "fill": "#EF8A860F",
                           "stroke": "#F53C41",
                           "descendants": {
                             "T8ZBV9": {
@@ -20078,7 +20078,7 @@
                           "ref": "Tw722",
                           "name": "Jailbreak DAN evade reglas",
                           "width": "fill_container",
-                          "fill": "#F53C410F",
+                          "fill": "#EF8A860F",
                           "stroke": "#F53C41",
                           "descendants": {
                             "T8ZBV9": {
@@ -20161,7 +20161,7 @@
                       "name": "Terminal",
                       "clip": true,
                       "width": "fill_container",
-                      "fill": "#04080E",
+                      "fill": "#0C1311",
                       "stroke": "$soc-line",
                       "strokeWidth": {
                         "top": 1
@@ -20444,9 +20444,9 @@
                                   "type": "frame",
                                   "id": "G8Vbtj",
                                   "name": "g",
-                                  "fill": "#28908014",
+                                  "fill": "#2C857A14",
                                   "cornerRadius": 999,
-                                  "stroke": "#28908033",
+                                  "stroke": "#2C857A33",
                                   "strokeWidth": 1,
                                   "padding": [
                                     2,
@@ -21145,8 +21145,8 @@
                               "id": "Rc3Nq",
                               "name": "h",
                               "width": "fill_container",
-                              "fill": "#DF202E0A",
-                              "stroke": "#DF202E22",
+                              "fill": "#E0635F0A",
+                              "stroke": "#E0635F22",
                               "strokeWidth": {
                                 "bottom": 1
                               },
@@ -21385,9 +21385,9 @@
                                               "id": "covDW",
                                               "name": "can",
                                               "width": "fill_container",
-                                              "fill": "#EFA8311A",
+                                              "fill": "#FFC95C1A",
                                               "cornerRadius": 8,
-                                              "stroke": "#EFA83140",
+                                              "stroke": "#FFC95C40",
                                               "strokeWidth": 1,
                                               "gap": 8,
                                               "padding": [
@@ -30489,19 +30489,19 @@
   "variables": {
     "primary": {
       "type": "color",
-      "value": "#006A60"
+      "value": "#2C857A"
     },
     "primary-deep": {
       "type": "color",
-      "value": "#004F47"
+      "value": "#20655C"
     },
     "ink": {
       "type": "color",
-      "value": "#171D1B"
+      "value": "#1E2B27"
     },
     "surface": {
       "type": "color",
-      "value": "#F4FBF8"
+      "value": "#F2FAF7"
     },
     "card": {
       "type": "color",
@@ -30509,107 +30509,107 @@
     },
     "surface-muted": {
       "type": "color",
-      "value": "#E9EFEC"
+      "value": "#E6F1ED"
     },
     "accent": {
       "type": "color",
-      "value": "#FFB300"
+      "value": "#FFC95C"
     },
     "accent-deep": {
       "type": "color",
-      "value": "#7A5D00"
+      "value": "#8A6A1E"
     },
     "text-secondary": {
       "type": "color",
-      "value": "#3F4946"
+      "value": "#46524E"
     },
     "text-muted": {
       "type": "color",
-      "value": "#6F7975"
+      "value": "#74807B"
     },
     "border": {
       "type": "color",
-      "value": "#BEC9C4"
+      "value": "#C6D2CC"
     },
     "soc-bg": {
       "type": "color",
-      "value": "#0E1513"
+      "value": "#121A18"
     },
     "soc-card": {
       "type": "color",
-      "value": "#1B211F"
+      "value": "#1E2623"
     },
     "soc-line": {
       "type": "color",
-      "value": "#303633"
+      "value": "#34403B"
     },
     "soc-cyan": {
       "type": "color",
-      "value": "#2AD7D7"
+      "value": "#86DEDE"
     },
     "soc-amber": {
       "type": "color",
-      "value": "#F2AF48"
+      "value": "#F4C77E"
     },
     "soc-red": {
       "type": "color",
-      "value": "#F53C41"
+      "value": "#EF8A86"
     },
     "soc-green": {
       "type": "color",
-      "value": "#67D283"
+      "value": "#92DCA8"
     },
     "soc-text": {
       "type": "color",
-      "value": "#DDE4E1"
+      "value": "#DCE6E2"
     },
     "soc-text-dim": {
       "type": "color",
-      "value": "#808B86"
+      "value": "#8A958F"
     },
     "grade-a": {
       "type": "color",
-      "value": "#4AC06C"
+      "value": "#5FC487"
     },
     "grade-b": {
       "type": "color",
-      "value": "#8EC053"
+      "value": "#9FD06E"
     },
     "grade-c": {
       "type": "color",
-      "value": "#E1B942"
+      "value": "#ECCB68"
     },
     "grade-d": {
       "type": "color",
-      "value": "#EF852E"
+      "value": "#F0A05E"
     },
     "grade-e": {
       "type": "color",
-      "value": "#EF5B36"
+      "value": "#EC7E63"
     },
     "grade-f": {
       "type": "color",
-      "value": "#DF202E"
+      "value": "#E0635F"
     },
     "sev-critical": {
       "type": "color",
-      "value": "#DF202E"
+      "value": "#E0635F"
     },
     "sev-high": {
       "type": "color",
-      "value": "#EF852E"
+      "value": "#F0A05E"
     },
     "sev-medium": {
       "type": "color",
-      "value": "#E1B942"
+      "value": "#ECCB68"
     },
     "sev-low": {
       "type": "color",
-      "value": "#289080"
+      "value": "#2C857A"
     },
     "sev-info": {
       "type": "color",
-      "value": "#6B7B8C"
+      "value": "#7E8C93"
     },
     "font-ui": {
       "type": "string",
@@ -30629,7 +30629,7 @@
     },
     "primary-container": {
       "type": "color",
-      "value": "#9EF2E4"
+      "value": "#BEF3E8"
     },
     "on-primary-container": {
       "type": "color",
@@ -30637,59 +30637,59 @@
     },
     "secondary": {
       "type": "color",
-      "value": "#4A635E"
+      "value": "#5C7A74"
     },
     "secondary-container": {
       "type": "color",
-      "value": "#CCE8E2"
+      "value": "#D9EDE8"
     },
     "on-secondary-container": {
       "type": "color",
-      "value": "#06201C"
+      "value": "#101F1C"
     },
     "tertiary": {
       "type": "color",
-      "value": "#FFB300"
+      "value": "#FFC95C"
     },
     "tertiary-container": {
       "type": "color",
-      "value": "#FFDEA3"
+      "value": "#FFE9BC"
     },
     "on-tertiary-container": {
       "type": "color",
-      "value": "#261A00"
+      "value": "#2A1F00"
     },
     "error": {
       "type": "color",
-      "value": "#BA1A1A"
+      "value": "#E5736E"
     },
     "error-container": {
       "type": "color",
-      "value": "#FFDAD6"
+      "value": "#FCE0DE"
     },
     "surface-container-low": {
       "type": "color",
-      "value": "#EFF5F2"
+      "value": "#ECF6F2"
     },
     "surface-container": {
       "type": "color",
-      "value": "#E9EFEC"
+      "value": "#E6F1ED"
     },
     "surface-container-high": {
       "type": "color",
-      "value": "#E3E9E6"
+      "value": "#E0ECE8"
     },
     "surface-container-highest": {
       "type": "color",
-      "value": "#DDE4E1"
+      "value": "#DAE7E2"
     },
     "outline": {
       "type": "color",
-      "value": "#6F7975"
+      "value": "#76827D"
     },
     "outline-variant": {
       "type": "color",
-      "value": "#BEC9C4"
+      "value": "#C6D2CC"
     },
     "shape-xs": {
       "type": "number",

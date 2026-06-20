@@ -15,24 +15,24 @@
 
 Derivadas de [`../spec.md`](../spec.md) §3–§14 + `owliver-frontend.md`, fusionando
 la profundidad de `spec-gaps.md`. El prefijo numérico marca el orden de lectura del
-spec de Owliver. Aún no implementadas (solo `spec.md`; el `plan.md` se añadirá al
-empezar la implementación).
+spec de Owliver. Aún no implementadas (`status: pending`), pero cada feature ya
+reúne su `spec.md` (QUÉ) y su `plan.md` (CÓMO).
 
 | # | Feature | Cubre |
 |---|---------|-------|
 | 01 | [legal-ethics](01-legal-ethics/spec.md) ([plan](01-legal-ethics/plan.md)) | Invariante legal/ética: atestación, automáticos solo pasivos, "pasivo" como whitelist verificable. |
-| 02 | [attack-levels](02-attack-levels/spec.md) | Los 3 niveles de intrusividad + subagente OWASP web + whitelist `(is_gov, level)`. |
-| 03 | [agentic-surface](03-agentic-surface/spec.md) | **El diferenciador:** detección + puente Playwright + LLM-juez contra chatbots/widgets LLM. |
+| 02 | [attack-levels](02-attack-levels/spec.md) ([plan](02-attack-levels/plan.md)) | Los 3 niveles de intrusividad + subagente OWASP web + whitelist `(is_gov, level)`. |
+| 03 | [agentic-surface](03-agentic-surface/spec.md) ([plan](03-agentic-surface/plan.md)) | **El diferenciador:** detección + puente Playwright + LLM-juez contra chatbots/widgets LLM. |
 | 04 | [scanning-engine](04-scanning-engine/spec.md) ([plan](04-scanning-engine/plan.md)) | Ejecución de scanners en Docker, aislamiento, watchdog, cold-start, stack de herramientas. |
 | 05 | [agent-team](05-agent-team/spec.md) ([plan](05-agent-team/plan.md)) | Agno Team (Opus + 2 Sonnet), parsers Python, LLM fuera del camino de datos. |
 | 06 | [data-model](06-data-model/spec.md) ([plan](06-data-model/plan.md)) | Esquema Postgres del motor de pentest + contratos `Finding`/`AgenticResult`. |
-| 07 | [scoring](07-scoring/spec.md) | Doble sub-score → grado A–F, `penalty_raw`, cobertura parcial, `agentic_status` (3 estados). |
-| 08 | [ranking-watchlists](08-ranking-watchlists/spec.md) | Leaderboard gov (solo pasivo), watchlists, monitoreo/alertas (SAQ cron + Resend/Slack). |
-| 09 | [reporting](09-reporting/spec.md) | Reporte "Owliver te explica" (2 capas), export PDF, `/r/[token]` con exploits redactados. |
-| 10 | [realtime-live-view](10-realtime-live-view/spec.md) | Live view por SSE: `scan_events` en Postgres, replay-then-tail, auth por cookie. |
-| 11 | [auth-magic-link](11-auth-magic-link/spec.md) | Magic-link sin contraseña: 4 pantallas, `magic_tokens`, cookie HttpOnly. |
+| 07 | [scoring](07-scoring/spec.md) ([plan](07-scoring/plan.md)) | Doble sub-score → grado A–F, `penalty_raw`, cobertura parcial, `agentic_status` (3 estados). |
+| 08 | [ranking-watchlists](08-ranking-watchlists/spec.md) ([plan](08-ranking-watchlists/plan.md)) | Leaderboard gov (solo pasivo), watchlists, monitoreo/alertas (SAQ cron + Resend/Slack). |
+| 09 | [reporting](09-reporting/spec.md) ([plan](09-reporting/plan.md)) | Reporte "Owliver te explica" (2 capas), export PDF, `/r/[token]` con exploits redactados. |
+| 10 | [realtime-live-view](10-realtime-live-view/spec.md) ([plan](10-realtime-live-view/plan.md)) | Live view por SSE: `scan_events` en Postgres, replay-then-tail, auth por cookie. |
+| 11 | [auth-magic-link](11-auth-magic-link/spec.md) ([plan](11-auth-magic-link/plan.md)) | Magic-link sin contraseña: 4 pantallas, `magic_tokens`, cookie HttpOnly. |
 | 12 | [api](12-api/spec.md) ([plan](12-api/plan.md)) | Superficie HTTP FastAPI: scans idempotentes, AuthZ anti-IDOR, SSE, watchlist, paginación. |
-| 13 | [frontend](13-frontend/spec.md) | Frontend Next.js completo: Hall of Shame, gate, Live Pentest Theater, reporte, auth. |
+| 13 | [frontend](13-frontend/spec.md) ([plan](13-frontend/plan.md)) | Frontend Next.js completo: Hall of Shame, gate, Live Pentest Theater, reporte, auth. |
 
 ## Boilerplate SaaS (base ya construida sobre la que se monta Owliver)
 

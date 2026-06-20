@@ -1,11 +1,13 @@
-"""Seed tenants, email addresses, users and tenant-user memberships.
+"""Seed dev tenants, users and tenant-user memberships.
 
-Run after ``seed_common.py``. Creates a handful of tenants, each with one
-owner and a couple of members, all sharing a known dev password so you can
-log in immediately. Idempotent: existing emails / tenant slugs are reused.
+Scope is limited to three concerns: ``tenants``, ``users`` and the
+``tenant_users`` memberships that join them. Each user is created with a login
+email (its identity — ``UserORM.email_address_id`` is required to authenticate)
+and a shared dev password so you can log in immediately; each tenant gets one
+owner plus a couple of members. Idempotent: existing tenant slugs / user emails
+are reused on re-run.
 
-The canonical dev login ``team@llamitai.com`` / ``llamitai-dev`` is preserved
-so existing E2E flows keep working.
+The canonical dev login is ``team@owliver.com`` / ``owliver-dev``.
 
 Usage:
     docker compose run --rm api python scripts/seed_users.py
@@ -32,40 +34,20 @@ app = typer.Typer(add_completion=False, help="Seed tenants and users.")
 
 DEFAULT_PASSWORD = "12345678x"
 
-# Cada tenant trae un owner y N miembros. ``industry`` es informativo (los
-# workflows se cuelgan de la industria en seed_workflows.py). País/moneda
-# controlan los checksums multi-país de las reglas.
+# Cada tenant trae un owner y N miembros (filas en ``tenant_users``).
+# country_code / currency_code / time_zone son campos de ``TenantORM``; aquí
+# solo fijan datos de dev coherentes.
 TENANTS: list[dict] = [
     {
-        "name": "LlamitAI Dev", "slug": "llamitai-dev",
+        "name": "Owliver Dev", "slug": "owliver-dev",
         "country_code": "MX", "currency_code": "MXN", "time_zone": "America/Mexico_City",
-        "owner": {"email": "team@llamitai.com", "username": "team",
-                  "first_name": "Team", "last_name": "Llamitai"},
+        "owner": {"email": "team@owliver.com", "username": "team",
+                  "first_name": "Team", "last_name": "Owliver"},
         "members": [
-            {"email": "ana@llamitai.com", "username": "ana", "first_name": "Ana", "last_name": "Reviewer"},
-            {"email": "luis@llamitai.com", "username": "luis", "first_name": "Luis", "last_name": "Analyst"},
+            {"email": "ana@owliver.com", "username": "ana", "first_name": "Ana", "last_name": "Pentester"},
+            {"email": "luis@owliver.com", "username": "luis", "first_name": "Luis", "last_name": "Analyst"},
         ],
-    },
-    {
-        "name": "Aseguradora del Norte", "slug": "aseguradora-norte",
-        "country_code": "MX", "currency_code": "MXN", "time_zone": "America/Mexico_City",
-        "owner": {"email": "ana@aseguradoranorte.mx", "username": "ana.norte",
-                  "first_name": "Ana", "last_name": "Gómez"},
-        "members": [
-            {"email": "juan@aseguradoranorte.mx", "username": "juan.norte",
-             "first_name": "Juan", "last_name": "Pérez"},
-        ],
-    },
-    {
-        "name": "Banco Crédito", "slug": "banco-credito",
-        "country_code": "CO", "currency_code": "COP", "time_zone": "America/Bogota",
-        "owner": {"email": "carlos@bancocredito.co", "username": "carlos.bc",
-                  "first_name": "Carlos", "last_name": "Rojas"},
-        "members": [
-            {"email": "maria@bancocredito.co", "username": "maria.bc",
-             "first_name": "María", "last_name": "Díaz"},
-        ],
-    },
+    }
 ]
 
 

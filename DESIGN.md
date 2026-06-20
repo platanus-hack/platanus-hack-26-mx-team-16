@@ -34,15 +34,15 @@ colors:
   grade-e: "#EC7E63"
   grade-f: "#E0635F"
   # SOC dark-expressive (live-view only)
-  soc-surface: "#0E1513"
-  soc-surface-container: "#1B211F"
-  soc-outline: "#303633"
-  soc-on-surface: "#DDE4E1"
-  soc-on-surface-variant: "#808B86"
-  soc-cyan: "#2AD7D7"
-  soc-amber: "#F2AF48"
-  soc-red: "#F53C41"
-  soc-green: "#67D283"
+  soc-surface: "#121A18"
+  soc-surface-container: "#1E2623"
+  soc-outline: "#34403B"
+  soc-on-surface: "#DCE6E2"
+  soc-on-surface-variant: "#8A958F"
+  soc-cyan: "#86DEDE"
+  soc-amber: "#F4C77E"
+  soc-red: "#EF8A86"
+  soc-green: "#92DCA8"
 typography:
   uiFont: "Roboto Flex, Roboto, ui-sans-serif, system-ui, sans-serif"
   monoFont: "Roboto Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
@@ -149,7 +149,7 @@ The palette is the **pastel-expressive variant**: softer, lower-chroma tones tha
 A `#5FC487` · B `#9FD06E` · C `#ECCB68` · D `#F0A05E` · E `#EC7E63` · F `#E0635F`. Softened to pastel, but F still reads clearly as the worst — the Hall-of-Shame red wall is gentler, not gone. This ramp is the **only** place semantic red/amber/green appears (chips, gauges, leaderboard rows, the Hall-of-Shame "F" wall). It is intentionally **not** themed away by M3 — a grade's color is data.
 
 ### SOC dark-expressive (live-view only)
-The Live Pentest Theater uses an M3 **dark** scheme: surface `#0E1513`, container `#1B211F`, outline `#303633`, on-surface `#DDE4E1`. Functional neon — cyan `#2AD7D7` (activity), amber `#F2AF48` (tool running), red `#F53C41` (critical), green `#67D283` (ok) — never decorative.
+The Live Pentest Theater uses an M3 **dark, pastel-neon** scheme: surface `#121A18`, container `#1E2623`, outline `#34403B`, on-surface `#DCE6E2`. Functional neon, softened to pastel — cyan `#86DEDE` (activity), amber `#F4C77E` (tool running), red `#EF8A86` (critical), green `#92DCA8` (ok) — never decorative.
 
 **Named rules.** *The Owl-Eyes Rule:* tertiary amber is reserved for the primary CTA and the owl's "alert" state; if amber isn't drawing the eye to an action or an alert, make it teal or neutral. *The Grade-Is-Data Rule:* the A–F ramp is the only semantic color; don't recolor it for mood.
 
