@@ -1,10 +1,10 @@
 "use client";
 
-import { useTransition } from "react";
 import { ArrowLeft, ArrowRight, Crown } from "lucide-react";
+import { useTransition } from "react";
 import {
-  type WizardStep,
   useOnboardTenantWizardStore,
+  type WizardStep,
 } from "@/src/application/stores/onboard-tenant-wizard-store";
 import { Button } from "@/src/presentation/components/ui/button";
 import {
@@ -40,7 +40,6 @@ export function OnboardTenantWizard() {
   const countryCode = useOnboardTenantWizardStore((s) => s.countryCode);
   const currencyCode = useOnboardTenantWizardStore((s) => s.currencyCode);
   const timeZone = useOnboardTenantWizardStore((s) => s.timeZone);
-  const industryId = useOnboardTenantWizardStore((s) => s.industryId);
   const members = useOnboardTenantWizardStore((s) => s.members);
   const skipEmail = useOnboardTenantWizardStore((s) => s.skipEmail);
   const isSubmitting = useOnboardTenantWizardStore((s) => s.isSubmitting);
@@ -64,11 +63,7 @@ export function OnboardTenantWizard() {
   const membersValid = validEmails.length === members.length;
 
   const canProceed =
-    step === "info"
-      ? infoValid
-      : step === "members"
-        ? true
-        : false;
+    step === "info" ? infoValid : step === "members" ? true : false;
 
   const isLastInteractiveStep = step === "members";
 
@@ -93,7 +88,6 @@ export function OnboardTenantWizard() {
         const data = await onboardTenant({
           name: name.trim(),
           countryCode,
-          industryId: industryId || null,
           members: validEmails.map((m) => ({
             email: m.email.trim(),
             roleSlug: m.roleSlug,
@@ -132,8 +126,8 @@ export function OnboardTenantWizard() {
             Registrar Tenant
           </DialogTitle>
           <DialogDescription>
-            Crea un nuevo cliente, invita a su equipo y verifica que todo
-            quedó listo.
+            Crea un nuevo cliente, invita a su equipo y verifica que todo quedó
+            listo.
           </DialogDescription>
         </DialogHeader>
 
@@ -144,9 +138,7 @@ export function OnboardTenantWizard() {
         <div className="pt-2">
           {step === "info" && <StepInfo />}
           {step === "members" && <StepMembers />}
-          {step === "verify" && (
-            <StepVerify inviteBaseUrl={inviteBaseUrl} />
-          )}
+          {step === "verify" && <StepVerify inviteBaseUrl={inviteBaseUrl} />}
         </div>
 
         {error ? (

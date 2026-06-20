@@ -12,7 +12,6 @@ import pytest
 from src.common.domain.buses.commands import CommandBus
 from src.common.domain.entities.common.jtw_session import JwtSession
 from src.common.domain.services.token_service import TokenService
-from src.industries.domain.repositories.industry_repository import IndustryRepository
 from src.tenants.domain.repositories.tenant import TenantRepository
 from src.tenants.domain.repositories.tenant_role import TenantRoleRepository
 from src.tenants.domain.repositories.tenant_user import TenantUserRepository
@@ -51,11 +50,6 @@ def user_repository():
 @pytest.fixture
 def email_repository():
     return create_autospec(spec=EmailAddressRepository, spec_set=True, instance=True)
-
-
-@pytest.fixture
-def industry_repository():
-    return create_autospec(spec=IndustryRepository, spec_set=True, instance=True)
 
 
 @pytest.fixture

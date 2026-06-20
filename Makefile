@@ -35,25 +35,9 @@ debug_api:
 bash:
 	$(COMPOSE_BACKEND) bash
 
-bash_dev:
-	$(COMPOSE_CORE)_dev bash
-
-try_process:
-	$(COMPOSE_CORE) python run_cli.py -f "raw-images/CC-standard.tif"
-
-lock:
-	$(COMPOSE_CORE) poetry lock
-
 clean:
 	docker ps -aq | xargs docker stop
 	docker ps -aq | xargs docker rm
-
-publish:
-	$(COMPOSE_CORE) bash build.sh
-
-build_api:
-	docker build -f Dockerfile --platform=linux/amd64 --target fastapi -t documente-core-api .
-
 
 format:
 	@echo "Formatting..."
@@ -61,4 +45,4 @@ format:
 
 lint:
 	@echo "Linting..."
-	@$(COMPOSE_CORE) ruff check .
+	@cd backend && docker compose -f docker-compose.yml run --rm api ruff check .

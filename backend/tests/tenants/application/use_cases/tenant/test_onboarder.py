@@ -4,7 +4,7 @@ is covered in `tests/.../invitations/test_invite_members.py` since
 :class:`TenantOnboarder` delegates to :class:`InviteTenantMembers`.
 """
 
-from unittest.mock import create_autospec, patch
+from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
@@ -13,8 +13,6 @@ from expects import equal, expect, have_len
 from src.common.domain.enums.countries import CountryIsoCode
 from src.common.domain.enums.tenants import TenantRoleStatus
 from src.common.domain.enums.users import TenantUserStatus
-from src.common.domain.exceptions.industries import IndustryNotFoundError
-from src.common.domain.models.industry import Industry
 from src.common.domain.models.tenants.tenant_role import TenantRole
 from src.common.domain.models.tenants.tenant_user import TenantUser
 from src.common.domain.models.user import User
@@ -22,7 +20,6 @@ from src.tenants.application.use_cases.tenant.onboarder import (
     OnboardingMemberInput,
     TenantOnboarder,
 )
-from src.workflows.domain.repositories.pipeline import PipelineRepository
 
 
 @pytest.fixture
@@ -65,7 +62,6 @@ def use_case(
     tenant_user_repository,
     tenant_user_invitation_repository,
     user_repository,
-    industry_repository,
 ):
     tenant_role_repository.find_by_slug.return_value = admin_role
     lookups = {(owner.uuid, tenant.uuid): owner_tenant_user}
@@ -88,7 +84,6 @@ def use_case(
         tenant_user_repository=tenant_user_repository,
         tenant_user_invitation_repository=tenant_user_invitation_repository,
         user_repository=user_repository,
-        industry_repository=industry_repository,
     )
 
 
@@ -161,84 +156,3 @@ async def test_execute__skip_email_propagates_to_inviter(
         await use_case.execute()
 
     command_bus.dispatch.assert_not_called()
-
-
-# ---------- industry ------------------------------------------------------
-
-
-async def test_execute__no_industry_id_does_not_touch_industry_repo(
-    use_case, tenant, industry_repository
-):
-    with _patched_registerer(tenant):
-        await use_case.execute()
-
-    industry_repository.find_by_id.assert_not_called()
-    industry_repository.assign_to_tenant.assert_not_called()
-
-
-async def test_execute__industry_id_provided_assigns_to_tenant(
-    use_case, tenant, industry_repository
-):
-    industry = Industry(
-        uuid=uuid4(), slug="finance", name="Finance"
-    )
-    industry_repository.find_by_id.return_value = industry
-    use_case.industry_id = industry.uuid
-
-    with _patched_registerer(tenant):
-        await use_case.execute()
-
-    industry_repository.find_by_id.assert_called_once_with(industry.uuid)
-    industry_repository.assign_to_tenant.assert_called_once_with(
-        tenant_id=tenant.uuid,
-        industry_id=industry.uuid,
-    )
-
-
-async def test_execute__unknown_industry_id_raises(
-    use_case, tenant, industry_repository
-):
-    industry_repository.find_by_id.return_value = None
-    use_case.industry_id = uuid4()
-
-    with _patched_registerer(tenant), pytest.raises(IndustryNotFoundError):
-        await use_case.execute()
-
-    industry_repository.assign_to_tenant.assert_not_called()
-
-
-# ---------- pipeline seeding (ADR 0002) -----------------------------------
-
-
-@pytest.fixture
-def pipeline_repository():
-    return create_autospec(spec=PipelineRepository, spec_set=True, instance=True)
-
-
-async def test_execute__does_not_seed_pipelines(
-    use_case, tenant, pipeline_repository
-):
-    # Arrange — ADR 0002: el onboarder ya NO siembra pipelines tenant-level.
-    # Cada workflow nace dueño de su pipeline (copy-on-create en WorkflowCreator),
-    # así que el onboarding no debe tocar el repo de pipelines.
-    use_case.pipeline_repository = pipeline_repository
-
-    # Act
-    with _patched_registerer(tenant):
-        await use_case.execute()
-
-    # Assert — ni upsert ni add_version se invocan durante el onboarding.
-    pipeline_repository.upsert.assert_not_awaited()
-    pipeline_repository.add_version.assert_not_awaited()
-
-
-async def test_execute__without_pipeline_repository_does_not_fail(use_case, tenant):
-    # Arrange — wiring viejo sin repo de pipelines: el onboarding no explota
-    use_case.pipeline_repository = None
-
-    # Act
-    with _patched_registerer(tenant):
-        result = await use_case.execute()
-
-    # Assert
-    expect(result.tenant.uuid).to(equal(tenant.uuid))

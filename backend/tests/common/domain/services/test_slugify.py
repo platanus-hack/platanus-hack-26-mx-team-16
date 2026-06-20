@@ -2,8 +2,10 @@
 
 from expects import equal, expect, match
 
-from src.common.domain.models.knowledge_base.kb_document import SLUG_PATTERN
 from src.common.domain.services.slugify import DEFAULT_SLUG, slugify
+
+# Kebab-case slug shape (lowercase alnum words joined by single hyphens).
+SLUG_PATTERN = r"^[a-z0-9]+(?:-[a-z0-9]+)*$"
 
 
 def test_slugify__lowercases_and_kebab_cases():

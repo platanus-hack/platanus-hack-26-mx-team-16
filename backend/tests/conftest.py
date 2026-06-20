@@ -53,15 +53,6 @@ async def _drop_test_database() -> None:
         await engine.dispose()
 
 
-async def _create_extensions() -> None:
-    engine = create_async_engine(str(settings.async_database_url))
-    try:
-        async with engine.begin() as conn:
-            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-    finally:
-        await engine.dispose()
-
-
 @pytest.fixture(scope="session", autouse=True)
 async def setup_database():
     assert settings.POSTGRES_DB == TEST_DB_NAME, (
@@ -69,7 +60,6 @@ async def setup_database():
     )
 
     await _ensure_test_database_exists()
-    await _create_extensions()
 
     db_config = get_database_config()
     async with db_config.engine.begin() as conn:

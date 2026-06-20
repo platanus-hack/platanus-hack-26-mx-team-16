@@ -61,11 +61,10 @@ Los permisos se representan como strings con formato `namespace.action`.
 | Roles              | `tenant_roles`     | `view`, `create`, `update`, `delete`, `assign`                |
 | Usuarios           | `tenant_users`     | `view`, `create`, `update`, `delete`                          |
 | Configuraciones    | `tenant_settings`  | `update`                                                      |
-| Workflows          | `workflows`        | `view`, `create`, `update`, `delete`, `view_usage`, `add_integration` |
 
-**Formato:** `namespace.action` (ej. `tenant_roles.create`, `workflows.view`)
+**Formato:** `namespace.action` (ej. `tenant_roles.create`, `tenant_users.view`)
 
-**Total:** 17 permisos
+**Total:** 11 permisos
 
 ### Verificacion de Permisos
 
@@ -163,18 +162,6 @@ check_tenant_permission(tenant_user, permissions) -> bool
         "label": "Configuraciones",
         "permissions": [
           { "code": "tenant_settings.update", "label": "Actualizar configuraciones" }
-        ]
-      },
-      {
-        "id": "workflows",
-        "label": "Workflows",
-        "permissions": [
-          { "code": "workflows.view", "label": "Ver workflows" },
-          { "code": "workflows.create", "label": "Crear workflows" },
-          { "code": "workflows.update", "label": "Actualizar workflows" },
-          { "code": "workflows.delete", "label": "Eliminar workflows" },
-          { "code": "workflows.view_usage", "label": "Ver uso de workflows" },
-          { "code": "workflows.add_integration", "label": "Agregar integracion a workflows" }
         ]
       }
     ]

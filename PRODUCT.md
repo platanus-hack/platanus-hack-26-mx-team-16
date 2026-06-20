@@ -6,20 +6,18 @@ product
 
 ## Users
 
-Doxiq serves four roles inside a tenant, frequently overlapping at smaller customers:
+Doxiq is a multi-tenant SaaS boilerplate; out of the box it serves two roles inside a tenant:
 
-- **Ops / back-office reviewers** — process documents at volume. They live in the queue: open a document, check extracted fields against the source, correct errors, approve. Their context is repetitive, high-throughput work where every extra click compounds.
-- **Compliance / risk analysts** — verify extracted data against business rules, investigate flagged cases, and need a defensible audit trail. Their context is scrutiny: they must be able to trust a value and show why a rule passed or failed.
-- **Admins / configurers** — set up document types, analysis rules, the knowledge base, members, and integrations. Often not developers. Their context is occasional but high-stakes setup that the whole pipeline depends on.
-- **Developers / integrators** — wire Doxiq into other systems via the API and integrations, and manage data sources.
+- **Tenant admins** — set up the workspace, invite members, define roles and permissions, and manage tenant settings. Their context is occasional but high-stakes setup that everyone else depends on.
+- **Members** — sign in, work inside the tenant, and use whatever product surfaces a builder adds on top of the boilerplate. Their context is everyday use of the authenticated app.
 
-The center of gravity is the **review-and-correct extraction** task; the document-detail view is the heart of the app.
+The center of gravity is everything a real product shares before it has features: signing in, belonging to a tenant, and managing who can do what.
 
 ## Product Purpose
 
-Doxiq (by Llamitai) extracts structured data from documents using OCR + LLM, then evaluates configurable business rules against that data. It exists to turn piles of unstructured documents into trustworthy, structured case data with rule outcomes attached, at volume, with as little manual correction as possible.
+Doxiq (by Llamitai) is a minimal multi-tenant SaaS starter. It exists to give a new product its foundations — authentication, users, tenants, roles/permissions, invitations, and a generic asynchronous background-job mechanism — so builders start from a clean, opinionated base instead of wiring the same plumbing again.
 
-Success looks like: reviewers clear queues fast with high confidence the extracted data is correct; analysts trust the numbers and can stand behind them; and non-developer admins configure new document types and rules without fear of breaking the pipeline.
+Success looks like: a developer can clone Doxiq, run it, sign in, create a tenant, invite a member, and enqueue a background job within minutes — then build their actual product on top without fighting the scaffolding.
 
 ## Brand Personality
 

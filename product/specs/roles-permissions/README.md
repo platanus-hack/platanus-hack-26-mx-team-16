@@ -6,4 +6,3 @@
 |---|---|---|
 | [`roles-permission.md`](roles-permissions/roles-permission.md) | 🟢 implementado | 85% |
 
-**Relacionado:** [índice de auditoría](../../_reorg/STATUS-AUDIT.md)

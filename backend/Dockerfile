@@ -40,10 +40,6 @@ COPY docker/start-prod /start
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 
-COPY docker/start-temp-worker /start-worker
-RUN sed -i 's/\r$//g' /start-worker
-RUN chmod +x /start-worker
-
 COPY run-script /run-script
 RUN sed -i 's/\r$//g' /run-script
 RUN chmod +x /run-script

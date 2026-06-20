@@ -163,7 +163,7 @@ class DomainContext:
     storage_service: StorageService
 ```
 
-> **Nota:** Existen repositorios adicionales en el sistema (extraction, knowledge_base, file_storage, industries, workspaces) que actualmente NO estan en DomainContext. Estos se instancian directamente en sus use cases o builders. A medida que se integren al sistema de buses, se deben agregar aqui.
+> **Nota:** Al agregar un nuevo modulo, registra sus repositorios aqui en `DomainContext` (y su kwarg en `build_async_domain`) para que esten disponibles via el bus system.
 
 ### BusContext
 
@@ -482,13 +482,6 @@ def get_arq_pool(request: Request) -> ArqRedis:
 ArqPoolDep = Annotated[ArqRedis, Depends(get_arq_pool)]
 
 
-# 2.6. Temporal client (inicializado en app startup)
-def get_temporal_client(request: Request) -> TemporalClient:
-    return cast("TemporalClient", request.app.state.temporal_client)
-
-TemporalClientDep = Annotated[TemporalClient, Depends(get_temporal_client)]
-
-
 # 3. Contexto de buses (command + query + event)
 async def get_bus_context(
     session: AsyncSessionDep,
@@ -574,15 +567,10 @@ async def lifespan(app: FastAPI):
     database_config = get_database_config()
     redis_client = Redis.from_url(settings.redis_url, decode_responses=True, encoding="utf-8")
     arq_pool = await create_pool(RedisSettings.from_dsn(settings.redis_url))
-    temporal_client = await TemporalClient.connect(
-        settings.TEMPORAL_HOST,
-        data_converter=pydantic_data_converter,
-    )
 
     app.state.database_config = database_config
     app.state.redis_client = redis_client
     app.state.arq_pool = arq_pool
-    app.state.temporal_client = temporal_client
 
     yield  # app empieza a atender requests
 
@@ -596,7 +584,6 @@ Servicios inicializados en startup y disponibles via `request.app.state`:
 - **DatabaseConfig** - pool de conexiones PostgreSQL async
 - **Redis** - cliente para cache y token store
 - **ARQ pool** - pool de conexiones Redis para job queue
-- **Temporal client** - cliente para orquestracion de workflows
 
 ---
 
@@ -649,20 +636,6 @@ await app_context.bus.command_bus.dispatch(
 )
 ```
 
-### Workflow via Temporal
-
-```python
-# Temporal se usa para workflows de larga duracion (ej: procesamiento de documentos)
-# Se accede via TemporalClientDep, no via el bus system
-temporal_client: TemporalClient = Depends(get_temporal_client)
-await temporal_client.start_workflow(
-    DocumentProcessingWorkflow.run,
-    workflow_input,
-    id=workflow_id,
-    task_queue=settings.TEMPORAL_TASK_QUEUE,
-)
-```
-
 ---
 
 ## 10. Repositorios y Servicios del Sistema
@@ -684,22 +657,6 @@ await temporal_client.start_workflow(
 | assets | `StorageService` | `S3StorageService` |
 
 ### Fuera de DomainContext (instanciados directamente en use cases/builders)
-
-| Modulo | Repositorio ABC | Implementacion |
-|--------|----------------|----------------|
-| extraction | `CaseRepository` | `SQLCaseRepository` |
-| extraction | `DocumentRepository` | `SQLDocumentRepository` |
-| extraction | `DocumentTypeRepository` | `SQLDocumentTypeRepository` |
-| extraction | `AnalysisRuleRepository` | `SQLAnalysisRuleRepository` |
-| extraction | `AnalysisRuleResultRepository` | `SQLAnalysisRuleResultRepository` |
-| extraction | `AnalysisRepository` | (pendiente) |
-| extraction | `WorkflowRepository` | `SQLWorkflowRepository` |
-| file_storage | `FileRepository` | `S3FileRepository` |
-| industries | `IndustryRepository` | `SQLIndustryRepository` |
-| knowledge_base | `KBDocumentRepository` | `SQLKBDocumentRepository` |
-| knowledge_base | `KBEmbeddingRepository` | `SQLKBEmbeddingRepository` |
-| workspaces | `WorkspaceRepository` | `SQLWorkspaceRepository` |
-| auth | `OTPRepository` | (pendiente) |
 
 | Modulo | Servicio | Descripcion |
 |--------|---------|-------------|
@@ -809,13 +766,10 @@ HTTP Request
 |               v                                              |
 |           AppContext(domain, bus)                             |
 |                                                              |
-|  Temporal client (from app.state, independiente del bus)     |
-|                                                              |
 +--------------------------------------------------------------+
     |
     v
 Endpoint: app_context.bus.command_bus.dispatch(...)
           app_context.bus.query_bus.ask(...)
           app_context.domain.token_service.generate_token(...)
-          temporal_client.start_workflow(...)
 ```

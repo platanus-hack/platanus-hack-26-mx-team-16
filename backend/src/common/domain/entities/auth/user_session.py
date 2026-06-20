@@ -28,11 +28,6 @@ class TenantSessionParams(CamelModel):
 class TenantUserSession(TenantUserProfile, TenantSessionParams):
     session: JwtSession
     user: User
-    # E5 · ADR 0001: identidad staff para la consola `/staff` del frontend.
-    # El claim JWT `is_staff` solo GATEA en backend; el FE decide UI con
-    # estos campos del payload de sesión (login/google/refresh).
-    is_staff: bool = Field(default=False)
-    staff_role: str | None = Field(default=None)
 
     @property
     def display_first_name(self) -> str | None:

@@ -14,9 +14,6 @@ class JwtTokenClaims(CamelModel):
     jti: str
     ns: str
     scope: JwtTokenScope
-    # E5 · ADR 0001: gate barato de la superficie /staff/v1. El claim solo
-    # gatea, nunca autoriza — StaffUserDep consulta la fila activa por request.
-    is_staff: bool = False
 
 
 class TokenBuilder(ABC):

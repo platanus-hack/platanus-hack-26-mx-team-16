@@ -3,7 +3,7 @@ from botocore.exceptions import ClientError
 from src.assets.domain.services.storage import StorageService
 from src.common.domain.entities.common.in_memory_file import InMemoryFile
 from src.common.settings import settings
-from src.storage.infrastructure.s3_client import get_s3_client
+from src.assets.infrastructure.s3_client import get_s3_client
 
 
 class S3StorageService(StorageService):

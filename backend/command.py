@@ -2,11 +2,11 @@ import asyncio
 import json
 import pathlib
 import uuid
-from select import select
 from typing import Any
 
 import typer
 import yaml
+from sqlalchemy import select
 
 from src.common.database import models
 from src.common.database.config import get_database_config
@@ -69,81 +69,6 @@ def flush_and_load(fixtures_dir: str = "fixtures"):
 
         # reutilizamos la función *load* sin repetir código
         await load.callback(fixtures_dir)
-
-    asyncio.run(_inner())
-
-
-@app.command()
-def load_pipelines(
-    fixtures_dir: str = "fixtures/pipelines",
-    tenant_id: str = typer.Option(
-        None,
-        help="Target tenant UUID. Omit to load the pipeline for every tenant.",
-    ),
-):
-    """Load configurable-pipeline fixtures (F1 · decision A1).
-
-    Each JSON file describes one immutable pipeline version. The container is
-    upserted by ``(tenant_id, slug)`` and the version is appended only if its
-    number does not yet exist — recipes are immutable append-only.
-    """
-
-    async def _inner():
-        from uuid import UUID, uuid4
-
-        from sqlalchemy import select as sa_select
-
-        from src.common.domain.enums.pipelines import PipelineKind, PipelineStatus
-        from src.workflows.domain.models.pipeline import (
-            Pipeline,
-            PhaseSpec,
-            PipelineVersion,
-        )
-        from src.workflows.infrastructure.repositories.sql_pipeline import (
-            SQLPipelineRepository,
-        )
-
-        files = sorted(pathlib.Path(fixtures_dir).glob("*.json"))
-        if not files:
-            typer.echo(f"⚠️  No pipeline fixtures under {fixtures_dir}", err=True)
-            return
-
-        async with database_config.session_maker() as session:  # type: AsyncSession
-            if tenant_id:
-                tenant_ids = [UUID(tenant_id)]
-            else:
-                tenant_ids = list(
-                    (await session.scalars(sa_select(models.TenantORM.uuid))).all()
-                )
-            repo = SQLPipelineRepository(session=session)
-            loaded = 0
-            for file in files:
-                spec = _read_fixture(file)
-                for tid in tenant_ids:
-                    pipeline = await repo.upsert(
-                        Pipeline(
-                            uuid=uuid4(),
-                            tenant_id=tid,
-                            slug=spec["slug"],
-                            name=spec["name"],
-                            kind=PipelineKind(spec["kind"]),
-                            status=PipelineStatus.ACTIVE,
-                            current_version=int(spec["version"]),
-                        )
-                    )
-                    existing = await repo.get_version(pipeline.uuid, int(spec["version"]))
-                    if existing is None:
-                        await repo.add_version(
-                            PipelineVersion(
-                                uuid=uuid4(),
-                                pipeline_id=pipeline.uuid,
-                                version=int(spec["version"]),
-                                phases=[PhaseSpec.model_validate(p) for p in spec["phases"]],
-                                output_schema=spec.get("output_schema"),
-                            )
-                        )
-                        loaded += 1
-            typer.echo(f"✅  Loaded {loaded} pipeline version(s) across {len(tenant_ids)} tenant(s)")
 
     asyncio.run(_inner())
 

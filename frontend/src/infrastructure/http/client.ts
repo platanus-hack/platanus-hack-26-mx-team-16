@@ -10,14 +10,6 @@ export const serverHttp = axios.create({
   timeout: 10000,
 });
 
-// ─── Server-side: plano staff (ADR 0001) — SOLO BFF routes /api/staff/* ───
-// La superficie `/staff/v1` es cross-tenant: jamás lleva X-Tenant (el
-// backend responde 400 si va). Ver `staffBackendHeadersFrom` en bff.ts.
-export const staffServerHttp = axios.create({
-  baseURL: `${Settings.apiBaseUrl}/staff/v1`,
-  timeout: 10000,
-});
-
 // ─── Client-side: via Next.js API routes (/api/auth/*) ───
 export const localHttp = axios.create({
   baseURL: "/api",

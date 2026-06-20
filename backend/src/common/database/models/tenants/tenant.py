@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 from sqlalchemy import Boolean, ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PostgreSQLUUID
+from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.common.database.mixins.common import Base, UUIDTimestampMixin
@@ -70,11 +70,6 @@ class TenantORM(Base, UUIDTimestampMixin):
         String(255),
         nullable=True,
         default=None,
-    )
-    processing_case_types: Mapped[list] = mapped_column(
-        JSONB,
-        server_default="[]",
-        nullable=False,
     )
     plan_slug: Mapped[str] = mapped_column(
         String(50),

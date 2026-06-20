@@ -1,4 +1,3 @@
-import type { Industry } from "@/src/domain/entities/industry";
 import { TenantStatus } from "@/src/domain/enums/tenants";
 
 export interface Tenant {
@@ -11,7 +10,6 @@ export interface Tenant {
   currencySymbol: string;
   logoUrl?: string | null;
   status: TenantStatus;
-  industries?: Industry[];
   createdAt?: string | null;
   updatedAt?: string | null;
 }

@@ -7,4 +7,3 @@
 | [`deployment.md`](devops/deployment.md) | 🟢 implementado | 98% |
 | [`promote.md`](devops/promote.md) | 🟢 implementado | 100% |
 
-**Relacionado:** [índice de auditoría](../../_reorg/STATUS-AUDIT.md)

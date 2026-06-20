@@ -1,11 +1,9 @@
 from typing import Any
 
-from src.common.domain.permissions.namespaces.connection import ConnectionPermission
 from src.common.domain.permissions.namespaces.dashboard import DashboardPermission
 from src.common.domain.permissions.namespaces.tenant_role import TenantRolePermission
 from src.common.domain.permissions.namespaces.tenant_settings import TenantSettingPermission
 from src.common.domain.permissions.namespaces.tenant_user import TenantUserPermission
-from src.common.domain.permissions.namespaces.workflow import WorkflowPermission
 
 PERMISSIONS_CATALOG: dict[Any, str] = {
     # Dashboard
@@ -25,15 +23,6 @@ PERMISSIONS_CATALOG: dict[Any, str] = {
     TenantSettingPermission.view: "Ver configuraciones",
     TenantSettingPermission.update: "Actualizar configuraciones",
     TenantSettingPermission.delete: "Eliminar organizacion",
-    # Workflows
-    WorkflowPermission.view: "Ver workflows",
-    WorkflowPermission.create: "Crear workflows",
-    WorkflowPermission.update: "Actualizar workflows",
-    WorkflowPermission.delete: "Eliminar workflows",
-    WorkflowPermission.view_usage: "Ver uso de workflows",
-    WorkflowPermission.add_integration: "Agregar integración a workflows",
-    # Connections (org-level connection accounts)
-    ConnectionPermission.manage: "Gestionar conexiones",
 }
 FULL_PERMISSIONS = list(PERMISSIONS_CATALOG.keys())
 

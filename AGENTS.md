@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Doxiq (by Llamitai) is a document extraction and business rule analysis platform. It uses OCR + LLM to extract structured data from documents and evaluate configurable business rules against the extracted data.
+Doxiq (by Llamitai) is a minimal multi-tenant SaaS starter boilerplate: authentication, users, tenants, roles/permissions and invitations, plus a generic asynchronous background-job mechanism (SAQ).
 
 ## Design Context
 
@@ -25,8 +25,8 @@ Las **decisiones de arquitectura** se registran como ADRs con el plugin
 `adr-writer` (marketplace `Codex-toolkit`). La **documentación de
 módulos / codebase** se genera con `codebase-documenter`.
 
-Decisiones históricas previas a la migración viven en `DECISIONS.md` (raíz)
-y en los `specs/<...>/<feature>.impl.md`. Consúltalas antes de re-litigar
+Decisiones históricas previas a la migración viven en los
+`product/plans/<feature>/<feature>.impl.md`. Consúltalas antes de re-litigar
 algo ya zanjado; las decisiones **nuevas** van como ADRs vía `adr-writer`.
 
 ## Repository Structure
@@ -35,7 +35,7 @@ algo ya zanjado; las decisiones **nuevas** van como ADRs vía `adr-writer`.
 doxiq/
   backend/        # FastAPI API (Python 3.12, async SQLAlchemy, PostgreSQL)
   frontend/       # Next.js App (TypeScript, Tailwind CSS v4, shadcn + Base UI)
-  docs/           # Project documentation
+  product/        # Specs y planes del proyecto
   justfile        # Development commands
 ```
 
@@ -43,7 +43,7 @@ doxiq/
 
 Clean Architecture with DDD. Each module follows: `domain/ → application/ → infrastructure/ → presentation/`
 
-**Modules:** auth, users, profile, tenants, workflows, industries, file_storage, extraction, knowledge_base, integrations, common, messaging
+**Modules:** auth, users, profile, tenants, common, messaging, assets, admin
 
 ### Key Patterns
 - **Use cases** are dataclasses implementing `UseCase` with an `execute()` method
@@ -52,8 +52,7 @@ Clean Architecture with DDD. Each module follows: `domain/ → application/ → 
 - **Routers** use `add_api_route()` to register endpoints
 - **Exceptions** extend `DomainError` with code, message, and status_code
 - **Database** uses async SQLAlchemy with Alembic migrations
-- **Background tasks** use FastAPI BackgroundTasks (extraction pipeline)
-- **Temporal** used for document processing workflows (`src/workflows/`)
+- **Background tasks** use a generic SAQ (Redis-backed) async-job queue
 
 ### Common Commands
 
@@ -71,13 +70,13 @@ just build-prod               # Build production images
 
 ### Backend Entry Points
 - API: `backend/config/main.py` → port 8200
-- Worker: `backend/run_worker.py` (Temporal worker)
+- Worker: SAQ worker via `backend/config/tasks.py`
 - CLI: `backend/command.py` (fixtures load/dump)
 
 ### Database
-- PostgreSQL with pgvector extension (for KB embeddings)
+- PostgreSQL
 - Migrations: `backend/src/common/database/versions/`
-- Seeds: `backend/scripts/seed_test_user.py`, `backend/scripts/seed_processes.py`
+- Seeds: `backend/scripts/seed_test_user.py`
 
 ## Frontend
 
@@ -89,7 +88,7 @@ just build-prod               # Build production images
 - `src/presentation/` — UI components and views
 - `src/application/` — stores (zustand), hooks, lib
 - `src/domain/` — entities, repositories, responses
-- `src/infrastructure/` — mock repositories (API integration pending)
+- `src/infrastructure/` — HTTP-backed repositories (`infrastructure/repositories/http-*`)
 
 ### MANDATORY: Client → Backend must go through a Next.js BFF route
 

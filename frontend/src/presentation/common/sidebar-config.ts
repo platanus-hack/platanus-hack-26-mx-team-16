@@ -1,18 +1,11 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  BookOpen,
-  ClipboardCheck,
-  CreditCard,
-  Database,
-  FolderOpen,
   KeyRound,
   LayoutDashboard,
   Settings,
   Settings2,
   Shield,
-  TrendingUp,
   Users,
-  Waypoints,
 } from "lucide-react";
 
 export interface SidebarUser {
@@ -79,39 +72,8 @@ export const sidebarConfig: SidebarConfig = {
       icon: LayoutDashboard,
       requiredPermission: "dashboard.view",
     },
-    {
-      i18nKey: "workflows",
-      url: "/workflows",
-      icon: FolderOpen,
-      requiredPermission: "workflows.view",
-    },
-    {
-      i18nKey: "review",
-      url: "/review",
-      icon: ClipboardCheck,
-      requiredPermission: "workflows.view",
-    },
-    {
-      i18nKey: "knowledge",
-      url: "/knowledge",
-      icon: BookOpen,
-      disabled: true,
-    },
-    {
-      i18nKey: "dataSources",
-      url: "/data-sources",
-      icon: Database,
-      disabled: true,
-    },
   ],
   projects: [
-    {
-      i18nKey: "integrations",
-      url: "/integrations",
-      icon: Waypoints,
-    },
-    // /evals y /staff ocultos del nav 2026-06-12 (rutas siguen vivas por URL)
-    // hasta tener plan de mejora; restaurar las entradas al retomarlos.
     {
       i18nKey: "apiKeys",
       url: "/api-keys",
@@ -129,18 +91,6 @@ export const sidebarConfig: SidebarConfig = {
       url: "/members",
       icon: Users,
       requiredPermission: "tenant_users.view",
-    },
-    {
-      i18nKey: "usage",
-      url: "/usage",
-      icon: TrendingUp,
-      requiredPermission: "workflows.view_usage",
-    },
-    {
-      i18nKey: "billing",
-      url: "/billing",
-      icon: CreditCard,
-      disabled: true,
     },
     {
       i18nKey: "settings",
