@@ -88,7 +88,7 @@ infraestructura compartida. La separación sigue la dirección de dependencia
 | Query de leaderboard, seed gov, CRUD watchlist | `src/sites/` | Son lectores/escritores de `sites`/`watchlist`/`notification_prefs`; el ranking es la cara pública del catálogo de dominios. Los endpoints `/ranking`, `/watchlist`, `/me/alerts` ya están asignados a `sites`/`scans` en [12-api](../12-api/plan.md) §1. |
 | Comparación de grado/`first_seen` + decisión de alerta | `src/scans/` | Lee el histórico de `scans`/`findings` de un site; la lógica de "bajó el grado / apareció critical nuevo" es de dominio `scans`. |
 | Cron de monitoreo + clientes Resend/Slack | `config/tasks.py` (registro) + `src/scans/application/commands/` (handler) + `src/messaging/infrastructure/services/` (Resend) + `src/common/.../webhooks` (Slack: helper net-new `post_unsigned_webhook`, **no** `deliver_webhook`) | El cron es infraestructura de cola; el handler es lógica de aplicación; los canales son servicios de mensajería. **Ningún módulo de feature nuevo.** |
-| Seed gov (`seed/gob_mx.txt`) + carga de fixtures | `backend/seed/` (data) + `backend/command.py` (`load`, extendido por 06) | El contenido del leaderboard pre-horneado es data, no código. La carga la hace el CLI typer existente. |
+| Seed gov (`fixtures/gob_mx.txt`) + carga de fixtures | `backend/fixtures/` (data) + `backend/command.py` (`load`, extendido por 06) | El contenido del leaderboard pre-horneado es data, no código. La carga la hace el CLI typer existente. **Va bajo `fixtures/`** (no un `seed/` nuevo): `command.load` ya lee de `fixtures_dir="fixtures"` y `backend/seed/` no existe; se reusa la convención en vez de introducir un directorio paralelo. |
 
 > **Por qué no un módulo `monitoring/`:** el monitoreo es un **orquestador delgado**
 > que solo encola jobs ya existentes (`run_scan`, owned por
@@ -151,7 +151,7 @@ src/common/application/helpers/webhooks/
     unsigned.py                       # (net-new) post_unsigned_webhook(url, json) → httpx POST plano + catch_httpx_exceptions → WebhookDeliveryResult (para Slack incoming webhooks)
 config/tasks.py                       # (editar) registrar el CronJob en worker_settings["cron_jobs"]
 src/common/settings.py                # (editar) RESEND_API_KEY, MONITOR_CRON, MONITOR_LEVEL_DEFAULT, etc. (NO RESEND_FROM — se reusa DEFAULT_FROM_EMAIL, §5.4)
-seed/gob_mx.txt                       # (net-new) ~30–50 dominios .gob.mx (§2.3 spec)
+fixtures/gob_mx.txt                   # (net-new) ~30–50 dominios .gob.mx (§2.3 spec) — bajo fixtures/ (convención de command.load), NO un seed/ nuevo
 src/sites/application/commands/seed_gov.py  # (net-new) SeedGovHandler — job de arranque (§2.4)
 ```
 
@@ -194,6 +194,12 @@ LIMIT $limit OFFSET …                 -- cursor por (grade, penalty_raw, uuid)
   `/ranking` aplica en [12-api](../12-api/plan.md) §1).
 - **`penalty_raw` se muestra sin clamp** (06 lo persiste sin `min(100, …)`) para que
   decenas de `.gob.mx` colapsados en **F/0** sigan siendo comparables (§2.1 spec).
+  **Semántica del valor:** el `penalty_raw` persistido es la penalización del
+  sub-score **WEB únicamente** (decisión de [07-scoring](../07-scoring/spec.md);
+  **no** incluye la penalización agéntica). El `ORDER BY` no se ve afectado —
+  sigue siendo desempate crudo entre filas gov—, pero cualquier lógica de
+  ranking/desempate **no debe asumir** que `penalty_raw` agrega la penalización
+  agéntica.
 - El **índice** `scans (overall_grade ASC, penalty_raw DESC)` + parcial sobre
   `sites.is_gov` los crea [06](../06-data-model/plan.md) §3.4; este query es su
   consumidor y su test de orden (`tests/sites/...`, §6).
@@ -431,7 +437,8 @@ pasivo" tiene además su test transversal `test_scheduler_passive.py` en
 1. **06-data-model**: `sites`/`scans`/`findings`/`watchlist`/`notification_prefs`/
    `alerts` + índice de leaderboard + `dedupe_key`/`first_seen` a nivel site.
    (Bloquea todo.)
-2. **Settings + seed data**: claves de §5.4 en `settings.py`; `seed/gob_mx.txt` con
+2. **Settings + seed data**: claves de §5.4 en `settings.py`; `fixtures/gob_mx.txt`
+   (bajo el `fixtures/` que `command.load` ya lee, no un `seed/` nuevo) con
    ~30–50 dominios; fixtures pre-horneados cargados por `command.load` (extensión de
    [06](../06-data-model/plan.md) §2.7). Test de carga (06).
 3. **Ranking** (`src/sites/`): `RankingRepository` + `SQLRankingRepository` +

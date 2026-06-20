@@ -91,7 +91,7 @@ El momento estrella entra en modo SOC: near-black, telemetría, **Geist Mono**, 
 | `/login` (pedir email) | public | anon | Magic-link p.1 (§F10) | `POST /auth/magic-link` |
 | `/login/check-email` | public | anon | Magic-link p.2 | — |
 | `/auth/callback` | public | token | Magic-link p.3 (verify) | `GET /auth/callback?token=` |
-| `/watchlist` | protected | sesión | Watchlist + monitoreo (§F11) | `GET/POST/DELETE /watchlist` |
+| `/watchlist` | protected | sesión | Watchlist + monitoreo (§F11) | `GET/POST/DELETE /watchlist` · `PATCH /watchlist/{id}` (toggle `monitor`) |
 
 Acciones transversales: `POST /scans/{id}/share` (genera `/r/{token}`), `GET /scans/{id}/report.pdf` (export), `POST /scans/{id}/cancel` (mata scan). Contrato completo de endpoints en [12-api](../12-api/spec.md).
 
@@ -103,7 +103,7 @@ Acciones transversales: `POST /scans/{id}/share` (genera `/r/{token}`), `GET /sc
 
 **Propósito.** La portada. "El Estado bajo la lupa": ranking de `.gob.mx` **peores primero**, poblado desde el segundo 0 (fixtures — ver [07-scoring](../07-scoring/spec.md) y spec.md §10/§15). Es la primera impresión y el gancho viral. Renderizada como **RSC** (`GET /ranking?country=mx`).
 
-**Datos.** `GET /ranking?country=mx` (cursor-paginado). Orden **autoritativo**: `(overall_grade ASC, penalty_raw DESC)` — la fila muestra `penalty_raw` (o el conteo ponderado) para que el contraste entre sitios en **F** sea visible. El criterio de desempate lo define [07-scoring](../07-scoring/spec.md).
+**Datos.** `GET /ranking?country=mx` (cursor-paginado). Orden **autoritativo**: `(overall_grade ASC, penalty_raw DESC)` — la fila muestra `penalty_raw` (o el conteo ponderado) para que el contraste entre sitios en **F** sea visible. El criterio de desempate lo define [07-scoring](../07-scoring/spec.md). **Nota:** el `penalty_raw` persistido refleja **solo el sub-score Web**; la penalización agéntica se rastrea aparte vía `agentic_status` — no presentarlo en la UI como una penalización combinada.
 
 **Layout / componentes.**
 - **Hero provocador:** titular grande (**"¿Qué tan segura es la IA del gobierno?"**), subcopy con contador de sitios auditados + cuántos en **F** (ej. *"128 sitios auditados · 41 reprobados (grado F)"*). Marco de defendibilidad, discreto: micro-copy *"Datos 100% pasivos y públicos — equivalente a Mozilla Observatory / SSL Labs. No intrusivo."* (ver [01-legal-ethics](../01-legal-ethics/spec.md)).
@@ -242,7 +242,7 @@ El repo trae auth por **password**; Owliver necesita **magic-link**, que no exis
 ## §F11 · Watchlist + monitoreo (`(protected)`)
 
 **Propósito.** Un usuario agrega su(s) dominio(s), corre niveles activos (con autorización), activa `monitor=true` para re-escaneos periódicos.
-**Datos.** `GET /watchlist` · `POST /watchlist {url, monitor}` · `DELETE /watchlist/{id}`.
+**Datos.** `GET /watchlist` · `POST /watchlist {url, monitor}` · `PATCH /watchlist/{id} {monitor}` (toggle del Switch) · `DELETE /watchlist/{id}`.
 **Componentes.** Tabla de sitios vigilados: hostname + grado actual + 🛡️/🤖 + último scan + **Switch `monitor`** + acción re-scan. Botón "Agregar dominio". Acceso a correr scan activo. Ajustes de alertas (email/Slack — ver spec.md §12). Los resultados de scans activos son **privados** de la cuenta salvo que el usuario genere un `/r/{token}`. **Alertas in-app son recorte** (solo email/Slack). Empty state: *"Agrega tu primer dominio para vigilarlo."*
 
 ---

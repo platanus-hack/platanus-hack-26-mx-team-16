@@ -90,6 +90,7 @@ class TenantORM(Base, UUIDTimestampMixin):
             "users.uuid",
             ondelete="SET NULL",
             use_alter=True,
+            name="fk_tenants_owner_id",
         ),
         nullable=True,
     )

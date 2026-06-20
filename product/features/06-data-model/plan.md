@@ -202,9 +202,16 @@ aquí solo se fija la tabla.
 
 Una sola revisión `…_scan_engine.py` (autogen + ajuste manual) en
 `src/common/database/versions/`, con `down_revision` = la `initial` actual
-(`d86eebe6b2dd`). Debe incluir explícitamente los índices y constraints del §3
+(`720929e089fd`, único head SaaS). Debe incluir explícitamente los índices y constraints del §3
 (Alembic **no** autogenera el partial unique index ni el orden del leaderboard;
 se añaden a mano con `op.create_index(..., postgresql_where=...)`).
+
+> **Nota — evitar multiple-heads:** como 06 es dueño del esquema y varias waves
+> agregan migraciones en paralelo, **toda** revisión nueva debe encadenarse vía
+> `autogenerate` partiendo del head actual único (`720929e089fd`, la migración
+> `initial` del SaaS) para que features corriendo concurrentemente no produzcan
+> múltiples heads. Antes de generar, verifica `alembic heads` = un solo head y
+> rebasa contra él si otra wave ya avanzó la cadena.
 
 ### 2.7 Seed / fixtures del leaderboard — `backend/command.py` + `fixtures/`
 
@@ -311,7 +318,10 @@ los contratos están congelados y **toda** la suite del §5 pasa.
    dependencia y por tener lectores distintos (§1). `magic_tokens` se queda en `auth`.
 2. **PK column name `uuid` vs `id`** — el DDL de la spec usa `id`; el repo real nombra
    la PK `uuid` (mixin `UUIDPrimaryKeyModelMixin`). **Se adopta `uuid`** por
-   consistencia con todo el codebase (los presenters ya mapean `uuid`→`id` en la API).
+   consistencia con todo el codebase. Ojo: los presenters **no** renombran a `id` —
+   exponen el campo tal cual como `uuid` en las respuestas (passthrough camelCase; ver
+   `common/presentation/presenters/tenant.py`, que emite `"uuid"`). Por tanto los
+   contratos/consumidores aguas abajo deben referenciar `"uuid"`, **no** `"id"`.
    Las FKs apuntan a `…uuid` (`sites.uuid`, `scans.uuid`, `users.uuid`).
 3. **Referencia circular `sites.latest_scan_id ↔ scans.site_id`** — se resuelve con
    `use_alter=True` en la FK (mismo patrón que `tenants.owner_id` en

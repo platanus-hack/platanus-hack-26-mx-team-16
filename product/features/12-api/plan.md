@@ -43,7 +43,7 @@ paralelo con 10 (SSE) y 11 (auth magic-link).
   ('queued','running')`).
 - [11-auth-magic-link](../11-auth-magic-link/spec.md): el flujo de `/auth/*`, el
   JWT y la **cookie HttpOnly SameSite=Lax**. La API solo expone el contrato HTTP
-  de los 4 endpoints y **consume** la dependency `current_user` resultante.
+  de los 4 endpoints y **consume** la dependency `get_authenticated_user` resultante.
 - [10-realtime-live-view](../10-realtime-live-view/spec.md): la semántica
   replay-then-tail y el esquema de eventos del `GET /scans/{id}/stream`. La API
   solo declara el endpoint y delega su cuerpo a 10.
@@ -67,8 +67,12 @@ paralelo con 10 (SSE) y 11 (auth magic-link).
   → handler `rate_limit_exception_handler` (429) ya registrado en `main.py`.
 - **Cola SAQ**: `config/tasks.py` (`worker_settings`, `queue`); el patrón de
   encolado desde un endpoint es `src/admin/presentation/endpoints/enqueue_example_job.py`.
+  Nota: el `SaqCommandEnqueuer` compartido encola siempre `"handle_command"` con
+  `timeout=AWS_LAMBDA_MAX_TIMEOUT` y **no** pasa `key`/`retries` (ver §2).
 - **DI**: `get_app_context` (`src/common/infrastructure/dependencies/common.py`) +
-  `AppContext` (buses, sesión, redis).
+  `AppContext` (solo `domain`/`bus`/`scheduler` — **no** transporta sesión ni
+  redis). El ping de `/ready` (redis) y el rate-limit obtienen redis/sesión de sus
+  **propias** dependencies, no de `AppContext`.
 - **Registro de routers**: `config/router.py` → `app.include_router(api_router)`
   bajo prefijo `/v1`.
 
@@ -176,9 +180,8 @@ EnqueueScan.execute():
      except IntegrityError on partial unique index:            # ya hay scan vivo (site_id, level)
         existing = ScanRepository.get_active(site_id, level)
         return EnqueueResult(scan=existing, created=False)     # → 200
-  6. await queue.enqueue("run_scan", scan_id=scan.id,
-            key=f"scan:{site.id}:{level}",                     # job key SAQ → colapsa doble-submit en ráfaga
-            timeout=..., retries=max_tries_for(level))         # max_tries=1 activo, 2 básico/gov
+  6. await enqueuer.enqueue(RunScanCommand(scan_id=scan.id))  # ver nota: el SaqCommandEnqueuer
+                                                              # compartido NO pasa key/retries (§abajo)
   7. return EnqueueResult(scan=scan, created=True)             # → 201
 ```
 
@@ -186,12 +189,21 @@ EnqueueScan.execute():
   fuente de verdad del hit idempotente. Se captura **dentro del use case** (no en
   el router) y se traduce a `EnqueueResult(created=False)` → el endpoint responde
   **200** con el `scan_id` existente.
-- **Capa 2 (job key SAQ)**: `key=f"scan:{site_id}:{level}"` en `queue.enqueue`
-  colapsa la ráfaga simultánea **antes** de que la primera fila llegue a `queued`
-  (la ventana que el índice por sí solo no cubre). El índice cubre el re-scan
-  posterior.
-- **`max_tries`**: `1` para activos (preferir fallar a re-atacar — §01), `2` para
-  básico/gov.
+- **Capa 2 (job key SAQ) — atención al enqueuer compartido**: el
+  `SaqCommandEnqueuer` del fundamento
+  (`src/common/infrastructure/buses/saq_command_enqueuer.py`) hardcodea
+  `queue.enqueue("handle_command", command_data=..., timeout=AWS_LAMBDA_MAX_TIMEOUT)`
+  y **no** propaga `key` ni `retries`. El job key `scan:{site_id}:{level}` que
+  colapsaría la ráfaga simultánea **no está cableado hoy**. Para tenerlo hay que
+  **o bien** extender `SaqCommandEnqueuer` (o usar `queue.enqueue` directo) para
+  pasar `key`/`retries`, **o bien** renunciar a la capa 2 y apoyarse **solo en la
+  capa 1** (el partial unique index de 06 sobre `scans(site_id, level)`), que cubre
+  el re-scan posterior y casi toda la ráfaga salvo la ventana de carrera previa al
+  primer `queued`. La implementación **no debe** asumir un parámetro `key` que no
+  existe en el enqueuer.
+- **`max_tries`/`retries`**: el objetivo de diseño es `1` para activos (preferir
+  fallar a re-atacar — §01) y `2` para básico/gov; igual que `key`, esto **solo es
+  configurable si se extiende el enqueuer compartido** (que hoy no expone `retries`).
 - El endpoint elige status por `result.created`:
   `ApiJSONResponse(ScanCreatedPresenter(result.scan).to_dict, status_code=201 if result.created else 200)`.
 
@@ -214,7 +226,7 @@ async def enqueue_scan(
     payload: EnqueueScanRequest,
     _: Annotated[None, Depends(scan_rate_limit)],
     app_context: AppContext = Depends(get_app_context),
-    user: User = Depends(current_user),
+    user: User = Depends(get_authenticated_user),
 ): ...
 ```
 
@@ -231,7 +243,7 @@ Una sola dependency `require_scan_access` (`common/.../ownership.py`) usada por
 async def require_scan_access(
     scan_id: UUID,
     app_context: AppContext = Depends(get_app_context),
-    user: User | None = Depends(optional_current_user),
+    user: User | None = Depends(get_optional_authenticated_user),
 ) -> Scan:
     scan = await ScanRepository.get_by_id(scan_id)
     if scan is None:
@@ -294,7 +306,8 @@ class CursorPage(Generic[T]):
 
 - `GET /health`: liveness puro (proceso vivo), sin tocar dependencias → 200.
 - `GET /ready`: `CheckReadiness` hace ping a **Postgres** (`SELECT 1`) y **Redis**
-  (`PING`) usando el `AppContext`; 200 si ambos responden, 503 si alguno falla.
+  (`PING`) obteniendo la sesión y el cliente redis de sus **propias** dependencies
+  (el `AppContext` no los transporta); 200 si ambos responden, 503 si alguno falla.
   Ambos **públicos** (sin auth) — útiles para orquestadores y el panel de demo.
 
 ## 7. Secuencia de build
@@ -331,7 +344,7 @@ bajo `data`. Use cases con repos mockeados en `tests/{scans,sites}/application/`
 | `tests/api/test_watchlist.py` | `POST` devuelve fila con `id`; `PATCH {monitor}` alterna; `DELETE` usa **id de fila** (no site_id); `{id}` ajeno → 404 |
 | `tests/api/test_alerts.py` | `GET /me/alerts` default `{emailEnabled, slackWebhookUrl:null}`; `PUT` upsert; aislado por usuario |
 | `tests/api/test_ranking_health.py` | `/ranking` excluye `private`; `/health` 200 sin auth; `/ready` 200 con pg+redis, 503 si cae uno |
-| `tests/scans/application/test_enqueue_scan.py` | unit: `IntegrityError` → `created=False`; gate llama `enforce_attestation`; persiste `authorized/authorized_at/requested_by`; `key` y `max_tries` correctos por nivel |
+| `tests/scans/application/test_enqueue_scan.py` | unit: `IntegrityError` → `created=False`; gate llama `enforce_attestation`; persiste `authorized/authorized_at/requested_by`; encola el comando de scan (si se extiende el enqueuer para soportar `key`/`retries`, verificar también que son correctos por nivel) |
 
 ## 9. Decisiones / riesgos abiertos
 
@@ -344,9 +357,12 @@ bajo `data`. Use cases con repos mockeados en `tests/{scans,sites}/application/`
 3. **`/report.pdf`**: el render del PDF y la redacción los posee
    [09-reporting](../09-reporting/spec.md); la API solo hace owner-check y streamea
    bytes. Si el PDF no está listo (scan en curso) → 409/425 (a confirmar con 09).
-4. **`optional_current_user`**: requiere una variante no-bloqueante de la dependency
-   de 11 (devuelve `None` en vez de 401) para que `require_scan_access` distinga
-   `public` sin sesión de `private` sin permiso. A coordinar con 11.
+4. **`get_optional_authenticated_user`**: la variante no-bloqueante de la dependency
+   (devuelve `None` en vez de 401) **ya existe en el fundamento**
+   (`src/common/infrastructure/dependencies/session.py`, junto a su alias
+   `OptionalAuthenticatedUserDep`); `require_scan_access` solo la reutiliza para
+   distinguir `public` sin sesión de `private` sin permiso. No es un riesgo abierto
+   ni requiere coordinación con 11.
 5. **Cursor estable en `findings`**: orden por severidad desc obliga a cursor
    compuesto (severity, id); si 06 expone solo `id`, se ordena en el repo y el
    cursor codifica ambos campos (base64 `{sev}:{id}`).

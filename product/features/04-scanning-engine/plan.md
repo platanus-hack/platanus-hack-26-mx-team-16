@@ -82,6 +82,14 @@ net-new**. Lo que **sí** existe y se reutiliza tal cual:
 
 ### 2.1 Topología de servicios
 
+> **Realidad de la topología actual (a autorar aquí):** hoy **no** existe un
+> servicio `worker` dedicado — el worker SAQ está **co-ubicado** dentro del
+> contenedor `api` (`docker/start-dev` lanza `saq config.tasks.worker_settings &`
+> junto a `uvicorn` en el mismo proceso de arranque). Ese setup de dev **no es** el
+> target para correr scanners. La feature 04 **debe autorar** la topología Docker
+> dedicada de worker/scanners: un servicio `worker` separado + las imágenes de las
+> herramientas scanner (DooD), que no existen aún.
+
 Se añade un override **`backend/docker-compose.scanners.yml`** (sigue el patrón de
 los overrides existentes `.dev/.prod/.debug.yml`) que agrega los servicios del
 motor sin tocar `api`/`postgres`/`redis`/`mailpit` del compose base:

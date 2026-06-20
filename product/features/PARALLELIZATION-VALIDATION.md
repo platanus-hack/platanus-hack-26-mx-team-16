@@ -108,11 +108,11 @@ El plan de paralelización **se sostiene**: la estructura de olas (W1→W5), el 
 | module-path-collisions | confirmed | `common/legal` libre; 1 sola migración con 8 tablas SaaS; sin colisión de tablas |
 | agno-worker-stack | confirmed | SAQ genérico listo; sin stack Docker de scanners (04 lo debe autorear) |
 
-**Supuesto central "los 13 numerados están pending / solo boilerplate": CONFIRMADO.** `backend/src` contiene exactamente `admin, assets, auth, common, messaging, profile, tenants, users`. `pyproject.toml` no tiene `agno`/`anthropic`/`playwright`/scanners. Una sola migración Alembic (`d86eebe6b2dd_initial`) con 8 tablas SaaS. Todos los specs llevan `status: pending`. Frontend sin superficie de pentest.
+**Supuesto central "los 13 numerados están pending / solo boilerplate": CONFIRMADO.** `backend/src` contiene exactamente `admin, assets, auth, common, messaging, profile, tenants, users`. `pyproject.toml` no tiene `agno`/`anthropic`/`playwright`/scanners. Una sola migración Alembic (`720929e089fd_initial`) con 8 tablas SaaS. Todos los specs llevan `status: pending`. Frontend sin superficie de pentest.
 
 - **Features ya construidos (total o parcial): NINGUNO** de los 13 numerados.
 - **Scaffolding faltante (a autorear, no bloquea olas):** (1) `agno`+`anthropic` en pyproject (dep implícita de 05); (2) topología Docker de worker/scanners dedicada (el worker SAQ actual está co-ubicado en el contenedor de la API vía `saq ... worker_settings & uvicorn`) — 04 la debe crear; (3) `seed/` no existe (08 usa `backend/seed/gob_mx.txt` mientras `command.load` lee de `fixtures/`).
-- **Colisiones de path/tabla: NINGUNA.** Advertencia operativa: encadenar migraciones nuevas con Alembic autogenerate desde `d86eebe6b2dd` para evitar **multiple-heads** cuando las olas corran en paralelo.
+- **Colisiones de path/tabla: NINGUNA.** Advertencia operativa: encadenar migraciones nuevas con Alembic autogenerate desde `720929e089fd` para evitar **multiple-heads** cuando las olas corran en paralelo.
 
 ---
 
@@ -136,7 +136,7 @@ El plan de paralelización **se sostiene**: la estructura de olas (W1→W5), el 
 11. Corregir 12-api: renombrar a `get_authenticated_user`/`get_optional_authenticated_user`, eliminar riesgo §9.4 (ya existe), corregir claim de `AppContext` (domain/bus/scheduler), y decidir enqueuer extendido vs solo índice único para la capa-2 de idempotencia.
 12. Corregir racional de 06 decision #2 (presenters emiten `"uuid"`, no `"id"`).
 13. Documentar `penalty_raw` web-only en 08/13 (A6); añadir `PATCH /watchlist/{id}` a 13-spec (A7); documentar flags Nuclei como lógicos no literales en 02 (A4).
-14. Reconciliar `seed/` vs `fixtures/` (08/06) y usar Alembic autogenerate encadenado desde `d86eebe6b2dd` para evitar multiple-heads en olas paralelas.
+14. Reconciliar `seed/` vs `fixtures/` (08/06) y usar Alembic autogenerate encadenado desde `720929e089fd` para evitar multiple-heads en olas paralelas.
 
 **El esqueleto del plan (olas, camino crítico `06→04→05→03`, Day-1 `06/02/11`) NO requiere cambios.** Todos los deltas son reconciliaciones de contratos antes de congelar, secuenciaciones intra-ola, o correcciones de documentación.
 
@@ -149,7 +149,7 @@ El plan de paralelización **se sostiene**: la estructura de olas (W1→W5), el 
 3. **Añadir el edge intra-W1 `06 → {02,11}`** y declarar a 06 como entregable hora-0 (finding.py, enums, ScanLevel, MagicTokenORM, ScanEventRepository).
 4. **Asignar dueño a `scans.summary`** (preferible 06/W1) y registrar el contrato `requested_by IS NULL` (08→05).
 5. **Aplicar las correcciones de 12-api** (nombres de deps, AppContext, enqueuer/idempotencia) y el racional de 06 decision #2 — son ediciones de plan baratas que evitan confusión en implementación.
-6. **Antes de codear:** añadir `agno`+`anthropic` a pyproject, planear la topología Docker de scanners (04), y encadenar migraciones con autogenerate desde `d86eebe6b2dd`.
+6. **Antes de codear:** añadir `agno`+`anthropic` a pyproject, planear la topología Docker de scanners (04), y encadenar migraciones con autogenerate desde `720929e089fd`.
 
 ---
 

@@ -170,6 +170,14 @@ La whitelist es un mapping de módulo, inmutable en runtime vía `MappingProxyTy
 tuplas congeladas. **Allow-list por construcción:** lo que no está en la tupla de una
 celda literalmente nunca llega al agente.
 
+> **Flags LÓGICOS, no literales (02 = política, 04 = ejecutor):** los flags congelados
+> en estas tuplas (p. ej. los de `_BASIC_GOV`) son **declarativos** — definen *qué*
+> significa el toolset por `(is_gov, level)` —, **no** el argv literal que se ejecuta en
+> runtime. La mecánica de ejecución de [04](../04-scanning-engine/spec.md) añade flags
+> operativos en cada corrida (p. ej. `-duc`, disable update check; ver 04 §7). Por tanto
+> los flags congelados aquí en 02 **≠** los flags exactos que ejecuta 04: consúmase 02
+> como la **política** y 04 como el **ejecutor**.
+
 ```python
 # backend/src/scans/application/whitelist/toolset_whitelist.py
 from types import MappingProxyType

@@ -83,6 +83,13 @@ Infra **ya existente** que se reutiliza tal cual (verificada en el repo):
   (`ANTHROPIC_API_KEY`, `OPUS_MODEL_ID`, `SONNET_MODEL_ID`), `SCAN_BUDGET_S`,
   `OPUS_SUMMARY_MAX_TOKENS`.
 
+> **Prerequisito de dependencias (paso 0, antes de cualquier código).** El Team
+> se monta sobre `agno` + el SDK de Anthropic, pero **ni `agno` ni `anthropic`
+> están hoy en `backend/pyproject.toml`** (verificado). Antes de poder correr el
+> worker hay que añadirlos a las `dependencies` del backend (p. ej.
+> `uv add agno anthropic`) y regenerar el lock. Sin este paso, `models.py`
+> (`ModelFactory` → `Claude(...)`) y `team.py` fallan en import.
+
 ## 1. Dónde vive el código — paquete `src/scans/worker/`
 
 El equipo y el flujo del worker son código de esta feature; viven en un
