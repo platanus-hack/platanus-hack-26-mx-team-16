@@ -62,11 +62,6 @@ class UserORM(Base, UUIDTimestampMixin, PersonMixin):
         default=True,
         nullable=False,
     )
-    is_staff: Mapped[bool] = mapped_column(
-        Boolean,
-        default=False,
-        nullable=False,
-    )
     is_superuser: Mapped[bool] = mapped_column(
         Boolean,
         default=False,

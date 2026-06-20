@@ -22,8 +22,6 @@ async def login(
         password=payload.password,
         query_bus=app_context.bus.query_bus,
         token_service=app_context.domain.token_service,
-        # ADR 0001: claim `is_staff` solo si hay fila staff activa.
-        staff_user_repository=app_context.domain.staff_user_repository,
     ).execute()
 
     return ApiJSONResponse(

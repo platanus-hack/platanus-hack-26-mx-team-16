@@ -21,8 +21,6 @@ async def refresh(
         refresh_token=payload.refresh_token,
         query_bus=app_context.bus.query_bus,
         token_service=app_context.domain.token_service,
-        # E5 · ADR 0001: re-expone is_staff/staff_role en el payload de sesión.
-        staff_user_repository=app_context.domain.staff_user_repository,
     ).execute()
 
     return ApiJSONResponse(

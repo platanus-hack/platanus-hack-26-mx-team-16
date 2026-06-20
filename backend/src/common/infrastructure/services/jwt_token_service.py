@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
-from uuid import UUID
 
 from uuid6 import uuid7
 
@@ -15,17 +14,12 @@ from src.common.domain.services.token_builder import JwtTokenClaims, TokenBuilde
 from src.common.domain.services.token_service import TokenService
 from src.common.domain.services.token_store import TokenStore
 from src.common.settings import settings
-from src.staff.domain.repositories.staff_user import StaffUserRepository
 
 
 @dataclass
 class JwtTokenService(TokenService):
     token_store: TokenStore
     token_builder: TokenBuilder
-    # ADR 0001: re-derivación de `is_staff` en el refresh — el refresh
-    # reconstruye claims solo desde `sub`, así que sin lookup el claim
-    # moriría al primer refresh del access token.
-    staff_user_repository: StaffUserRepository | None = None
 
     async def generate_token(
         self,
@@ -102,9 +96,6 @@ class JwtTokenService(TokenService):
             sub=claims.sub,
             scope=JwtTokenScope.ACCESS,
             exp_delta=timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES),
-            # ADR 0001: el refresh re-deriva `is_staff` desde la fila viva
-            # (el claim solo gatea; la fila activa es la fuente de verdad).
-            extra_claims=await self._derive_staff_claims(claims.sub),
         )
         refresh_token = self.token_builder.create_token(
             jti=refresh_token_jti,
@@ -153,16 +144,6 @@ class JwtTokenService(TokenService):
             sub=jwt_claims.sub,
             namespace=jwt_claims.ns,
         )
-
-    async def _derive_staff_claims(self, sub: str) -> dict[str, Any] | None:
-        if self.staff_user_repository is None:
-            return None
-        try:
-            user_id = UUID(sub)
-        except ValueError:
-            return None
-        staff_user = await self.staff_user_repository.find_active_by_user_id(user_id)
-        return {"is_staff": True} if staff_user is not None else None
 
     @classmethod
     def _get_exp_remaining_seconds(cls, exp: int) -> int:

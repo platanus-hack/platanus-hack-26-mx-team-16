@@ -5,8 +5,6 @@ emails to the listed members.
 
 from __future__ import annotations
 
-from uuid import UUID
-
 from fastapi import status
 from pydantic import BaseModel, EmailStr, Field
 
@@ -36,7 +34,6 @@ class OnboardingMemberRequest(BaseModel):
 class OnboardTenantRequest(CamelCaseRequest):
     name: str = Field(min_length=1, max_length=150)
     country_code: CountryIsoCode = Field(default=CountryIsoCode.MEXICO)
-    industry_id: UUID | None = Field(default=None)
     members: list[OnboardingMemberRequest] = Field(default_factory=list)
     skip_email: bool = Field(default=False)
 
@@ -59,9 +56,6 @@ async def onboard_tenant(
         tenant_user_repository=domain_context.tenant_user_repository,
         tenant_user_invitation_repository=domain_context.tenant_user_invitation_repository,
         user_repository=domain_context.user_repository,
-        industry_repository=domain_context.industry_repository,
-        industry_id=request.industry_id,
-        pipeline_repository=domain_context.pipeline_repository,
     ).execute()
 
     return ApiJSONResponse(

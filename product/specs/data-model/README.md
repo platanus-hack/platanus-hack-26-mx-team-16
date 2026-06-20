@@ -2,14 +2,8 @@
 
 > Qué se construye — PRD, comportamiento (casi sin código)
 
-| doc | status | cobertura |
-|---|---|---|
-| [`case-noun.md`](data-model/case-noun.md) | 🟢 implementado | 95% |
+El modelo de datos del boilerplate cubre las entidades centrales:
+usuarios, tenants, roles, permisos e invitaciones. El detalle de la
+composición del contexto de dominio vive en el plan asociado.
 
-### Archivados (`_archive/`) — describen la arquitectura previa
-
-| doc | status |
-|---|---|
-| [`workspace_erd.md`](data-model/_archive/workspace_erd.md) | ⚫ obsoleto |
-
-**Relacionado:** [plans/data-model/](../../plans/data-model/) · [índice de auditoría](../../_reorg/STATUS-AUDIT.md)
+**Relacionado:** [plans/data-model/](../../plans/data-model/)

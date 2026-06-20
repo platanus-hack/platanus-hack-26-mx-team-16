@@ -96,8 +96,6 @@ async def test_execute__generates_token_with_user_namespace(session_builder, use
     session_builder.token_service.generate_token.assert_called_once_with(
         sub=str(user.uuid),
         namespace="USER",
-        # E5 · ADR 0001: sin repo staff inyectado jamás se emite el claim.
-        extra_claims=None,
     )
 
 

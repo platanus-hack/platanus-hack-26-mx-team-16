@@ -31,8 +31,7 @@ class JwtTokenBuilder(TokenBuilder):
             ns=namespace,
         )
         if extra_claims:
-            # Claims adicionales (p. ej. `is_staff`, E5 · ADR 0001); los
-            # reservados del contrato base jamás se pisan.
+            # Generic extra claims; reserved base-contract claims are never overwritten.
             claims.update({k: v for k, v in extra_claims.items() if k not in claims})
         return jwt.encode(
             header={"alg": settings.JWT_ALGORITHM},

@@ -35,31 +35,6 @@ export function backendHeadersFrom(
 }
 
 /**
- * E5 · ADR 0001 — headers para la superficie staff (`/staff/v1/*`).
- *
- * Reenvía SOLO `Authorization` (el JWT con claim `is_staff` gatea en el
- * backend). JAMÁS `X-Tenant`: la consola staff es cross-tenant y el backend
- * rechaza el header con 400. Tampoco `X-Api-Key` (ese es el plano M2M).
- */
-export function staffBackendHeadersFrom(
-  request: NextRequest
-): Record<string, string> {
-  const headers: Record<string, string> = {};
-
-  const auth = request.headers.get("authorization");
-  if (auth) headers.Authorization = auth;
-
-  if (process.env.CF_ACCESS_CLIENT_ID) {
-    headers["CF-Access-Client-Id"] = process.env.CF_ACCESS_CLIENT_ID;
-  }
-  if (process.env.CF_ACCESS_CLIENT_SECRET) {
-    headers["CF-Access-Client-Secret"] = process.env.CF_ACCESS_CLIENT_SECRET;
-  }
-
-  return headers;
-}
-
-/**
  * Refleja la respuesta de error del backend tal cual (status + payload),
  * para que el cliente vea exactamente el envelope de errores del API
  * (p. ej. 409 `case.not_complete` con la lista de faltantes).

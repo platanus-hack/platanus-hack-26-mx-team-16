@@ -6,4 +6,3 @@
 |---|---|---|
 | [`switch-tenant.md`](tenants/switch-tenant.md) | 🟢 implementado | 80% |
 
-**Relacionado:** [índice de auditoría](../../_reorg/STATUS-AUDIT.md)

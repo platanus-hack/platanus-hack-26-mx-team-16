@@ -42,7 +42,6 @@ interface OnboardTenantWizardData {
   countryCode: string;
   currencyCode: string;
   timeZone: string;
-  industryId: string | null;
 
   // step 2 — members
   members: DraftMember[];
@@ -66,7 +65,6 @@ interface OnboardTenantWizardActions {
   setCountryCode: (code: string) => void;
   setCurrencyCode: (code: string) => void;
   setTimeZone: (tz: string) => void;
-  setIndustryId: (id: string | null) => void;
   addMember: () => void;
   updateMember: (rowId: string, patch: Partial<DraftMember>) => void;
   removeMember: (rowId: string) => void;
@@ -97,7 +95,6 @@ const INITIAL_DATA: OnboardTenantWizardData = {
   countryCode: "",
   currencyCode: "",
   timeZone: "",
-  industryId: null,
   members: [],
   skipEmail: false,
   isSubmitting: false,
@@ -124,13 +121,11 @@ export const useOnboardTenantWizardStore = create<OnboardTenantWizardState>(
     setCountryCode: (countryCode) => set({ countryCode }),
     setCurrencyCode: (currencyCode) => set({ currencyCode }),
     setTimeZone: (timeZone) => set({ timeZone }),
-    setIndustryId: (industryId) => set({ industryId }),
-    addMember: () =>
-      set((s) => ({ members: [...s.members, emptyMember()] })),
+    addMember: () => set((s) => ({ members: [...s.members, emptyMember()] })),
     updateMember: (rowId, patch) =>
       set((s) => ({
         members: s.members.map((m) =>
-          m.rowId === rowId ? { ...m, ...patch } : m,
+          m.rowId === rowId ? { ...m, ...patch } : m
         ),
       })),
     removeMember: (rowId) =>
@@ -140,5 +135,5 @@ export const useOnboardTenantWizardStore = create<OnboardTenantWizardState>(
     setError: (message) => set({ isSubmitting: false, error: message }),
     setResult: (result) =>
       set({ isSubmitting: false, error: null, result, step: "verify" }),
-  }),
+  })
 );

@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { useOnboardTenantWizardStore } from "@/src/application/stores/onboard-tenant-wizard-store";
-import { useIndustriesQuery } from "@/src/application/hooks/queries/industries";
 import { COUNTRIES } from "@/src/domain/catalogs/countries";
 import { CURRENCIES } from "@/src/domain/catalogs/currencies";
 import { TIMEZONES } from "@/src/domain/catalogs/timezones";
@@ -20,7 +19,7 @@ import { slugify } from "./slug";
 const STAR = "⭐";
 
 function sortPopularFirst<T extends { popular?: boolean; label: string }>(
-  list: T[],
+  list: T[]
 ): T[] {
   return [...list].sort((a, b) => {
     const ap = a.popular ? 0 : 1;
@@ -37,19 +36,12 @@ export function StepInfo() {
   const timeZone = useOnboardTenantWizardStore((s) => s.timeZone);
   const setName = useOnboardTenantWizardStore((s) => s.setName);
   const setCountryCode = useOnboardTenantWizardStore((s) => s.setCountryCode);
-  const setCurrencyCode = useOnboardTenantWizardStore(
-    (s) => s.setCurrencyCode,
-  );
+  const setCurrencyCode = useOnboardTenantWizardStore((s) => s.setCurrencyCode);
   const setTimeZone = useOnboardTenantWizardStore((s) => s.setTimeZone);
-  const industryId = useOnboardTenantWizardStore((s) => s.industryId);
-  const setIndustryId = useOnboardTenantWizardStore((s) => s.setIndustryId);
 
   const countries = useMemo(() => sortPopularFirst(COUNTRIES), []);
   const currencies = useMemo(() => sortPopularFirst(CURRENCIES), []);
   const timezones = useMemo(() => sortPopularFirst(TIMEZONES), []);
-
-  const { data: industries = [], isLoading: industriesLoading } =
-    useIndustriesQuery();
 
   const slugPreview = slugify(name) || "tenant";
 
@@ -87,9 +79,7 @@ export function StepInfo() {
                   <span className="mr-2">{c.flag}</span>
                   {c.label}
                   {c.popular ? (
-                    <span className="ml-1 text-[10px] opacity-60">
-                      {STAR}
-                    </span>
+                    <span className="ml-1 text-[10px] opacity-60">{STAR}</span>
                   ) : null}
                 </SelectItem>
               ))}
@@ -109,9 +99,7 @@ export function StepInfo() {
             <SelectContent>
               {currencies.map((c) => (
                 <SelectItem key={c.code} value={c.code}>
-                  <span className="font-mono text-[11px] mr-2">
-                    {c.code}
-                  </span>
+                  <span className="font-mono text-[11px] mr-2">{c.code}</span>
                   {c.label}
                 </SelectItem>
               ))}
@@ -122,10 +110,7 @@ export function StepInfo() {
 
       <div className="space-y-1.5">
         <Label className="text-xs font-medium">Zona horaria</Label>
-        <Select
-          value={timeZone}
-          onValueChange={(v) => v && setTimeZone(v)}
-        >
+        <Select value={timeZone} onValueChange={(v) => v && setTimeZone(v)}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Elegir…" />
           </SelectTrigger>
@@ -136,42 +121,6 @@ export function StepInfo() {
                 <span className="ml-2 font-mono text-[10px] opacity-60">
                   {tz.code}
                 </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-1.5">
-        <Label className="text-xs font-medium">
-          Industria
-          <span className="ml-2 font-normal text-[10px] text-muted-foreground">
-            (opcional)
-          </span>
-        </Label>
-        <Select
-          value={industryId ?? ""}
-          onValueChange={(v) => setIndustryId(v || null)}
-          disabled={industriesLoading || industries.length === 0}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue
-              placeholder={
-                industriesLoading
-                  ? "Cargando…"
-                  : industries.length === 0
-                    ? "Sin industrias disponibles"
-                    : "Elegir…"
-              }
-            />
-          </SelectTrigger>
-          <SelectContent>
-            {industries.map((ind) => (
-              <SelectItem key={ind.uuid} value={ind.uuid}>
-                {ind.icon ? (
-                  <span className="mr-2">{ind.icon}</span>
-                ) : null}
-                {ind.name}
               </SelectItem>
             ))}
           </SelectContent>

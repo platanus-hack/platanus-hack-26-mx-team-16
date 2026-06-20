@@ -83,12 +83,7 @@ export function TenantHead() {
 
   if (!tenant) return null;
 
-  const currentWithIndustries =
-    tenants.find((t) => t.uuid === tenant.uuid) ?? tenant;
-  const primaryIndustry = currentWithIndustries.industries?.[0];
-  const subtitleParts = [primaryIndustry?.name, tenant.countryCode].filter(
-    Boolean
-  );
+  const subtitleParts = [tenant.countryCode].filter(Boolean);
 
   const summary = (
     <>
@@ -159,11 +154,7 @@ export function TenantHead() {
                         )}
                       </div>
                       <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                        <span>
-                          {[option.industries?.[0]?.name, option.countryCode]
-                            .filter(Boolean)
-                            .join(" / ") || option.slug}
-                        </span>
+                        <span>{option.countryCode || option.slug}</span>
                       </div>
                     </div>
                   </DropdownMenuItem>

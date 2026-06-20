@@ -1,6 +1,6 @@
 ---
 name: Doxiq
-description: Document extraction and business-rule analysis — trustworthy structured data at volume.
+description: Minimal multi-tenant SaaS boilerplate — auth, tenants, roles and background jobs.
 colors:
   teal-primary: "oklch(0.59 0.095 180.54)"
   teal-deep: "oklch(0.468 0.074 180.8)"

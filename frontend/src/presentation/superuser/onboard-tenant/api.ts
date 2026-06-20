@@ -1,7 +1,7 @@
 "use client";
 
-import { authHttp } from "@/src/infrastructure/http/client";
 import type { MemberRoleSlug } from "@/src/application/stores/onboard-tenant-wizard-store";
+import { authHttp } from "@/src/infrastructure/http/client";
 
 export interface OnboardTenantApiResponse {
   data: {
@@ -28,17 +28,16 @@ export interface OnboardTenantApiResponse {
 export interface OnboardTenantPayload {
   name: string;
   countryCode: string;
-  industryId?: string | null;
   members: Array<{ email: string; roleSlug: MemberRoleSlug }>;
   skipEmail: boolean;
 }
 
 export async function onboardTenant(
-  payload: OnboardTenantPayload,
+  payload: OnboardTenantPayload
 ): Promise<OnboardTenantApiResponse["data"]> {
   const res = await authHttp.post<OnboardTenantApiResponse>(
     "/v1/tenants/onboard",
-    payload,
+    payload
   );
   return res.data.data;
 }

@@ -15,10 +15,6 @@ class UserPresenter(Presenter[User]):
     first_name: str | None = None
     last_name: str | None = None
     photo_url: str | None = None
-    # E5 · ADR 0001: identidad staff (consola `/staff`). Derivada de la fila
-    # activa en `staff_users` por el session builder, jamás del JWT.
-    is_staff: bool = False
-    staff_role: str | None = None
 
     @property
     def to_dict(self) -> dict[str, Any]:
@@ -31,8 +27,6 @@ class UserPresenter(Presenter[User]):
             "email_address": (self.instance.email_address.model_dump() if self.instance.email_address else None),
             "photo_url": self.photo_url,
             "is_superuser": self.instance.is_superuser,
-            "is_staff": self.is_staff,
-            "staff_role": self.staff_role,
         }
 
 
@@ -70,8 +64,6 @@ class TenantUserSessionPresenter(Presenter[TenantUserSession]):
                 first_name=self.instance.display_first_name,
                 last_name=self.instance.display_last_name,
                 photo_url=self.instance.display_photo,
-                is_staff=self.instance.is_staff,
-                staff_role=self.instance.staff_role,
             ).to_dict,
             "tenant": (TenantPublicPresenter(self.instance.tenant).to_dict if self.instance.tenant else None),
             "tenant_role": (

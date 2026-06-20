@@ -46,21 +46,6 @@ export const PERMISSIONS_CATALOG: PermissionCategory[] = [
       },
     ],
   },
-  {
-    id: "workflows",
-    label: "Workflows",
-    permissions: [
-      { code: "workflows.view", label: "Ver workflows" },
-      { code: "workflows.create", label: "Crear workflows" },
-      { code: "workflows.update", label: "Actualizar workflows" },
-      { code: "workflows.delete", label: "Eliminar workflows" },
-      { code: "workflows.view_usage", label: "Ver uso de workflows" },
-      {
-        code: "workflows.add_integration",
-        label: "Agregar integración a workflows",
-      },
-    ],
-  },
 ];
 
 export const ALL_PERMISSION_CODES = PERMISSIONS_CATALOG.flatMap((cat) =>

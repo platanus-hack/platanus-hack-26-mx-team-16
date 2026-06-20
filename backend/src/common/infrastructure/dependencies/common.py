@@ -5,7 +5,6 @@ from saq import Queue
 from fastapi import Depends, Request
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
-from temporalio.client import Client as TemporalClient
 
 from src.common.database.config import DatabaseConfig
 from src.common.domain.contexts.bus import BusContext
@@ -14,7 +13,6 @@ from src.common.infrastructure.bus_builder import build_async_bus
 from src.common.infrastructure.context_builder import AppContext
 from src.common.infrastructure.domain_builder import build_async_domain
 from src.common.infrastructure.event_publisher import RedisEventPublisher
-from src.common.infrastructure.notifications.pg_notifier import PGNotifier
 
 
 async def get_database_session(request: Request) -> AsyncGenerator[AsyncSession]:
@@ -42,20 +40,6 @@ def get_task_queue(request: Request) -> Queue:
 
 
 TaskQueueDep = Annotated[Queue, Depends(get_task_queue)]
-
-
-def get_temporal_client(request: Request) -> TemporalClient:
-    return cast("TemporalClient", request.app.state.temporal_client)
-
-
-TemporalClientDep = Annotated[TemporalClient, Depends(get_temporal_client)]
-
-
-def get_pg_notifier(request: Request) -> PGNotifier:
-    return cast("PGNotifier", request.app.state.pg_notifier)
-
-
-PGNotifierDep = Annotated[PGNotifier, Depends(get_pg_notifier)]
 
 
 def get_redis_client(request: Request) -> Redis:

@@ -3,7 +3,6 @@
 
 COMPOSE := docker compose -f docker-compose.yml
 COMPOSE_API := docker compose -f docker-compose.yml run --rm api
-COMPOSE_ADMIN := docker compose -f docker-compose.yml run --rm admin
 COMPOSE_PROD := docker compose -f docker-compose.prod.yml
 
 ARG=
@@ -88,28 +87,6 @@ tycheck:
 code_quality: format lint tycheck
 	@echo "Running quality checks..."
 
-setup_assets:
-	mc alias set doxiq_local http://localhost:9000 minioadmin minioadmin
-  	# Crear bucket
-	mc mb doxiq_local/doxiq-ws
-	# Configurar Permisos
-	mc anonymous set public doxiq_local/doxiq-ws
-	mc anonymous set download doxiq_local/doxiq-ws
-	mc anonymous set upload doxiq_local/doxiq-ws
-	# Verificar Configuración
-	mc anonymous get doxiq_local/doxiq-ws
-	mc ls doxiq_local/doxiq-ws/
-
-perms_assets:
-	mc alias set doxiq_local http://localhost:9000 minioadmin minioadmin
-
-	mc anonymous set public doxiq_local/doxiq-ws
-	mc anonymous set download doxiq_local/doxiq-ws
-	#mc anonymous set upload doxiq_local/doxiq-ws
-	# Verificar Configuración
-	mc anonymous get doxiq_local/doxiq-ws
-	mc ls doxiq_local/doxiq-ws/
-
 migrations:
 	@echo "Creating new migration..."
 	$(COMPOSE_API) alembic revision --autogenerate -m "$(ARG)"
@@ -133,68 +110,4 @@ db_current:
 # domain: https://doxiq-ws.codemia.dev
 tunnel:
 	cloudflared tunnel token ca7c7ef6-856c-4c2f-9d35-3830bd58f796 | xargs -I{} cloudflared tunnel run --token {}
-
-# domain: https://vnext-assets.codemia.dev
-tunnel_assets:
-	cloudflared tunnel token 8887c0c8-c2f4-45fd-bc71-7913857b06f3 | xargs -I{} cloudflared tunnel run --token {}
-
-
-# Directus Custom Modules Commands
-admin_install:
-	@echo "Installing Directus extension dependencies..."
-	cd admin/extensions/payouts && npm install
-
-admin_build:
-	@echo "Building Directus custom modules..."
-	cd admin/extensions/payouts && npm run build
-
-admin_build_dev:
-	@echo "Building Directus custom modules for DEVELOPMENT..."
-	cp admin/extensions/payouts/.env.dev admin/extensions/payouts/.env
-	cd admin/extensions/payouts && npm run build
-	@echo "✅ Built with DEVELOPMENT environment"
-
-admin_build_prod:
-	@echo "Building Directus custom modules for PRODUCTION..."
-	cp admin/extensions/payouts/.env.prod admin/extensions/payouts/.env
-	cd admin/extensions/payouts && npm run build
-	@echo "✅ Built with PRODUCTION environment"
-
-admin_clean:
-	@echo "Cleaning Directus build artifacts..."
-	rm -rf admin/extensions/payouts/dist
-	rm -rf admin/extensions/payouts/node_modules
-
-admin_rebuild: admin_clean admin_install admin_build
-	@echo "Rebuild completed!"
-
-admin_rebuild_dev: admin_clean admin_install admin_build_dev
-	@echo "Development rebuild completed!"
-
-admin_rebuild_prod: admin_clean admin_install admin_build_prod
-	@echo "Production rebuild completed!"
-
-admin_watch:
-	@echo "Watching Directus custom modules for changes..."
-	cp admin/extensions/payouts/.env.dev admin/extensions/payouts/.env
-	cd admin/extensions/payouts && npm run dev
-
-# Docker builds with custom image (includes extensions in image)
-admin_docker_build_dev:
-	@echo "Building custom Directus image for DEVELOPMENT..."
-	make admin_build_dev
-	docker compose -f docker-compose.yml build admin
-
-admin_docker_build_prod:
-	@echo "Building custom Directus image for PRODUCTION..."
-	make admin_build_prod
-	docker compose -f docker-compose.admin-custom.yml build
-
-admin_docker_up_custom:
-	@echo "Starting Directus with custom image..."
-	docker compose -f docker-compose.admin-custom.yml up -d
-
-admin_docker_down_custom:
-	@echo "Stopping Directus custom image..."
-	docker compose -f docker-compose.admin-custom.yml down
 

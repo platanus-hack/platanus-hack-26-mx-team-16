@@ -1,6 +1,9 @@
 # Doxiq
 
-Plataforma inteligente de extraccion de datos y analisis de reglas de negocio a partir de documentos. Soporta multiples industrias y procesos configurables dinamicamente.
+Minimal multi-tenant SaaS starter boilerplate. Provides authentication,
+users, tenants, roles/permissions and invitations out of the box, plus a
+generic asynchronous background-job mechanism — ready to build a product on
+top of.
 
 ## Stack Tecnologico
 
@@ -8,12 +11,7 @@ Plataforma inteligente de extraccion de datos y analisis de reglas de negocio a 
 |------|-----------|
 | Frontend | Next.js 15 + React 19 + TypeScript + Tailwind CSS v4 + shadcn |
 | Backend | FastAPI + Python 3.12 + SQLAlchemy (async) + PostgreSQL |
-| OCR | Gemini 2.5 Flash / AWS Textract / GCP Vision |
-| LLM | Gemini 2.5 Flash / OpenAI gpt-4o-mini |
-| Analisis | Gemini 2.5 Flash via Agno Agent (output estructurado) |
-| Storage | S3 (AWS) |
-| Knowledge Base | pgvector + Gemini Embedding API (similitud coseno) |
-| Workers | Temporal Framework |
+| Background jobs | SAQ (Redis-backed async queue) |
 | Auth | JWT + Google OAuth |
 
 ## Arquitectura
@@ -22,7 +20,7 @@ Plataforma inteligente de extraccion de datos y analisis de reglas de negocio a 
 doxiq/
   backend/          # FastAPI + Clean Architecture (DDD)
   frontend/         # Next.js App (shadcn + Base UI)
-  docs/             # Documentacion del proyecto
+  product/          # Specs y planes del proyecto
 ```
 
 ### Backend — Clean Architecture
@@ -37,29 +35,23 @@ src/<module>/
   presentation/     # Endpoints, routers, presenters, schemas
 ```
 
-**Modulos:** auth, users, profile, tenants, workflows, industries, file_storage, extraction, knowledge_base, integrations, common
+**Modulos:** auth, users, profile, tenants, common, messaging (+ assets, admin)
 
 ## Funcionalidades
 
-### Extraccion de Documentos
-- OCR multi-proveedor (Gemini, AWS Textract, GCP Vision) con scoring de confianza
-- Extraccion de tablas Markdown para campos de tipo array
-- Estructuracion LLM de texto OCR a JSON basado en schemas dinamicos
-- Procesamiento asincrono con polling de estado
-- Knowledge Base (RAG) para inyectar contexto de documentos de referencia
-- Cancelacion de jobs en progreso
-
-### Analisis de Reglas de Negocio
-- Evaluacion de reglas configurables contra datos extraidos
-- Variables de template (`{{today}}`, `{{current_year}}`)
-- Referencias a campos (`@DOC_TYPE.field`)
-- Contexto KB por regla para validaciones contextuales
-- Streaming SSE para resultados en tiempo real
-
 ### Multi-tenancy
 - Tenants con roles y permisos configurables
-- Workflows por tenant
-- Bootstrap de roles por defecto
+- Invitaciones de miembros
+- Bootstrap de roles por defecto (admin / member)
+
+### Autenticacion
+- JWT con refresh tokens
+- Login con Google OAuth
+- Sesiones por tenant
+
+### Background jobs
+- Cola asincrona generica via SAQ (Redis)
+- Endpoint de ejemplo que encola un job para demostrar el patron
 
 ## Desarrollo
 
@@ -107,19 +99,18 @@ just stop-all           # Parar todos los contenedores
 | Variable | Descripcion |
 |----------|-------------|
 | `DATABASE_URL` | PostgreSQL connection string |
+| `REDIS_URL` | Redis connection string (SAQ + tokens) |
 | `CORS_ORIGINS` | Origenes permitidos CORS |
-| `GEMINI_API_KEY` | API key para Gemini (OCR + LLM) |
-| `OPENAI_API_KEY` | API key para OpenAI |
-| `AWS_ACCESS_KEY_ID` | AWS credentials (S3 + Textract) |
-| `AWS_SECRET_ACCESS_KEY` | AWS credentials |
-| `AWS_S3_BUCKET_NAME` | Bucket S3 para archivos |
 | `JWT_SECRET_KEY` | Secret para tokens JWT |
+| `GOOGLE_CLIENT_ID` | Google OAuth client id |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
 
 ## Documentacion
 
 | Documento | Contenido |
 |-----------|----------|
 | [CHEATSHEET.md](CHEATSHEET.md) | Referencia ultra compacta para pedir uso de MCPs y skills en prompts |
-| [docs/backend/endpoints.md](docs/backend/endpoints.md) | Referencia completa de los 69 endpoints REST |
-| [docs/backend-migration.md](docs/backend-migration.md) | Plan de migracion desde legacy |
-| [docs/legacy_backend/](docs/legacy_backend/) | Documentacion historica del backend anterior |
+| [PRODUCT.md](PRODUCT.md) | Direccion estrategica de producto y diseño |
+| [DESIGN.md](DESIGN.md) | Sistema visual (tokens, tipografia, componentes) |
+| [product/specs/](product/specs/) | Specs (QUE se construye) |
+| [product/plans/](product/plans/) | Planes (COMO, con referencia a codigo) |

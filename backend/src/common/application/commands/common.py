@@ -23,6 +23,29 @@ class SendEmailCommand(Command):
 
 
 @dataclass
+class ExampleJobCommand(Command):
+    """Reference async job (boilerplate D3).
+
+    Demonstrates the full SAQ background-job pattern end-to-end:
+    endpoint -> command_bus.dispatch(run_async=True) -> SaqCommandEnqueuer
+    -> SAQ queue -> worker handle_command -> AsyncTaskResolver
+    -> async_tasks_mapping -> command_bus.dispatch (sync) -> ExampleJobHandler.
+
+    Keep this tiny; it exists only as the copy-me template for new jobs.
+    """
+
+    message: str
+
+    @property
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, kwargs: dict) -> "ExampleJobCommand":
+        return cls(**kwargs)
+
+
+@dataclass
 class PublishStreamEventCommand(Command):
     channel_id: str
     stream_event: StreamEvent

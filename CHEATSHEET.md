@@ -89,8 +89,8 @@ Deduplicado: algunas skills existen en varios origenes locales/plugin.
 ## Ejemplos buenos
 
 ```text
-Usa CodeGraph para explicar como `stream_sse` llega al endpoint de workflows.
-Usa $clean-fastapi-ddd y agrega un caso de uso para listar ejecuciones por tenant.
+Usa CodeGraph para explicar como una request autenticada llega al endpoint de tenants.
+Usa $clean-fastapi-ddd y agrega un caso de uso para listar miembros por tenant.
 Usa $webapp-testing para abrir localhost y verificar que el formulario no rompe en mobile.
 ```
 

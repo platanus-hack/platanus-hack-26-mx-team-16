@@ -1,7 +1,8 @@
-from src.common.application.commands.common import SendEmailCommand
+from src.common.application.commands.common import ExampleJobCommand, SendEmailCommand
 from src.common.domain.contexts.bus import BusContext
 from src.common.domain.contexts.domain import DomainContext
 from src.common.settings import settings
+from src.messaging.application.commands.example_job import ExampleJobHandler
 from src.messaging.application.commands.send_email import SendEmailHandler
 from src.messaging.infrastructure.services.smtp_email import SmtpEmailService
 
@@ -24,6 +25,11 @@ def messaging_wiring(
         handler=SendEmailHandler(
             email_service=email_service,
         ),
+    )
+    # Reference background job (boilerplate D3) — copy this for new async jobs.
+    bus.command_bus.subscribe(
+        command=ExampleJobCommand,
+        handler=ExampleJobHandler(),
     )
 
     #  Q U E R I E S
