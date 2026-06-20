@@ -1,4 +1,4 @@
-name: doxiq-backend
+name: owliver-backend
 
 services:
   api:

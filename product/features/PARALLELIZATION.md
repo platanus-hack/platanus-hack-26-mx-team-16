@@ -13,6 +13,11 @@ date: 2026-06-20
 > personas/agentes sin bloqueos. Generado automáticamente; el grafo se
 > construye sólo con `hardDependsOn`, reconciliando con el lado consumidor.
 
+> ✅ **Validado** (specs + planes + código real, 2026-06-20) — el esqueleto se
+> sostiene; 0 colisiones greenfield. Antes de congelar contratos, atender los 5
+> *MUST fix* y el edge intra-W1 `06 → {02, 11}`. Detalle en
+> [`PARALLELIZATION-VALIDATION.md`](./PARALLELIZATION-VALIDATION.md).
+
 ## 1. Olas de paralelización (waves)
 
 Capas topológicas usando SOLO `hardDependsOn`.

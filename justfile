@@ -116,7 +116,7 @@ up-prod:
 
 # ─── SEEDS ───────────────────────────────────────────────────────
 # Run after migrate-backend.
-# All seeded users share the password 12345678x; canonical login: team@llamitai.com.
+# All seeded users share the password 12345678x; canonical login: team@owliver.com.
 
 # Seed tenants, users and tenant-user memberships
 seed-users:
