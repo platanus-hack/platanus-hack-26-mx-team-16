@@ -5,7 +5,7 @@ status: pending
 coverage: 0
 audited: 2026-06-20
 spec: ./spec.md
-sources: spec.md §1–§6; 06-data-model/plan.md §2.2/§2.4/§3; 05-agent-team/plan.md §4; 12-api/plan.md §1/§4; 11-auth-magic-link/spec.md §; 13-frontend/spec.md §; common/infrastructure/sse/streaming.py; config/tasks.py; frontend/src/infrastructure/http/sse.ts
+sources: spec.md §1–§6; 06-data-model/plan.md §2.2/§2.4/§3; 05-agent-team/plan.md §4; 12-api/plan.md §1/§4; 13-frontend/spec.md §; common/infrastructure/sse/streaming.py; config/tasks.py; frontend/src/infrastructure/http/sse.ts
 ---
 
 # Owliver — Live view del pentest (SSE, replay-then-tail) — plan de implementación (CÓMO)
@@ -63,11 +63,10 @@ de lo siguiente:
   (hoy 06 documenta `append` con `seq` monótono) también es de 06 §2.4. **Aquí no se
   redefinen**: se importan. 10 **además requiere** a 06 un lector por cursor
   (`seq > since_seq`) y la reserva del `seq`; ese pedido se detalla en §2.2.
-- **Auth por cookie** — el callback del magic-link setea la cookie HttpOnly
-  `SameSite=Lax` ([11-auth-magic-link](../11-auth-magic-link/spec.md)); el BFF
-  `src/app/api/auth/login/route.ts` es la referencia de set/forward de cookie
-  HttpOnly. La dependency `current_user` (variante por-cookie) la posee 11/12; aquí se
-  **consume**.
+- **Auth por cookie** — el BFF de login **Google** (`src/app/api/auth/login/route.ts`,
+  boilerplate SaaS) setea la cookie HttpOnly `SameSite=Lax`; patrón de set/forward ya
+  probado. La dependency `current_user` (variante por-cookie) la posee el módulo `auth`/12;
+  aquí se **consume**.
 - **Subscriber SSE de frontend** — `frontend/src/infrastructure/http/sse.ts` ya
   exporta `subscribeSSE(urlOrFactory, opts)`: usa `fetch` (no `EventSource` nativo)
   con reconexión exponencial, **acepta una URL-factory** para recomputar
@@ -367,9 +366,8 @@ nativo no permite headers custom, y el subscriber del repo (`sse.ts`) usa
 
 ### 5.1 Camino normal (cookie HttpOnly)
 
-1. El callback del magic-link setea la cookie HttpOnly `SameSite=Lax`
-   ([11-auth-magic-link](../11-auth-magic-link/spec.md)); patrón de set/forward en el
-   BFF `src/app/api/auth/login/route.ts`.
+1. El BFF de login **Google** (`src/app/api/auth/login/route.ts`) setea la cookie
+   HttpOnly `SameSite=Lax` (patrón de set/forward del boilerplate).
 2. El cliente abre `/api/scans/{id}/stream` **same-origin** (§6.1); la cookie viaja
    sola.
 3. La ruta valida vía `Depends(require_scan_access)` (12 §4). Para `scan.visibility ==

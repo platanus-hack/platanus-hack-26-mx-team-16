@@ -9,7 +9,7 @@ sources: spec.md §10, §11, §12, §14, §15, §17; owliver-frontend.md §F1–
 
 # Owliver — Frontend (Next.js) — superficies y sistema
 
-> Esta subspec define **todo el frontend de Owliver** (Next.js 15 / App Router): las reglas de arquitectura (BFF, RSC, SSE), la dirección visual "claro de día, SOC de noche", el mapa de rutas, y cada superficie — el leaderboard gov "Hall of Shame" (`/`), el form de escaneo con gate de atestación, el **Live Pentest Theater** (`/scans/[id]`, el centerpiece cinematográfico en modo SOC), el reporte interactivo "Owliver te explica", el reporte público redactado `/r/[token]`, sitios/histórico, las 4 pantallas de magic-link, y watchlist + monitoreo. Incluye estados transversales, a11y, responsive e i18n, el sistema de componentes shadcn+custom, tres features wow opcionales, el mapeo al plan de 20h con su orden de recorte y el checklist de pantallas. Es la **superficie**: los contratos subyacentes viven en las subspecs hermanas (se cruzan, no se duplican). El brief visual de alta fidelidad está en [design-prompt.md](../../design-prompt.md) ("claro de día, SOC de noche").
+> Esta subspec define **todo el frontend de Owliver** (Next.js 15 / App Router): las reglas de arquitectura (BFF, RSC, SSE), la dirección visual "claro de día, SOC de noche", el mapa de rutas, y cada superficie — el leaderboard gov "Hall of Shame" (`/`), el form de escaneo con gate de atestación, el **Live Pentest Theater** (`/scans/[id]`, el centerpiece cinematográfico en modo SOC), el reporte interactivo "Owliver te explica", el reporte público redactado `/r/[token]`, sitios/histórico, login Google, y watchlist + monitoreo. Incluye estados transversales, a11y, responsive e i18n, el sistema de componentes shadcn+custom, tres features wow opcionales, el mapeo al plan de 20h con su orden de recorte y el checklist de pantallas. Es la **superficie**: los contratos subyacentes viven en las subspecs hermanas (se cruzan, no se duplican). El brief visual de alta fidelidad está en [design-prompt.md](../../design-prompt.md) ("claro de día, SOC de noche").
 
 ## Decisiones de diseño (cerradas con el equipo)
 
@@ -28,7 +28,7 @@ sources: spec.md §10, §11, §12, §14, §15, §17; owliver-frontend.md §F1–
 
 - **Next.js 15 (App Router) + React 19 + TypeScript**, Tailwind CSS v4 (oklch, `@theme inline`), **shadcn + Base UI**. Charts con **recharts** (^3.6.0, a instalar). Toasts con **sonner** (hay que añadirlo). **Accordion** se añade con `npx shadcn add accordion` (el repo solo trae `collapsible`).
 - **Cliente → backend SIEMPRE vía BFF** (regla del repo): los componentes `"use client"` hacen `fetch("/api/…")` same-origin; las `route.ts` server-side reenvían con `serverHttp` y manejan cookies HttpOnly + `X-Api-Key`. Nunca `fetch` directo a `Settings.apiBaseUrl` desde el browser.
-- **Route-groups:** `(public)` para todo lo anónimo (leaderboard, scan básico, reporte, `/r/[token]`, magic-link) y `(protected)` para watchlist/monitoreo y scans activos. Decisión de superficie en §F10 / [11-auth-magic-link](../11-auth-magic-link/spec.md). El `(public)` lleva **layout propio** (logo Owliver + CTA "Escanear mi sitio", sin sidebar).
+- **Route-groups:** `(public)` para todo lo anónimo (leaderboard, scan básico, reporte, `/r/[token]`, login) y `(protected)` para watchlist/monitoreo y scans activos. Decisión de superficie en §F10. El `(public)` lleva **layout propio** (logo Owliver + CTA "Escanear mi sitio", sin sidebar).
 - **SSE (live-view):** helper fetch-based `subscribeSSE` / hook `useScanStream` con `credentials: "same-origin"` (auth por cookie; **no** se usa `EventSource` nativo). **Replay-then-tail** sobre `?since_seq=` (`Last-Event-ID` solo como compat). Compresión desactivada en la ruta. El contrato completo del stream vive en [10-realtime-live-view](../10-realtime-live-view/spec.md).
 - **Server Components por defecto**, Client Components solo donde hay estado/SSE (theater, form, filtros, gauges animados). `/r/[token]` es **server component** sin login.
 
@@ -88,9 +88,7 @@ El momento estrella entra en modo SOC: near-black, telemetría, **Geist Mono**, 
 | `/scans/[id]/report` | public/priv | según visibility | Reporte "Owliver te explica" (§F7) | `GET /scans/{id}` · `/findings` |
 | `/sites/[id]` | public | anon | Histórico del sitio (§F9) | `GET /sites/{id}` |
 | `/r/[token]` | public | token | Reporte público redactado (§F8) | `GET /r/{token}` |
-| `/login` (pedir email) | public | anon | Magic-link p.1 (§F10) | `POST /auth/magic-link` |
-| `/login/check-email` | public | anon | Magic-link p.2 | — |
-| `/auth/callback` | public | token | Magic-link p.3 (verify) | `GET /auth/callback?token=` |
+| `/login` | public | anon | Login Google (§F10) | flujo OAuth del boilerplate |
 | `/watchlist` | protected | sesión | Watchlist + monitoreo (§F11) | `GET/POST/DELETE /watchlist` · `PATCH /watchlist/{id}` (toggle `monitor`) |
 
 Acciones transversales: `POST /scans/{id}/share` (genera `/r/{token}`), `GET /scans/{id}/report.pdf` (export), `POST /scans/{id}/cancel` (mata scan). Contrato completo de endpoints en [12-api](../12-api/spec.md).
@@ -135,7 +133,7 @@ Acciones transversales: `POST /scans/{id}/share` (genera `/r/{token}`), `GET /sc
   - Advertencia prominente: *"Vas a lanzar pruebas intrusivas contra **{host}**; hacerlo sin autorización es ilegal."*
   - **Checkbox obligatorio**: *"Declaro tener autorización para auditar este dominio."* + link "Ver términos" (Dialog). Sin marcar el checkbox, el submit queda **deshabilitado**.
   - **Advertencia reforzada (copy en rojo)** si el host es `.gob.mx` u otro sensible (*"Sitio del Estado: el escaneo activo es de tu entera responsabilidad legal; los escaneos automáticos del ranking público solo corren en modo pasivo."*) — pero **se puede proceder** bajo atestación: la atestación es el control, **no** un bloqueo por dominio (ver [01-legal-ethics](../01-legal-ethics/spec.md) §2.4). El resultado de un activo gov queda **privado** (fuera del ranking público).
-- **Nivel activo** requiere sesión → si no hay, redirige a magic-link guardando el destino pendiente (§F10).
+- **Nivel activo** requiere sesión → si no hay, redirige a `/login` (Google) guardando el destino pendiente (§F10).
 
 **Flujo.** submit → loading en el botón → `POST /scans` → recibe `scan_id` → **redirect a `/scans/[id]`** (theater). Idempotencia: si ya hay un scan running, el backend devuelve el `scan_id` existente y se redirige igual (no crea duplicado — ver [12-api](../12-api/spec.md)).
 
@@ -213,7 +211,7 @@ Reporte interactivo in-app de **dos capas**. Vuelve al **modo claro** (confianza
 
 **Funcionalidad.**
 - Renderiza la **capa ejecutiva completa** + findings técnicos **con los payloads de explotación redactados/ocultos** por defecto: muestra tipo, categoría, severidad, `impact`, `remediation`; **nunca** el exploit crudo (payload de prompt-injection, request de sqlmap, system-prompt filtrado). Diseña el estado "exploit redactado" (candado + *"Oculto en el reporte público"*).
-- **Estados del token** (contrato en [11-auth-magic-link](../11-auth-magic-link/spec.md) / [12-api](../12-api/spec.md)): inexistente → **404**; `expires_at < now()` o `revoked_at` → **410 Gone** con copy *"Este enlace expiró"*; válido → reporte redactado.
+- **Estados del token** (contrato en [12-api](../12-api/spec.md)): inexistente → **404**; `expires_at < now()` o `revoked_at` → **410 Gone** con copy *"Este enlace expiró"*; válido → reporte redactado.
 - Banner de compartir social + (opcional) **Report Card** (§F14-1).
 
 ---
@@ -226,16 +224,14 @@ Reporte interactivo in-app de **dos capas**. Vuelve al **modo claro** (confianza
 
 ---
 
-## §F10 · Auth magic-link — 4 pantallas (`(public)`)
+## §F10 · Login Google (`(public)`)
 
-El repo trae auth por **password**; Owliver necesita **magic-link**, que no existe aún. **Decisión de superficie:** leaderboard, `/sites/{id}`, `/r/{token}`, reporte y scan **básico** son **anónimos**; solo watchlist/monitoreo y scans activos exigen sesión. Reusa el patrón BFF `/api/auth/*` ya existente. El contrato de tokens (TTL, 1-uso) lo posee [11-auth-magic-link](../11-auth-magic-link/spec.md). Las **4 pantallas/rutas**:
+Owliver **reusa el login Google del boilerplate SaaS** (OAuth ya implementado en el módulo `auth` + BFF `/api/auth/*`). **No hay flujo magic-link.** **Decisión de superficie:** leaderboard, `/sites/{id}`, `/r/[token]`, reporte y scan **básico** son **anónimos**; solo watchlist/monitoreo y scans activos exigen sesión. La cookie HttpOnly `SameSite=Lax` del login Google autentica también el live-view SSE y los endpoints privados.
 
-1. **Pedir email** — input + botón "Enviar enlace" → `POST /auth/magic-link`.
-2. **"Revisa tu correo"** — confirmación con cooldown/reenvío visible.
-3. **Callback / verify** — `GET /auth/callback?token=` (estados: verificando, ok, token inválido/expirado/consumido).
-4. **Sesión iniciada** — post-login: cookie HttpOnly seteada, redirect a la watchlist o al **destino pendiente** (ej. el form de scan activo que disparó el login).
+1. **`/login`** — botón "Entrar con Google" → flujo OAuth del boilerplate.
+2. **Sesión iniciada** — post-login: cookie HttpOnly seteada, redirect a la watchlist o al **destino pendiente** (ej. el form de scan activo que disparó el login).
 
-**Estados.** Errores de token (inválido/expirado/consumido) con copy claro + reenvío. Cooldown visible en la p.2.
+**Estados.** Error de OAuth con copy claro + reintento.
 
 ---
 
@@ -300,7 +296,7 @@ Carril **P4** trabaja contra **fixtures de los stubs** desde la hora 2.
 |---|---|
 | 0–2 | Consumir stubs/fixtures; piel Owliver (§F2 tokens); shell de rutas (§F3) |
 | 2–8 | **Leaderboard** (§F4) + **form/gate** (§F5) contra fixtures; chips/gauges base |
-| 8–14 | **Reporte** (§F7: doble gauge + resumen + accordion) + `/r/[token]` (§F8); magic-link callback |
+| 8–14 | **Reporte** (§F7: doble gauge + resumen + accordion) + `/r/[token]` (§F8); login Google cableado |
 | 14–16 | **Live Pentest Theater** (§F6) con replay-then-tail; demo-level <90s |
 | 16–18 | Watchlist (§F11) + PDF/share + features wow que alcancen (§F14) |
 
@@ -319,7 +315,7 @@ Carril **P4** trabaja contra **fixtures de los stubs** desde la hora 2.
 - [ ] `/scans/[id]/report` — "Owliver te explica" (2 capas, doble gauge, accordion)
 - [ ] `/r/[token]` — reporte público redactado (404/410)
 - [ ] `/sites/[id]` — histórico del sitio
-- [ ] Magic-link (4 pantallas) + sesión
+- [ ] Login Google + sesión
 - [ ] `/watchlist` — watchlist + monitoreo (protected)
 - [ ] Estados transversales (loading/empty/error/partial) + toasts + a11y
 - [ ] (opc.) Report Card · (opc.) chat Owliver · (opc.) Replay cinematográfico

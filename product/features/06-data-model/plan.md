@@ -64,7 +64,6 @@ organización de los módulos existentes (`auth`, `users`, `tenants` →
 |---|---|---|
 | `src/sites/` | `sites`, `watchlist`, `notification_prefs` | Catálogo de dominios + suscripción/preferencias del usuario. Es la entidad "sujeto del escaneo"; su ciclo de vida (registro, `is_gov`, owner) es independiente del scan. |
 | `src/scans/` | `scans`, `findings`, `agentic_surface`, `scan_events`, `alerts`, `public_reports` | El núcleo del motor: una ejecución y todo lo que produce (hallazgos, superficie, eventos, alertas emitidas, links compartibles). Cohesión alta; todo gira alrededor de `scan_id`. |
-| `src/auth/` (existente) | `magic_tokens` | El magic-link es **autenticación**, no parte del motor. Vive con el resto del flujo de login ([11-auth-magic-link](../11-auth-magic-link/spec.md)), no en `scans`. |
 
 > **Por qué dos módulos y no uno:** `sites` tiene lectores que `scans` no
 > (leaderboard, watchlist, scheduler gov de [08-ranking-watchlists](../08-ranking-watchlists/spec.md)),
@@ -189,14 +188,11 @@ ORM (cada uno hereda `UUIDTimestampMixin` salvo donde se note; registrados en
 | `alert.py → AlertORM` | `alerts` | log de notificaciones: `user_id`, `site_id`, `scan_id` FK; `type`, `message`, `channel` enum, `sent_at`. |
 | `public_report.py → PublicReportORM` | `public_reports` | `token` (`secrets.token_urlsafe(32)`, **UNIQUE** index, §4); `scan_id` FK; `created_at`, `expires_at`, `revoked_at nullable`. |
 
-### 2.5 `magic_tokens` — en `src/auth/`
+### 2.5 `src/auth/` — sin tablas net-new del motor
 
-`src/auth/infrastructure/...` ya posee el flujo de sesión. Se añade
-`MagicTokenORM` (`magic_tokens`) con **PK = `token_hash char(64)`** (no UUID; se
-guarda el `sha256` del token opaco, **nunca** el plano — spec §3.7), `email`,
-`expires_at`, `consumed_at nullable`, `created_at`. El canje
-(`GET /auth/callback`) lo implementa [11-auth-magic-link](../11-auth-magic-link/spec.md);
-aquí solo se fija la tabla.
+El login **Google** del boilerplate SaaS ya provee `users` + sesión JWT; el motor
+de pentest **no añade tablas de auth** (no hay `magic_tokens`). El módulo `auth`
+existente se consume tal cual.
 
 ### 2.6 Migración Alembic
 
@@ -315,7 +311,7 @@ los contratos están congelados y **toda** la suite del §5 pasa.
 ## 7. Decisiones y riesgos abiertos
 
 1. **Dos módulos (`sites` + `scans`) vs uno** — resuelto: separados por dirección de
-   dependencia y por tener lectores distintos (§1). `magic_tokens` se queda en `auth`.
+   dependencia y por tener lectores distintos (§1).
 2. **PK column name `uuid` vs `id`** — el DDL de la spec usa `id`; el repo real nombra
    la PK `uuid` (mixin `UUIDPrimaryKeyModelMixin`). **Se adopta `uuid`** por
    consistencia con todo el codebase. Ojo: los presenters **no** renombran a `id` —
@@ -326,8 +322,8 @@ los contratos están congelados y **toda** la suite del §5 pasa.
 3. **Referencia circular `sites.latest_scan_id ↔ scans.site_id`** — se resuelve con
    `use_alter=True` en la FK (mismo patrón que `tenants.owner_id` en
    `models/tenants/tenant.py`); la migración crea las tablas y luego el constraint.
-4. **`notification_prefs` y `magic_tokens` rompen el patrón UUID-PK** a propósito
-   (PK natural: `user_id` y `token_hash`). Documentado para que un revisor no lo
+4. **`notification_prefs` rompe el patrón UUID-PK** a propósito
+   (PK natural: `user_id`). Documentado para que un revisor no lo
    "corrija".
 5. **Enum como `String` (no `sa.Enum` nativo de PG)** — se sigue la convención del
    repo (`TenantStatus` se persiste como `String` con `default=str(...)`), evitando

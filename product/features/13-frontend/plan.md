@@ -5,7 +5,7 @@ status: pending
 coverage: 0
 audited: 2026-06-20
 spec: ./spec.md
-sources: spec.md §F1–§F16; 12-api/plan.md §1; auth/frontend-auth.md (BFF, serverHttp/authHttp); 10-realtime-live-view §; 11-auth-magic-link §; 09-reporting §; 08-ranking-watchlists §; 02-attack-levels §; 01-legal-ethics §2.4; PRODUCT.md; DESIGN.md; product/design-prompt.md (brief visual de alta fidelidad, copy literal por pantalla)
+sources: spec.md §F1–§F16; 12-api/plan.md §1; auth/frontend-auth.md (BFF, serverHttp/authHttp); 10-realtime-live-view §; 09-reporting §; 08-ranking-watchlists §; 02-attack-levels §; 01-legal-ethics §2.4; PRODUCT.md; DESIGN.md; product/design-prompt.md (brief visual de alta fidelidad, copy literal por pantalla)
 ---
 
 # Owliver — Frontend (Next.js) — plan de implementación (CÓMO)
@@ -17,7 +17,7 @@ sources: spec.md §F1–§F16; 12-api/plan.md §1; auth/frontend-auth.md (BFF, s
 > exige funcionando contra **fixtures desde la hora 2**: el **leaderboard gov RSC**,
 > el **form + gate de atestación**, el **Live Pentest Theater** (SSE
 > replay-then-tail, modo SOC) y el **reporte "Owliver te explica"** (doble gauge +
-> acordeón). Todo lo demás (histórico, watchlist, magic-link, features wow) cuelga
+> acordeón). Todo lo demás (histórico, watchlist, login, features wow) cuelga
 > de esas cuatro.
 >
 > Principio operativo: **el browser nunca habla con el backend directo.** Cada
@@ -46,8 +46,8 @@ encima. Lo que **ya existe** y se reutiliza tal cual (rutas reales verificadas):
 - **Auth BFF de referencia:** `frontend/src/app/api/auth/{login,refresh,logout,reset-password}/route.ts`
   + `frontend/src/app/page.tsx` (form login) son el patrón canónico
   cliente→`/api/auth/*`→`serverHttp`→cookies HttpOnly (documentado en
-  [auth/frontend-auth.md](../auth/frontend-auth.md)). El magic-link de §F10 **espeja
-  exactamente** este patrón.
+  [auth/frontend-auth.md](../auth/frontend-auth.md)). El login Google de §F10 **espeja
+  exactamente** este patrón (mismo BFF/cookies HttpOnly del boilerplate).
 - **Route-groups:** `frontend/src/app/(public)/` (register, reset-password,
   invitations, unassigned) y `frontend/src/app/(protected)/` (dashboard, members,
   roles, settings, profile) **ya existen**. Owliver añade superficies a ambos; el
@@ -55,7 +55,7 @@ encima. Lo que **ya existe** y se reutiliza tal cual (rutas reales verificadas):
   para watchlist.
 - **Sesión (cliente):** `frontend/src/application/contexts/session-store.ts` +
   `session.tsx` (zustand, tokens en memoria, `user`/`tenant` persistidos). El
-  magic-link setea sesión por el mismo store.
+  login Google setea sesión por el mismo store.
 - **i18n:** `frontend/src/i18n/{config.ts,request.ts}` + `frontend/src/i18n/messages/{en,es}.json`
   (next-intl, `useTranslations`). **es-MX es primario** — todos los copys de Owliver
   entran como claves nuevas en `frontend/src/i18n/messages/es.json` (y `en.json`).
@@ -111,7 +111,7 @@ Dos grupos, dos audiencias (§F1/§F10). La regla de corte es **auth**, no tema:
 
 > **Decisión clave (§F1, nota de identidad):** `/` (raíz) hoy lo ocupa el **login
 > password** del boilerplate (`src/app/page.tsx`). Owliver **mueve** el login a
-> `/login` (magic-link, §F10) y **reescribe `/` como el Hall of Shame** RSC. El form
+> `/login` (Google, §F10) y **reescribe `/` como el Hall of Shame** RSC. El form
 > password se retira (Owliver no usa password). El `(public)` Owliver lleva **layout
 > propio** que NO comparte el `AuthContainer` centrado del shell.
 >
@@ -168,9 +168,7 @@ tema global — así conviven "claro de día / SOC de noche" sin toggle (§F2). 
   sites/[id]/page.tsx             # histórico del sitio (RSC)  §F9
   r/[token]/page.tsx              # reporte público redactado (RSC, sin login)  §F8
   r/[token]/opengraph-image.tsx   # (opc.) Report Card OG  §F14-1
-  login/page.tsx                  # magic-link p.1 (pedir email)  §F10
-  login/check-email/page.tsx      # magic-link p.2 (revisa tu correo)
-  auth/callback/page.tsx          # magic-link p.3 (verify)  §F10
+  login/page.tsx                  # login Google (botón OAuth del boilerplate)  §F10
 (protected)/
   watchlist/page.tsx              # watchlist + monitoreo  §F11
 api/                              # BFF (server) — §4
@@ -183,8 +181,7 @@ api/                              # BFF (server) — §4
   sites/[id]/route.ts             # GET  histórico
   watchlist/route.ts              # GET/POST
   watchlist/[id]/route.ts         # PATCH/DELETE
-  auth/magic-link/route.ts        # POST /auth/magic-link
-  auth/callback/route.ts          # GET  verify → setea cookies (espeja login/route.ts)
+  # login Google: reusa el BFF /api/auth/login del boilerplate (sin rutas nuevas)
 ```
 
 > **RSC vs BFF:** las superficies **RSC anónimas** (`/`, `/r/[token]`, `/sites/[id]`)
@@ -269,13 +266,12 @@ nunca hay `fetch` del browser a `Settings.apiBaseUrl`.
 | `/r/[token]` | **RSC** `serverHttp.get` (sin cookie) | `GET /r/{token}` |
 | `/watchlist` | client react-query → BFF | `GET/POST/PATCH/DELETE /watchlist` |
 | share / PDF / cancel | client → `fetch("/api/scans/{id}/…")` → BFF | `POST …/share`·`…/cancel`; PDF = link directo proxied |
-| magic-link | client → `fetch("/api/auth/…")` → BFF (espeja login) | `POST /auth/magic-link`·`GET /auth/callback` |
+| login Google | client → redirect OAuth → BFF `/api/auth/login` (boilerplate) | flujo OAuth Google |
 
 - **BFF cookies/X-Api-Key:** el `X-Api-Key` lo inyecta `proxy.ts` (proxy) o
-  `getCommonHeaders` en server (BFF). El `auth/callback/route.ts` **setea las cookies
-  HttpOnly** igual que `api/auth/login/route.ts` (mismo patrón de
-  [auth/frontend-auth.md](../auth/frontend-auth.md); contrato de token en
-  [11-auth-magic-link](../11-auth-magic-link/spec.md)).
+  `getCommonHeaders` en server (BFF). El BFF de login **Google**
+  (`api/auth/login/route.ts` del boilerplate) **setea las cookies HttpOnly** (mismo
+  patrón de [auth/frontend-auth.md](../auth/frontend-auth.md)).
 - **Formato de error único** `{error:{code,message,details}}` ([12-api](../12-api/plan.md)
   §5.1): el BFF re-propaga status; el cliente mapea **422**→inline en form,
   **404**→página "no encontrado" (no confirma existencia), **410**→copy enlace
@@ -329,14 +325,14 @@ control convertido en UI:
   proceder bajo atestación — la atestación es el control, no un bloqueo por dominio;
   el resultado queda **privado**).
 - **Nivel activo requiere sesión:** si no hay, redirige a `/login` guardando el
-  **destino pendiente** (querystring/cookie) que `auth/callback` consume al volver
+  **destino pendiente** (querystring/cookie) que el callback de login Google consume al volver
   (§F10).
 - **Flujo:** submit → loading en botón (doble-submit deshabilitado) →
   `fetch("/api/scans")` → `scan_id` → **redirect `/scans/[id]`**. Idempotente: si ya
   hay scan vivo el backend devuelve el `scan_id` existente (200) y se redirige igual.
   Errores: 422 (atestación/validación) inline; 403 → toast.
 
-## 7. Reporte, reporte público, histórico, magic-link, watchlist
+## 7. Reporte, reporte público, histórico, login, watchlist
 
 Cada uno **renderiza** un contrato que vive en otra feature; aquí la composición:
 
@@ -358,12 +354,9 @@ Cada uno **renderiza** un contrato que vive en otra feature; aquí la composici�
 - **Histórico (`/sites/[id]`, §F9)** — RSC anónimo, destino del click en el
   leaderboard. Encabezado (host, badge gov, grado actual) + dos gauges + timeline de
   scans + `trend-chart` (mini line recharts). Reusa chips/gauges de §F7.
-- **Magic-link 4 pantallas (§F10)** — espejo del BFF de login
-  ([auth/frontend-auth.md](../auth/frontend-auth.md)); contrato de token en
-  [11-auth-magic-link](../11-auth-magic-link/spec.md). `/login` (pedir email →
-  `POST /auth/magic-link`) → `/login/check-email` (cooldown/reenvío visible) →
-  `/auth/callback` (verify; estados verificando/ok/inválido-expirado-consumido; el
-  `route.ts` setea cookies HttpOnly) → redirect a watchlist o **destino pendiente**.
+- **Login Google (§F10)** — reusa el BFF `/api/auth/login` del boilerplate
+  ([auth/frontend-auth.md](../auth/frontend-auth.md)): botón "Entrar con Google" →
+  OAuth → cookie HttpOnly → redirect a watchlist o **destino pendiente**.
 - **Watchlist (`/watchlist`, `(protected)`, §F11)** — `watchlist-table.tsx`:
   hostname + grado + 🛡️/🤖 + último scan + `Switch monitor` + re-scan; "Agregar
   dominio"; ajustes de alertas email/Slack ([08-ranking-watchlists](../08-ranking-watchlists/spec.md)).
@@ -424,9 +417,9 @@ stubs desde la hora 2**.
 2. **Leaderboard + form/gate (2–8):** `/` RSC contra `GET /ranking` (fixtures) +
    filtros/cargar-más; `score-gauge` base; `scan-form` + `attestation-gate` →
    `POST /scans`. Tests de §9 (url, grade, gate, ranking).
-3. **Reporte + público + magic-link (8–14):** `/scans/[id]/report` (doble gauge +
-   ejecutiva + `finding-accordion`); `/r/[token]` redactado (404/410); 4 pantallas
-   magic-link + `auth/callback` cookies. Tests de accordion/redacted.
+3. **Reporte + público + login Google (8–14):** `/scans/[id]/report` (doble gauge +
+   ejecutiva + `finding-accordion`); `/r/[token]` redactado (404/410); login Google
+   cableado al gate de sesión. Tests de accordion/redacted.
 4. **Live Theater (14–16):** `theater/*` + `use-scan-stream` replay-then-tail +
    `theater-store`; demo-level <90s; Plan B `<video>`/replay. Tests del store.
 5. **Watchlist + acciones + wow (16–18):** `/watchlist` + monitor switch; PDF/share +
@@ -443,7 +436,7 @@ fixtures, el BFF de cada una está montado y la suite de §9 pasa.
 
 ## 11. Decisiones y riesgos abiertos
 
-1. **`/` se reescribe como Hall of Shame; login se mueve a `/login` (magic-link).**
+1. **`/` se reescribe como Hall of Shame; login se mueve a `/login` (Google).**
    El form password del boilerplate (`src/app/page.tsx`) se retira — Owliver no usa
    password. Documentado para que un revisor no lo "restaure". (§F1 nota de identidad.)
 2. **`recharts` + `sonner` NO estaban presentes** (verificado contra

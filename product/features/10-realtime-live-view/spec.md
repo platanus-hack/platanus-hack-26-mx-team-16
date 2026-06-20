@@ -84,7 +84,7 @@ El front descarta cualquier evento con `seq <= lastSeq` ya visto. Esto cubre el 
 
 `EventSource` **no permite headers custom**, por lo que el esquema JWT-en-header del resto de la API **no aplica al SSE**. El flujo de auth del stream es por cookie:
 
-- El callback del magic-link setea una **cookie HttpOnly** con `SameSite=Lax`. La emisión de esa cookie pertenece al flujo de magic-link; ver [11-auth-magic-link](../11-auth-magic-link/spec.md).
+- El BFF de login **Google** (boilerplate SaaS) setea una **cookie HttpOnly** con `SameSite=Lax`; esa misma cookie autentica el stream.
 - El cliente abre el stream con el helper fetch-based `subscribeSSE` (hook `useScanStream`, ver [`sse.ts`](../../../frontend/src/infrastructure/http/sse.ts) y [§4.3–§6.2](./plan.md)), con `credentials: "same-origin"` y `?since_seq=lastSeq` como cursor de reconexión — **no** con `EventSource` nativo. Esto adjunta la cookie a la petición same-origin; el `Last-Event-ID` nativo queda solo como nota de compatibilidad (la endpoint del §3 acepta ambos cursores, pero el cliente usa `?since_seq=`).
 - La ruta valida la cookie vía `Depends`.
 
