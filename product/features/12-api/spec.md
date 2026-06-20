@@ -33,7 +33,11 @@ GET    /ranking?country=mx         leaderboard global gov (paginado)
 
 GET    /watchlist                  (auth) sitios del usuario
 POST   /watchlist        {url, monitor}
+PATCH  /watchlist/{id}   {monitor}            alterna monitoreo
 DELETE /watchlist/{id}             (auth) quita un sitio de la watchlist
+
+GET    /me/alerts                  (auth) prefs de canal de alerta del usuario
+PUT    /me/alerts        {emailEnabled, slackWebhookUrl}
 
 GET    /r/{token}                  reporte público (redactado, §11.3)
 
@@ -78,14 +82,23 @@ re-ejecutado lancen escaneos duplicados: cada escaneo corre Opus + Sonnet + gara
 
 ### Enforcement legal (gate previo al encolado)
 
-Antes de encolar se aplica el enforcement legal: si el destino es gubernamental y
-el nivel no es básico/pasivo —`is_gov && level != basico`— el endpoint responde
-**422**, **ignorando el checkbox `authorized`** del request. Owliver nunca lanza
-un nivel activo contra un `.gob.mx` aunque el usuario marque la casilla.
+Antes de encolar se aplica el **gate de atestación** de
+[01-legal-ethics](../01-legal-ethics/spec.md) §2.1: un nivel **activo**
+(intermedio/avanzado) **sin `authorized=true`** en el request responde **422**
+(`attestation_required`) y el job **no** se encola. Un nivel **básico/pasivo** no
+requiere atestación.
+
+Owliver **no bloquea por dominio**: el activo se permite sobre **cualquier** URL
+—incluidos `.gob.mx`— bajo atestación; la responsabilidad legal recae en quien
+atesta. Para hosts `is_gov`/sensibles el refuerzo es **no bloqueante**: la
+advertencia de la UI es más enfática (copy reforzado, [13-frontend](../13-frontend/spec.md))
+y el resultado queda **privado por defecto** (`visibility=private`, fuera del
+ranking público), pero el usuario **puede proceder**. Queda **descartado** el
+bloqueo histórico `is_gov && level != basico → 422`.
 
 ### Idempotencia — dos capas
 
-La cola es **Arq** (asyncio nativo; el worker hace `asyncio.gather`). La
+La cola es **SAQ** (asyncio-native, Redis-backed; el worker hace `asyncio.gather`). La
 idempotencia se implementa en dos capas complementarias:
 
 1. **Partial unique index** sobre `scans(site_id, level) WHERE status IN
@@ -94,9 +107,9 @@ idempotencia se implementa en dos capas complementarias:
    existente. Una creación nueva devuelve **201 Created** con el `scan_id` recién
    generado. (El `200` queda **reservado** para el hit idempotente; toda creación
    real es `201`.)
-2. **`job_id` de Arq** derivado de `site_id+level` para colapsar el doble-submit
+2. **Job key de SAQ** derivada de `site_id+level` para colapsar el doble-submit
    inmediato dentro de la cola. El partial index cubre el re-scan posterior (que
-   Arq por sí solo no cubre); el `job_id` cubre la ráfaga simultánea antes de que
+   la cola por sí sola no cubre); la job key cubre la ráfaga simultánea antes de que
    la primera fila llegue a `queued`.
 
 `scans.status='running'` actúa además como lock lógico.
@@ -113,7 +126,20 @@ idempotencia se implementa en dos capas complementarias:
 |---|---|
 | `201` | Scan nuevo encolado; body incluye el `scan_id` recién creado. |
 | `200` | Hit idempotente: ya existía un scan `queued`/`running` para `(site_id, level)`; body devuelve el `scan_id` existente. |
-| `422` | Enforcement gov (`is_gov && level != basico`) o validación de input. |
+| `422` | Gate de atestación: nivel activo sin `authorized=true` (`attestation_required`), o validación de input. |
+| `429` | Rate-limit de API excedido (`5 scans/hora` por usuario); incluye `Retry-After`. |
+
+### Rate-limiting de `POST /scans`
+
+El límite de API —`5 scans/hora` por usuario— **reutiliza el `RateLimiter` Redis ya
+existente** del fundamento SaaS, no `slowapi`:
+`create_rate_limit_dependency(limit=5, window=3600, key_func=<por-usuario>)` de
+`backend/src/common/infrastructure/dependencies/rate_limit.py`, estrategia
+`fixed_window` (`INCR` + TTL). Al exceder, el handler existente responde **429** con
+`Retry-After`. El rate-limit hacia el *target* (flags `-rl` / delay por herramienta)
+es del worker ([04-scanning-engine](../04-scanning-engine/spec.md)); la política de
+ambos límites y el `User-Agent` identificable los fija
+[01-legal-ethics](../01-legal-ethics/spec.md) §4.
 
 ## AuthZ por endpoint — evitar IDOR
 
@@ -209,9 +235,24 @@ Requiere owner.
 - `POST /watchlist` `{url, monitor}`: añade un sitio a la watchlist y **devuelve la
   fila creada** (incluido su `id` de fila de `watchlist`), de modo que el cliente
   pueda referenciarla luego para `DELETE`.
+- `PATCH /watchlist/{id}` `{monitor}` (auth, owner): alterna el flag `monitor`
+  (re-escaneo periódico) sobre una fila existente — respalda el **toggle de
+  monitoreo** por dominio de la UI (brief §3.8 / [13-frontend](../13-frontend/spec.md)),
+  que antes solo se podía fijar al crear. Devuelve la fila actualizada.
 - `DELETE /watchlist/{id}` (auth): quita un sitio de la watchlist del usuario. El
   `{id}` de la ruta es el **id de fila de `watchlist`** (el devuelto por
   `GET /watchlist` y por `POST /watchlist`), **no** el `site_id`. Requiere owner.
+
+## Alertas — preferencias de canal (`/me/alerts`)
+
+Las preferencias de canal de alerta son **a nivel cuenta** (no por dominio; ver
+[06-data-model](../06-data-model/spec.md) `notification_prefs`). Los canales y la
+lógica de disparo los define [08-ranking-watchlists](../08-ranking-watchlists/spec.md) §5.
+
+- `GET /me/alerts` (auth): devuelve `{emailEnabled, slackWebhookUrl}` del usuario
+  actual (email al owner activo por defecto).
+- `PUT /me/alerts` `{emailEnabled, slackWebhookUrl}` (auth): actualiza las
+  preferencias (upsert sobre `notification_prefs`). `slackWebhookUrl` opcional/null.
 
 ## Reporte público — `GET /r/{token}` y `POST /scans/{id}/share`
 
@@ -255,8 +296,9 @@ Códigos relevantes en toda la superficie:
 
 | Código | Cuándo |
 |---|---|
-| `422` | Enforcement gov (`is_gov && level != basico`) / validación de input. |
+| `422` | Gate de atestación: nivel activo sin `authorized=true` (`attestation_required`) / validación de input. |
 | `404` | Recurso ausente **o** sin permiso (scan `private` no-owner; token de reporte inexistente). |
 | `410` | Token de reporte expirado o revocado (`/r/{token}`). |
 | `200` | Hit idempotente de `POST /scans`: body trae el `scan_id` existente. |
 | `201` | Scan nuevo encolado por `POST /scans`. |
+| `429` | Rate-limit de API excedido (`POST /scans`, 5/h por usuario); incluye `Retry-After`. |

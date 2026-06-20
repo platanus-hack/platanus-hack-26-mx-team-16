@@ -95,22 +95,29 @@ estados y el copy indicado.
 
 ### 3.1 — Hall of Shame · Leaderboard (`/`) 🔴 — PORTADA
 
-El gancho viral. "El Estado bajo la lupa": ranking de sitios `.gob.mx`, **peores
-primero**, poblado desde el segundo cero.
+El gancho viral. "El Estado bajo la lupa": ranking encabezado por sitios `.gob.mx`,
+**peores primero**, poblado desde el segundo cero. (El ranking público incluye
+**cualquier** escaneo **pasivo** —no solo gov—; los sitios del Estado son el
+framing héroe. Ver `08-ranking-watchlists`.)
 
 - **Hero provocador:** titular grande **"¿Qué tan segura es la IA del gobierno?"**,
   subcopy con un contador ("**128 sitios auditados · 41 reprobados (grado F)**").
   Micro-copy de defensa legal, discreto: *"Datos 100% pasivos y públicos —
-  equivalente a Mozilla Observatory / SSL Labs. No intrusivo."*
+  equivalente a Mozilla Observatory / SSL Labs / Shodan. No intrusivo."*
 - **CTA primario** (ámbar): **"Audita cualquier URL →"**.
 - **Tabla/cards de ranking**, cada fila:
   - Posición + **grado grande A–F** (monoespaciado, color de escala).
   - Nombre de la dependencia + hostname (ej. *Servicio de Administración
     Tributaria · sat.gob.mx*).
-  - **Doble medidor** lado a lado: **🛡️ Web** vs **🤖 Agéntico** — el contraste es
-    el diferenciador. Incluye una fila estrella tipo **SAT: "C web / F agéntico"**.
+  - **Doble medidor** lado a lado: **🛡️ Web** vs **🤖 Agéntico**, cada uno con su
+    **sub-score 0–100 + grado-letra por dimensión** (display, derivado de las
+    mismas bandas — ver `07-scoring` §5.1) — el contraste es el diferenciador. El
+    **grado autoritativo** de la fila es único (`overall_grade`). Incluye una fila
+    estrella tipo **SAT: 🛡️ web C (72) / 🤖 agéntico F (24) · grado global E** (el
+    desplome agéntico hunde el overall).
   - Badges cuando aplique: **"IA detectada, sin auditar"** (cuando hay chatbot
-    pero no se probó) y **"cobertura parcial"**.
+    pero no se probó) y **"cobertura parcial"** (con `status=partial` el grado se
+    **capa en C**: nunca muestra A/B — ver `07-scoring`).
   - Valor de penalización cruda + tendencia (▲ ▼ vs el escaneo previo).
 - **Filtros:** por grado, por peor dimensión (web/agéntico), por país (MX).
 - **Estados:** skeleton de filas al cargar; las filas en **F** dominan la pantalla
@@ -131,9 +138,15 @@ Entrada universal: URL + nivel. Es el **control legal** convertido en UI.
     hacerlo sin autorización es ilegal."***
   - **Checkbox obligatorio:** *"Declaro tener autorización para auditar este
     dominio."* + aceptar términos. Sin marcarlo, el botón queda deshabilitado.
-  - Si el host es `.gob.mx`: **advertencia reforzada en rojo** ("Sitio del Estado:
-    el escaneo activo automático está prohibido; solo se permite pasivo"). Para
-    gov + activo, error inline: *"Los sitios gob.mx solo admiten escaneo pasivo."*
+    Micro-copy de registro: *"Esta autorización quedará registrada a tu nombre y
+    con fecha."* (se persiste `authorized_at` + `requested_by`, ver
+    `01-legal-ethics` §2.1).
+  - Si el host es `.gob.mx`: **advertencia reforzada en rojo** (*"Sitio del Estado:
+    el escaneo activo es de tu entera responsabilidad legal; los escaneos
+    automáticos del ranking público solo corren en modo pasivo."*). Es un refuerzo
+    **no bloqueante**: tras atestar, el botón queda **habilitado** y el usuario
+    puede proceder bajo su responsabilidad — **no hay bloqueo por dominio** (ver
+    `01-legal-ethics` §1 y §2.4).
 - **Estados:** validación inline; botón en loading; error de validación claro.
 - **Flujo:** al enviar → redirige a la pantalla de escaneo en vivo (3.3).
 
@@ -146,7 +159,9 @@ debe impresionar.
 - **Header:** host objetivo + nivel + **grado en construcción** (placeholder) +
   **barra de progreso 0–100** con fase legible ("Detectando tecnologías…",
   "Sondeando chatbot…") + **timer** (tranquiliza: "< 90s").
-- **Dos carriles de agente lado a lado**, cada uno con su 🦉:
+- **Dos carriles de agente lado a lado**, cada uno con su 🦉 (ambos coordinados por
+  el **orquestador Opus** del Team Agno, que no tiene carril propio; ver
+  `05-agent-team`):
   - **🛡️ OWASP Scanner** — fila de **chips de herramientas** (nuclei, zap, testssl,
     nikto, sqlmap…) que **se encienden** (ámbar, pulsando) mientras corren y **se
     apagan** (verde = ok, rojo = falló/timeout).
@@ -170,8 +185,11 @@ debe impresionar.
 Vuelve al **modo claro** (lectura/confianza). Reporte interactivo de **dos capas**.
 
 - **Capa 1 — Ejecutiva:**
-  - **Grado grande A–F** arriba (count-up) + **dos gauges semicirculares**:
-    **🛡️ Web** y **🤖 Agéntico**, con el score numérico + grado al centro.
+  - **Grado grande A–F** arriba (count-up) — el **autoritativo** (`overall_grade`,
+    ver `07-scoring`) — + **dos gauges semicirculares**: **🛡️ Web** y **🤖
+    Agéntico**, cada uno con su **sub-score 0–100 + grado-letra por dimensión** al
+    centro (display, derivado de las mismas bandas; el grade badge grande sigue
+    siendo el global).
   - Párrafo **"Owliver te explica"** — qué encontramos y por qué importa, sin
     jerga, tono cercano.
   - **Top 3 riesgos** priorizados con su **impacto de negocio**.
@@ -210,26 +228,27 @@ reporte de cada escaneo.
 
 ### 3.7 — Magic-link · Auth (4 pantallas)
 
-Flujo de login sin contraseña, minimalista, en modo claro:
-1. **Pedir email** — input + botón "Enviar enlace".
-2. **"Revisa tu correo"** — confirmación, con reenvío + cooldown visible.
-3. **Verificando** — landing del callback (estados: verificando / ok / token
+Flujo de login sin contraseña, minimalista, en modo claro (rutas en `13-frontend` §F3):
+1. **Pedir email** (`/login`) — input + botón "Enviar enlace".
+2. **"Revisa tu correo"** (`/login/check-email`) — confirmación, con reenvío + cooldown visible.
+3. **Verificando** (`/auth/callback`) — landing del callback (estados: verificando / ok / token
    inválido o expirado).
-4. **Sesión iniciada** — éxito, redirige a la watchlist o al destino pendiente.
+4. **Sesión iniciada** — éxito (redirect post-login), redirige a la watchlist o al destino pendiente.
 
 ### 3.8 — Watchlist + monitoreo (`/watchlist`, requiere sesión)
 
 Lista de dominios vigilados: cada uno con grado actual + tendencia + **toggle de
 monitoreo** (re-escaneo periódico). Botón "Agregar dominio". Acceso a correr
-escaneo activo. Ajustes de alertas (email / Slack). Estado vacío: *"Agrega tu
+escaneo activo. Ajustes de alertas **a nivel cuenta** (email del owner siempre activo; Slack webhook opcional — ver `08-ranking-watchlists` §5.1, config vía `PUT /me/alerts`). Estado vacío: *"Agrega tu
 primer dominio para vigilarlo."*
 
 ### 3.9 — (Opcional) Report Card compartible
 
 Imagen tipo **"boletín de calificaciones"** generada para compartir: grado grande
-A–F + medidores 🛡️/🤖 + nombre de la dependencia + marca Owliver. Es lo que
-aparece al pegar un link de `/r/[token]` en redes. Diséñala con la **F roja** bien
-visible — es el hook viral #1.
+A–F (el global `overall_grade`) + medidores 🛡️/🤖 (sub-score 0–100 + letra por
+dimensión) + nombre de la dependencia + marca Owliver. Es lo que aparece al pegar
+un link de `/r/[token]` en redes. Diséñala con la **F roja** bien visible — es el
+hook viral #1.
 
 ## 4. Flujos clave a representar
 

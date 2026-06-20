@@ -134,12 +134,12 @@ Acciones transversales: `POST /scans/{id}/share` (genera `/r/{token}`), `GET /sc
 - **Gate condicional de atestación** (aparece **solo** si el nivel es activo — intermedio/avanzado — y queda **oculto** en básico; en básico `authorized=false`):
   - Advertencia prominente: *"Vas a lanzar pruebas intrusivas contra **{host}**; hacerlo sin autorización es ilegal."*
   - **Checkbox obligatorio**: *"Declaro tener autorización para auditar este dominio."* + link "Ver términos" (Dialog). Sin marcar el checkbox, el submit queda **deshabilitado**.
-  - **Advertencia reforzada (copy en rojo)** si el host es `.gob.mx` u otro sensible (*"Sitio del Estado: el escaneo activo automático está prohibido; solo se permite pasivo"*) — pero **se puede proceder** en hosts no-gov (la atestación es el control, no un bloqueo). Excepción: gov + activo lo rechaza el backend con **422** → el form lo muestra como error inline (*"Los sitios gob.mx solo admiten escaneo pasivo."*).
+  - **Advertencia reforzada (copy en rojo)** si el host es `.gob.mx` u otro sensible (*"Sitio del Estado: el escaneo activo es de tu entera responsabilidad legal; los escaneos automáticos del ranking público solo corren en modo pasivo."*) — pero **se puede proceder** bajo atestación: la atestación es el control, **no** un bloqueo por dominio (ver [01-legal-ethics](../01-legal-ethics/spec.md) §2.4). El resultado de un activo gov queda **privado** (fuera del ranking público).
 - **Nivel activo** requiere sesión → si no hay, redirige a magic-link guardando el destino pendiente (§F10).
 
 **Flujo.** submit → loading en el botón → `POST /scans` → recibe `scan_id` → **redirect a `/scans/[id]`** (theater). Idempotencia: si ya hay un scan running, el backend devuelve el `scan_id` existente y se redirige igual (no crea duplicado — ver [12-api](../12-api/spec.md)).
 
-**Estados.** Validación inline; loading en el botón; error 422 (gov/validación) y 403 (backend) con copy claro (403 → toast); doble-submit deshabilitado.
+**Estados.** Validación inline; loading en el botón; error 422 (atestación faltante / validación) y 403 (backend) con copy claro (403 → toast); doble-submit deshabilitado.
 
 ---
 
@@ -251,7 +251,7 @@ El repo trae auth por **password**; Owliver necesita **magic-link**, que no exis
 
 - **Loading:** skeletons (no spinners) en leaderboard, reporte, histórico.
 - **Empty:** leaderboard (teórico), watchlist vacía ("agrega tu primer dominio"), sitio sin scans.
-- **Error / códigos:** formato único `{error:{code,message,details}}` (ver [12-api](../12-api/spec.md)). Mapeo UI: **422** (gov/validación → inline en el form), **404** (recurso/sin permiso → página "no encontrado", no confirmar existencia), **410** (token expirado → copy de enlace caducado), **403** (toast). Scan `partial` → banner "cobertura parcial". Scan colgado → estado con `tools_status`.
+- **Error / códigos:** formato único `{error:{code,message,details}}` (ver [12-api](../12-api/spec.md)). Mapeo UI: **422** (atestación/validación → inline en el form), **404** (recurso/sin permiso → página "no encontrado", no confirmar existencia), **410** (token expirado → copy de enlace caducado), **403** (toast). Scan `partial` → banner "cobertura parcial". Scan colgado → estado con `tools_status`.
 - **Toasts (sonner):** share generado, PDF listo, errores 403/410, copia de link.
 - **Accesibilidad:** contraste AA en ambos modos (claro/SOC); foco visible; `prefers-reduced-motion` desactiva count-up/pulse; el theater no debe depender solo de color (íconos + texto en chips de severidad).
 - **Responsive:** un solo breakpoint `md`. Leaderboard y reporte mobile-first; tabla→cards y 2-columnas→stack vertical; el theater colapsa los 2 carriles a stack vertical en móvil (el feed de findings manda). Variante móvil obligatoria para las 3 principales: Hall of Shame, Theater, Reporte.

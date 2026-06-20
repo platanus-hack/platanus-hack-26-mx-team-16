@@ -41,7 +41,7 @@ los chatbots/IA embebidos**, algo que casi nadie audita hoy.
 | 1 | **Postura de intrusividad** | Los 3 niveles = intrusividad creciente **sobre cualquier URL** (sin verificación de propiedad). El modo activo se permite contra cualquier página detrás de **advertencia + gate de atestación** (checkbox + términos + consentimiento registrado) antes de encolar. **Escaneos automáticos (seed/cron) = solo pasivos.** La responsabilidad legal del activo recae en el usuario que atesta |
 | 2 | **Motor de pentesting** | **Híbrido**: capa base garantizada (Nuclei + ZAP baseline + testssl.sh + WhatWeb) que SIEMPRE produce findings, + **hexstrike-ai** como power-up para nivel avanzado |
 | 3 | **Runtime IA / orquestación** | **Agno** (Teams): un coordinador + 2 miembros. Modelos: **Sonnet** para subagentes, **Opus** para orquestador + redacción del reporte |
-| 4 | **Stack de app + cola** | **Next.js** (UI) + **FastAPI** (API) + **Redis** (cola **Arq** + pub/sub) + **Postgres** + **worker Python/Agno** |
+| 4 | **Stack de app + cola** | **Next.js** (UI) + **FastAPI** (API) + **Redis** (cola **SAQ** + pub/sub) + **Postgres** + **worker Python/Agno** |
 | 5 | **Motor LLM red-team** | **Híbrido**: detección propia (crawl + clasificación LLM + fingerprints de vendors) + **garak** / **promptfoo** para el ataque |
 | 6 | **Score** | **Doble sub-score** 0–100 (🛡️ Web/OWASP y 🤖 Agéntico/LLM) → score global + **grado A–F** estilo Mozilla Observatory |
 | 7 | **Ranking gov seed** | **México** (`.gob.mx`), ~30–50 dominios, auto-escaneados en nivel básico/pasivo en schedule |
@@ -56,7 +56,7 @@ los chatbots/IA embebidos**, algo que casi nadie audita hoy.
 │  Next.js    │ ────────────► │   FastAPI    │
 │  (frontend) │ ◄──── SSE ──── │   (API)      │
 └─────────────┘   live view   └──────┬───────┘
-                                      │ enqueue (Arq)
+                                      │ enqueue (SAQ)
                                       ▼
                                ┌────────────┐        ┌──────────────┐
                                │   Redis    │◄──────►│  Worker      │
@@ -111,7 +111,7 @@ implementación del análisis de huecos, y lleva frontmatter (`status: pending`,
 | 05 | [agent-team](features/05-agent-team/spec.md) | §6 | El Agno Team (Opus orquestador + 2 Sonnet) donde las tool-functions parsean a `Finding[]` en Python y el LLM queda fuera del camino de datos. |
 | 06 | [data-model](features/06-data-model/spec.md) | §7, §8 | El esquema Postgres del motor de pentest (sites, scans, findings, agentic_surface, scan_events, watchlist, magic_tokens) y los contratos Pydantic `Finding`/`AgenticResult`. |
 | 07 | [scoring](features/07-scoring/spec.md) | §9 | Doble sub-score web/agéntico → overall + grado A–F, con `penalty_raw` sin cap, cap por cobertura parcial y `agentic_status` de tres estados. |
-| 08 | [ranking-watchlists](features/08-ranking-watchlists/spec.md) | §10, §12 | Leaderboard público `.gob.mx` (solo pasivo, sembrado y pre-horneado), watchlists privadas y monitoreo/alertas vía cron de Arq + Resend/Slack. |
+| 08 | [ranking-watchlists](features/08-ranking-watchlists/spec.md) | §10, §12 | Leaderboard público `.gob.mx` (solo pasivo, sembrado y pre-horneado), watchlists privadas y monitoreo/alertas vía cron de SAQ + Resend/Slack. |
 | 09 | [reporting](features/09-reporting/spec.md) | §11 | Reporte de dos capas (ejecutiva con doble gauge A–F + párrafo de Opus, técnica en acordeón), export PDF y link público `/r/[token]` con exploits redactados. |
 | 10 | [realtime-live-view](features/10-realtime-live-view/spec.md) | §12.1 | Live view del pentest por SSE: Postgres es la verdad (`scan_events`), Redis solo el tail, con replay-then-tail y auth por cookie. |
 | 11 | [auth-magic-link](features/11-auth-magic-link/spec.md) | §12.2, §14.1 | Flujo magic-link sin contraseña: 4 pantallas en `(public)`, canje de `magic_tokens` y cookie HttpOnly que autentica la live-view SSE. |
@@ -141,7 +141,7 @@ Núcleo (form → scan → `Finding[]` → reporte) + las **4 swing features** �
 in-scope, con orden de recorte documentado en §15:
 
 1. **Monitoreo recurrente + alertas:** el `scheduler` re-encola escaneos de
-   `watchlist.monitor=true` (y del seed gov) vía el cron nativo de **Arq**.
+   `watchlist.monitor=true` (y del seed gov) vía el cron nativo de **SAQ**.
    Alertas por **Resend** (email) y/o **Slack webhook** cuando baja el grado o
    aparece un finding `critical` (compara `findings.first_seen` a nivel site vía
    `dedupe_key`). Alertas in-app = recorte. Detalle en
@@ -177,7 +177,7 @@ El plan **no es secuencial**. Con 3–4 personas, una línea de tiempo en serie 
 4. **Decisión de infra** — **VPS Linux** (DigitalOcean/Hetzner, 8GB+ RAM) con docker-compose, redes aisladas `owliver_egress`/`owliver_internal`, `docker pull` + warm de imágenes (tags pineados, no `:latest`) + `nuclei -update-templates` a volumen con flag `-duc` en cada run. Patrón Docker: worker dentro de imagen `scanners` fat (`subprocess.run`) + socket mount (DooD, **no DinD**) solo para ZAP/hexstrike. **No PaaS gestionado.**
 5. **Secretos + `is_gov`** — `settings.py` (pydantic-settings) que **falla ruidosamente** al arranque si falta una key; `.env` en `.gitignore` desde el commit 0; cap de tokens en el dashboard de Anthropic. `is_gov = hostname.endswith('.gob.mx')` calculado al insertar el site.
 
-En el mismo bloque se fija **Arq** (no RQ: el worker hace `asyncio.gather`), el **partial unique index** de idempotencia, `scans.id` UUIDv4 y el `exception_handler` global de FastAPI, y se carga el **seed de fixtures del leaderboard** (ver §15 tabla y [`06-data-model`](features/06-data-model/spec.md)/[`08-ranking-watchlists`](features/08-ranking-watchlists/spec.md)).
+En el mismo bloque se fija **SAQ** (asyncio-native, no RQ síncrono: el worker hace `asyncio.gather`), el **partial unique index** de idempotencia, `scans.id` UUIDv4 y el `exception_handler` global de FastAPI, y se carga el **seed de fixtures del leaderboard** (ver §15 tabla y [`06-data-model`](features/06-data-model/spec.md)/[`08-ranking-watchlists`](features/08-ranking-watchlists/spec.md)).
 
 **Carriles (no se bloquean entre sí):**
 
@@ -193,8 +193,8 @@ En el mismo bloque se fija **Arq** (no RQ: el worker hace `asyncio.gather`), el 
 | Horas | Entregable |
 |---|---|
 | **0–2** | **Congelar los 5 artefactos** + abrir carriles. Scaffolding: repo, docker-compose (postgres, redis, api, worker, web, scanners) con redes aisladas, migraciones, `settings.py` fail-loud, **fixtures del leaderboard** cargados por CLI, warm de imágenes + templates Nuclei |
-| **2–5** | **P1/P2:** helper `run_tool()` + imagen `scanners` + **3 parsers de alta densidad** (Nuclei JSONL, testssl `-oJ`, security-headers/Observatory) → `Finding[]` en Python (NO vía `response_model`). `POST /scans` + cola Arq + pickup. **Nivel básico end-to-end con findings reales en la UI** |
-| **5–8** | **P1/P2:** Agno Team (orquestador + 2 miembros; tools devuelven `Finding[]` ya parseado, el LLM solo elige qué tools correr). Scoring + dedup en Python (`penalty_raw`, `coverage`, grado E, cap-C si parcial). Whitelist tools+flags por `(is_gov, level)` + robots.txt + enforcement `is_gov→422` en `POST /scans`. ZAP baseline como 4º parser |
+| **2–5** | **P1/P2:** helper `run_tool()` + imagen `scanners` + **3 parsers de alta densidad** (Nuclei JSONL, testssl `-oJ`, security-headers/Observatory) → `Finding[]` en Python (NO vía `response_model`). `POST /scans` + cola SAQ + pickup. **Nivel básico end-to-end con findings reales en la UI** |
+| **5–8** | **P1/P2:** Agno Team (orquestador + 2 miembros; tools devuelven `Finding[]` ya parseado, el LLM solo elige qué tools correr). Scoring + dedup en Python (`penalty_raw`, `coverage`, grado E, cap-C si parcial). Whitelist tools+flags por `(is_gov, level)` + robots.txt + gate de atestación en `POST /scans` (activo sin `authorized` → 422; **no** bloqueo por dominio). ZAP baseline como 4º parser |
 | **8–11** | **P3:** subagente agéntico — bot propio plantado + **detección por fingerprints deterministas (1ª pasada)** + lazy-load + **puente Playwright-maneja-conversación** + juez con canary/rúbrica → findings + `agentic_status` (3 estados). **P4** ya avanza contra fixtures |
 | **11–14** | **P4:** route-group `(public)`, leaderboard RSC, form de scan (validación URL + gate condicional + redirect), **reporte** (doble gauge + resumen ejecutivo Opus + accordion), `/r/[token]` con redacción de exploits. **P1:** magic-link callback `GET /auth/callback` + tabla `magic_tokens` |
 | **14–16** | Live view: `scan_events` con `seq`+`type`, **replay-then-tail**, auth por cookie, **demo-level <90s**. Correr seed `.gob.mx` **en el VPS** en pasivo → sobrescribe fixtures si termina a tiempo |
@@ -240,7 +240,7 @@ Cada checkpoint = **demo del estado real**, no "casi listo". Si no está verde, 
 | **Scan colgado bloquea worker y cola** | Timeout duro por tool en `subprocess.run`; budget global ~8 min; `try/except` por tool → Finding-meta "tool X no completó" y **continuar**; `POST /scans/{id}/cancel` |
 | **Scan parcial premia al sitio que rompe el scanner** | `coverage jsonb`; si faltó ≥1 scanner base → **cap del grado en C** + etiqueta "cobertura parcial"; nunca mostrar A con cobertura parcial |
 | **Empate F/0 en el leaderboard** (mayoría de `.gob.mx` en 0) | Persistir `penalty_raw` sin clamp; ordenar por `(overall_grade ASC, penalty_raw DESC)`; grado E intermedio |
-| **Legal (sitios gov / activos)** | Enforcement en `POST /scans` (`is_gov→422`); automáticos solo pasivos; ranking público solo pasivo; activo iniciado por usuario = privado de su cuenta (§3) |
+| **Legal (sitios gov / activos)** | Gate de atestación en `POST /scans` (activo sin `authorized` → 422; gov **no** se bloquea: solo refuerza copy + resultado privado); automáticos solo pasivos; ranking público solo pasivo; activo iniciado por usuario = privado de su cuenta (§3) |
 | **Falsos positivos** | Campo `confidence` + triage del orquestador (Opus); juez agéntico con assertion explícito por técnica (canary determinista) |
 
 ---

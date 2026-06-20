@@ -49,12 +49,13 @@ agent_status | tool_start | tool_end | finding
 - **`message`** texto legible del evento.
 - **`ts`** timestamp del evento.
 - **`payload?`** (opcional) carga estructurada específica del tipo.
+- **`progress?`** (opcional, `0–100`) porcentaje de avance del scan; presente en eventos `phase` (y opcionalmente `score`) para alimentar la **barra de progreso 0–100** del header del theater. Si un `phase` no lo trae, el front mantiene el último valor conocido.
 
 Semántica por discriminante relevante:
 
 - **`score`** lleva el `web_score` / `agentic_score` **parcial**, para actualizar los gauges en vivo conforme avanza el scan.
 - **`finding`** lleva **severidad + categoría** (en `severity` / `payload`) para insertar el hallazgo en vivo en la UI.
-- **`done`** marca el cierre exitoso del scan; **`error`** marca un cierre con error. Ambos son terminales para el stream.
+- **`done`** marca el cierre del scan y lleva en su `payload` un `outcome: success | cancelled` — la **cancelación** se señala como `done` con `{outcome: 'cancelled'}`, **no** como un `type` aparte (ver [12-api](../12-api/spec.md) `POST /scans/{id}/cancel`); **`error`** marca un cierre con error. Ambos son terminales para el stream.
 
 El esquema con discriminador resuelve el problema de que un `scan_events` de texto plano sin `type` no permite al front mapear evento → componente de UI.
 

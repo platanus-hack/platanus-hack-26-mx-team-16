@@ -150,8 +150,11 @@ El rate-limiting obligatorio combina **dos límites diferentes** que deben aplic
 en puntos distintos del sistema; no son el mismo control:
 
 1. **API (por usuario).** `5 scans/hora` por usuario en `POST /scans`, implementado
-   con Redis `INCR` + TTL (o `slowapi`). Protege el presupuesto del demo y evita que
-   un usuario sature la cola. Es el límite mínimo imprescindible.
+   **reutilizando el `RateLimiter` Redis existente** del fundamento SaaS
+   (estrategia `fixed_window` = `INCR` + TTL;
+   `backend/src/common/infrastructure/services/rate_limiter.py`), **no** `slowapi`.
+   Protege el presupuesto del demo y evita que un usuario sature la cola. Es el
+   límite mínimo imprescindible.
 2. **Worker (por target).** Límites de tasa hacia el objetivo: Nuclei `-rl`, y delay
    entre requests de `ffuf` / `katana` al target. Minimiza el impacto sobre el host
    escaneado.
@@ -160,9 +163,10 @@ Todo escaneo, además, emite el `User-Agent` identificable `Owliver-Scanner/1.0
 (+contacto)` para que el operador del sitio pueda identificar y contactar el origen
 del tráfico.
 
-El detalle de implementación del límite de API (slowapi / Redis, respuesta `429`) lo
-posee [12-api](../12-api/spec.md); el detalle de los flags de rate-limit por
-herramienta en el worker lo posee [04-scanning-engine](../04-scanning-engine/spec.md).
+El detalle de implementación del límite de API (la dependency sobre el `RateLimiter`
+Redis existente, respuesta `429` con `Retry-After`) lo posee
+[12-api](../12-api/spec.md); el detalle de los flags de rate-limit por herramienta en
+el worker lo posee [04-scanning-engine](../04-scanning-engine/spec.md).
 
 ## 5. Resumen del invariante
 

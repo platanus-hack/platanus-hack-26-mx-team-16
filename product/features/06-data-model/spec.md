@@ -63,6 +63,9 @@ watchlist(id, user_id, site_id, monitor bool, created_at)   -- watchlist privada
 
 alerts(id, user_id, site_id, scan_id, type, message, channel, sent_at)
 
+notification_prefs(user_id PK, email_enabled bool DEFAULT true,   -- prefs de canal por usuario
+                   slack_webhook_url NULL, updated_at)            -- (§3.6; canales en 08 §5.1)
+
 -- canje del magic-link (§14.1): se guarda el hash, nunca el token plano
 magic_tokens(token_hash char(64) PK, email, expires_at,
              consumed_at NULL, created_at)
@@ -94,7 +97,7 @@ Una fila por ejecución del motor. Es el núcleo observable del worker y la fila
 - `id UUID PK` — **UUIDv4, no serial.** Decisión de seguridad: evita la enumeración de scans y el IDOR sobre findings reales (vulnerabilidades explotables de dominios privados). Owliver almacena vulnerabilidades explotables; un id secuencial convertiría al producto en un índice público de cómo hackear los sitios de sus usuarios — el peor titular posible.
 - `level ENUM(basico, intermedio, avanzado)` — nivel de ataque solicitado (ver [02-attack-levels](../02-attack-levels/spec.md)).
 - `status ENUM(queued, running, partial, done, failed, cancelled)` — máquina de estados del scan:
-  - `queued` — encolado en Arq, aún sin worker.
+  - `queued` — encolado en SAQ, aún sin worker.
   - `running` — worker activo; sirve también como **lock** para la idempotencia (§4).
   - `partial` — terminó pero **faltó ≥1 scanner base** (cobertura incompleta). Estado de primera clase: un scan donde ZAP/Nuclei/testssl crashearon, expiraron o fueron bloqueados por un WAF no debe salir con grado A por tener 0 findings. La regla de cap a grado C la aplica el scoring (ver [07-scoring](../07-scoring/spec.md)); aquí el modelo solo distingue `partial` de `done`.
   - `done` — terminó con todos los scanners base cubiertos.
@@ -161,10 +164,11 @@ Persistencia **OBLIGATORIA** (ya no opcional) del live-view. El `seq` monótono 
 
 El flujo de emisión (Redis pub/sub), el replay y el SSE se especifican en [10-realtime-live-view](../10-realtime-live-view/spec.md); aquí solo se fija la forma de la tabla y la garantía de orden.
 
-### 3.6 `watchlist` y `alerts`
+### 3.6 `watchlist`, `alerts` y `notification_prefs`
 
 - `watchlist(id, user_id, site_id, monitor bool, created_at)` — watchlist **privada** por usuario. La watchlist **global** no se materializa: es `sites.is_gov`.
-- `alerts(id, user_id, site_id, scan_id, type, message, channel, sent_at)` — notificaciones de monitoreo (ver [08-ranking-watchlists](../08-ranking-watchlists/spec.md)).
+- `alerts(id, user_id, site_id, scan_id, type, message, channel, sent_at)` — **log** de notificaciones de monitoreo enviadas (ver [08-ranking-watchlists](../08-ranking-watchlists/spec.md)). `channel ∈ {email, slack}`.
+- `notification_prefs(user_id PK → users, email_enabled bool DEFAULT true, slack_webhook_url NULL, updated_at)` — **preferencias de canal por usuario** (a nivel cuenta, no por dominio): el email al owner está activo por defecto y el `slack_webhook_url` es opcional. Es lo que el monitoreo lee para decidir a qué canales emitir (los canales como tales los define [08-ranking-watchlists](../08-ranking-watchlists/spec.md) §5.1; se configura vía `PUT /me/alerts`, ver [12-api](../12-api/spec.md)).
 
 ### 3.7 `magic_tokens`
 
@@ -188,7 +192,7 @@ TTL default 7 días, settable en `POST /scans/{id}/share`. `GET /r/{token}`: 404
 
 - `UNIQUE (scan_id, seq)` en `scan_events` — orden y replay determinista por scan.
 - `(site_id, dedupe_key)` en `findings` — el re-scan hace UPSERT por esta clave; un finding que no reaparece pasa a `status='fixed'`.
-- **Partial unique index** `scans(site_id, level) WHERE status IN ('queued','running')` — **idempotencia de `POST /scans`.** Impide que un doble-click, un retry de red o el seed re-ejecutado lancen escaneos duplicados (cada uno corre Opus+Sonnet+garak+ZAP: duplicar es caro, ensucia el ranking, y un retry ciego de un nivel activo es un segundo ataque no consentido). El 2º POST devuelve 200 con el `scan_id` existente. Segunda capa: `job_id` de Arq derivado de `site_id+level` colapsa el doble-submit inmediato que el partial index no alcanza a cubrir; `scans.status='running'` actúa como lock. La política de reintentos (`max_tries=1` para niveles activos, `max_tries=2` para básico/gov) vive en el worker (ver [05-agent-team](../05-agent-team/spec.md)).
+- **Partial unique index** `scans(site_id, level) WHERE status IN ('queued','running')` — **idempotencia de `POST /scans`.** Impide que un doble-click, un retry de red o el seed re-ejecutado lancen escaneos duplicados (cada uno corre Opus+Sonnet+garak+ZAP: duplicar es caro, ensucia el ranking, y un retry ciego de un nivel activo es un segundo ataque no consentido). El 2º POST devuelve 200 con el `scan_id` existente. Segunda capa: la **job key de SAQ** derivada de `site_id+level` colapsa el doble-submit inmediato que el partial index no alcanza a cubrir; `scans.status='running'` actúa como lock. La política de reintentos (`max_tries=1` para niveles activos, `max_tries=2` para básico/gov) vive en el worker (ver [05-agent-team](../05-agent-team/spec.md)).
 - `UNIQUE (token)` en `public_reports`.
 
 ## 5. Contratos Pydantic congelados (`finding.py`)

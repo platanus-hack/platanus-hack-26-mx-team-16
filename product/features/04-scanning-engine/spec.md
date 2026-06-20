@@ -42,7 +42,7 @@ El stack se compone de los siguientes servicios:
 - `worker` — Python/Agno. **Corre dentro de la imagen `scanners`** (no es una
   imagen aparte): el proceso del worker vive en el mismo contenedor que trae
   preinstaladas las CLIs de pentest.
-- `redis` — cola (Arq) + pub/sub para el live-view.
+- `redis` — cola (SAQ) + pub/sub para el live-view.
 - `postgres` — findings, scans, sites.
 - `scanners` — imagen fat con las CLIs de pentest preinstaladas (es la base del
   worker).
