@@ -1,5 +1,12 @@
 # Owliver — Sub-spec de Frontend 🦉
 
+> ⚠️ **ARCHIVO / HISTÓRICO (2026-06-20).** Este sub-spec se movió y formalizó como
+> [`product/specs/13-frontend/`](../13-frontend/README.md) (fusionando los
+> refinamientos de frontend de `spec-gaps.md` §5). La **fuente de verdad** del
+> frontend es ese subspec; este archivo se conserva solo como referencia. Las
+> referencias internas `[spec.md](spec.md)` apuntan al overview en
+> [`../../spec.md`](../../spec.md).
+
 > **Qué es este documento.** Un sub-spec derivado de [`spec.md`](spec.md) que
 > recoge **solo las funcionalidades que debe tener el frontend** (Next.js).
 > Consolida en un único lugar lo que en el spec vive disperso (§10 ranking, §11

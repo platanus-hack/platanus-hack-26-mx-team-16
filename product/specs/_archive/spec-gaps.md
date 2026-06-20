@@ -1,5 +1,12 @@
 # Owliver — Refinamiento de la spec (huecos y cómo cerrarlos)
 
+> ⚠️ **ARCHIVO / HISTÓRICO (2026-06-20).** Este análisis de huecos ya se **fusionó**
+> en los subspecs numerados de [`product/specs/`](../). Su profundidad de
+> implementación vive ahora distribuida por feature (p. ej. §1→`04-scanning-engine`
+> y `05-agent-team`, §2→`03-agentic-surface`, §4→`10-realtime-live-view`,
+> §6→`06-data-model`/`07-scoring`/`12-api`). Se conserva como referencia; **no es la
+> fuente de verdad** — esa es el subspec correspondiente.
+
 > Consolidación de los huecos detectados por 7 revisores senior, deduplicados y re-priorizados con criterio de hackathon (20h, equipo de 3-4). Prioridad: **blocker** (no hay demo sin esto) > **high** > **medium** > **low**. Cada hueco trae *Qué falta · Por qué importa · Cómo cerrarlo*. Los blocker/high jugosos incluyen **Propuesta de texto para la spec**.
 
 ---

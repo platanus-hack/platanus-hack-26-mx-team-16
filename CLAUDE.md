@@ -4,9 +4,9 @@
 
 Owliver 🦉 (by Llamitai) is an **AI-orchestrated automated pentesting platform**. A user submits a URL + attack level, an Agno agent team runs a pentest (OWASP **+** the "agentic surface" — chatbots / LLM widgets, probing for prompt-injection and jailbreaks) and produces an easy-to-read but technically valuable report with an **A–F score**. Results feed a **public ranking of Mexican government sites (`.gob.mx`)** and **private watchlists** for continuous monitoring.
 
-**`spec.md` (repo root) is the authoritative product spec** — vision, agent/worker design (Agno Team: Opus orchestrator + 2 Sonnet subagents), scanner engine (Nuclei / ZAP / testssl / garak / promptfoo / hexstrike, in Docker), data model, scoring and features. Read it before working on any pentest-engine feature.
+**`product/spec.md` is the authoritative product overview + index** — vision, decisiones cerradas, plan de 20h, riesgos y demo. The per-feature detail (agent/worker design with the Agno Team — Opus orchestrator + 2 Sonnet subagents —, scanner engine with Nuclei / ZAP / testssl / garak / promptfoo / hexstrike in Docker, data model, scoring, agentic surface, API and frontend) lives in the **13 numbered subspecs under `product/specs/`** (index in `product/spec.md` and `product/specs/README.md`). Read the relevant subspec before working on any pentest-engine feature.
 
-The current codebase provides the **SaaS foundation** Owliver is built on: authentication, users, tenants, roles/permissions, invitations and a generic asynchronous background-job mechanism (SAQ). The pentest engine (worker, scanners, scoring, gov ranking) is specified in `spec.md` and built on top of this base.
+The current codebase provides the **SaaS foundation** Owliver is built on: authentication, users, tenants, roles/permissions, invitations and a generic asynchronous background-job mechanism (SAQ). The pentest engine (worker, scanners, scoring, gov ranking) is specified across `product/specs/` (overview in `product/spec.md`) and built on top of this base.
 
 ## Design Context
 
@@ -46,7 +46,9 @@ owliver/
   backend/        # FastAPI API (Python 3.12, async SQLAlchemy, PostgreSQL)
   frontend/       # Next.js App (TypeScript, Tailwind CSS v4, shadcn + Base UI)
   product/        # Specs y planes del proyecto
-  spec.md         # Owliver product spec (source of truth)
+    spec.md       # Owliver product overview + índice (enlaza a specs/)
+    specs/        # Subspecs por feature (01-13 pentest + boilerplate)
+    plans/        # Planes de implementación (CÓMO)
   justfile        # Development commands
 ```
 
@@ -56,7 +58,7 @@ Clean Architecture with DDD. Each module follows: `domain/ → application/ → 
 
 **Modules (SaaS foundation):** auth, users, profile, tenants, common, messaging, assets, admin
 
-> Owliver's pentest modules (scans, findings, agentic_surface, watchlist, alerts, public_reports, scan_events) and the Agno worker are specified in `spec.md` (§5–§9) and not yet implemented in this codebase.
+> Owliver's pentest modules (scans, findings, agentic_surface, watchlist, alerts, public_reports, scan_events) and the Agno worker are specified across `product/specs/` (notably `06-data-model`, `05-agent-team`, `03-agentic-surface`, `07-scoring`, `08-ranking-watchlists`, `10-realtime-live-view`) and not yet implemented in this codebase.
 
 ### Key Patterns
 - **Use cases** are dataclasses implementing `UseCase` with an `execute()` method
