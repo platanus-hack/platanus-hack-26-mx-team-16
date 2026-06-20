@@ -1,0 +1,193 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+  push:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-quality:
+    name: Backend · lint & type-check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up uv (with cache)
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      # NOTE (ratchet): these three are advisory for now — the codebase has
+      # pre-existing ruff/ty violations. Once cleaned up, remove the
+      # `continue-on-error` lines to turn them into blocking gates.
+      - name: Ruff format (check)
+        run: uv run ruff format --check .
+        continue-on-error: true
+
+      - name: Ruff lint
+        run: uv run ruff check .
+        continue-on-error: true
+
+      - name: Type check (ty)
+        run: uv run ty check
+        continue-on-error: true
+
+  backend-tests:
+    name: Backend · tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      ENVIRONMENT: testing
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      REDIS_HOST: localhost
+      REDIS_PORT: "6379"
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up uv (with cache)
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      # Unit + integration tests. The 'api' (full-stack E2E) and 'llm'
+      # (real LLM calls) markers are excluded — they need the running
+      # stack / API keys, mirroring `make test`.
+      - name: Run tests
+        run: uv run pytest -m "not api and not llm"
+
+  migrations:
+    name: Backend · migrations apply & no drift
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      ENVIRONMENT: testing
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      REDIS_HOST: localhost
+      REDIS_PORT: "6379"
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up uv (with cache)
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Apply migrations
+        run: uv run alembic upgrade head
+
+      # Fails if the ORM models drift from the migrations
+      # (i.e. someone changed a model without generating a migration).
+      - name: Check for model/migration drift
+        run: uv run alembic check
+
+  frontend:
+    name: Frontend · lint, type-check & tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # NOTE (ratchet): advisory for now — pre-existing Biome violations.
+      # Remove `continue-on-error` once cleaned up to make it a blocking gate.
+      - name: Lint (Biome)
+        run: pnpm lint
+        continue-on-error: true
+
+      - name: Type check
+        run: pnpm type-check
+
+      - name: Unit tests (Vitest)
+        run: pnpm test

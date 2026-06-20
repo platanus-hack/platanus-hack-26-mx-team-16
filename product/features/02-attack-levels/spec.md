@@ -18,14 +18,14 @@ Este subspec es **dueño** de:
 - La definición normativa de los **tres niveles** (básico/pasivo, intermedio, avanzado) como intrusividad creciente.
 - **Exactamente qué herramientas y flags** ejecuta el subagente OWASP web en cada nivel.
 - El **alcance (scope) del subagente OWASP web**.
-- La **whitelist `(is_gov, level)`** que el worker impone como enforcement, incluyendo `.gob.mx`.
+- La **definición (política) de la whitelist `(is_gov, level)`** — qué herramientas+flags corre cada nivel, incluyendo `.gob.mx`. (Su estructura de datos concreta y el enforcement en el worker los posee [04-scanning-engine](../04-scanning-engine/spec.md).)
 - El manejo de **`robots.txt`**.
 - El alcance del power-up del nivel **avanzado** (qué SÍ y qué NO entra).
 
 Lo que **NO** define aquí (resumen de una línea + cross-ref):
 
 - **Niveles y comportamiento del subagente agéntico** (sondas por nivel, caps de payloads, banco de payloads, LLM-juez) → ver [03-agentic-surface](../03-agentic-surface/spec.md).
-- **Mecánica de ejecución de herramientas** (imagen `scanners`, `subprocess` vs socket Docker, watchdog, timeouts por tool, budget global, red de egress, parsers de salida → `Finding[]`) → ver [04-scanning-engine](../04-scanning-engine/spec.md).
+- **Mecánica de ejecución de herramientas** (imagen `scanners`, `subprocess` vs socket Docker, watchdog, timeouts por tool, budget global, red de egress, parsers de salida → `Finding[]`) y la **estructura de datos concreta de la whitelist + su enforcement en el worker** (este doc define el contenido/política por nivel; 04 la materializa e impone) → ver [04-scanning-engine](../04-scanning-engine/spec.md).
 - **El Team Agno que orquesta** (coordinador Opus + 2 subagentes Sonnet, qué tools recibe cada agente por nivel) → ver [05-agent-team](../05-agent-team/spec.md).
 - **Gate de atestación, postura legal, escaneos automáticos = solo pasivos** → ver [01-legal-ethics](../01-legal-ethics/spec.md).
 
@@ -43,13 +43,13 @@ Cada nivel define qué herramientas/intensidad usa **cada subagente**. Este docu
 |-------|----------|--------------|
 | **Básico** (pasivo, no intrusivo) | Fingerprint, TLS, headers de seguridad, templates pasivos, recon DNS | WhatWeb/Wappalyzer, testssl.sh, security-headers/Observatory, Nuclei (`exposures`, `misconfiguration`, `ssl`, `tech`, `dns`), robots/sitemap, subfinder/dnsx (passive) |
 | **Intermedio** (activo suave, rate-limited) | Spider + scan pasivo, CVEs, enum ligero, CORS/cookies | + ZAP **baseline** scan, Nuclei full (CVEs, default-logins low-risk), Nikto, katana (crawl), ffuf/gobuster (dir enum ligero), checks CORS/cookie/clickjacking |
-| **Avanzado** (activo / explotación, requiere autorización) | Active scan, inyección, orquestación autónoma | + ZAP **full active** scan, sqlmap (sobre params detectados), Nuclei fuzzing templates, pruebas de auth. **hexstrike-ai NO es parte de la batería garantizada del avanzado** (ver §6): el avanzado se realiza con ZAP full active + Nuclei fuzzing + sqlmap sobre 1 param conocido, dentro del budget global ~8 min (el perfil demo <90s pre-hornea lo pesado, ver §7) |
+| **Avanzado** (activo / explotación, requiere autorización) | Active scan, inyección, explotación dirigida acotada (no orquestación autónoma; ver §6) | + ZAP **full active** scan, sqlmap (sobre params detectados), Nuclei fuzzing templates, pruebas de auth. **hexstrike-ai NO es parte de la batería garantizada del avanzado** (ver §6): el avanzado se realiza con ZAP full active + Nuclei fuzzing + sqlmap sobre 1 param conocido, dentro del budget global ~8 min (el perfil demo <90s pre-hornea lo pesado, ver §7) |
 
 Cada nivel es **acumulativo**: "intermedio" añade su columna a lo que ya corre "básico", y "avanzado" añade la suya a lo de "intermedio". El símbolo `+` en la tabla denota exactamente esa acumulación.
 
 ### 3.1 Nivel básico (pasivo, no intrusivo)
 
-El nivel básico es el único que Owliver dispara **sin un humano atestando** (vía el seed/cron del ranking gov) y por tanto define el piso de "pasivo": no envía tráfico activo, no hace spider, no fuzzea. Su batería:
+El nivel básico es el único que Owliver dispara **sin un humano atestando** (vía el seed/cron del ranking gov) y por tanto define el piso de "pasivo": no envía tráfico activo, no hace spider, no fuzzea. Es **anónimo y sin permisos**: no exige sesión iniciada ni gate de atestación (cualquiera puede lanzarlo, sobre cualquier URL). Su batería:
 
 - **Fingerprint de tecnología:** WhatWeb / Wappalyzer sobre la raíz.
 - **TLS:** testssl.sh.
@@ -77,7 +77,7 @@ Requiere haber pasado el gate de atestación (es activo). Nunca se ejecuta de fo
 Añade explotación dirigida sobre lo del intermedio:
 
 - **ZAP full active scan.**
-- **sqlmap** sobre params detectados (en la práctica del demo, sobre **1 param conocido**).
+- **sqlmap** sobre 1 param conocido (de los params detectados; ver §6).
 - **Nuclei fuzzing templates.**
 - **Pruebas de auth.**
 
@@ -85,17 +85,17 @@ El alcance preciso del "avanzado" (qué entra y qué se recorta) está fijado en
 
 ## 4. Whitelist `(is_gov, level)` — enforcement en el worker
 
-El worker **impone** una whitelist de herramientas+flags indexada por `(is_gov, level)`. Esta whitelist es el control técnico que hace que "pasivo" sea pasivo de hecho, no solo de intención: **"pasivo" se define por herramientas+flags, no por intención**.
+El worker **impone** una whitelist de herramientas+flags indexada por `(is_gov, level)`. Esta whitelist es el control técnico que hace que "pasivo" sea pasivo de hecho, no solo de intención: **"pasivo" se define por herramientas+flags, no por intención**. Este documento define el **contenido/política** de la whitelist (qué tools+flags corre cada nivel); la **estructura de datos concreta y el mecanismo de enforcement** en el worker los posee [04-scanning-engine](../04-scanning-engine/spec.md).
 
 Para **`is_gov`/básico**:
 
 - Herramientas permitidas: **testssl.sh**, **security-headers/Observatory** y **WhatWeb**, todas sobre la **raíz**.
-- **Nuclei** con `-tags ssl,tech,http-misconfig` sobre la **URL raíz**, **sin spider**, y **excluyendo** `intrusive,dos,fuzzing,network`.
+- **Nuclei** con `-tags exposures,misconfiguration,ssl,tech,dns` (el mismo set pasivo del básico general, §3.1) sobre la **URL raíz**, **sin spider**, y **excluyendo** `intrusive,dos,fuzzing,network`.
 - **ZAP spider** y **katana** quedan **deshabilitados** para gov.
 - Se **parsea y honra `robots.txt`** antes de cualquier request (ver §5).
 - Owliver **nunca** dispara activo automático contra ningún sitio (gov o no); ver [01-legal-ethics](../01-legal-ethics/spec.md).
 
-Esta whitelist es el punto donde el subagente OWASP traduce el nivel lógico a una lista concreta de invocaciones. El worker la consulta **antes** de pasar tools al agente: para un target gov, el `owasp_agent` solo recibe las tools pasivas, de modo que ni siquiera tiene la opción de lanzar un activo (defensa en profundidad sobre el enforcement del scheduler descrito en [01-legal-ethics](../01-legal-ethics/spec.md)).
+Esta whitelist es el punto donde el subagente OWASP traduce el nivel lógico a una lista concreta de invocaciones. El worker la consulta **antes** de pasar tools al agente. En el **camino automático** (seed/cron del ranking gov, que es **siempre** básico) el `owasp_agent` solo recibe tools pasivas, de modo que ni siquiera tiene la opción de lanzar un activo (defensa en profundidad sobre el enforcement del scheduler descrito en [01-legal-ethics](../01-legal-ethics/spec.md)). Un escaneo **activo iniciado por un usuario** sobre un dominio gov **sí** recibe las tools activas de su nivel **tras pasar el gate de atestación**: la restricción gov es **no bloqueante** para quien atesta —quedó **descartado** el bloqueo `is_gov → 422 hard` (ver [01-legal-ethics](../01-legal-ethics/spec.md) §1 y §2.4)—; la advertencia reforzada en la UI es enfática pero no bloquea.
 
 > Regla operativa: cualquier flag o tool que no esté explícitamente en la whitelist para el par `(is_gov, level)` evaluado **no se ejecuta**. La whitelist es allow-list, no deny-list.
 
@@ -122,7 +122,7 @@ Si en algún momento se reintroduce hexstrike, debe ser **detrás de un feature-
 Existen **dos presupuestos de tiempo distintos** que no deben confundirse:
 
 - **Budget global de scan ~8 min** — el límite real del nivel avanzado (ZAP full active + Nuclei fuzzing + sqlmap). Este es el comportamiento de producción del nivel avanzado.
-- **Perfil demo / "demo level" <90s** — un perfil **explícito y curado** que corre SOLO un subconjunto rápido (Nuclei subset + testssl + 1 probe contra el bot propio) con **timeout duro garantizado por config (~60–90s)**. El perfil demo **pre-hornea lo pesado**: todo lo que tarda minutos (ZAP full, garak, hexstrike) se muestra desde resultados **ya almacenados** (fixtures), nunca corriendo en vivo durante el pitch.
+- **Perfil demo / "demo level" <90s** — un perfil **explícito y curado** que corre SOLO un subconjunto rápido (Nuclei subset + testssl + 1 probe contra el bot propio) con **timeout duro garantizado por config (~60–90s)**. El perfil demo **pre-hornea lo pesado**: todo lo que tarda minutos (ZAP full active, garak) se muestra desde resultados **ya almacenados** (fixtures), nunca corriendo en vivo durante el pitch.
 
 > El número `<90s` pertenece **exclusivamente** al perfil demo, no al nivel avanzado. El nivel avanzado real opera bajo el budget ~8 min. No reemplazar el avanzado por el demo level: son cosas distintas con propósitos distintos.
 

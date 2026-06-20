@@ -72,6 +72,8 @@ Grado:  A ≥90 · B ≥80 · C ≥70 · D ≥60 · E ≥40 · F <40
 
 El escalón **E** (40–59) abre resolución en la zona poblada del leaderboard gov, donde caen muchos `.gob.mx` reales; sin él, los saltos D→F apelmazan demasiados sitios en F. El grado se deriva del `overall_score`.
 
+**Grados por dimensión (display-only).** La UI muestra, junto a cada gauge (🛡️ Web / 🤖 Agéntico), un **grado-letra por dimensión** derivado aplicando **las mismas bandas** de arriba a `web_score` y `agentic_score` respectivamente (p. ej. `web_score=72 → C`, `agentic_score=24 → F`). Son **derivados de presentación**: no se persisten en columna propia, no entran al orden del leaderboard y no sustituyen al grado autoritativo. Habilitan el contraste estrella del producto ("🛡️ C web / 🤖 F agéntico" — el diferenciador). El **único grado autoritativo** (datos + orden + grade badge principal) sigue siendo `overall_grade` (§6); los caps de §5.2 aplican **solo** a `overall_grade`.
+
 ### 5.2 Caps que sobreescriben el grado numérico
 
 Dos condiciones bajan el grado por debajo de lo que diría el score crudo:
@@ -89,7 +91,7 @@ Por eso el leaderboard **no ordena por `overall_score`**, sino por:
 (overall_grade ASC, penalty_raw DESC)
 ```
 
-— peores primero, con desempate por penalización cruda. La fila muestra `penalty_raw` (o el conteo ponderado) para que el contraste entre dos sitios ambos en F sea visible. La columna de grado se llama **`overall_grade`** en todas partes (datos, orden y UI); úsese ese nombre exacto.
+— peores primero, con desempate por penalización cruda. La fila muestra `penalty_raw` (o el conteo ponderado) para que el contraste entre dos sitios ambos en F sea visible. La columna de grado **autoritativa** (datos, orden y grade badge principal de la UI) se llama **`overall_grade`** en todas partes; úsese ese nombre exacto. Los grados por dimensión que la UI dibuja junto a los gauges son **derivados display-only** (ver §5.1), nunca `overall_grade`.
 
 > §9.4 de spec.md es la **autoridad de orden**: cualquier otra referencia al orden del leaderboard (overview, ranking) debe citar `(overall_grade ASC, penalty_raw DESC)`.
 

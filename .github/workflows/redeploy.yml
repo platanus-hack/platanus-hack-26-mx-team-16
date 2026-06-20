@@ -25,6 +25,10 @@ on:
         required: true
         type: string
 
+concurrency:
+  group: redeploy-${{ github.event.inputs.target_environment }}-${{ github.event.inputs.service }}
+  cancel-in-progress: false
+
 jobs:
   redeploy-backend:
     if: ${{ inputs.service == 'backend' || inputs.service == 'both' }}
@@ -50,17 +54,13 @@ jobs:
         uses: cssnr/portainer-stack-deploy-action@v1
         with:
           token: ${{ secrets.PORTAINER_TOKEN }}
-          repo: ${{ github.repository }}
-          ref: ${{ github.ref }}
           url: ${{ vars.PORTAINER_URL }}
           name: ${{ vars.BACKEND_DEPLOYMENT_SERVICE }}
           file: ${{ vars.BACKEND_DEPLOYMENT_COMPOSE_FILE }}
           standalone: true
           prune: true
           pull: true
-          type: repo
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          type: file
           env_data: >
             {
               "IMAGE_TAG": "${{ inputs.version }}",
@@ -103,17 +103,13 @@ jobs:
         uses: cssnr/portainer-stack-deploy-action@v1
         with:
           token: ${{ secrets.PORTAINER_TOKEN }}
-          repo: ${{ github.repository }}
-          ref: ${{ github.ref }}
           url: ${{ vars.PORTAINER_URL }}
           name: ${{ vars.FRONTEND_DEPLOYMENT_SERVICE }}
           file: ${{ vars.FRONTEND_DEPLOYMENT_COMPOSE_FILE }}
           standalone: true
           prune: true
           pull: true
-          type: repo
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          type: file
           env_data: >
             {
               "IMAGE_TAG": "${{ inputs.version }}",

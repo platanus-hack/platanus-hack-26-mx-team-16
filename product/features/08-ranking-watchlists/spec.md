@@ -9,7 +9,7 @@ sources: spec.md §10, §12 (swing #1), §9.2–§9.4; spec-gaps.md §5.1, §6.1
 
 # Owliver — Ranking público gov + watchlists + monitoreo/alertas
 
-> Este subspec define las tres superficies "de continuidad" de Owliver: el **ranking público de sitios `.gob.mx`** (un leaderboard sembrado con ~30–50 dominios auto-escaneados en modo pasivo según un cron, que muestra **solo** resultados pasivos), las **watchlists privadas** (un usuario marca `monitor=true` sobre sus dominios para re-escaneos periódicos), y el **monitoreo recurrente + alertas** que reencola watchlist y seed gov vía el cron nativo de Arq y notifica por **Resend** (email) y/o **Slack webhook** cuando el grado de un sitio baja o aparece un finding `critical`, comparando identidad de findings a nivel sitio vía `dedupe_key` / `first_seen`. Incluye además la estrategia de **fixtures pre-horneados** del leaderboard para que la primera pantalla del demo nunca aparezca vacía.
+> Este subspec define las tres superficies "de continuidad" de Owliver: el **ranking público de sitios `.gob.mx`** (un leaderboard sembrado con ~30–50 dominios auto-escaneados en modo pasivo según un cron, que muestra **solo** resultados pasivos), las **watchlists privadas** (un usuario marca `monitor=true` sobre sus dominios para re-escaneos periódicos), y el **monitoreo recurrente + alertas** que reencola watchlist y seed gov vía el cron nativo de SAQ y notifica por **Resend** (email) y/o **Slack webhook** cuando el grado de un sitio baja o aparece un finding `critical`, comparando identidad de findings a nivel sitio vía `dedupe_key` / `first_seen`. Incluye además la estrategia de **fixtures pre-horneados** del leaderboard para que la primera pantalla del demo nunca aparezca vacía.
 
 ## 1. Ámbito y fronteras
 
@@ -70,18 +70,18 @@ Una watchlist es la superficie privada equivalente al ranking: un usuario agrega
 
 ## 4. Monitoreo recurrente
 
-### 4.1 Scheduler: cron nativo de Arq (NO rq-scheduler)
+### 4.1 Scheduler: cron nativo de SAQ (NO rq-scheduler)
 
-El monitoreo recurrente lo conduce un **scheduler basado en el cron nativo de Arq**. Owliver fija **Arq** (asyncio nativo) como cola/worker porque el worker hace `asyncio.gather` sobre scanners concurrentes; RQ es síncrono y no sirve. En consecuencia, el re-encolado periódico se hace con **cron de Arq**, **no** con `rq-scheduler` (esto cierra el fix M2: nada de rq-scheduler).
+El monitoreo recurrente lo conduce un **scheduler basado en el cron nativo de SAQ** (`CronJob`). Owliver fija **SAQ** (asyncio-native, Redis-backed) como cola/worker porque el worker hace `asyncio.gather` sobre scanners concurrentes; una cola síncrona (RQ) no sirve. En consecuencia, el re-encolado periódico se hace con el **cron de SAQ**, **no** con `rq-scheduler` ni un proceso scheduler aparte.
 
-> spec.md §12 menciona "APScheduler o cron nativo de Arq" como alternativas; este subspec resuelve a favor del **cron nativo de Arq** para no introducir un proceso scheduler extra y mantener una sola cola Arq como fuente de verdad.
+> spec.md §12 menciona "APScheduler o cron nativo" como alternativas; este subspec resuelve a favor del **cron nativo de SAQ** para no introducir un proceso scheduler extra y mantener una sola cola SAQ como fuente de verdad.
 
 El cron reencola, periódicamente:
 
 1. Los escaneos de **`watchlist.monitor=true`** (nivel según la autorización del owner).
 2. Los escaneos del **seed gov** (nivel básico/pasivo).
 
-Cada re-encolado pasa por la **misma idempotencia** que `POST /scans` para no lanzar duplicados: partial unique index `scans(site_id, level) WHERE status IN ('queued','running')` (el 2º encolado devuelve el `scan_id` existente) + `job_id` de Arq derivado de `site_id+level`. Detalle del contrato de idempotencia en [12-api](../12-api/spec.md) y [06-data-model](../06-data-model/spec.md).
+Cada re-encolado pasa por la **misma idempotencia** que `POST /scans` para no lanzar duplicados: partial unique index `scans(site_id, level) WHERE status IN ('queued','running')` (el 2º encolado devuelve el `scan_id` existente) + la **job key de SAQ** derivada de `site_id+level`. Detalle del contrato de idempotencia en [12-api](../12-api/spec.md) y [06-data-model](../06-data-model/spec.md).
 
 ### 4.2 Detección de cambios a nivel sitio
 
@@ -107,10 +107,10 @@ La definición canónica de `dedupe_key`, `first_seen`/`last_seen` y `status='fi
 
 ### 5.1 Canales: Resend (email) y/o Slack webhook
 
-Cuando el monitoreo detecta una de las señales de §4.2, emite una alerta por uno o ambos canales:
+Cuando el monitoreo detecta una de las señales de §4.2, emite una alerta por uno o ambos canales **según las preferencias del usuario** (a nivel cuenta, no por dominio; persistidas en `notification_prefs` — ver [06-data-model](../06-data-model/spec.md) §3.6, configuradas vía `PUT /me/alerts` en [12-api](../12-api/spec.md)):
 
-- **Resend** — email transaccional.
-- **Slack webhook** — POST a la URL de webhook configurada.
+- **Resend** — email transaccional al owner (`email_enabled`, activo por defecto).
+- **Slack webhook** — POST a la URL configurada (`slack_webhook_url`, opcional).
 
 **Alertas in-app = recorte.** No se construye un centro de notificaciones dentro de la app; solo email/Slack. Esto mantiene el alcance acotado para el demo.
 
@@ -134,7 +134,7 @@ La alerta identifica el sitio (hostname), el grado anterior → nuevo, y la list
 | Arranque del demo | Job de seed | Inserta ~30–50 `sites(is_gov=true)` + encola scans básicos; fixtures pre-horneados pueblan el board ya |
 | Scan real gov termina a tiempo | Worker | **Sobrescribe** la fila sembrada del sitio en el leaderboard |
 | Scan real gov no termina a tiempo | — | El board sigue mostrando el fixture |
-| Cron de Arq (periódico) | Scheduler | Reencola `watchlist.monitor=true` + seed gov (con idempotencia) |
+| Cron de SAQ (periódico) | Scheduler | Reencola `watchlist.monitor=true` + seed gov (con idempotencia) |
 | Re-scan: baja el grado | Monitoreo | Alerta vía Resend / Slack |
 | Re-scan: nuevo `critical` (nuevo `dedupe_key`) | Monitoreo | Alerta vía Resend / Slack |
 | Re-scan: `dedupe_key` previo no reaparece | Monitoreo | `finding.status='fixed'` (sin alerta) |
@@ -143,7 +143,7 @@ La alerta identifica el sitio (hostname), el grado anterior → nuevo, y la list
 
 ## 7. Notas de implementación y recortes
 
-- **Fijar Arq + cron nativo de Arq** desde el inicio; no `rq-scheduler`, no APScheduler, no un proceso scheduler aparte.
+- **Fijar SAQ + su cron nativo (`CronJob`)** desde el inicio; no `rq-scheduler`, no APScheduler, no un proceso scheduler aparte.
 - **Fixtures primero, scans reales después**: el seed real solo mejora el board si gana la carrera contra el reloj del pitch; nunca es el camino crítico.
 - **Sin alertas in-app**: solo email (Resend) y Slack webhook.
 - **El board público es solo pasivo**: el filtro `visibility=public` + `is_gov=true` es el único origen de filas del leaderboard.

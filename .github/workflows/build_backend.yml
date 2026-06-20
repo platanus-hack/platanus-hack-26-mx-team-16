@@ -9,6 +9,10 @@ on:
     paths:
       - 'backend/**'
 
+concurrency:
+  group: build-deploy-backend-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -33,7 +37,7 @@ jobs:
         with:
           images: ${{ vars.BACKEND_REPOSITORY_URI }}
           tags: |
-            latest
+            type=raw,value=latest,enable={{is_default_branch}}
             type=sha,format=short
 
       - name: Log in to GitHub Container Registry
@@ -59,17 +63,13 @@ jobs:
         uses: cssnr/portainer-stack-deploy-action@v1
         with:
           token: ${{ secrets.PORTAINER_TOKEN }}
-          repo: ${{ github.repository }}
-          ref: ${{ github.ref }}
           url: ${{ vars.PORTAINER_URL }}
           name: ${{ vars.BACKEND_DEPLOYMENT_SERVICE }}
           file: ${{ vars.BACKEND_DEPLOYMENT_COMPOSE_FILE }}
           standalone: true
           prune: true
           pull: true
-          type: repo
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          type: file
           env_data: >
             {
               "IMAGE_TAG": "${{ steps.sha.outputs.short }}",

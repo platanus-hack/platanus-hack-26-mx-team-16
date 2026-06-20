@@ -125,7 +125,7 @@ El `Finding`-meta de cobertura y los enums (`status`, `confidence`, `coverage` s
 
 ## 5. Flujo del worker
 
-1. Recoge job de Redis (Arq) → marca `scan.status=running`, publica evento `agent_status` (con `seq` monótono) al canal `scan:{id}:events`.
+1. Recoge job de Redis (SAQ) → marca `scan.status=running`, publica evento `agent_status` (con `seq` monótono) al canal `scan:{id}:events`.
 2. Lanza `orchestrator.run(url, level)` — el orquestador **delega `{url, level}`** y corre los 2 subagentes en paralelo (los miembros se modelan como Agents lanzados concurrentemente bajo la coordinación del LLM en modo `coordinate`, ver Nota B5 en §1.1; no es un `asyncio.gather` literal nuestro). **Cada subagente elige sus propias tools** según el nivel; el orquestador no selecciona tools ni construye findings.
 3. Cada tool corre con su **timeout duro** y dentro del **budget global ~8 min**; al agotarse el budget un **watchdog aborta las tools restantes** (además del cancel manual chequeado entre tools, §4), garantizando el cierre del scan. Su salida cruda se parsea a `Finding[]` **en Python dentro de la tool**. Si una tool falla/expira → Finding-meta de cobertura y se continúa (fallo parcial). Cada paso publica eventos tipados (`tool_start` / `tool_end` / `finding`) a Redis pub/sub para el live view.
 4. **Merge + dedup + scoring en Python** (ver [07-scoring](../07-scoring/spec.md)): dedup por `dedupe_key`, cálculo de `web_score`, `agentic_score`, `agentic_status`, `overall_score`, `overall_grade` y `penalty_raw`. Opus genera el **resumen ejecutivo** sobre el resumen compacto (<2k tokens), no sobre el evidence crudo.
