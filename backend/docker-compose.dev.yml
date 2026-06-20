@@ -1,4 +1,4 @@
-name: doxiq-backend-dev
+name: owliver-backend-dev
 
 x-common-env: &common-env
   PYTHONPATH: /app
@@ -11,14 +11,14 @@ x-common-env: &common-env
   INFISICAL_MACHINE_CLIENT_SECRET: ${INFISICAL_MACHINE_CLIENT_SECRET}
 
 services:
-  doxiq-api:
-    image: ghcr.io/llamitai/doxiq-ws-dev:${IMAGE_TAG:-latest}
+  owliver-api:
+    image: ghcr.io/xiberty/owliver-ws-dev:${IMAGE_TAG:-latest}
     environment:
       <<: *common-env
       PROCESS_LABEL: api
     command: /start
     ports:
-      - "14015:8200"
+      - "14065:8200"
     restart: unless-stopped
     networks:
       - shared-network

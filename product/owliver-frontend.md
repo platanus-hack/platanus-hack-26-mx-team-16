@@ -1,6 +1,6 @@
 # Owliver — Sub-spec de Frontend 🦉
 
-> **Qué es este documento.** Un sub-spec derivado de [`spec.md`](./spec.md) que
+> **Qué es este documento.** Un sub-spec derivado de [`spec.md`](spec.md) que
 > recoge **solo las funcionalidades que debe tener el frontend** (Next.js).
 > Consolida en un único lugar lo que en el spec vive disperso (§10 ranking, §11
 > reporte, §12 live-view + magic-link, §14 API que consume, §15 carril P4, §17

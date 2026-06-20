@@ -1,8 +1,8 @@
-name: doxiq-frontend-prod
+name: owliver-frontend-prod
 
 services:
-  doxiq-web:
-    image: ghcr.io/llamitai/doxiq-web-prod:${IMAGE_TAG:-latest}
+  owliver-web:
+    image: ghcr.io/xiberty/owliver-web-prod:${IMAGE_TAG:-latest}
     environment:
       - NODE_ENV=production
       - STAGE=${INFISICAL_SECRET_ENV}
@@ -13,4 +13,4 @@ services:
       - INFISICAL_MACHINE_CLIENT_SECRET=${INFISICAL_MACHINE_CLIENT_SECRET}
     restart: always
     ports:
-      - '14010:3200'
+      - '14060:3200'
