@@ -23,6 +23,33 @@ services:
     networks:
       - shared-network
 
+  owliver-admin:
+    image: directus/directus:11.17.4
+    restart: unless-stopped
+    ports:
+      - "14070:8055"
+    volumes:
+      - admin_database:/directus/database
+      - admin_uploads:/directus/uploads
+    environment:
+      SECRET: ${ADMIN_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      DB_CLIENT: "postgres"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_DATABASE: ${ADMIN_DB_DATABASE}
+      DB_USER: ${ADMIN_DB_USER}
+      DB_PASSWORD: ${ADMIN_DB_PASSWORD}
+      PUBLIC_URL: ${ADMIN_PUBLIC_URL}
+      WEBSOCKETS_ENABLED: "true"
+    networks:
+      - shared-network
+
+volumes:
+  admin_database:
+  admin_uploads:
+
 networks:
   shared-network:
     external: true
