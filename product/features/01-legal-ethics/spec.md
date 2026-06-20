@@ -128,20 +128,28 @@ selecciona el conjunto de herramientas+flags en función de `(is_gov, level)`.
 - `testssl.sh` — análisis TLS.
 - security-headers / Observatory — **1 request a la raíz**.
 - WhatWeb — fingerprint de la home (URL raíz).
-- Nuclei limitado a `-tags ssl,tech,http-misconfig` **solo sobre la URL raíz, sin
-  spider**, excluyendo los tags `intrusive,dos,fuzzing,network`.
+- Nuclei limitado a `-tags exposures,misconfiguration,ssl,tech,dns` (el mismo set
+  pasivo del básico general; ver [02-attack-levels](../02-attack-levels/spec.md) §3.1/§4)
+  **solo sobre la URL raíz, sin spider**, excluyendo los tags `intrusive,dos,fuzzing,network`.
 - **ZAP spider y katana quedan deshabilitados para gov.**
 - **Honrar `robots.txt`:** parsear `robots.txt` **antes de cualquier request** y
   excluir los paths marcados `Disallow`.
 
-Este conjunto es deliberadamente equivalente, en huella de red, a lo que Mozilla
-Observatory, SSL Labs y Shodan hacen públicamente: un puñado de requests a la raíz +
-inspección de TLS/headers/fingerprint, sin crawling y respetando robots.txt.
+Este conjunto se mantiene **cercano**, en huella de red, a lo que Mozilla
+Observatory, SSL Labs y Shodan hacen públicamente: inspección de
+TLS/headers/fingerprint + un conjunto **acotado** de requests sobre la raíz y unas
+pocas rutas conocidas (los templates `exposures`/`misconfiguration` sí tocan algunas
+rutas además de la raíz), **sin crawling ni spider y respetando `robots.txt`**. Lo
+que sostiene el carácter pasivo es el `-tags` restringido + la ausencia de spider +
+el honrado de `robots.txt` + el rate-limiting, no la promesa de no emitir ningún
+request.
 
-La whitelist completa de herramientas+flags por nivel (incluyendo los perfiles
-intermedio/avanzado para escaneos activos iniciados por usuario) la posee
-[04-scanning-engine](../04-scanning-engine/spec.md); esta capa fija el contrato
-**legal** del perfil pasivo: si una herramienta o flag no aparece en esta whitelist
+La **definición** de la whitelist de herramientas+flags por nivel (incluyendo los
+perfiles intermedio/avanzado para escaneos activos iniciados por usuario) la posee
+[02-attack-levels](../02-attack-levels/spec.md); su **estructura de datos concreta y
+el enforcement en el worker** los posee
+[04-scanning-engine](../04-scanning-engine/spec.md). Esta capa fija el contrato
+**legal** del perfil pasivo: si una herramienta o flag no aparece en esa whitelist
 para `(is_gov, basico)`, no se ejecuta en un escaneo gov.
 
 ## 4. Rate-limiting: dos límites distintos

@@ -1,235 +1,222 @@
 ---
-name: Doxiq
-description: Minimal multi-tenant SaaS boilerplate — auth, tenants, roles and background jobs.
+name: Owliver
+description: AI-orchestrated pentest platform — Material 3 Expressive. Teal primary, amber "owl-eyes" accent, A–F grade scale, dark SOC live-view.
+register: product
+designLanguage: Material 3 Expressive
 colors:
-  teal-primary: "oklch(0.59 0.095 180.54)"
-  teal-deep: "oklch(0.468 0.074 180.8)"
-  teal-tint: "oklch(0.951 0.018 186.07)"
-  ink: "oklch(0.222 0.029 253.225)"
-  surface: "oklch(0.984 0.002 252.121)"
-  card: "oklch(1 0 0)"
-  muted: "oklch(0.945 0.005 252.232)"
-  muted-foreground: "oklch(0.558 0.025 252.534)"
-  border: "oklch(0.905 0.011 252.311)"
-  on-primary: "oklch(1 0 0)"
-  success: "oklch(0.626 0.139 155.038)"
-  warning: "oklch(0.77 0.18 75.998)"
-  destructive: "oklch(0.579 0.214 27.166)"
+  # M3 light scheme — pastel-expressive variant (reference hex)
+  primary: "#2C857A"
+  on-primary: "#FFFFFF"
+  primary-container: "#BEF3E8"
+  on-primary-container: "#00201C"
+  secondary: "#5C7A74"
+  secondary-container: "#D9EDE8"
+  on-secondary-container: "#101F1C"
+  tertiary: "#FFC95C"          # the "owl-eyes" amber (pastel)
+  tertiary-container: "#FFE9BC"
+  on-tertiary-container: "#2A1F00"
+  error: "#E5736E"
+  error-container: "#FCE0DE"
+  surface: "#F2FAF7"
+  surface-container-low: "#ECF6F2"
+  surface-container: "#E6F1ED"
+  surface-container-high: "#E0ECE8"
+  surface-container-highest: "#DAE7E2"
+  on-surface: "#1E2B27"
+  on-surface-variant: "#46524E"
+  outline: "#76827D"
+  outline-variant: "#C6D2CC"
+  # Grade scale (pastel) — the single source of state color (A→F)
+  grade-a: "#5FC487"
+  grade-b: "#9FD06E"
+  grade-c: "#ECCB68"
+  grade-d: "#F0A05E"
+  grade-e: "#EC7E63"
+  grade-f: "#E0635F"
+  # SOC dark-expressive (live-view only)
+  soc-surface: "#0E1513"
+  soc-surface-container: "#1B211F"
+  soc-outline: "#303633"
+  soc-on-surface: "#DDE4E1"
+  soc-on-surface-variant: "#808B86"
+  soc-cyan: "#2AD7D7"
+  soc-amber: "#F2AF48"
+  soc-red: "#F53C41"
+  soc-green: "#67D283"
 typography:
-  display:
-    fontFamily: "Figtree, Geist, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1.875rem"
-    fontWeight: 600
-    lineHeight: 1.15
-    letterSpacing: "-0.01em"
-  headline:
-    fontFamily: "Figtree, Geist, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1.5rem"
-    fontWeight: 600
-    lineHeight: 1.2
-    letterSpacing: "-0.005em"
-  title:
-    fontFamily: "Figtree, Geist, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1rem"
-    fontWeight: 500
-    lineHeight: 1.5
-    letterSpacing: "normal"
-  body:
-    fontFamily: "Figtree, Geist, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 400
-    lineHeight: 1.5
-    letterSpacing: "normal"
-  label:
-    fontFamily: "Figtree, Geist, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.75rem"
-    fontWeight: 500
-    lineHeight: 1.3
-    letterSpacing: "normal"
-  mono:
-    fontFamily: "Geist Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
-    fontSize: "0.8125rem"
-    fontWeight: 400
-    lineHeight: 1.5
-    letterSpacing: "normal"
-rounded:
+  uiFont: "Roboto Flex, Roboto, ui-sans-serif, system-ui, sans-serif"
+  monoFont: "Roboto Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
+  scale:
+    display-large:  { size: "57px", line: "64px", weight: 400, tracking: "-0.25px" }
+    display-medium: { size: "45px", line: "52px", weight: 400 }
+    display-small:  { size: "36px", line: "44px", weight: 400 }
+    headline-large: { size: "32px", line: "40px", weight: 600 }   # Expressive: emphasized
+    headline-medium:{ size: "28px", line: "36px", weight: 600 }
+    headline-small: { size: "24px", line: "32px", weight: 600 }
+    title-large:    { size: "22px", line: "28px", weight: 500 }
+    title-medium:   { size: "16px", line: "24px", weight: 600, tracking: "0.15px" }
+    title-small:    { size: "14px", line: "20px", weight: 600 }
+    body-large:     { size: "16px", line: "24px", weight: 400 }
+    body-medium:    { size: "14px", line: "20px", weight: 400 }
+    body-small:     { size: "12px", line: "16px", weight: 400 }
+    label-large:    { size: "14px", line: "20px", weight: 600 }
+    label-medium:   { size: "12px", line: "16px", weight: 600, tracking: "0.5px" }
+    label-small:    { size: "11px", line: "16px", weight: 600, tracking: "0.5px" }
+shape:
+  none: "0px"
+  xs: "4px"
   sm: "8px"
-  md: "10px"
-  lg: "12px"
-  xl: "16px"
-  "2xl": "20px"
-spacing:
-  xs: "6px"
-  sm: "10px"
-  md: "16px"
-  lg: "24px"
+  md: "12px"
+  lg: "16px"
+  xl: "28px"
+  full: "999px"
+  note: "Expressive favors larger corners and shape-morph (round at rest ↔ squircle/cookie on press)."
+elevation:
+  # M3 tonal elevation — surface containers carry depth; soft shadow only as it rises.
+  level0: { surface: "{colors.surface}",                  shadow: "none" }
+  level1: { surface: "{colors.surface-container-low}",     shadow: "0 1px 2px rgba(0,0,0,0.06)" }
+  level2: { surface: "{colors.surface-container}",         shadow: "0 1px 3px rgba(0,0,0,0.10)" }
+  level3: { surface: "{colors.surface-container-high}",    shadow: "0 2px 6px rgba(0,0,0,0.12)" }
+  level4: { surface: "{colors.surface-container-high}",    shadow: "0 4px 10px rgba(0,0,0,0.14)" }
+  level5: { surface: "{colors.surface-container-highest}", shadow: "0 8px 18px rgba(0,0,0,0.16)" }
+  stateLayer: { hover: "8% on-color overlay", focus: "10%", pressed: "12%", dragged: "16%" }
+motion:
+  duration:
+    short1: 50ms   short2: 100ms  short3: 150ms  short4: 200ms
+    medium1: 250ms medium2: 300ms medium3: 350ms medium4: 400ms
+    long1: 450ms   long2: 500ms   long3: 550ms   long4: 600ms
+    extra-long: "700–1000ms"
+  easing:
+    emphasized: "cubic-bezier(0.2, 0.0, 0, 1.0)"
+    emphasized-decelerate: "cubic-bezier(0.05, 0.7, 0.1, 1.0)"
+    emphasized-accelerate: "cubic-bezier(0.3, 0.0, 0.8, 0.15)"
+    standard: "cubic-bezier(0.2, 0.0, 0, 1.0)"
+  spring:
+    spatial-fast:    { stiffness: 800, damping: 0.85 }
+    spatial-default: { stiffness: 380, damping: 0.80 }
+    spatial-slow:    { stiffness: 200, damping: 0.80 }
+    effects-default: { stiffness: 1600, damping: 1.0 }
 components:
-  button-primary:
-    backgroundColor: "{colors.teal-primary}"
-    textColor: "{colors.on-primary}"
-    rounded: "{rounded.md}"
-    padding: "0 10px"
-    height: "40px"
-  button-outline:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
-    padding: "0 10px"
-    height: "40px"
-  button-ghost:
-    textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
-    padding: "0 10px"
-    height: "40px"
-  input:
-    backgroundColor: "{colors.card}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
-    padding: "4px 10px"
-    height: "36px"
-  card:
-    backgroundColor: "{colors.card}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.xl}"
-    padding: "24px"
-  badge:
-    backgroundColor: "{colors.teal-tint}"
-    textColor: "{colors.teal-deep}"
-    rounded: "{rounded.md}"
-    padding: "2px 8px"
+  button-filled:   { container: "{colors.primary}",            label: "{colors.on-primary}",            shape: "{shape.full}", height: "40px", stateLayer: "on-primary 8/10/12%" }
+  button-tonal:    { container: "{colors.secondary-container}", label: "{colors.on-secondary-container}", shape: "{shape.full}", height: "40px" }
+  button-elevated: { container: "{colors.surface-container-low}", label: "{colors.primary}", shape: "{shape.full}", height: "40px", shadow: "{elevation.level1.shadow}" }
+  button-outlined: { container: "transparent", label: "{colors.primary}", border: "1px {colors.outline}", shape: "{shape.full}", height: "40px" }
+  button-text:     { container: "transparent", label: "{colors.primary}", shape: "{shape.full}", height: "40px" }
+  fab:             { container: "{colors.tertiary-container}", icon: "{colors.on-tertiary-container}", shape: "{shape.lg}", size: "56px", shadow: "{elevation.level3.shadow}" }
+  chip:            { container: "{colors.surface-container}", label: "{colors.on-surface-variant}", shape: "{shape.sm}", height: "32px" }
+  card:            { container: "{colors.surface-container-low}", shape: "{shape.xl}", padding: "24px", shadow: "{elevation.level1.shadow}" }
+  text-field:      { container: "{colors.surface-container-highest}", shape: "{shape.xs}-top", indicator: "{colors.primary}", height: "56px" }
+  progress-linear: { track: "{colors.surface-container-highest}", active: "{colors.primary}", style: "WAVY/squiggly active line (M3 Expressive signature)", shape: "{shape.full}" }
+  switch:          { track: "{colors.surface-container-highest}", thumbOn: "{colors.on-primary}", trackOn: "{colors.primary}", shape: "{shape.full}" }
+  grade-badge:     { container: "{colors.grade-*}", label: "Roboto Mono", shape: "{shape.lg}–{shape.xl} squircle" }
+  gauge:           { track: "{colors.surface-container-highest}", value: "{colors.grade-*}", style: "semicircular, rounded caps, count-up" }
 ---
 
-# Design System: Doxiq
+# Design System: Owliver — Material 3 Expressive
 
 ## 1. Overview
 
-**Creative North Star: "The Inspection Bench"**
+**Creative North Star: "The Inspection Bench," rebuilt in Material 3 Expressive.**
 
-Doxiq is a workstation for examining documents: each one is pulled up, measured against the extracted data, corrected, and signed off. The interface should feel like a well-organized bench where every tool is within reach and nothing decorative competes for the eye. The reviewer's attention belongs on the document and the numbers, never on the chrome. Teal is the bench's single instrument light: it marks what is active, selected, or needs attention, and it stays rare so it keeps meaning.
+Owliver is the owl that watches over web and AI security: a user submits a URL + attack level, an Agno agent team runs a pentest, and Owliver returns an easy-to-read but technically valuable report with an **A–F grade**. The interface is still an inspection bench — every tool within reach, attention on the findings and the score, never on the chrome — but now that bench speaks **Material 3 Expressive**: tonal color, generous rounding, tactile state layers, and **motion as a first-class material**. Expressiveness here is *functional energy*, not decoration. Springs and emphasized easing make the product feel alive and confident; they never get between the reviewer and the data.
 
-The system is **tactile and confident** without being loud. Surfaces are real and pressable: solid primary buttons, clearly stateful controls, hairline-ringed cards that can lift a touch on interaction. Density is welcomed where reviewers work at volume (queues, tables, side-by-side document panels) and relaxes where non-technical admins configure doctypes and rules. The feeling to chase is quiet competence: the tool earns trust by getting out of the way and by never showing a value it can't stand behind.
+Owliver keeps its three personality pillars — **sharp, trustworthy, approachable** — and its anti-references: it is **not** a generic SaaS/admin template, **not** the trendy purple "AI-app" look (even though it runs on AI), and **not** legacy enterprise clutter. M3 Expressive supplies the structure (color roles, shape, elevation, motion); Owliver supplies the point of view (teal instrument-light, amber owl-eyes, the A–F grade as the only state color, the dark SOC live-view).
 
-This system explicitly rejects three failures. It is not a **generic SaaS / admin-kit template** (identical card grids, icon + heading + text repeated with no point of view). It does not cosplay as **the trendy AI-app look** (purple gradients, glassmorphism, gradient text, chatbot-forward layouts) even though Doxiq runs on AI. And it is not **legacy enterprise clutter** (gray-on-gray, cramped toolbars, dated chrome). Density yes; clutter no.
+**Key characteristics**
+- **Dynamic tonal color** built on M3 color roles (primary/secondary/tertiary + containers, tonal surfaces), with **teal** as primary and **amber = "the owl's eyes"** as tertiary.
+- **Expressive shape**: large corners, pill buttons, squircle badges, and shape-morph on interaction.
+- **Tonal elevation**: depth from surface-container levels + a soft shadow that grows with state — not hairline rings.
+- **Motion is the system's signature**: emphasized easing + physical springs; grades count up, gauges sweep, findings spring in, the owl reacts.
+- **Two themes that coexist**: the light app-shell ("claro de día") and the dark **SOC live-view** ("war room"), expressed as M3 light and dark-expressive schemes.
+- **Roboto Flex** carries the UI; **Roboto Mono** is the measuring tape for scores, grades, payloads, and telemetry.
 
-**Key Characteristics:**
-- One teal instrument light on a cool-gray bench; the accent is rare and always meaningful.
-- Near-flat depth: surfaces separated by hairline rings and whisper shadows, lifting only in response to state.
-- One type family (Figtree) doing all the work, mono (Geist Mono) reserved for raw extracted values, IDs, and code.
-- Keyboard-first, dense-where-it-helps, calm-where-it-configures.
-- Provenance and confidence are visible on extracted data, never hidden.
+## 2. Color
 
-## 2. Colors
+Material 3 **color roles**, not ad-hoc swatches. Every fill maps to a role so theming and contrast stay correct.
 
-A cool-neutral bench lit by a single muted teal, with a tight, unambiguous state vocabulary.
+The palette is the **pastel-expressive variant**: softer, lower-chroma tones that keep M3 contrast (filled-button and badge text stay legible) while feeling lighter and friendlier.
 
-### Primary
-- **Doxiq Teal** (`oklch(0.59 0.095 180.54)`): the instrument light. Primary buttons, current selection, focus rings, active nav, the chart-1 series. Used on a small fraction of any screen on purpose.
-- **Teal Deep** (`oklch(0.468 0.074 180.8)`): text and icons that sit on teal tints; the readable end of the teal ramp for emphasis on light surfaces.
-- **Teal Tint** (`oklch(0.951 0.018 186.07)`): the soft accent fill for badges, selected rows, hover wells, and quiet highlights where solid teal would shout.
+### Core roles (light)
+- **Primary** `#2C857A` / **on-primary** `#FFFFFF` — the instrument light: filled buttons, active nav, focus, primary charts. **Primary-container** `#BEF3E8` / on `#00201C` for quiet teal wells and selected states.
+- **Secondary** `#5C7A74` + **secondary-container** `#D9EDE8` — tonal buttons and neutral grouped actions.
+- **Tertiary** `#FFC95C` ("**owl-eyes amber**", pastel) + **tertiary-container** `#FFE9BC` — the energetic accent: hero CTAs, the owl's eyes, "needs attention" emphasis. Rare and meaningful; on a pastel amber, label text is **ink**, never white.
+- **Error** `#E5736E` + **error-container** `#FCE0DE` — destructive/danger only.
 
-### Neutral
-- **Ink** (`oklch(0.222 0.029 253.225)`): primary text. Cool near-black; carries body and headings on the surface.
-- **Surface** (`oklch(0.984 0.002 252.121)`): the app background. A true-cool off-white, not a warm cream.
-- **Card** (`oklch(1 0 0)`): pure white content surfaces that sit a step above the surface.
-- **Muted** (`oklch(0.945 0.005 252.232)`) / **Muted Foreground** (`oklch(0.558 0.025 252.534)`): secondary fills (hover wells, disabled tracks) and secondary text. Keep muted-foreground for metadata, never for primary reading.
-- **Border** (`oklch(0.905 0.011 252.311)`): hairlines, input strokes, dividers.
+### Tonal surfaces (elevation by color)
+`surface` `#F2FAF7` → `surface-container-low` `#ECF6F2` → `surface-container` `#E6F1ED` → `-high` `#E0ECE8` → `-highest` `#DAE7E2`. Text: **on-surface** `#1E2B27`, **on-surface-variant** `#46524E`. Lines: **outline** `#76827D`, **outline-variant** `#C6D2CC`.
 
-### State
-- **Success** (`oklch(0.626 0.139 155.038)`): rule passed, high confidence, applied. Solid green for affirmative actions.
-- **Warning** (`oklch(0.77 0.18 75.998)`): low confidence, needs-review, soft-fail. Amber, used to draw a reviewer's eye, not to alarm.
-- **Destructive** (`oklch(0.579 0.214 27.166)`): errors and irreversible actions. Note the soft treatment in components: destructive buttons use a 10% tint with red text, not a solid red slab. Solid destructive is reserved for genuine danger.
+### Grade scale — the single source of *state* color (pastel)
+A `#5FC487` · B `#9FD06E` · C `#ECCB68` · D `#F0A05E` · E `#EC7E63` · F `#E0635F`. Softened to pastel, but F still reads clearly as the worst — the Hall-of-Shame red wall is gentler, not gone. This ramp is the **only** place semantic red/amber/green appears (chips, gauges, leaderboard rows, the Hall-of-Shame "F" wall). It is intentionally **not** themed away by M3 — a grade's color is data.
 
-### Named Rules
-**The One Light Rule.** Doxiq Teal appears on ≤10% of any screen. It means active, selected, or primary-action. If teal is decorating something that isn't one of those, remove it.
+### SOC dark-expressive (live-view only)
+The Live Pentest Theater uses an M3 **dark** scheme: surface `#0E1513`, container `#1B211F`, outline `#303633`, on-surface `#DDE4E1`. Functional neon — cyan `#2AD7D7` (activity), amber `#F2AF48` (tool running), red `#F53C41` (critical), green `#67D283` (ok) — never decorative.
 
-**The Cool Bench Rule.** Every neutral leans cool (hue ~252). Never introduce a warm cream/sand/beige surface; warmth here reads as a different product.
+**Named rules.** *The Owl-Eyes Rule:* tertiary amber is reserved for the primary CTA and the owl's "alert" state; if amber isn't drawing the eye to an action or an alert, make it teal or neutral. *The Grade-Is-Data Rule:* the A–F ramp is the only semantic color; don't recolor it for mood.
 
 ## 3. Typography
 
-**Display / Body Font:** Figtree (with Geist, then `ui-sans-serif, system-ui` fallbacks)
-**Label/Mono Font:** Geist Mono (with `ui-monospace, SFMono-Regular, Menlo` fallbacks)
+**UI:** Roboto Flex. **Mono:** Roboto Mono. One variable family carries the full M3 type scale; Expressive leans on **emphasized weights** (600–700) for headlines and labels to add energy without a second face.
 
-**Character:** One humanist sans carries the entire interface, from page titles to dense table cells, leaning on weight and size for hierarchy rather than a second face. Geist Mono is the bench's measuring tape: raw extracted values, document IDs, JSON, and code, where character alignment and an unmistakable "this is data" signal matter.
+Scale (role · size/line · weight): **Display L** 57/64 · 400 — landing hero only. **Headline L/M/S** 32/28/24 · **600 (emphasized)** — section + dialog titles. **Title L/M/S** 22/16/14 · 500–600 — card and panel headers. **Body L/M/S** 16/14/12 · 400 — dominant reading size. **Label L/M/S** 14/12/11 · 600, +0.5px tracking — buttons, chips, metadata, table heads.
 
-### Hierarchy
-- **Display** (600, 1.875rem / 30px, line-height 1.15): rare page-level titles. Fixed rem, never fluid; a sidebar-shrinking hero is wrong here.
-- **Headline** (600, 1.5rem / 24px, line-height 1.2): section and dialog titles.
-- **Title** (500, 1rem / 16px, line-height 1.5): card titles, panel headers, the most common heading weight in the app.
-- **Body** (400, 0.875rem / 14px, line-height 1.5): the dominant UI and reading size. Cap prose at 65–75ch; data and table content may run denser.
-- **Label** (500, 0.75rem / 12px, line-height 1.3): field labels, badges, metadata, table column heads.
-- **Mono** (400, 0.8125rem / 13px): extracted raw values, IDs, JSON, code.
+**Mono (Roboto Mono):** every **score, grade letter, percentage, payload, request/response, canary token, and terminal line.** It is the "this is a measured value" signal — never used for flavor.
 
-### Named Rules
-**The Fixed-Scale Rule.** Type sizes are fixed rem with a tight ~1.2 ratio. No `clamp()` headings in product UI; users view at consistent DPI and fluid type only adds noise.
+## 4. Shape
 
-**The One-Voice Type Rule.** Figtree does headings, buttons, labels, and body. Reach for Geist Mono only when the content is literally data or code, never for flavor.
+Material 3 **shape scale**: none 0 · xs 4 · sm 8 · md 12 · lg 16 · xl 28 · full 999. Expressive pushes corners **larger and rounder**:
+- **Buttons, FABs, chips, switches → `full` (pill).**
+- **Cards → `xl` (28)** for hero/feature surfaces, `lg` (16) for dense lists.
+- **GradeBadge → rounded squircle** (`lg`–`xl`).
+- **Shape-morph:** interactive shapes may morph from round (rest) to squircle/cookie (pressed/selected) using a spring — a hallmark Expressive flourish, used sparingly on toggles, selected chips, and the FAB.
 
-## 4. Elevation
+## 5. Elevation
 
-The bench is near-flat. Depth is conveyed by a **hairline ring** (a 1px ring at ~10% ink) plus a **whisper shadow** (`shadow-xs`), not by lifted, heavily-shadowed cards. Cards use a ring rather than a hard border, which reads cleaner against the cool surface. In keeping with the "tactile and confident" direction, elevation is allowed to *respond to state*: an interactive surface may deepen its shadow slightly on hover or while dragged, but at rest everything sits low and quiet.
+Depth comes from **tonal surface containers** first, a **soft shadow** second — never a hairline ring as the primary separator. Levels 0–5 map surface → surface-container-highest with a shadow that grows from `none` to `0 8px 18px rgba(0,0,0,.16)`. At rest, surfaces sit on their tonal level with a whisper shadow; **elevation responds to state** — hover/drag/focus lift a step. *The Tonal-First Rule:* if two surfaces don't separate, change their container level before reaching for a heavier shadow.
 
-### Shadow Vocabulary
-- **Whisper** (`box-shadow: 0 1px 2px rgba(0,0,0,0.05)`): the resting elevation for cards, inputs, and outline buttons. Barely there, just enough to separate from the surface.
-- **Hairline ring** (`box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--foreground) 10%, transparent)`): the structural separator for cards and raised panels; preferred over a solid border.
+## 6. Motion & Animation (the Expressive core)
 
-### Named Rules
-**The Hairline Rule.** Surfaces are separated by a 1px hairline ring at 10% ink, not by heavy drop shadows. If a card needs a strong shadow to be legible, the contrast with the surface is wrong, fix that first.
+Motion is a material, not a finish. It follows the M3 **emphasized** set and **spring physics**, and always honors `prefers-reduced-motion` (transforms collapse to short cross-fades or instant state).
 
-**The State-Lift Rule.** Resting surfaces are low and flat. A shadow that grows is feedback (hover, drag, focus), never decoration.
+### Tokens
+- **Easing:** `emphasized` `cubic-bezier(0.2,0,0,1)` (default), `emphasized-decelerate` `cubic-bezier(0.05,0.7,0.1,1)` (enter), `emphasized-accelerate` `cubic-bezier(0.3,0,0.8,0.15)` (exit).
+- **Duration:** short 50–200ms (state layers, small), medium 250–400ms (most transitions), long 450–600ms (large/expressive), extra-long 700–1000ms (showpiece reveals).
+- **Springs (Expressive):** spatial-fast 800/0.85, spatial-default 380/0.80, spatial-slow 200/0.80; effects-default 1600/1.0. **Spatial springs move things; effect springs change color/opacity.**
 
-## 5. Components
+### Signature Owliver animations
+- **Grade reveal:** the A–F letter **counts up** and the two semicircular **gauges sweep 0→value** on `emphasized-decelerate`, ~700ms. The headline grade lands with a subtle spring overshoot.
+- **Finding enters the live feed:** **fade + spring slide-up** (spatial-default); **critical** findings **pulse once** in red (effects spring) to demand the eye.
+- **Owl mascot (activity indicator):** state changes are spring transitions — *idle* (eyes closed) → *watching* (cyan eyes, slow head tilt) → *alert* (amber eyes ignite + glow pulse). The owl is the product's heartbeat.
+- **Tool chips ignite:** in the SOC theater each tool chip springs in scale and lights its status dot (idle → running amber pulse → ok green / failed red).
+- **Wavy progress:** the scan progress uses the **M3 Expressive wavy/squiggly** active indicator; the wave animates along its length while running and flattens on complete.
+- **Buttons/FAB:** state-layer cross-fade (short) + shape-morph on press (spring); the FAB grows/settles with spatial-default.
 
-Components read as **tactile and confident**: solid where they act, hairline-quiet where they contain, with every interactive state actually authored (default, hover, focus-visible, active, disabled, loading). Built on Base UI primitives + class-variance-authority; one shape vocabulary across every screen.
+*The Motion-Means-Something Rule:* every animation reports a real state change (loading, arrival, severity, success). Decorative perpetual motion is banned.
 
-### Buttons
-- **Shape:** gently rounded (`rounded-md`, 10px). Heights step 24 / 32 / 40 / 44px (xs / sm / default / xl); default is 40px.
-- **Primary:** solid Doxiq Teal, white text, hover dims to 80% opacity. The single most assertive control on a screen; one per region.
-- **Outline:** surface background, hairline border, whisper shadow; hover fills to muted. The workhorse for secondary actions.
-- **Ghost:** transparent until hovered (fills to muted); for tertiary and toolbar actions where chrome should stay minimal.
-- **Secondary:** muted-gray fill for neutral grouped actions.
-- **Destructive:** soft by default, a 10% red tint with red text, escalating only for truly dangerous actions.
-- **Success:** solid green, for affirmative confirmations (approve, apply).
-- **Focus / Disabled:** focus-visible draws a 3px teal ring at 50% plus a teal border; disabled drops to 50% opacity and removes pointer events.
+## 7. Components
 
-### Chips / Badges
-- **Style:** teal-tint fill with teal-deep text for the default/identity badge; state badges borrow success / warning / destructive at low chroma fills.
-- **Use:** status (passed / needs-review / failed), confidence bands, and counts. Pill-to-`rounded-md`, label type (12px, 500).
+M3 Expressive components, themed to Owliver. Authored states: enabled / hover / focus-visible / pressed / disabled / loading, using M3 **state layers** (8/10/12%).
 
-### Cards / Containers
-- **Corner Style:** `rounded-xl` (16px).
-- **Background:** white card on the cool surface.
-- **Separation:** hairline `ring-1` at 10% ink plus whisper shadow (see Elevation), not a hard border.
-- **Internal Padding:** 24px (lg); compact `data-size="sm"` drops to 16px with tighter gaps.
-- **Rule:** cards are containers, not the default layout reflex. Never nest a card inside a card.
+- **Buttons (pill / `full`):** **Filled** (primary CTA — one per region), **Tonal** (secondary-container), **Elevated** (level-1 shadow), **Outlined**, **Text**. Default height 40px; an **expressive large** 56px exists for hero CTAs. Plus **segmented button groups** for filters (grade, dimension).
+- **FAB:** tertiary-container, `shape-lg`, level-3 shadow — e.g. "Audita una URL." Morphs/extends on scroll.
+- **Chips:** assist / filter / input, `shape-sm`, state layers. **SeverityChip** is a grade-colored pill (Roboto Mono label). **ToolChip** carries a status dot (SOC).
+- **Cards:** `shape-xl` (hero) / `shape-lg` (lists), tonal elevation + soft shadow, 24px padding. Cards are containers, not the default reflex — never nest a card in a card.
+- **Text fields:** M3 **filled** style, `surface-container-highest`, rounded-top, teal active indicator; same focus signature everywhere.
+- **Progress:** **wavy linear** (signature) + circular determinate.
+- **Owliver-specific:** **GradeBadge** (squircle, grade color, Roboto Mono), **Gauge** (semicircular, rounded, count-up), **OwlMascot** (3 motion states), **AgentLane** and **FindingFeedItem** (SOC theater), **AttestationGate** (the legal control as UI).
 
-### Inputs / Fields
-- **Style:** white fill, hairline border, `rounded-md`, whisper shadow; 36px default height (lg 40, xl 44).
-- **Focus:** border shifts to teal and a 3px teal-at-50% ring appears. The same focus signature as buttons, for one consistent keyboard story.
-- **Placeholder:** muted-foreground at full 4.5:1 contrast, never lighter "for elegance."
-- **Error / Disabled:** `aria-invalid` paints a destructive ring + border; disabled drops opacity and blocks pointers.
+## 8. Do's and Don'ts
 
-### Navigation
-- **Sidebar:** its own slightly-distinct neutral layer (`--sidebar`), `rounded-md` (8px) items at 32px height, label type.
-- **States:** hover fills to sidebar-accent; the active route uses sidebar-accent fill with accent-foreground text. One active item, clearly marked, never two.
+### Do
+- **Do** map every color to an M3 **role** and let tonal surfaces (containers) carry elevation; add a soft shadow only as it rises.
+- **Do** make corners large and friendly — **pill buttons, `xl` cards, squircle badges** — and use shape-morph sparingly for delight.
+- **Do** treat **motion as a material**: spring physics, emphasized easing, count-up grades, spring-in findings — and always ship a `prefers-reduced-motion` fallback.
+- **Do** keep **amber (tertiary)** for the primary CTA and the owl's alert, and the **A–F ramp** as the only semantic state color.
+- **Do** drive type hierarchy with Roboto Flex weight at the M3 scale; reserve Roboto Mono for measured values, payloads, and grades.
+- **Do** author every interaction state with M3 state layers and one consistent focus ring.
 
-### Signature: Confidence & Provenance
-The trust principle made visible. Extracted values carry a small confidence indicator (a dot + percentage) coloured by band, success at high confidence, warning at low, and link back to where in the source document the value came from. A value Doxiq is unsure about must *look* unsure; never render a low-confidence extraction with the same authority as a verified one.
-
-## 6. Do's and Don'ts
-
-### Do:
-- **Do** keep Doxiq Teal on ≤10% of any screen, reserved for active / selected / primary-action (The One Light Rule).
-- **Do** separate surfaces with the 1px hairline ring at 10% ink and a whisper shadow; let shadow grow only as state feedback.
-- **Do** drive hierarchy with Figtree weight + fixed-rem size at a ~1.2 ratio; reserve Geist Mono for actual data and code.
-- **Do** author every interactive state (hover, focus-visible, active, disabled, loading) and use the shared 3px teal focus ring everywhere for a keyboard-first story.
-- **Do** make low-confidence extractions visibly uncertain and link values back to their place in the source document.
-- **Do** use skeletons for loading content, empty states that teach the interface, and density where reviewers work at volume.
-
-### Don't:
-- **Don't** ship a **generic SaaS / admin-kit template**: identical card grids, icon + heading + text repeated endlessly with no point of view.
-- **Don't** reach for the **trendy AI-app look**: purple gradients, glassmorphism, gradient text, chatbot-forward layouts. Doxiq uses AI; it must not cosplay as one.
-- **Don't** drift into **legacy enterprise clutter**: gray-on-gray, cramped toolbars, dated chrome. Density is fine; clutter is not.
-- **Don't** use `background-clip: text` gradient text, or a `border-left` / `border-right` > 1px colored side-stripe on cards, list items, or alerts. Use full hairline rings, background tints, or leading icons instead.
-- **Don't** introduce a warm cream / sand / beige surface; every neutral stays cool (hue ~252).
-- **Don't** nest cards, default to a modal before exhausting inline / progressive options, or render a low-confidence value with full authority.
-- **Don't** use `clamp()` / fluid headings or muted-gray body text below 4.5:1 contrast.
+### Don't
+- **Don't** revert to hairline-ring-as-primary-separator, tiny radii, or flat-static surfaces — that's the old system, not Expressive.
+- **Don't** animate for decoration; every motion must report a real state change (no perpetual ambient motion).
+- **Don't** recolor the grade scale for mood, or spend amber on anything that isn't a primary action or an alert.
+- **Don't** drift into the **purple AI-app** look, **generic SaaS** card grids, or **legacy enterprise** clutter. Expressive ≠ noisy.
+- **Don't** use `clamp()`/fluid headings or on-surface-variant text below 4.5:1 contrast; keep AA in both light and SOC themes.

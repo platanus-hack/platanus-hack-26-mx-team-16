@@ -18,14 +18,14 @@ Este subspec es **dueño** de:
 - La definición normativa de los **tres niveles** (básico/pasivo, intermedio, avanzado) como intrusividad creciente.
 - **Exactamente qué herramientas y flags** ejecuta el subagente OWASP web en cada nivel.
 - El **alcance (scope) del subagente OWASP web**.
-- La **whitelist `(is_gov, level)`** que el worker impone como enforcement, incluyendo `.gob.mx`.
+- La **definición (política) de la whitelist `(is_gov, level)`** — qué herramientas+flags corre cada nivel, incluyendo `.gob.mx`. (Su estructura de datos concreta y el enforcement en el worker los posee [04-scanning-engine](../04-scanning-engine/spec.md).)
 - El manejo de **`robots.txt`**.
 - El alcance del power-up del nivel **avanzado** (qué SÍ y qué NO entra).
 
 Lo que **NO** define aquí (resumen de una línea + cross-ref):
 
 - **Niveles y comportamiento del subagente agéntico** (sondas por nivel, caps de payloads, banco de payloads, LLM-juez) → ver [03-agentic-surface](../03-agentic-surface/spec.md).
-- **Mecánica de ejecución de herramientas** (imagen `scanners`, `subprocess` vs socket Docker, watchdog, timeouts por tool, budget global, red de egress, parsers de salida → `Finding[]`) → ver [04-scanning-engine](../04-scanning-engine/spec.md).
+- **Mecánica de ejecución de herramientas** (imagen `scanners`, `subprocess` vs socket Docker, watchdog, timeouts por tool, budget global, red de egress, parsers de salida → `Finding[]`) y la **estructura de datos concreta de la whitelist + su enforcement en el worker** (este doc define el contenido/política por nivel; 04 la materializa e impone) → ver [04-scanning-engine](../04-scanning-engine/spec.md).
 - **El Team Agno que orquesta** (coordinador Opus + 2 subagentes Sonnet, qué tools recibe cada agente por nivel) → ver [05-agent-team](../05-agent-team/spec.md).
 - **Gate de atestación, postura legal, escaneos automáticos = solo pasivos** → ver [01-legal-ethics](../01-legal-ethics/spec.md).
 
@@ -85,7 +85,7 @@ El alcance preciso del "avanzado" (qué entra y qué se recorta) está fijado en
 
 ## 4. Whitelist `(is_gov, level)` — enforcement en el worker
 
-El worker **impone** una whitelist de herramientas+flags indexada por `(is_gov, level)`. Esta whitelist es el control técnico que hace que "pasivo" sea pasivo de hecho, no solo de intención: **"pasivo" se define por herramientas+flags, no por intención**.
+El worker **impone** una whitelist de herramientas+flags indexada por `(is_gov, level)`. Esta whitelist es el control técnico que hace que "pasivo" sea pasivo de hecho, no solo de intención: **"pasivo" se define por herramientas+flags, no por intención**. Este documento define el **contenido/política** de la whitelist (qué tools+flags corre cada nivel); la **estructura de datos concreta y el mecanismo de enforcement** en el worker los posee [04-scanning-engine](../04-scanning-engine/spec.md).
 
 Para **`is_gov`/básico**:
 
