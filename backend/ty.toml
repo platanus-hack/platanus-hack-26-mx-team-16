@@ -1,0 +1,204 @@
+# ty.toml
+# https://docs.astral.sh/ty/
+# Type checker ultra-rápido de Astral (10x-100x más rápido que mypy)
+
+# ============================================================================
+# ENVIRONMENT CONFIGURATION
+# ============================================================================
+[environment]
+# Versión de Python objetivo
+python-version = "3.13"
+
+# Paths raíz para descubrir módulos first-party
+# Proyectos FastAPI típicamente usan layout 'src'
+root = ["src"]
+
+# Auto-detectar .venv o usar VIRTUAL_ENV
+# python = "/path/to/python"  # Opcional: especificar Python específico
+
+# ============================================================================
+# SOURCE FILES CONFIGURATION
+# ============================================================================
+[src]
+# Archivos a incluir en type checking
+include = ["src"]
+
+# Excluir directorios comunes
+exclude = [
+    # Control de versiones
+    ".git",
+    ".hg",
+    ".svn",
+
+    # Caches de Python y entornos virtuales
+    ".mypy_cache",
+    ".pytype",
+    ".ruff_cache",
+    "__pycache__",
+    "__pypackages__",
+    ".venv",
+    "venv",
+    ".nox",
+    ".tox",
+
+    # Artefactos de build
+    "_build",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+
+    # Exclusiones específicas del proyecto
+    "migrations",      # Migraciones Alembic (auto-generadas)
+    "libs",           # Librerías third-party
+    "docs",           # Documentación
+    "data",           # Archivos de datos
+    "htmlcov",        # Reportes de coverage
+    "site",           # MkDocs site
+    "scripts",        # Scripts de utilidad
+    "tests",          # Archivos de test
+    "command.py",     # Archivo CLI command
+
+    # Otros
+    ".direnv",
+    "node_modules",
+]
+
+# Honrar archivos .gitignore y .ignore
+respect-ignore-files = true
+
+# ============================================================================
+# ANALYSIS CONFIGURATION
+# ============================================================================
+[analysis]
+# Honrar comentarios type: ignore en código
+respect-type-ignore-comments = true
+
+# ============================================================================
+# TERMINAL OUTPUT CONFIGURATION
+# ============================================================================
+[terminal]
+# Usar formato de output completo con diagnósticos contextuales
+# Opciones: "full" | "concise"
+output-format = "full"
+
+# No salir con error en warnings (solo en errores)
+# Configurar a true en CI/CD para mayor rigurosidad
+error-on-warning = false
+
+# ============================================================================
+# GLOBAL TYPE CHECKING RULES
+# ============================================================================
+[rules]
+# -----------------------------------------------------------------------------
+# Reglas de Type Safety (Críticas - Configurar a ERROR)
+# -----------------------------------------------------------------------------
+
+# Referencia y chequeo de atributos
+possibly-unresolved-reference = "error"   # Capturar NameErrors potenciales
+possibly-missing-attribute = "error"      # Crítico para seguridad en refactoring
+
+# Compatibilidad de tipos
+invalid-assignment = "error"              # Type mismatches en asignaciones
+invalid-argument-type = "error"           # Tipos de argumentos no coinciden
+invalid-return-type = "error"             # Return values no coinciden
+
+# Callable e iteración
+call-non-callable = "error"               # Invocar objetos no-callable
+not-iterable = "error"                    # Iterar sobre tipos no-iterables
+not-subscriptable = "error"               # Subscripting tipos no soportados
+
+# -----------------------------------------------------------------------------
+# Reglas de Calidad de Código (Configurar a WARN para adopción gradual)
+# -----------------------------------------------------------------------------
+
+# Uso de APIs deprecated
+deprecated = "warn"                       # Marcar uso de APIs obsoletas
+
+# Código redundante
+redundant-cast = "warn"                   # Remover casts innecesarios
+unused-ignore-comment = "warn"            # Limpiar supresiones no usadas
+
+# Seguridad en divisiones
+division-by-zero = "warn"                 # Capturar errores matemáticos obvios
+
+# Validación de comentarios
+ignore-comment-unknown-rule = "warn"      # Capturar typos en directivas
+
+# ============================================================================
+# PER-FILE OVERRIDES
+# ============================================================================
+
+# -----------------------------------------------------------------------------
+# Tests - Type Checking Más Permisivo
+# -----------------------------------------------------------------------------
+[[overrides]]
+include = ["tests/**/*.py"]
+[overrides.rules]
+# Tests usan fixtures y mocks que pueden confundir type checkers
+possibly-unresolved-reference = "warn"
+possibly-missing-attribute = "warn"
+invalid-assignment = "warn"
+
+# -----------------------------------------------------------------------------
+# Scripts - Código de Utilidad (Menos Crítico)
+# -----------------------------------------------------------------------------
+[[overrides]]
+include = ["scripts/**/*.py"]
+[overrides.rules]
+# Scripts son utilidades one-off, enforcement menos estricto
+possibly-unresolved-reference = "warn"
+possibly-missing-attribute = "warn"
+
+# -----------------------------------------------------------------------------
+# Database Models - SQLAlchemy ORM
+# -----------------------------------------------------------------------------
+[[overrides]]
+include = ["**/database/models/**/*.py"]
+[overrides.rules]
+# SQLAlchemy usa metaclass magic y atributos dinámicos
+# que pueden causar falsos positivos
+possibly-unresolved-reference = "warn"
+possibly-missing-attribute = "warn"
+invalid-assignment = "warn"
+
+# -----------------------------------------------------------------------------
+# FastAPI Endpoints - Dependency Injection
+# -----------------------------------------------------------------------------
+[[overrides]]
+include = ["**/endpoints/**/*.py", "**/presentation/endpoints/**/*.py"]
+[overrides.rules]
+# Depends() y dependency injection de FastAPI pueden causar falsos positivos
+possibly-unresolved-reference = "warn"
+possibly-missing-attribute = "warn"
+
+# -----------------------------------------------------------------------------
+# Domain Layer - Pure Business Logic (Más Estricto)
+# -----------------------------------------------------------------------------
+[[overrides]]
+include = ["**/domain/**/*.py"]
+[overrides.rules]
+# Domain layer debe tener el type checking más estricto
+# ya que contiene lógica de negocio pura sin magia de frameworks
+possibly-unresolved-reference = "error"
+possibly-missing-attribute = "error"
+invalid-assignment = "error"
+
+# -----------------------------------------------------------------------------
+# Pydantic Models y Schemas
+# -----------------------------------------------------------------------------
+[[overrides]]
+include = ["**/schemas/**/*.py", "**/requests/**/*.py", "**/responses/**/*.py"]
+[overrides.rules]
+# Pydantic models usan metaclasses y validators
+possibly-missing-attribute = "warn"
+
+# -----------------------------------------------------------------------------
+# Infrastructure Layer - Dependencias Externas
+# -----------------------------------------------------------------------------
+[[overrides]]
+include = ["**/infrastructure/**/*.py"]
+[overrides.rules]
+# Infrastructure maneja librerías third-party
+# que pueden tener type stubs incompletos
+possibly-unresolved-reference = "warn"

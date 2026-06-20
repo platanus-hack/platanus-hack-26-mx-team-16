@@ -1,0 +1,58 @@
+---
+import DocsLayout from '@/layouts/DocsLayout.astro';
+import { getCollection } from 'astro:content';
+
+const api = await getCollection('api');
+const sorted = api.sort((a, b) => {
+  const aOrder = a.data.sidebar?.order ?? 999;
+  const bOrder = b.data.sidebar?.order ?? 999;
+  return aOrder - bOrder;
+});
+---
+
+<DocsLayout title="API Reference" section="api">
+  <div class="docs-prose">
+    <h1>API Reference</h1>
+    <p>Endpoints, payloads, and authentication flows for the Doxiq API.</p>
+
+    <ul class="list-none space-y-2 p-0">
+      {sorted.map((entry) => (
+        <li class="m-0 p-0">
+          <a
+            href={`/api/${entry.id}`}
+            class="group flex items-center gap-3 rounded-md border bg-white px-4 py-2.5 transition hover:shadow-sm"
+            style="border-color: var(--color-border);"
+          >
+            {entry.data.method && (
+              <span
+                class="w-16 shrink-0 rounded px-2 py-0.5 text-center font-mono text-[10px] font-semibold uppercase"
+                style={`background-color: ${
+                  entry.data.method === 'GET' ? '#10b981' :
+                  entry.data.method === 'POST' ? '#0d9488' :
+                  entry.data.method === 'PUT' ? '#f59e0b' :
+                  entry.data.method === 'PATCH' ? '#3b82f6' :
+                  '#ef4444'
+                }; color: white;`}
+              >
+                {entry.data.method}
+              </span>
+            )}
+            <div class="flex-1">
+              <p
+                class="m-0 font-mono text-sm"
+                style="color: var(--color-fg);"
+              >
+                {entry.data.endpoint || entry.data.title}
+              </p>
+            </div>
+            <span
+              aria-hidden="true"
+              class="opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100"
+              style="color: var(--color-primary);"
+            >→</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</DocsLayout>

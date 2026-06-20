@@ -1,0 +1,61 @@
+{
+  "id": "D8",
+  "name": "Date diff con fecha opcional — antigüedad laboral",
+  "rule": {
+    "prompt": "Calcular la antigüedad laboral en meses entre @contract.fecha_inicio y la fecha actual del case ({{now}}). Marcar vigente=true si @contract.fecha_fin no existe o es posterior a la fecha de referencia.",
+    "config": {
+      "output_shape": {
+        "type": "object",
+        "required": [
+          "antiguedad_meses",
+          "vigente",
+          "fecha_inicio",
+          "fecha_referencia"
+        ],
+        "properties": {
+          "antiguedad_meses": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "vigente": {
+            "type": "boolean"
+          },
+          "fecha_inicio": {
+            "type": "string",
+            "format": "date"
+          },
+          "fecha_referencia": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    }
+  },
+  "available_doctypes": [
+    "contract"
+  ],
+  "expected_artifact": {
+    "inputs": [
+      {
+        "ref": "@contract.fecha_inicio",
+        "doctype": "contract",
+        "path": "fecha_inicio",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@contract.fecha_fin",
+        "doctype": "contract",
+        "path": "fecha_fin",
+        "required": true,
+        "kind": "scalar"
+      }
+    ],
+    "tokens": [
+      "now"
+    ],
+    "knowledge_refs": [],
+    "output_shape_validated": true
+  }
+}

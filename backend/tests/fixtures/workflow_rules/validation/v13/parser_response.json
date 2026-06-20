@@ -1,0 +1,122 @@
+{
+  "tree": {
+    "op": "AND",
+    "children": [
+      {
+        "ref": "c1"
+      },
+      {
+        "ref": "c2"
+      },
+      {
+        "ref": "c3"
+      },
+      {
+        "ref": "c4"
+      },
+      {
+        "ref": "c5"
+      },
+      {
+        "ref": "c6"
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "Las @contract.partes[] están identificadas con nombre, rut y rol ∈ {ARRENDADOR, ARRENDATARIO}",
+      "inputs": [
+        "@contract.partes[].nombre",
+        "@contract.partes[].rut",
+        "@contract.partes[].rol"
+      ],
+      "knowledge_refs": [
+        "marco_legal_arriendo_chile"
+      ],
+      "method": "LLM_CHECK",
+      "params": {
+        "cite_from": "#marco_legal_arriendo_chile",
+        "topic": "identificacion_partes"
+      }
+    },
+    {
+      "id": "c2",
+      "description": "Existe al menos una @contract.clausulas[] con la individualización del inmueble (dirección + descripción)",
+      "inputs": [
+        "@contract.clausulas[]"
+      ],
+      "knowledge_refs": [
+        "marco_legal_arriendo_chile"
+      ],
+      "method": "LLM_CHECK",
+      "params": {
+        "cite_from": "#marco_legal_arriendo_chile",
+        "topic": "individualizacion_inmueble"
+      }
+    },
+    {
+      "id": "c3",
+      "description": "El @contract.monto del canon y la forma/plazo de pago están explícitos",
+      "inputs": [
+        "@contract.monto",
+        "@contract.clausulas[]"
+      ],
+      "knowledge_refs": [
+        "marco_legal_arriendo_chile"
+      ],
+      "method": "LLM_CHECK",
+      "params": {
+        "cite_from": "#marco_legal_arriendo_chile",
+        "topic": "canon_y_pago"
+      }
+    },
+    {
+      "id": "c4",
+      "description": "El plazo del contrato está definido por @contract.fecha_inicio y @contract.fecha_fin",
+      "inputs": [
+        "@contract.fecha_inicio",
+        "@contract.fecha_fin",
+        "@contract.clausulas[]"
+      ],
+      "knowledge_refs": [
+        "marco_legal_arriendo_chile"
+      ],
+      "method": "LLM_CHECK",
+      "params": {
+        "cite_from": "#marco_legal_arriendo_chile",
+        "topic": "plazo"
+      }
+    },
+    {
+      "id": "c5",
+      "description": "Las @contract.clausulas[] cubren derechos y obligaciones mínimos",
+      "inputs": [
+        "@contract.clausulas[]"
+      ],
+      "knowledge_refs": [
+        "marco_legal_arriendo_chile"
+      ],
+      "method": "LLM_CHECK",
+      "params": {
+        "cite_from": "#marco_legal_arriendo_chile",
+        "topic": "derechos_obligaciones_minimos"
+      }
+    },
+    {
+      "id": "c6",
+      "description": "Existe una @contract.clausulas[] que regula expresamente el término anticipado",
+      "inputs": [
+        "@contract.clausulas[]"
+      ],
+      "knowledge_refs": [
+        "marco_legal_arriendo_chile"
+      ],
+      "method": "LLM_CHECK",
+      "params": {
+        "cite_from": "#marco_legal_arriendo_chile",
+        "topic": "termino_anticipado"
+      }
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+name: doxiq-backend-prod
+
+x-common-env: &common-env
+  PYTHONPATH: /app
+  STAGE: ${INFISICAL_SECRET_ENV}
+  ENVIRONMENT: production
+  PROJECT_ID: ${PROJECT_ID}
+  INFISICAL_SECRET_ENV: ${INFISICAL_SECRET_ENV}
+  INFISICAL_API_URL: ${INFISICAL_API_URL}
+  INFISICAL_MACHINE_CLIENT_ID: ${INFISICAL_MACHINE_CLIENT_ID}
+  INFISICAL_MACHINE_CLIENT_SECRET: ${INFISICAL_MACHINE_CLIENT_SECRET}
+
+services:
+  doxiq-api:
+    image: ghcr.io/llamitai/doxiq-ws-prod:${IMAGE_TAG:-latest}
+    environment:
+      <<: *common-env
+      PROCESS_LABEL: api
+      TEMPORAL_HOST: doxiq-temporal:7233
+    command: /start
+    ports:
+      - "14015:8200"
+    depends_on:
+      doxiq-temporal:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - shared-network
+
+  doxiq-temporal-worker:
+    image: ghcr.io/llamitai/doxiq-ws-prod:${IMAGE_TAG:-latest}
+    environment:
+      <<: *common-env
+      PROCESS_LABEL: workflow-worker
+      TEMPORAL_HOST: doxiq-temporal:7233
+    command: /start-worker
+    depends_on:
+      doxiq-temporal:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - shared-network
+
+  doxiq-temporal:
+    image: temporalio/temporal:latest
+    command: server start-dev --ip 0.0.0.0 --db-filename /home/temporal/temporal.db
+    volumes:
+      - temporal_data:/home/temporal
+    healthcheck:
+      test: ["CMD-SHELL", "temporal operator cluster health --address 127.0.0.1:7233 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - shared-network
+
+  doxiq-admin:
+    image: directus/directus:12.0.2
+    restart: unless-stopped
+    ports:
+      - "14020:8055"
+    volumes:
+      - admin_database:/directus/database
+      - admin_uploads:/directus/uploads
+    environment:
+      SECRET: ${ADMIN_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      DB_CLIENT: "postgres"
+      DB_HOST: ${ADMIN_DB_HOST}
+      DB_PORT: "5432"
+      DB_DATABASE: ${ADMIN_DB_DATABASE}
+      DB_USER: ${ADMIN_DB_USER}
+      DB_PASSWORD: ${ADMIN_DB_PASSWORD}
+      PUBLIC_URL: ${ADMIN_PUBLIC_URL}
+      WEBSOCKETS_ENABLED: "true"
+    networks:
+      - shared-network
+
+volumes:
+  admin_database:
+  admin_uploads:
+  temporal_data:
+
+networks:
+  shared-network:
+    external: true

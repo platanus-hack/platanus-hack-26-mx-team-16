@@ -1,0 +1,46 @@
+# Directus Extensions - Node modules
+extensions/*/node_modules/
+node_modules/
+
+# Directus Extensions - Build artifacts
+extensions/*/dist/
+
+# Directus Registry
+.registry/
+extensions/.registry/
+
+# Directus Database (SQLite for local development)
+database/*.db
+database/*.sqlite
+database/*.sqlite3
+
+# Directus Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Lock files (optional - uncomment if you want to commit them)
+# extensions/*/package-lock.json
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+.cache/
+.temp/

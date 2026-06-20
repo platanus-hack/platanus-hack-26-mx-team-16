@@ -1,0 +1,34 @@
+name: doxiq-docs-dev
+
+services:
+  docs-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: doxiq-docs:dev
+    container_name: doxiq-docs-dev
+    restart: unless-stopped
+    ports:
+      - "${DOCS_PORT:-4321}:4321"
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      BACKEND_API_HOST: ${BACKEND_API_HOST:-http://doxiq-backend:8200}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost:4321}
+    volumes:
+      - .:/app
+      - docs-node-modules:/app/node_modules
+      - docs-astro-cache:/app/.astro
+    networks:
+      - doxiq-docs-dev-net
+
+networks:
+  doxiq-docs-dev-net:
+    name: doxiq-docs-dev-net
+    driver: bridge
+
+volumes:
+  docs-node-modules:
+    name: doxiq-docs-node-modules
+  docs-astro-cache:
+    name: doxiq-docs-astro-cache

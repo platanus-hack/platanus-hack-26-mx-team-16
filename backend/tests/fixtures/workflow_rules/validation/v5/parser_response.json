@@ -1,0 +1,46 @@
+{
+  "tree": {
+    "op": "AND",
+    "children": [
+      {
+        "ref": "c1"
+      },
+      {
+        "ref": "c2"
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "Cada item cumple subtotal ≈ cantidad × precio_unitario (tolerancia ±1)",
+      "inputs": [
+        "@invoice.items[].cantidad",
+        "@invoice.items[].precio_unitario",
+        "@invoice.items[].subtotal"
+      ],
+      "method": "AGGREGATE_CHECK",
+      "params": {
+        "iterator": "@invoice.items[]",
+        "predicate": "ALL",
+        "expression": "abs(subtotal - cantidad * precio_unitario) <= 1"
+      }
+    },
+    {
+      "id": "c2",
+      "description": "La suma de items[].subtotal es igual al monto_total (tolerancia ±1)",
+      "inputs": [
+        "@invoice.items[].subtotal",
+        "@invoice.monto_total"
+      ],
+      "method": "AGGREGATE_CHECK",
+      "params": {
+        "iterator": "@invoice.items[]",
+        "predicate": "SUM_EQUALS",
+        "field": "subtotal",
+        "target": "@invoice.monto_total",
+        "tolerance": 1
+      }
+    }
+  ]
+}

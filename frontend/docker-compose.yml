@@ -1,0 +1,17 @@
+name: doxiq-frontend
+
+services:
+  vnext-web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: production
+    platform: linux/amd64
+    env_file:
+      - .env
+    ports:
+      - '3200:3200'
+    # NOTE: Volumes commented out for production build
+    # Uncomment for development with hot-reload
+    # volumes:
+    #   - .:/app

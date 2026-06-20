@@ -1,0 +1,147 @@
+{
+  "id": "D10",
+  "name": "Output complejo — mapa familiar y movimientos bancarios",
+  "rule": {
+    "prompt": "Generar dos bloques. nucleo_familiar: el titular (desde @dni.nombres, @dni.apellidos, @dni.rut, edad desde @dni.fecha_nacimiento, parentesco TITULAR) más cualquier persona derivable de @contract.partes[].nombre, @contract.partes[].rut, @contract.partes[].rol (mapear a parentesco CONYUGE/HIJO/OTRO). actividad_bancaria: para cada @bank_statement, reportar @bank_statement.banco, @bank_statement.cuenta, @bank_statement.saldo_final y los @bank_statement.movimientos[].fecha, @bank_statement.movimientos[].descripcion, @bank_statement.movimientos[].monto, @bank_statement.movimientos[].tipo relevantes.",
+    "config": {
+      "output_shape": {
+        "type": "object",
+        "required": [
+          "nucleo_familiar",
+          "actividad_bancaria"
+        ],
+        "properties": {
+          "nucleo_familiar": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "actividad_bancaria": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  },
+  "available_doctypes": [
+    "dni",
+    "contract",
+    "bank_statement"
+  ],
+  "expected_artifact": {
+    "inputs": [
+      {
+        "ref": "@dni.nombres",
+        "doctype": "dni",
+        "path": "nombres",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.apellidos",
+        "doctype": "dni",
+        "path": "apellidos",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.rut",
+        "doctype": "dni",
+        "path": "rut",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.fecha_nacimiento",
+        "doctype": "dni",
+        "path": "fecha_nacimiento",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@contract.partes[].nombre",
+        "doctype": "contract",
+        "path": "partes[].nombre",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@contract.partes[].rut",
+        "doctype": "contract",
+        "path": "partes[].rut",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@contract.partes[].rol",
+        "doctype": "contract",
+        "path": "partes[].rol",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@bank_statement",
+        "doctype": "bank_statement",
+        "path": "",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@bank_statement.banco",
+        "doctype": "bank_statement",
+        "path": "banco",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@bank_statement.cuenta",
+        "doctype": "bank_statement",
+        "path": "cuenta",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@bank_statement.saldo_final",
+        "doctype": "bank_statement",
+        "path": "saldo_final",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@bank_statement.movimientos[].fecha",
+        "doctype": "bank_statement",
+        "path": "movimientos[].fecha",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@bank_statement.movimientos[].descripcion",
+        "doctype": "bank_statement",
+        "path": "movimientos[].descripcion",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@bank_statement.movimientos[].monto",
+        "doctype": "bank_statement",
+        "path": "movimientos[].monto",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@bank_statement.movimientos[].tipo",
+        "doctype": "bank_statement",
+        "path": "movimientos[].tipo",
+        "required": true,
+        "kind": "scalar"
+      }
+    ],
+    "tokens": [],
+    "knowledge_refs": [],
+    "output_shape_validated": true
+  }
+}

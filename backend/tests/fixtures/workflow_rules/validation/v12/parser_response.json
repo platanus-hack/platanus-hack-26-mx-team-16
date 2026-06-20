@@ -1,0 +1,103 @@
+{
+  "tree": {
+    "op": "AND",
+    "children": [
+      {
+        "op": "NOT",
+        "children": [
+          {
+            "ref": "c1"
+          }
+        ]
+      },
+      {
+        "op": "NOT",
+        "children": [
+          {
+            "ref": "c2"
+          }
+        ]
+      },
+      {
+        "op": "NOT",
+        "children": [
+          {
+            "ref": "c3"
+          }
+        ]
+      },
+      {
+        "op": "NOT",
+        "children": [
+          {
+            "ref": "c4"
+          }
+        ]
+      },
+      {
+        "op": "NOT",
+        "children": [
+          {
+            "ref": "c5"
+          }
+        ]
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "Hay inconsistencias tipográficas en zonas críticas (folio, monto, RUT)",
+      "inputs": [
+        "@invoice"
+      ],
+      "method": "LLM_CHECK",
+      "params": {
+        "requires_visual_context": true
+      }
+    },
+    {
+      "id": "c2",
+      "description": "El folio @invoice.id está fuera de rango plausible para fecha_emision y emisor",
+      "inputs": [
+        "@invoice.id",
+        "@invoice.fecha_emision",
+        "@invoice.emisor.rut"
+      ],
+      "method": "LLM_CHECK",
+      "params": {}
+    },
+    {
+      "id": "c3",
+      "description": "Hay fechas en formatos inusuales o inconsistentes entre sí dentro del documento",
+      "inputs": [
+        "@invoice"
+      ],
+      "method": "LLM_CHECK",
+      "params": {
+        "requires_visual_context": true
+      }
+    },
+    {
+      "id": "c4",
+      "description": "El @invoice.monto_total tiene redondeo sospechoso: cifra exacta cuando la suma de items[].subtotal no coincide",
+      "inputs": [
+        "@invoice.monto_total",
+        "@invoice.items[].subtotal"
+      ],
+      "method": "LLM_CHECK",
+      "params": {}
+    },
+    {
+      "id": "c5",
+      "description": "Hay patrones gráficos de manipulación digital",
+      "inputs": [
+        "@invoice"
+      ],
+      "method": "LLM_CHECK",
+      "params": {
+        "requires_visual_context": true
+      }
+    }
+  ]
+}

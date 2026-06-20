@@ -1,0 +1,233 @@
+---
+import DocsLayout from '@/layouts/DocsLayout.astro';
+
+const session = Astro.locals.session;
+const firstName = session?.name?.split(' ')[0] || 'there';
+---
+
+<DocsLayout title="Overview">
+  <div class="space-y-12">
+    <header class="space-y-4">
+      <p
+        class="font-mono text-xs uppercase tracking-wider"
+        style="color: var(--color-primary);"
+      >
+        Doxiq · v1.2
+      </p>
+      <h1
+        class="font-display text-5xl font-bold leading-[1.05] tracking-tight"
+        style="color: var(--color-fg);"
+      >
+        Welcome back, <span style="color: var(--color-primary);">{firstName}</span>.
+      </h1>
+      <p
+        class="max-w-2xl text-lg leading-relaxed"
+        style="color: var(--color-fg-muted);"
+      >
+        Internal documentation for the Doxiq platform — document extraction,
+        business rule analysis, and the operational tooling that runs the show.
+      </p>
+    </header>
+
+    <section
+      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      aria-label="Quick links"
+    >
+      <a
+        href="/docs/introduction"
+        class="group block rounded-lg border bg-white p-5 transition hover:shadow-md"
+        style="border-color: var(--color-border);"
+      >
+        <div
+          class="mb-3 flex h-9 w-9 items-center justify-center rounded-md"
+          style="background-color: var(--color-primary-subtle);"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            class="h-5 w-5"
+            style="color: var(--color-primary);"
+          >
+            <path
+              d="M4 6h16M4 12h16M4 18h10"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
+        <h3
+          class="font-display text-base font-semibold"
+          style="color: var(--color-fg);"
+        >
+          Documentation
+        </h3>
+        <p
+          class="mt-1 text-sm leading-relaxed"
+          style="color: var(--color-fg-muted);"
+        >
+          Architecture, modules, and the patterns we follow.
+        </p>
+      </a>
+
+      <a
+        href="/guides"
+        class="group block rounded-lg border bg-white p-5 transition hover:shadow-md"
+        style="border-color: var(--color-border);"
+      >
+        <div
+          class="mb-3 flex h-9 w-9 items-center justify-center rounded-md"
+          style="background-color: #fef3c7;"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            class="h-5 w-5"
+            style="color: #b45309;"
+          >
+            <path
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+        <h3
+          class="font-display text-base font-semibold"
+          style="color: var(--color-fg);"
+        >
+          Guides
+        </h3>
+        <p
+          class="mt-1 text-sm leading-relaxed"
+          style="color: var(--color-fg-muted);"
+        >
+          Step-by-step tutorials for adding features.
+        </p>
+      </a>
+
+      <a
+        href="/api"
+        class="group block rounded-lg border bg-white p-5 transition hover:shadow-md"
+        style="border-color: var(--color-border);"
+      >
+        <div
+          class="mb-3 flex h-9 w-9 items-center justify-center rounded-md"
+          style="background-color: #dbeafe;"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            class="h-5 w-5"
+            style="color: #1d4ed8;"
+          >
+            <path
+              d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+        <h3
+          class="font-display text-base font-semibold"
+          style="color: var(--color-fg);"
+        >
+          API Reference
+        </h3>
+        <p
+          class="mt-1 text-sm leading-relaxed"
+          style="color: var(--color-fg-muted);"
+        >
+          Endpoints, payloads, and auth flows.
+        </p>
+      </a>
+    </section>
+
+    <section class="space-y-4">
+      <h2
+        class="font-display text-2xl font-semibold tracking-tight"
+        style="color: var(--color-fg);"
+      >
+        Platform at a glance
+      </h2>
+
+      <div
+        class="grid grid-cols-2 gap-px overflow-hidden rounded-lg border"
+        style="border-color: var(--color-border); background-color: var(--color-border);"
+      >
+        <div
+          class="p-4"
+          style="background-color: var(--color-bg-elevated);"
+        >
+          <p
+            class="font-mono text-2xl font-bold"
+            style="color: var(--color-fg);"
+          >
+            12
+          </p>
+          <p
+            class="mt-1 text-sm"
+            style="color: var(--color-fg-muted);"
+          >
+            Backend modules
+          </p>
+        </div>
+        <div
+          class="p-4"
+          style="background-color: var(--color-bg-elevated);"
+        >
+          <p
+            class="font-mono text-2xl font-bold"
+            style="color: var(--color-fg);"
+          >
+            86
+          </p>
+          <p
+            class="mt-1 text-sm"
+            style="color: var(--color-fg-muted);"
+          >
+            API endpoints
+          </p>
+        </div>
+        <div
+          class="p-4"
+          style="background-color: var(--color-bg-elevated);"
+        >
+          <p
+            class="font-mono text-2xl font-bold"
+            style="color: var(--color-fg);"
+          >
+            3
+          </p>
+          <p
+            class="mt-1 text-sm"
+            style="color: var(--color-fg-muted);"
+          >
+            Workers (API · Temporal · scheduler)
+          </p>
+        </div>
+        <div
+          class="p-4"
+          style="background-color: var(--color-bg-elevated);"
+        >
+          <p
+            class="font-mono text-2xl font-bold"
+            style="color: var(--color-fg);"
+          >
+            1
+          </p>
+          <p
+            class="mt-1 text-sm"
+            style="color: var(--color-fg-muted);"
+          >
+            Database (PostgreSQL + pgvector)
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</DocsLayout>

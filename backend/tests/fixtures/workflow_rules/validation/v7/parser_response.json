@@ -1,0 +1,48 @@
+{
+  "tree": {
+    "op": "AND",
+    "children": [
+      {
+        "ref": "c1"
+      },
+      {
+        "ref": "c2"
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "El case contiene al menos 3 facturas",
+      "inputs": [
+        "@invoice[]"
+      ],
+      "method": "AGGREGATE_CHECK",
+      "params": {
+        "iterator": "@invoice[]",
+        "predicate": "COUNT_GTE",
+        "value": 3
+      }
+    },
+    {
+      "id": "c2",
+      "description": "La suma de @invoice.monto_total supera 1.000.000 CLP",
+      "inputs": [
+        "@invoice.monto_total",
+        "@invoice.moneda"
+      ],
+      "method": "AGGREGATE_CHECK",
+      "params": {
+        "iterator": "@invoice[]",
+        "predicate": "SUM_GT",
+        "field": "monto_total",
+        "value": 1000000,
+        "filter": {
+          "field": "moneda",
+          "op": "=",
+          "value": "CLP"
+        }
+      }
+    }
+  ]
+}

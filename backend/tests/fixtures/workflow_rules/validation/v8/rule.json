@@ -1,0 +1,14 @@
+{
+  "id": "V8",
+  "name": "AND/OR profundo + condición — elegibilidad solicitante",
+  "rule": {
+    "prompt": "El solicitante es elegible si (a) edad ≥ 18 (calculada desde @dni.fecha_nacimiento hasta {{now}}) Y @dni.nacionalidad = 'CHILENA', O (b) @dni.nacionalidad indica residencia permanente Y @dni.fecha_emision tiene al menos 5 años respecto a {{now}}. En cualquier caso, @dni.fecha_vencimiento debe ser posterior a {{now}}.",
+    "config": {
+      "severity": "BLOCKER"
+    }
+  },
+  "available_doctypes": [
+    "dni"
+  ],
+  "kb_slugs": []
+}

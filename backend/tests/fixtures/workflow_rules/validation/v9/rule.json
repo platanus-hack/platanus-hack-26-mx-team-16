@@ -1,0 +1,14 @@
+{
+  "id": "V9",
+  "name": "Conditional IF/THEN sobre array — alta morosidad",
+  "rule": {
+    "prompt": "Si existe alguna @commercial_report.morosidades[] con @commercial_report.morosidades[].dias_mora > 90, entonces la suma de @commercial_report.morosidades[].monto (filtrando dias_mora > 90) no debe superar $500.000. Si no hay morosidades sobre 90 días, la regla pasa vacuamente.",
+    "config": {
+      "severity": "MAJOR"
+    }
+  },
+  "available_doctypes": [
+    "commercial_report"
+  ],
+  "kb_slugs": []
+}

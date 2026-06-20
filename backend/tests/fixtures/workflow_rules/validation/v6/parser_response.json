@@ -1,0 +1,38 @@
+{
+  "tree": {
+    "op": "AND",
+    "children": [
+      {
+        "ref": "c1"
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "El nombre completo del DNI matchea con alguna parte del contrato (normalizando tildes/case)",
+      "inputs": [
+        "@dni.nombres",
+        "@dni.apellidos",
+        "@contract.partes[].nombre",
+        "@contract.partes[].rut",
+        "@dni.rut"
+      ],
+      "method": "CROSS_REF_CHECK",
+      "params": {
+        "primary": "concat(@dni.nombres, ' ', @dni.apellidos)",
+        "secondary_iterator": "@contract.partes[]",
+        "secondary_field": "nombre",
+        "normalize": [
+          "lowercase",
+          "strip_accents",
+          "collapse_spaces"
+        ],
+        "fallback_match": {
+          "field": "rut",
+          "value": "@dni.rut"
+        }
+      }
+    }
+  ]
+}

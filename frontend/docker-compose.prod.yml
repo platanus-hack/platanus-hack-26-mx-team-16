@@ -1,0 +1,16 @@
+name: doxiq-frontend-prod
+
+services:
+  doxiq-web:
+    image: ghcr.io/llamitai/doxiq-web-prod:${IMAGE_TAG:-latest}
+    environment:
+      - NODE_ENV=production
+      - STAGE=${INFISICAL_SECRET_ENV}
+      - PROJECT_ID=${PROJECT_ID}
+      - INFISICAL_SECRET_ENV=${INFISICAL_SECRET_ENV}
+      - INFISICAL_API_URL=${INFISICAL_API_URL}
+      - INFISICAL_MACHINE_CLIENT_ID=${INFISICAL_MACHINE_CLIENT_ID}
+      - INFISICAL_MACHINE_CLIENT_SECRET=${INFISICAL_MACHINE_CLIENT_SECRET}
+    restart: always
+    ports:
+      - '14010:3200'

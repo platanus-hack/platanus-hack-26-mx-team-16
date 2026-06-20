@@ -1,0 +1,67 @@
+{
+  "tree": {
+    "op": "AND",
+    "children": [
+      {
+        "ref": "c1"
+      },
+      {
+        "ref": "c2"
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "El @dni.rut aparece en @contract.partes[] con rol TRABAJADOR o BENEFICIARIO",
+      "inputs": [
+        "@dni.rut",
+        "@contract.partes[].rut",
+        "@contract.partes[].rol"
+      ],
+      "method": "CROSS_REF_CHECK",
+      "params": {
+        "primary": "@dni.rut",
+        "secondary_iterator": "@contract.partes[]",
+        "secondary_field": "rut",
+        "filter": {
+          "field": "rol",
+          "op": "in",
+          "value": [
+            "TRABAJADOR",
+            "BENEFICIARIO"
+          ]
+        }
+      }
+    },
+    {
+      "id": "c2",
+      "description": "Existe al menos una @payslip.empleador que matchea con alguna @contract.partes[].nombre con rol EMPLEADOR o EMPRESA",
+      "inputs": [
+        "@payslip.empleador",
+        "@contract.partes[].nombre",
+        "@contract.partes[].rol"
+      ],
+      "method": "CROSS_REF_CHECK",
+      "params": {
+        "primary_iterator": "@payslip[]",
+        "primary_field": "empleador",
+        "secondary_iterator": "@contract.partes[]",
+        "secondary_field": "nombre",
+        "secondary_filter": {
+          "field": "rol",
+          "op": "in",
+          "value": [
+            "EMPLEADOR",
+            "EMPRESA"
+          ]
+        },
+        "predicate": "ANY_MATCH",
+        "normalize": [
+          "lowercase",
+          "strip_accents"
+        ]
+      }
+    }
+  ]
+}

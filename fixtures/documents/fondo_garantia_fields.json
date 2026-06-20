@@ -1,0 +1,121 @@
+{
+  "type": "object",
+  "properties": {
+    "referenciaAnexo": {
+      "type": "string",
+      "description": "Campo Referencia extraído del Anexo."
+    },
+    "moduloResolucion": {
+      "type": "string",
+      "description": "Módulo o encabezado operativo del crédito extraído de la Resolución."
+    },
+    "destinatarioAnexo": {
+      "type": "string",
+      "description": "Destinatario del fondo extraído del Anexo."
+    },
+    "productoEvaluacion": {
+      "type": "string",
+      "description": "Producto detectado en la Evaluación, por ejemplo FOCREMI o FOGAGRE."
+    },
+    "nombreClienteAnexo": {
+      "type": "string",
+      "description": "Nombre completo del cliente extraído del Anexo."
+    },
+    "fechaDocumentoAnexo": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha extraída del Anexo."
+    },
+    "tipoFondoEvaluacion": {
+      "type": "string",
+      "description": "Fondo o producto detectado en la Evaluación."
+    },
+    "tipoFondoResolucion": {
+      "type": "string",
+      "description": "Tipo de fondo o garantía detectado en la Resolución."
+    },
+    "importeGarantiaAnexo": {
+      "type": "string",
+      "description": "Importe de garantía extraído del Anexo."
+    },
+    "tipoWorkflowDetectado": {
+      "type": "string",
+      "description": "Clasificación general del expediente, por ejemplo FONDO_CREDITO o FONDO_GARANTIA."
+    },
+    "importeDesembolsoAnexo": {
+      "type": "string",
+      "description": "Importe en cuerpo del Anexo."
+    },
+    "cuentaClienteResolucion": {
+      "type": "string",
+      "description": "Cuenta cliente extraída de la Resolución."
+    },
+    "nombreClienteEvaluacion": {
+      "type": "string",
+      "description": "Nombre completo del cliente extraído de la Evaluación."
+    },
+    "nombreClienteResolucion": {
+      "type": "string",
+      "description": "Nombre completo del cliente extraído de la Resolución."
+    },
+    "porcentajeGarantiaAnexo": {
+      "type": "string",
+      "description": "Porcentaje de garantía extraído del cuerpo del Anexo."
+    },
+    "fechaDocumentoEvaluacion": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha extraída de la Evaluación."
+    },
+    "fechaDocumentoResolucion": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha extraída de la Resolución."
+    },
+    "firmaGerenteAgenciaAnexo": {
+      "type": "string",
+      "description": "Nombre de quien firma del Gerente de Agencia en el Anexo."
+    },
+    "importeGarantiaEvaluacion": {
+      "type": "string",
+      "description": "Garantía sugerida extraída de la Evaluación."
+    },
+    "importeGarantiaResolucion": {
+      "type": "string",
+      "description": "Valor de garantía extraído de la Resolución."
+    },
+    "importeDesembolsoEvaluacion": {
+      "type": "string",
+      "description": "Monto extraído de la Evaluación."
+    },
+    "importeDesembolsoResolucion": {
+      "type": "string",
+      "description": "Monto de desembolso extraído de la Resolución."
+    },
+    "otorganteGarantiasResolucion": {
+      "type": "string",
+      "description": "Nombre u otorgante de la primera línea de GARANTIAS en la Resolución."
+    },
+    "porcentajeGarantiaResolucion": {
+      "type": "string",
+      "description": "Porcentaje cubierto FG extraído de la Resolución."
+    },
+    "productoCrediticioResolucion": {
+      "type": "string",
+      "description": "Producto o módulo crediticio extraído de la Resolución."
+    },
+    "tipoDocumentoAnexoSolicitud": {
+      "type": "string",
+      "description": "Tipo de anexo detectado en el expediente, por ejemplo ANEXO_2 o ANEXO_7."
+    },
+    "firmaAsesorNegociosEvaluacion": {
+      "type": "string",
+      "description": "Nombre de quien firma como Asesor de Negocios en la Evaluación."
+    },
+    "firmaNivelAprobacionResolucion": {
+      "type": "string",
+      "description": "Nombre de quien firma Resolución al nivel de aprobación requerido."
+    }
+  },
+  "required": []
+}

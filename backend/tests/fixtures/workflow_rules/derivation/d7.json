@@ -1,0 +1,64 @@
+{
+  "id": "D7",
+  "name": "Aritmética entre dos doctypes — ratio deuda/ingreso",
+  "rule": {
+    "prompt": "Calcular el ratio deuda/ingreso del solicitante. Estimar la deuda mensual como la suma de @commercial_report.deudas_vigentes[].monto dividida en 12. El ingreso es el promedio de @payslip.liquido_a_pago. La interpretación es BAJO (<0.2), MEDIO (0.2-0.4), ALTO (0.4-0.6), CRITICO (>0.6).",
+    "config": {
+      "output_shape": {
+        "type": "object",
+        "required": [
+          "ratio",
+          "deuda_total_mensual_estimada",
+          "ingreso_mensual_promedio",
+          "interpretacion"
+        ],
+        "properties": {
+          "ratio": {
+            "type": "number",
+            "minimum": 0
+          },
+          "deuda_total_mensual_estimada": {
+            "type": "number"
+          },
+          "ingreso_mensual_promedio": {
+            "type": "number"
+          },
+          "interpretacion": {
+            "type": "string",
+            "enum": [
+              "BAJO",
+              "MEDIO",
+              "ALTO",
+              "CRITICO"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "available_doctypes": [
+    "commercial_report",
+    "payslip"
+  ],
+  "expected_artifact": {
+    "inputs": [
+      {
+        "ref": "@commercial_report.deudas_vigentes[].monto",
+        "doctype": "commercial_report",
+        "path": "deudas_vigentes[].monto",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@payslip.liquido_a_pago",
+        "doctype": "payslip",
+        "path": "liquido_a_pago",
+        "required": true,
+        "kind": "scalar"
+      }
+    ],
+    "tokens": [],
+    "knowledge_refs": [],
+    "output_shape_validated": true
+  }
+}

@@ -1,0 +1,81 @@
+name: Build & Deploy / Frontend
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Development' }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compute short SHA
+        id: sha
+        run: echo "short=sha-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Extract docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.FRONTEND_REPOSITORY_URI }}
+          tags: |
+            latest
+            type=sha,format=short
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+          context: frontend
+          file: frontend/Dockerfile
+          push: true
+          target: production
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Deploy to Portainer
+        uses: cssnr/portainer-stack-deploy-action@v1
+        with:
+          token: ${{ secrets.PORTAINER_TOKEN }}
+          repo: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          url: ${{ vars.PORTAINER_URL }}
+          name: ${{ vars.FRONTEND_DEPLOYMENT_SERVICE }}
+          file: ${{ vars.FRONTEND_DEPLOYMENT_COMPOSE_FILE }}
+          standalone: true
+          prune: true
+          pull: true
+          type: repo
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          env_data: >
+            {
+              "IMAGE_TAG": "${{ steps.sha.outputs.short }}",
+              "INFISICAL_SECRET_ENV": "${{ vars.INFISICAL_SECRET_ENV }}",
+              "PROJECT_ID": "${{ vars.FRONTEND_PROJECT_ID }}",
+              "INFISICAL_API_URL": "${{ vars.INFISICAL_API_URL }}",
+              "INFISICAL_MACHINE_CLIENT_ID": "${{ secrets.INFISICAL_MACHINE_CLIENT_ID }}",
+              "INFISICAL_MACHINE_CLIENT_SECRET": "${{ secrets.INFISICAL_MACHINE_CLIENT_SECRET }}"
+            }

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "doxiq-spec"
+version = "0.1.0"
+description = "Pipeline to extract the Doxiq API surface into an OpenAPI 3.1 spec."
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "openapi-spec-validator>=0.7,<1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+    "pytest-cov>=6.1.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "*Tests"
+python_functions = "test_*"
+addopts = "--tb=short --strict"

@@ -1,0 +1,16 @@
+{
+  "id": "V13",
+  "name": "Cumplimiento regulatorio multi-cláusula — contrato de arriendo",
+  "rule": {
+    "prompt": "El @contract (cuando @contract.tipo = 'ARRIENDO') debe cumplir con todas las cláusulas mínimas exigidas por #marco_legal_arriendo_chile. Verificar que cada uno de los siguientes elementos esté presente y bien formulado: Identificación clara de las partes: @contract.partes[] con @contract.partes[].nombre, @contract.partes[].rut y @contract.partes[].rol ∈ {'ARRENDADOR', 'ARRENDATARIO'}. Individualización del inmueble (dirección y descripción) en alguna @contract.clausulas[]. Monto del canon (@contract.monto) y forma/plazo de pago, declarado explícitamente. Plazo del contrato: @contract.fecha_inicio y @contract.fecha_fin (o cláusula que lo declare indefinido). Cláusulas que cubran derechos y obligaciones mínimos de ambas partes. Cláusula que regule el término anticipado del contrato. Cada sub-check debe citar la sección del KB que sustenta el requerimiento.",
+    "config": {
+      "severity": "BLOCKER"
+    }
+  },
+  "available_doctypes": [
+    "contract"
+  ],
+  "kb_slugs": [
+    "marco_legal_arriendo_chile"
+  ]
+}

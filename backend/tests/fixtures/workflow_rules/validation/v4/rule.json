@@ -1,0 +1,16 @@
+{
+  "id": "V4",
+  "name": "Nested deep + valor en lista de KB — comuna en RM",
+  "rule": {
+    "prompt": "La @invoice.emisor.direccion.comuna debe pertenecer a la Región Metropolitana, según el listado oficial en #comunas_region_metropolitana.",
+    "config": {
+      "severity": "MAJOR"
+    }
+  },
+  "available_doctypes": [
+    "invoice"
+  ],
+  "kb_slugs": [
+    "comunas_region_metropolitana"
+  ]
+}

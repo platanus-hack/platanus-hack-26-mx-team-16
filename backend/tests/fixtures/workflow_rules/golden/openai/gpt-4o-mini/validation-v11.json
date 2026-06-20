@@ -1,0 +1,12 @@
+{
+  "payload": {
+    "tree_op": "AND",
+    "sub_check_count": 2,
+    "methods": [
+      "CROSS_REF_CHECK",
+      "LLM_CHECK"
+    ]
+  },
+  "latency_ms": 4771.6,
+  "model": "openai:gpt-4o-mini"
+}

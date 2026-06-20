@@ -1,0 +1,64 @@
+{
+  "id": "D4",
+  "name": "Clasificación con bandas y bumpeo — segmento del cliente",
+  "rule": {
+    "prompt": "Determinar el segmento del cliente: BASICO si ingresos < $800k, MEDIO entre $800k y $2M, PREMIUM si > $2M. Bumpear un nivel si la antigüedad laboral supera 36 meses. Calcular ingresos como promedio de @payslip.liquido_a_pago y antigüedad desde @contract.fecha_inicio hasta {{now}}.",
+    "config": {
+      "output_shape": {
+        "type": "object",
+        "required": [
+          "segmento",
+          "ingresos_mensuales",
+          "antiguedad_meses",
+          "justificacion"
+        ],
+        "properties": {
+          "segmento": {
+            "type": "string",
+            "enum": [
+              "BASICO",
+              "MEDIO",
+              "PREMIUM"
+            ]
+          },
+          "ingresos_mensuales": {
+            "type": "number"
+          },
+          "antiguedad_meses": {
+            "type": "integer"
+          },
+          "justificacion": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "available_doctypes": [
+    "payslip",
+    "contract"
+  ],
+  "expected_artifact": {
+    "inputs": [
+      {
+        "ref": "@payslip.liquido_a_pago",
+        "doctype": "payslip",
+        "path": "liquido_a_pago",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@contract.fecha_inicio",
+        "doctype": "contract",
+        "path": "fecha_inicio",
+        "required": true,
+        "kind": "scalar"
+      }
+    ],
+    "tokens": [
+      "now"
+    ],
+    "knowledge_refs": [],
+    "output_shape_validated": true
+  }
+}

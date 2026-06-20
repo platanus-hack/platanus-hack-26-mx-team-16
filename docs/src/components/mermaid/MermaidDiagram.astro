@@ -1,0 +1,12 @@
+---
+import { Mermaid } from './Mermaid';
+
+interface Props {
+  chart: string;
+  id?: string;
+}
+
+const { chart, id } = Astro.props;
+---
+
+<Mermaid client:load chart={chart} id={id} />

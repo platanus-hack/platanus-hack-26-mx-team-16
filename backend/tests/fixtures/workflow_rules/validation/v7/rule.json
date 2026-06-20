@@ -1,0 +1,14 @@
+{
+  "id": "V7",
+  "name": "AGGREGATE_OVER_TYPE — mínimo 3 facturas y suma > 1M",
+  "rule": {
+    "prompt": "Debe haber al menos 3 documentos @invoice[] en el case, y la suma de @invoice.monto_total (filtrando @invoice.moneda = 'CLP') debe superar $1.000.000.",
+    "config": {
+      "severity": "MAJOR"
+    }
+  },
+  "available_doctypes": [
+    "invoice"
+  ],
+  "kb_slugs": []
+}

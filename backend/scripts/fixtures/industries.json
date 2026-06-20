@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "banking",
+    "name": "Banca",
+    "icon": "landmark",
+    "description": "Automatiza procesos bancarios y de riesgo."
+  },
+  {
+    "slug": "insurance",
+    "name": "Seguros",
+    "icon": "shield",
+    "description": "Valida recetas, pólizas y automatiza autorizaciones."
+  },
+  {
+    "slug": "real-state",
+    "name": "Real State",
+    "icon": "building-2",
+    "description": "Analiza expedientes inmobiliarios y riesgos."
+  },
+  {
+    "slug": "transport-logistics",
+    "name": "Transporte y Logistica",
+    "icon": "package",
+    "description": "Bills of Ladding, etc"
+  }
+]

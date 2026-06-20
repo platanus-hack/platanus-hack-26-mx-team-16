@@ -1,0 +1,80 @@
+{
+  "id": "D9",
+  "name": "Generación con KB — resumen ejecutivo del case",
+  "rule": {
+    "prompt": "Generar un resumen ejecutivo del case {{case.name}} para el tenant {{tenant.name}}, siguiendo la plantilla en #template_resumen_ejecutivo. Incluir título, resumen (máx 800 caracteres) y entre 3 y 7 puntos clave que incorporen al menos: nombre del solicitante (@dni.nombres + @dni.apellidos), monto facturado (suma de @invoice.monto_total cuando aplique) y @commercial_report.score.",
+    "config": {
+      "output_shape": {
+        "type": "object",
+        "required": [
+          "titulo",
+          "resumen",
+          "puntos_clave"
+        ],
+        "properties": {
+          "titulo": {
+            "type": "string"
+          },
+          "resumen": {
+            "type": "string",
+            "maxLength": 800
+          },
+          "puntos_clave": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 3,
+            "maxItems": 7
+          }
+        }
+      }
+    }
+  },
+  "available_doctypes": [
+    "dni",
+    "invoice",
+    "commercial_report"
+  ],
+  "kb_slugs": [
+    "template_resumen_ejecutivo"
+  ],
+  "expected_artifact": {
+    "inputs": [
+      {
+        "ref": "@dni.nombres",
+        "doctype": "dni",
+        "path": "nombres",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.apellidos",
+        "doctype": "dni",
+        "path": "apellidos",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@invoice.monto_total",
+        "doctype": "invoice",
+        "path": "monto_total",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@commercial_report.score",
+        "doctype": "commercial_report",
+        "path": "score",
+        "required": true,
+        "kind": "scalar"
+      }
+    ],
+    "tokens": [
+      "case.name",
+      "tenant.name"
+    ],
+    "knowledge_refs_count": 1,
+    "output_shape_validated": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "samples": [
+    {
+      "id": "V1",
+      "kind": "VALIDATION",
+      "latency_ms": 3597.177028656006,
+      "tokens_in": 28,
+      "tokens_out": 183
+    },
+    {
+      "id": "D1",
+      "kind": "DERIVATION",
+      "latency_ms": 0.8175373077392578,
+      "tokens_in": 25,
+      "tokens_out": 125
+    }
+  ],
+  "model": "openai:gpt-4o-mini"
+}

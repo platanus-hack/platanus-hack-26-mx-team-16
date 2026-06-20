@@ -1,0 +1,47 @@
+---
+import DocsLayout from '@/layouts/DocsLayout.astro';
+import { getCollection } from 'astro:content';
+
+const docs = await getCollection('docs');
+const sorted = docs.sort((a, b) => {
+  const aOrder = a.data.sidebar?.order ?? 999;
+  const bOrder = b.data.sidebar?.order ?? 999;
+  return aOrder - bOrder;
+});
+---
+
+<DocsLayout title="Documentation" section="docs">
+  <div class="docs-prose">
+    <h1>Documentation</h1>
+    <p>Architecture, modules, and operational references for the Doxiq platform.</p>
+
+    <ul class="list-none space-y-3 p-0">
+      {sorted.map((entry) => (
+        <li class="m-0 p-0">
+          <a
+            href={`/docs/${entry.id}`}
+            class="group block rounded-lg border bg-white p-4 transition hover:shadow-md"
+            style="border-color: var(--color-border);"
+          >
+            <h3
+              class="m-0 font-display text-lg font-semibold"
+              style="color: var(--color-fg);"
+            >
+              {entry.data.title}
+              <span
+                aria-hidden="true"
+                class="ml-2 opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100"
+                style="color: var(--color-primary);"
+              >→</span>
+            </h3>
+            {entry.data.description && (
+              <p class="mt-1 text-sm" style="color: var(--color-fg-muted);">
+                {entry.data.description}
+              </p>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</DocsLayout>

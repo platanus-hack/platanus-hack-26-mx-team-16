@@ -1,0 +1,60 @@
+{
+  "id": "D6",
+  "name": "Listado consolidado — deudas con clasificación",
+  "rule": {
+    "prompt": "A partir de @commercial_report.deudas_vigentes[].acreedor, @commercial_report.deudas_vigentes[].monto y @commercial_report.deudas_vigentes[].fecha_origen, generar un listado consolidado con cada acreedor, su monto, antigüedad en meses (calculada desde fecha_origen hasta {{now}}) y categoría inferida (CONSUMO/HIPOTECARIA/COMERCIAL/OTRO).",
+    "config": {
+      "output_shape": {
+        "type": "object",
+        "required": [
+          "total_deuda",
+          "deudas"
+        ],
+        "properties": {
+          "total_deuda": {
+            "type": "number"
+          },
+          "deudas": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  },
+  "available_doctypes": [
+    "commercial_report"
+  ],
+  "expected_artifact": {
+    "inputs": [
+      {
+        "ref": "@commercial_report.deudas_vigentes[].acreedor",
+        "doctype": "commercial_report",
+        "path": "deudas_vigentes[].acreedor",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@commercial_report.deudas_vigentes[].monto",
+        "doctype": "commercial_report",
+        "path": "deudas_vigentes[].monto",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@commercial_report.deudas_vigentes[].fecha_origen",
+        "doctype": "commercial_report",
+        "path": "deudas_vigentes[].fecha_origen",
+        "required": true,
+        "kind": "scalar"
+      }
+    ],
+    "tokens": [
+      "now"
+    ],
+    "knowledge_refs": [],
+    "output_shape_validated": true
+  }
+}

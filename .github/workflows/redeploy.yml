@@ -1,0 +1,125 @@
+name: Redeploy Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service(s) to redeploy'
+        required: true
+        type: choice
+        default: both
+        options:
+          - backend
+          - frontend
+          - both
+      target_environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        default: Production
+        options:
+          - Production
+          - Development
+      version:
+        description: 'Image tag to deploy (e.g. v1.2.3 or sha-abc1234)'
+        required: true
+        type: string
+
+jobs:
+  redeploy-backend:
+    if: ${{ inputs.service == 'backend' || inputs.service == 'both' }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify backend image exists
+        run: |
+          docker manifest inspect "${{ vars.BACKEND_REPOSITORY_URI }}:${{ inputs.version }}" > /dev/null
+          echo "Image ${{ vars.BACKEND_REPOSITORY_URI }}:${{ inputs.version }} found."
+
+      - name: Deploy backend to Portainer
+        uses: cssnr/portainer-stack-deploy-action@v1
+        with:
+          token: ${{ secrets.PORTAINER_TOKEN }}
+          repo: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          url: ${{ vars.PORTAINER_URL }}
+          name: ${{ vars.BACKEND_DEPLOYMENT_SERVICE }}
+          file: ${{ vars.BACKEND_DEPLOYMENT_COMPOSE_FILE }}
+          standalone: true
+          prune: true
+          pull: true
+          type: repo
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          env_data: >
+            {
+              "IMAGE_TAG": "${{ inputs.version }}",
+              "INFISICAL_SECRET_ENV": "${{ vars.INFISICAL_SECRET_ENV }}",
+              "PROJECT_ID": "${{ vars.BACKEND_PROJECT_ID }}",
+              "INFISICAL_API_URL": "${{ vars.INFISICAL_API_URL }}",
+              "INFISICAL_MACHINE_CLIENT_ID": "${{ secrets.INFISICAL_MACHINE_CLIENT_ID }}",
+              "INFISICAL_MACHINE_CLIENT_SECRET": "${{ secrets.INFISICAL_MACHINE_CLIENT_SECRET }}",
+              "ADMIN_SECRET": "${{ secrets.ADMIN_SECRET }}",
+              "ADMIN_EMAIL": "${{ vars.ADMIN_EMAIL }}",
+              "ADMIN_PASSWORD": "${{ secrets.ADMIN_PASSWORD }}",
+              "ADMIN_DB_HOST": "${{ vars.ADMIN_DB_HOST }}",
+              "ADMIN_DB_DATABASE": "${{ vars.ADMIN_DB_DATABASE }}",
+              "ADMIN_DB_USER": "${{ vars.ADMIN_DB_USER }}",
+              "ADMIN_DB_PASSWORD": "${{ secrets.ADMIN_DB_PASSWORD }}",
+              "ADMIN_PUBLIC_URL": "${{ vars.ADMIN_PUBLIC_URL }}"
+            }
+
+  redeploy-frontend:
+    if: ${{ inputs.service == 'frontend' || inputs.service == 'both' }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify frontend image exists
+        run: |
+          docker manifest inspect "${{ vars.FRONTEND_REPOSITORY_URI }}:${{ inputs.version }}" > /dev/null
+          echo "Image ${{ vars.FRONTEND_REPOSITORY_URI }}:${{ inputs.version }} found."
+
+      - name: Deploy frontend to Portainer
+        uses: cssnr/portainer-stack-deploy-action@v1
+        with:
+          token: ${{ secrets.PORTAINER_TOKEN }}
+          repo: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          url: ${{ vars.PORTAINER_URL }}
+          name: ${{ vars.FRONTEND_DEPLOYMENT_SERVICE }}
+          file: ${{ vars.FRONTEND_DEPLOYMENT_COMPOSE_FILE }}
+          standalone: true
+          prune: true
+          pull: true
+          type: repo
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          env_data: >
+            {
+              "IMAGE_TAG": "${{ inputs.version }}",
+              "INFISICAL_SECRET_ENV": "${{ vars.INFISICAL_SECRET_ENV }}",
+              "PROJECT_ID": "${{ vars.FRONTEND_PROJECT_ID }}",
+              "INFISICAL_API_URL": "${{ vars.INFISICAL_API_URL }}",
+              "INFISICAL_MACHINE_CLIENT_ID": "${{ secrets.INFISICAL_MACHINE_CLIENT_ID }}",
+              "INFISICAL_MACHINE_CLIENT_SECRET": "${{ secrets.INFISICAL_MACHINE_CLIENT_SECRET }}"
+            }

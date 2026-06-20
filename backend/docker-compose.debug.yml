@@ -1,0 +1,11 @@
+services:
+  api:
+    ports:
+      - "5678:5678"
+      - "5679:5679"
+    command: >-
+      bash -c "echo '[debug] starting saq worker with debugpy on :5679...' ;
+      python -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:5679 -m saq config.tasks.worker_settings &
+      echo '[debug] starting uvicorn with debugpy on :5678...' ;
+      python -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:5678
+      -m uvicorn config.main:app --host 0.0.0.0 --port 8200"

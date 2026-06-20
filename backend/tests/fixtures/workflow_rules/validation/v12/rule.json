@@ -1,0 +1,14 @@
+{
+  "id": "V12",
+  "name": "Multi-check con NOT — detección de indicadores de adulteración",
+  "rule": {
+    "prompt": "Detectar indicadores de adulteración o manipulación en la factura @invoice. La regla pasa solo si ninguno de los siguientes indicadores se observa en el documento: inconsistencias tipográficas en zonas críticas; folio @invoice.id fuera de rango plausible para @invoice.fecha_emision y @invoice.emisor.rut; fechas en formatos inusuales o inconsistentes; @invoice.monto_total con redondeo sospechoso vs suma de @invoice.items[].subtotal; patrones gráficos de manipulación digital.",
+    "config": {
+      "severity": "BLOCKER"
+    }
+  },
+  "available_doctypes": [
+    "invoice"
+  ],
+  "kb_slugs": []
+}

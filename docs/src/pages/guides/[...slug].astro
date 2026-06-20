@@ -1,0 +1,70 @@
+---
+import { getEntry, render } from 'astro:content';
+import DocsLayout from '@/layouts/DocsLayout.astro';
+
+const { slug } = Astro.params;
+const entry = slug ? await getEntry('guides', slug) : undefined;
+
+if (!entry) {
+  return new Response('Not Found', { status: 404 });
+}
+
+const { Content, headings } = await render(entry);
+---
+
+<DocsLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  headings={headings}
+  section="guides"
+  slug={entry.id}
+>
+  <div class="docs-prose">
+    <div class="mb-6 flex items-center gap-2">
+      {entry.data.difficulty && (
+        <span
+          class="rounded-full px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider"
+          style="background-color: var(--color-primary-subtle); color: var(--color-primary-hover);"
+        >
+          {entry.data.difficulty}
+        </span>
+      )}
+      {entry.data.estimatedTime && (
+        <span
+          class="font-mono text-xs"
+          style="color: var(--color-fg-subtle);"
+        >
+          {entry.data.estimatedTime}
+        </span>
+      )}
+    </div>
+
+    <h1>{entry.data.title}</h1>
+    {entry.data.description && (
+      <p class="lead" style="font-size: 1.125rem; color: var(--color-fg-muted); margin-top: -0.5rem;">
+        {entry.data.description}
+      </p>
+    )}
+
+    {entry.data.prerequisites && entry.data.prerequisites.length > 0 && (
+      <div
+        class="my-6 rounded-lg border p-4"
+        style="background-color: var(--color-bg-subtle); border-color: var(--color-border);"
+      >
+        <p class="mb-2 font-mono text-[10px] uppercase tracking-wider" style="color: var(--color-fg-subtle);">
+          Prerequisites
+        </p>
+        <ul class="m-0 list-none space-y-1 p-0">
+          {entry.data.prerequisites.map((p) => (
+            <li class="m-0 flex items-center gap-2 p-0 text-sm" style="color: var(--color-fg-muted);">
+              <span style="color: var(--color-primary);">→</span>
+              {p}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <Content />
+  </div>
+</DocsLayout>

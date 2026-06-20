@@ -1,0 +1,14 @@
+{
+  "id": "V1",
+  "name": "Field plano simple — formato de RUT",
+  "rule": {
+    "prompt": "El @dni.rut debe estar bien formateado (XX.XXX.XXX-X) y su dígito verificador debe ser válido según mod 11 chileno.",
+    "config": {
+      "severity": "MAJOR"
+    }
+  },
+  "available_doctypes": [
+    "dni"
+  ],
+  "kb_slugs": []
+}

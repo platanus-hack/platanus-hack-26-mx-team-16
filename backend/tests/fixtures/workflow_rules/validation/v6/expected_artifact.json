@@ -1,0 +1,18 @@
+{
+  "tree_op": "AND",
+  "tree_children_count": 1,
+  "sub_check_count": 1,
+  "methods": [
+    "CROSS_REF_CHECK"
+  ],
+  "sub_check_inputs_by_id": {
+    "c1": [
+      "@dni.nombres",
+      "@dni.apellidos",
+      "@contract.partes[].nombre",
+      "@contract.partes[].rut",
+      "@dni.rut"
+    ]
+  },
+  "knowledge_refs_count": 0
+}

@@ -1,0 +1,39 @@
+{
+  "tree_op": "AND",
+  "tree_children_count": 6,
+  "sub_check_count": 6,
+  "methods": [
+    "LLM_CHECK",
+    "LLM_CHECK",
+    "LLM_CHECK",
+    "LLM_CHECK",
+    "LLM_CHECK",
+    "LLM_CHECK"
+  ],
+  "sub_check_inputs_by_id": {
+    "c1": [
+      "@contract.partes[].nombre",
+      "@contract.partes[].rut",
+      "@contract.partes[].rol"
+    ],
+    "c2": [
+      "@contract.clausulas[]"
+    ],
+    "c3": [
+      "@contract.monto",
+      "@contract.clausulas[]"
+    ],
+    "c4": [
+      "@contract.fecha_inicio",
+      "@contract.fecha_fin",
+      "@contract.clausulas[]"
+    ],
+    "c5": [
+      "@contract.clausulas[]"
+    ],
+    "c6": [
+      "@contract.clausulas[]"
+    ]
+  },
+  "knowledge_refs_count": 1
+}

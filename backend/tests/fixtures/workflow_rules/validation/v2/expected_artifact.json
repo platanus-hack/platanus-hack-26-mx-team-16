@@ -1,0 +1,31 @@
+{
+  "tree_op": "AND",
+  "tree_children_count": 5,
+  "sub_check_count": 5,
+  "methods": [
+    "LLM_CHECK",
+    "FORMAT_CHECK",
+    "LLM_CHECK",
+    "RANGE_CHECK",
+    "AGGREGATE_CHECK"
+  ],
+  "sub_check_inputs_by_id": {
+    "c1": [
+      "@invoice.emisor.razon_social"
+    ],
+    "c2": [
+      "@invoice.emisor.rut"
+    ],
+    "c3": [
+      "@invoice.emisor.direccion"
+    ],
+    "c4": [
+      "@invoice.monto_total"
+    ],
+    "c5": [
+      "@invoice.items[].cantidad",
+      "@invoice.items[].precio_unitario"
+    ]
+  },
+  "knowledge_refs_count": 0
+}

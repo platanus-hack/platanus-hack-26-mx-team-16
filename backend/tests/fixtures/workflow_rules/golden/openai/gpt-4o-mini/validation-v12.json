@@ -1,0 +1,14 @@
+{
+  "payload": {
+    "tree_op": "NOT",
+    "sub_check_count": 5,
+    "methods": [
+      "AGGREGATE_CHECK",
+      "FORMAT_CHECK",
+      "LLM_CHECK",
+      "RANGE_CHECK"
+    ]
+  },
+  "latency_ms": 5629.5,
+  "model": "openai:gpt-4o-mini"
+}

@@ -1,0 +1,33 @@
+{
+  "samples": [
+    {
+      "id": "V1",
+      "kind": "VALIDATION",
+      "latency_ms": 3410.956621170044,
+      "tokens_in": 28,
+      "tokens_out": 183
+    },
+    {
+      "id": "V3",
+      "kind": "VALIDATION",
+      "latency_ms": 5127.408981323242,
+      "tokens_in": 53,
+      "tokens_out": 405
+    },
+    {
+      "id": "D1",
+      "kind": "DERIVATION",
+      "latency_ms": 0.3135204315185547,
+      "tokens_in": 25,
+      "tokens_out": 125
+    },
+    {
+      "id": "D4",
+      "kind": "DERIVATION",
+      "latency_ms": 0.3600120544433594,
+      "tokens_in": 70,
+      "tokens_out": 158
+    }
+  ],
+  "model": "openai:gpt-4o-mini"
+}

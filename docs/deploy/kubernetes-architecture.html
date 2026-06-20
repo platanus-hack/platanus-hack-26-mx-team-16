@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Doxiq · Datasheet de infraestructura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#eef1f6;
+    --surface:#ffffff;
+    --ink:#0c1422;
+    --body:#283242;
+    --muted:#5e6b7e;
+    --faint:#8a97aa;
+    --line:#d7dee8;
+    --hair:#e7ecf2;
+    --indigo:#3a3fe0;
+    --indigo-ink:#23278f;
+    --indigo-soft:#ecedfc;
+    --indigo-ring:#cdcff7;
+    --amber:#8a5300;
+    --amber-soft:#fbefd8;
+    --amber-ring:#ecd3a0;
+    --graphite:#3a4658;
+    --board:#0c1422;
+    --board-2:#101b30;
+    --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans:"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;color:var(--body);
+    background-color:var(--paper);
+    background-image:
+      linear-gradient(rgba(12,20,34,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(12,20,34,.035) 1px, transparent 1px);
+    background-size:34px 34px;
+    font-family:var(--sans);font-size:15px;line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{display:grid;grid-template-columns:264px minmax(0,1fr);gap:0;max-width:1500px;margin:0 auto}
+  a{color:var(--indigo-ink)}
+  :focus-visible{outline:2px solid var(--indigo);outline-offset:2px;border-radius:3px}
+
+  /* ---- sidebar index ---- */
+  aside{
+    position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+    border-right:1px solid var(--line);background:var(--surface);padding:26px 20px 60px;
+  }
+  aside .brand{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  aside .brand .dot{width:24px;height:24px;border-radius:6px;background:var(--ink);position:relative}
+  aside .brand .dot::after{content:"";position:absolute;inset:7px;border:1.6px solid var(--indigo);border-radius:2px}
+  aside .brand b{font-family:var(--mono);font-size:15px;color:var(--ink);letter-spacing:-.02em;font-weight:700}
+  aside .sub{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin:0 0 22px 34px;letter-spacing:.04em}
+  aside nav a{
+    display:block;color:var(--body);text-decoration:none;font-size:13px;
+    padding:5px 10px;border-radius:6px;
+  }
+  aside nav a:hover{background:var(--indigo-soft);color:var(--indigo-ink)}
+  aside nav a.grp{margin-top:16px;font-family:var(--mono);font-weight:600;color:var(--faint);font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;padding-left:10px;pointer-events:none}
+  aside nav a.lvl{padding-left:22px;color:var(--muted);font-size:12.5px}
+  aside nav a.lvl::before{content:"› ";color:var(--indigo);opacity:.6}
+
+  /* ---- main ---- */
+  main{padding:48px 60px 120px;max-width:1080px}
+  header.page{margin-bottom:18px}
+  .eyebrow{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--indigo-ink);background:var(--indigo-soft);padding:5px 11px;border-radius:6px;border:1px solid var(--indigo-ring)}
+  h1{font-family:var(--mono);font-size:33px;line-height:1.08;letter-spacing:-.025em;color:var(--ink);margin:18px 0 12px;font-weight:700}
+  .lede{font-size:16.5px;color:var(--muted);max-width:68ch;margin:0}
+  /* spec strip */
+  .spec{display:flex;flex-wrap:wrap;margin-top:26px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+  .spec .cell{flex:1 1 150px;padding:13px 16px;border-right:1px solid var(--line)}
+  .spec .cell:last-child{border-right:none}
+  .spec .k{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .spec .v{display:block;font-family:var(--mono);font-size:21px;font-weight:600;color:var(--ink);margin-top:4px;letter-spacing:-.01em}
+  .spec .v small{font-size:13px;color:var(--faint);font-weight:500}
+
+  /* section headers */
+  h2{font-family:var(--mono);font-size:21px;letter-spacing:-.01em;color:var(--ink);margin:56px 0 6px;padding-top:20px;border-top:1px solid var(--line);font-weight:600}
+  .kick{display:block;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--indigo);margin:0 0 4px}
+  h3{font-family:var(--mono);font-size:15px;color:var(--ink);margin:34px 0 6px;font-weight:600;letter-spacing:-.005em;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  h4{font-family:var(--mono);font-size:13.5px;color:var(--ink);margin:0 0 6px;font-weight:600}
+  p{margin:11px 0}
+  ul,ol{margin:11px 0;padding-left:22px}
+  li{margin:6px 0}
+  strong{color:var(--ink);font-weight:600}
+  code{font-family:var(--mono);font-size:.85em;background:#e9edf3;border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:var(--indigo-ink)}
+
+  /* role tag (bill of materials) */
+  .ref{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.02em;color:var(--indigo-ink);background:var(--indigo-soft);border:1px solid var(--indigo-ring);border-radius:5px;padding:1px 7px;margin:0 0 6px}
+
+  /* callouts */
+  .note{border:1px solid var(--line);border-left:3px solid var(--indigo);background:var(--surface);border-radius:8px;padding:14px 16px;margin:20px 0}
+  .note.warn{border-left-color:var(--amber);background:var(--amber-soft);border-color:var(--amber-ring)}
+  .note.act{border-left-color:var(--indigo);background:var(--indigo-soft);border-color:var(--indigo-ring)}
+  .note .lbl{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+  .note.warn .lbl{color:var(--amber)} .note.act .lbl{color:var(--indigo-ink)}
+
+  /* tables */
+  .tbl{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--hair);vertical-align:top}
+  th{background:#f3f6fa;color:var(--muted);font-family:var(--mono);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#f7f9fc}
+
+  /* figure / schematic board */
+  figure{margin:24px 0;background:var(--board);border:1px solid #1d2a44;border-radius:14px;padding:20px 20px 16px;box-shadow:0 1px 0 rgba(255,255,255,.5), inset 0 0 0 1px rgba(120,160,255,.04)}
+  figure svg{display:block;width:100%;height:auto}
+  figcaption{font-family:var(--mono);font-size:11px;color:#8ea0bd;text-align:center;margin-top:14px;letter-spacing:.02em}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;font-family:var(--mono);font-size:11px;color:#a7b4cc;margin-top:12px;padding-top:12px;border-top:1px solid #1d2a44}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .sw{width:18px;border-top:2px solid #7180a0;display:inline-block}
+  .sw.ctrl{border-top-color:#7c82ff}
+  .sw.eg{border-top-style:dashed;border-top-color:#5b6883}
+  .sw.dot{width:12px;height:12px;border:1.6px solid #e0a23a;border-radius:3px}
+
+  /* cards */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .card{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--surface)}
+  .card h4{margin-top:0}
+  .card p{margin:6px 0 0;font-size:14px}
+
+  /* scaling pills */
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--graphite);white-space:nowrap}
+  .pill.heavy{color:var(--amber);background:var(--amber-soft);border-color:var(--amber-ring)}
+  .pill.mod{color:#8a5300;background:#fbf6ec;border-color:#ecdfc2}
+  .pill.fixed{color:var(--graphite);background:#eaeef4;border-color:var(--line)}
+  .pill.low{color:var(--indigo-ink);background:var(--indigo-soft);border-color:var(--indigo-ring)}
+
+  footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--muted);line-height:1.7}
+
+  @media(max-width:980px){
+    .wrap{grid-template-columns:1fr}
+    aside{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)}
+    aside nav{columns:2;column-gap:18px}
+    main{padding:34px 22px 90px}
+    .grid2{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside>
+  <div class="brand"><span class="dot"></span><b>doxiq</b></div>
+  <p class="sub">infra · datasheet</p>
+  <nav>
+    <a class="grp">Contexto</a>
+    <a href="#resumen">De qué se compone</a>
+    <a class="grp">Inventario</a>
+    <a href="#inventario">Qué contenedores hay</a>
+    <a class="lvl" href="#app">Aplicación</a>
+    <a class="lvl" href="#plataforma">Plataforma &amp; estado</a>
+    <a class="lvl" href="#externas">Dependencias externas</a>
+    <a class="grp">Relaciones</a>
+    <a href="#diagrama">Topología</a>
+    <a class="grp">Escalado</a>
+    <a href="#escalado">Qué escala y qué no</a>
+    <a class="lvl" href="#senales">Señales de escalado</a>
+  </nav>
+</aside>
+
+<main>
+<header class="page">
+  <span class="eyebrow">Sistema · Topología de despliegue</span>
+  <h1>Infraestructura que necesita Doxiq</h1>
+  <p class="lede">Qué piezas hay que levantar, qué es y para qué sirve cada una, cómo se conectan, y cuáles esperamos que escalen mucho. Describe la <strong>infraestructura</strong>, no la configuración: sin manifiestos ni recetas; las herramientas concretas las elige el equipo de plataforma.</p>
+  <div class="spec">
+    <div class="cell"><span class="k">Piezas de app</span><span class="v">5</span></div>
+    <div class="cell"><span class="k">Almacenes de estado</span><span class="v">3</span></div>
+    <div class="cell"><span class="k">Orquestador</span><span class="v">Temporal</span></div>
+    <div class="cell"><span class="k">Deps externas</span><span class="v">5</span></div>
+    <div class="cell"><span class="k">Imagen de app</span><span class="v">1 <small>· varios roles</small></span></div>
+  </div>
+</header>
+
+<!-- ============================ RESUMEN ============================ -->
+<h2 id="resumen"><span class="kick">Panorama</span>De qué se compone</h2>
+<p>Doxiq es una plataforma de extracción documental y análisis de reglas de negocio (OCR + LLM). En producción se reduce a <strong>tres tipos de pieza</strong>:</p>
+<ul>
+  <li><strong>Contenedores de aplicación</strong> — nuestro código: el frontend, la API, dos workers y el panel de administración. No guardan estado; se pueden reiniciar y replicar libremente.</li>
+  <li><strong>Servicios de plataforma y estado</strong> — el orquestador Temporal, la base de datos, la caché/cola y el almacenamiento de objetos. Aquí vive todo el estado; necesitan persistencia y respaldo.</li>
+  <li><strong>Dependencias externas</strong> — SaaS y funciones fuera del clúster a las que llamamos por red: modelos LLM, extractores en Lambda, correo y WhatsApp, más el gestor de secretos.</li>
+</ul>
+<p>Las cuatro piezas de aplicación de servidor comparten <strong>una misma imagen</strong>; lo que cambia es el proceso que arrancan. Eso simplifica el build y los despliegues: una imagen, varios roles.</p>
+
+<div class="note warn">
+  <span class="lbl">Dos cosas a corregir al pasar a producción</span>
+  <ul style="margin:6px 0 0">
+    <li><strong>Separar el worker de jobs de la API.</strong> Hoy el arranque de la API levanta también el worker SAQ dentro del mismo contenedor. En producción deben ser piezas independientes para poder escalar y fallar por separado.</li>
+    <li><strong>Temporal con base de datos real.</strong> Hoy corre en modo desarrollo con almacenamiento embebido; no es apto para producción. Necesita respaldarse en la base de datos gestionada.</li>
+  </ul>
+</div>
+
+<!-- ============================ INVENTARIO ============================ -->
+<h2 id="inventario"><span class="kick">Inventario</span>Qué contenedores hay y para qué</h2>
+
+<h3 id="app">Contenedores de aplicación <span class="pill low">nuestro código · sin estado</span></h3>
+<div class="tbl">
+<table>
+  <thead><tr><th style="width:190px">Pieza</th><th>Qué es</th><th>Para qué sirve</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="ref">web</span><br><strong>Frontend</strong></td>
+      <td>Aplicación web Next.js (Node).</td>
+      <td>Sirve la interfaz de usuario y actúa de <strong>BFF</strong> (backend-for-frontend): el navegador nunca habla directo con la API; todo el tráfico pasa por sus rutas de servidor, que reenvían a la API e inyectan las credenciales. Es la única pieza expuesta al navegador.</td>
+    </tr>
+    <tr>
+      <td><span class="ref">api</span><br><strong>Backend API</strong></td>
+      <td>Servicio FastAPI (Python), escucha en el puerto <code>8200</code>.</td>
+      <td>Es el corazón del sistema: atiende todas las peticiones (desde el frontend, desde la API pública, y desde los canales de entrada como email / WhatsApp / webhooks), mantiene conexiones de streaming en vivo (SSE) hacia la UI y <strong>lanza los flujos de procesamiento</strong> en Temporal. No procesa documentos él mismo.</td>
+    </tr>
+    <tr>
+      <td><span class="ref">worker</span><br><strong>Temporal Worker</strong></td>
+      <td>Proceso que ejecuta los workflows de procesamiento documental.</td>
+      <td>Aquí ocurre el <strong>trabajo pesado</strong>: por cada documento/caso corre el pipeline (OCR, extracción con LLM, análisis de reglas, síntesis). Toma trabajo de la cola <code>document-processing</code> de Temporal. Es la pieza que más recursos consume.</td>
+    </tr>
+    <tr>
+      <td><span class="ref">jobs</span><br><strong>SAQ Worker</strong></td>
+      <td>Worker de tareas en segundo plano sobre Redis.</td>
+      <td>Ejecuta jobs asíncronos cortos y tareas programadas (p. ej. reintentos de entrega de eventos cada pocos minutos). Descarga a la API de trabajo que no debe bloquear una petición.</td>
+    </tr>
+    <tr>
+      <td><span class="ref">admin</span><br><strong>Admin (Directus)</strong></td>
+      <td>Panel administrativo de terceros (Directus).</td>
+      <td>Consola interna de operación y soporte. Usa su propia base de datos.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="plataforma">Plataforma &amp; estado <span class="pill fixed">aquí vive el estado · respaldo + persistencia</span></h3>
+<div class="tbl">
+<table>
+  <thead><tr><th style="width:190px">Pieza</th><th>Qué es</th><th>Para qué sirve</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="ref">orq</span><br><strong>Temporal Server</strong></td>
+      <td>Orquestador de workflows duraderos.</td>
+      <td>Coordina el procesamiento: guarda el estado de cada flujo, reparte el trabajo a los Temporal Workers por colas, reintenta pasos fallidos y permite flujos que esperan (documentos pendientes, revisión humana). Necesita su propia base de datos.</td>
+    </tr>
+    <tr>
+      <td><span class="ref">db</span><br><strong>PostgreSQL + pgvector</strong></td>
+      <td>Base de datos relacional gestionada, con la extensión de vectores.</td>
+      <td>Almacén principal de datos del negocio (tenants, workflows, casos, documentos, resultados) <em>y</em> de los <strong>embeddings</strong> de la base de conocimiento (pgvector). También respalda a Temporal y al panel de administración. Es el estado compartido del sistema.</td>
+    </tr>
+    <tr>
+      <td><span class="ref">cache</span><br><strong>Redis</strong></td>
+      <td>Almacén en memoria.</td>
+      <td>Cola de trabajos del SAQ Worker y caché. Necesita persistencia porque la cola de jobs vive aquí.</td>
+    </tr>
+    <tr>
+      <td><span class="ref">blob</span><br><strong>Object Storage (S3)</strong></td>
+      <td>Almacenamiento de objetos compatible con S3.</td>
+      <td>Guarda los archivos: documentos subidos, adjuntos recibidos por los canales y resultados/exportaciones. Se accede por endpoint S3.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="externas">Dependencias externas <span class="pill fixed">fuera del clúster · se llaman por red</span></h3>
+<div class="tbl">
+<table>
+  <thead><tr><th style="width:190px">Pieza</th><th>Qué es</th><th>Para qué sirve</th></tr></thead>
+  <tbody>
+    <tr><td><span class="ref">llm</span><br><strong>APIs de LLM</strong></td><td>Modelos de lenguaje (Gemini, OpenAI, Anthropic, OpenRouter).</td><td>Extracción estructurada, análisis de reglas y síntesis. Las llaman sobre todo los Temporal Workers.</td></tr>
+    <tr><td><span class="ref">ocr</span><br><strong>Extractores (Lambda)</strong></td><td>Funciones serverless en AWS para OCR / transcripción.</td><td>Convierten documentos e imágenes (y audio) en texto antes de la extracción.</td></tr>
+    <tr><td><span class="ref">mail</span><br><strong>SMTP</strong></td><td>Servidor de correo saliente.</td><td>Notificaciones y entrega de resultados por email.</td></tr>
+    <tr><td><span class="ref">chat</span><br><strong>Meta Graph</strong></td><td>API de WhatsApp (Meta).</td><td>Canal de entrada/salida por WhatsApp.</td></tr>
+    <tr><td><span class="ref">secrets</span><br><strong>Gestor de secretos</strong></td><td>Servicio de secretos (Infisical).</td><td>Fuente de verdad de credenciales/variables; el clúster las consume desde aquí.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============================ DIAGRAMA ============================ -->
+<h2 id="diagrama"><span class="kick">Topología</span>Cómo se relacionan entre sí</h2>
+<p>El navegador y los canales entran por el borde. El <strong>frontend</strong> reenvía a la <strong>API</strong>, que es el único punto que orquesta: escribe en Postgres, usa Redis y S3, y <strong>lanza workflows</strong> en Temporal. Los <strong>workers</strong> hacen el trabajo (los Temporal Workers toman tareas de Temporal y llaman a los servicios externos; el SAQ Worker consume su cola de Redis). Todo el estado aterriza en la capa de datos.</p>
+<figure>
+<svg viewBox="0 0 1180 880" role="img" aria-label="Diagrama de relaciones de la infraestructura de Doxiq">
+  <defs>
+    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse">
+      <path d="M34 0 L0 0 0 34" fill="none" stroke="#7aa0ff" stroke-opacity="0.07" stroke-width="1"/>
+    </pattern>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7180a0"/>
+    </marker>
+    <marker id="arrT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7c82ff"/>
+    </marker>
+    <marker id="arrE" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5b6883"/>
+    </marker>
+    <style>
+      .lbl{font-family:var(--mono);font-size:12.5px;fill:#eaf0fb;font-weight:600;letter-spacing:.01em}
+      .sub{font-family:var(--mono);font-size:9.6px;fill:#8ea0bd}
+      .zone{font-family:var(--mono);font-size:9.5px;fill:#5f7090;font-weight:600;letter-spacing:.14em}
+      .elbl{font-family:var(--mono);font-size:9.4px;fill:#8ea0bd}
+      .b-app{fill:#16223b;stroke:#34446b}
+      .b-core{fill:#13283f;stroke:#2f6a86}
+      .b-ext{fill:#151c2c;stroke:#39435c}
+      .b-hot{fill:#1c2138;stroke:#e0a23a;stroke-width:1.7}
+      .edge{stroke:#7180a0;stroke-width:1.3;fill:none}
+      .ctrl{stroke:#7c82ff;stroke-width:1.7;fill:none}
+      .egress{stroke:#5b6883;stroke-width:1.3;fill:none;stroke-dasharray:5 4}
+      .flow{stroke-dasharray:7 6;animation:march 2.6s linear infinite}
+      @keyframes march{to{stroke-dashoffset:-52}}
+      @media (prefers-reduced-motion: reduce){.flow{animation:none;stroke-dasharray:none}}
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1180" height="880" fill="url(#grid)"/>
+
+  <!-- zone labels -->
+  <text class="zone" x="124" y="208">APLICACIÓN · ESCALA CON TRÁFICO</text>
+  <text class="zone" x="124" y="350">PROCESAMIENTO · ESCALA CON LA CARGA</text>
+  <text class="zone" x="124" y="494">ORQUESTACIÓN &amp; ESTADO</text>
+  <text class="zone" x="124" y="632">DATOS · PERSISTENCIA</text>
+  <text class="zone" x="908" y="198">SERVICIOS EXTERNOS</text>
+
+  <!-- EDGES -->
+  <path class="edge" d="M245,88 L245,130" marker-end="url(#arr)"/>
+  <path class="edge" d="M600,88 L600,130" marker-end="url(#arr)"/>
+  <path class="edge" d="M245,174 L245,218" marker-end="url(#arr)"/>
+  <path class="edge" d="M595,174 L595,218" marker-end="url(#arr)"/>
+  <path class="edge" d="M370,251 L470,251" marker-end="url(#arr)"/>
+  <!-- control (Temporal) -->
+  <path class="ctrl flow" d="M470,250 L424,250 L424,490 L340,490 L340,504" marker-end="url(#arrT)"/>
+  <path class="ctrl flow" d="M474,400 L360,503" marker-end="url(#arrT)"/>
+  <!-- data -->
+  <path class="edge" d="M370,393 L440,393 L440,478 L540,478 L540,504" marker-end="url(#arr)"/>
+  <path class="edge" d="M720,251 L782,251 L782,520 L720,520" marker-end="url(#arr)"/>
+  <path class="edge" d="M720,393 L760,393 L760,664 L720,664" marker-end="url(#arr)"/>
+  <path class="edge" d="M470,266 L408,266 L408,628 L300,628 L300,642" marker-end="url(#arr)"/>
+  <path class="edge" d="M120,400 L92,400 L92,684 L120,684" marker-end="url(#arr)"/>
+  <path class="edge" d="M245,566 L245,642" marker-end="url(#arr)"/>
+  <path class="edge" d="M245,752 L245,712" marker-end="url(#arr)"/>
+  <!-- egress -->
+  <path class="egress" d="M720,378 L850,378 L850,243 L905,243" marker-end="url(#arrE)"/>
+  <path class="egress" d="M720,405 L880,405 L880,317 L905,317" marker-end="url(#arrE)"/>
+  <path class="egress" d="M720,236 L868,236 L868,385 L905,385" marker-end="url(#arrE)"/>
+  <path class="egress" d="M720,258 L848,258 L848,453 L905,453" marker-end="url(#arrE)"/>
+
+  <!-- edge labels -->
+  <text class="elbl" x="392" y="244" text-anchor="middle">BFF</text>
+  <text class="elbl" x="300" y="476">inicia workflows</text>
+  <text class="elbl" x="402" y="446">toma trabajo</text>
+  <text class="elbl" x="452" y="472">consume jobs</text>
+  <text class="elbl" x="252" y="600">persistencia</text>
+
+  <!-- ENTRY -->
+  <rect x="120" y="36" width="250" height="52" rx="9" class="b-ext"/>
+  <text class="lbl" x="245" y="67" text-anchor="middle">Navegador / Usuarios</text>
+  <rect x="450" y="36" width="300" height="52" rx="9" class="b-ext"/>
+  <text class="lbl" x="600" y="59" text-anchor="middle">Canales entrantes</text>
+  <text class="sub" x="600" y="76" text-anchor="middle">Email · WhatsApp · API / Webhooks</text>
+
+  <!-- INGRESS -->
+  <rect x="120" y="130" width="650" height="44" rx="9" class="b-ext"/>
+  <text class="lbl" x="445" y="157" text-anchor="middle">Ingress (entrada HTTPS)</text>
+
+  <!-- APP -->
+  <rect x="120" y="218" width="250" height="66" rx="9" class="b-app"/>
+  <text class="lbl" x="245" y="248" text-anchor="middle">Frontend · Next.js</text>
+  <text class="sub" x="245" y="265" text-anchor="middle">UI + BFF (/api/*)</text>
+  <rect x="470" y="218" width="250" height="66" rx="9" class="b-hot"/>
+  <text class="lbl" x="595" y="248" text-anchor="middle">Backend API · FastAPI</text>
+  <text class="sub" x="595" y="265" text-anchor="middle">REST + SSE · puerto 8200</text>
+
+  <!-- WORKERS -->
+  <rect x="120" y="360" width="250" height="66" rx="9" class="b-app"/>
+  <text class="lbl" x="245" y="390" text-anchor="middle">SAQ Worker</text>
+  <text class="sub" x="245" y="407" text-anchor="middle">jobs en segundo plano + cron</text>
+  <rect x="470" y="360" width="250" height="66" rx="9" class="b-hot"/>
+  <text class="lbl" x="595" y="390" text-anchor="middle">Temporal Worker</text>
+  <text class="sub" x="595" y="407" text-anchor="middle">pipeline · cola document-processing</text>
+
+  <!-- STATE -->
+  <rect x="120" y="504" width="250" height="62" rx="9" class="b-core"/>
+  <text class="lbl" x="245" y="531" text-anchor="middle">Temporal Server</text>
+  <text class="sub" x="245" y="548" text-anchor="middle">orquesta workflows</text>
+  <rect x="470" y="504" width="250" height="62" rx="9" class="b-core"/>
+  <text class="lbl" x="595" y="531" text-anchor="middle">Redis</text>
+  <text class="sub" x="595" y="548" text-anchor="middle">cola SAQ + caché</text>
+
+  <!-- DATA -->
+  <rect x="120" y="642" width="250" height="68" rx="9" class="b-core"/>
+  <text class="lbl" x="245" y="671" text-anchor="middle">PostgreSQL + pgvector</text>
+  <text class="sub" x="245" y="688" text-anchor="middle">datos + embeddings + BD Temporal</text>
+  <rect x="470" y="642" width="250" height="68" rx="9" class="b-core"/>
+  <text class="lbl" x="595" y="671" text-anchor="middle">Object Storage (S3)</text>
+  <text class="sub" x="595" y="688" text-anchor="middle">documentos + resultados</text>
+
+  <!-- DIRECTUS -->
+  <rect x="120" y="752" width="250" height="52" rx="9" class="b-app"/>
+  <text class="lbl" x="245" y="783" text-anchor="middle">Directus · admin</text>
+
+  <!-- EXTERNAL -->
+  <rect x="905" y="210" width="215" height="66" rx="9" class="b-ext"/>
+  <text class="lbl" x="1012" y="239" text-anchor="middle">APIs de LLM</text>
+  <text class="sub" x="1012" y="256" text-anchor="middle">Gemini · OpenAI · Anthropic</text>
+  <rect x="905" y="288" width="215" height="58" rx="9" class="b-ext"/>
+  <text class="lbl" x="1012" y="313" text-anchor="middle">Extractores · Lambda</text>
+  <text class="sub" x="1012" y="330" text-anchor="middle">OCR / transcripción (AWS)</text>
+  <rect x="905" y="360" width="215" height="50" rx="9" class="b-ext"/>
+  <text class="lbl" x="1012" y="390" text-anchor="middle">SMTP</text>
+  <rect x="905" y="424" width="215" height="58" rx="9" class="b-ext"/>
+  <text class="lbl" x="1012" y="449" text-anchor="middle">Meta Graph</text>
+  <text class="sub" x="1012" y="466" text-anchor="middle">WhatsApp</text>
+</svg>
+<figcaption>Esquema de interconexión del runtime de Doxiq</figcaption>
+<div class="legend">
+  <span><i class="sw"></i> petición / datos</span>
+  <span><i class="sw ctrl"></i> workflows (Temporal)</span>
+  <span><i class="sw eg"></i> servicios externos</span>
+  <span><i class="sw dot"></i> escala en caliente</span>
+</div>
+</figure>
+
+<!-- ============================ ESCALADO ============================ -->
+<h2 id="escalado"><span class="kick">Carga</span>Qué esperamos que escale mucho</h2>
+<p>La carga no se reparte por igual. Dos piezas absorben los picos y deben poder crecer en número de réplicas de forma agresiva (las marcadas <span class="pill heavy">en caliente</span> en el diagrama); el resto se mantiene casi fijo o crece despacio. La capa de estado <strong>no se replica como las piezas sin estado</strong>: se dimensiona en vertical y es el techo del sistema.</p>
+
+<div class="tbl">
+<table>
+  <thead><tr><th style="width:170px">Pieza</th><th style="width:130px">Escala</th><th>Qué la hace crecer</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Temporal Worker</strong></td>
+      <td><span class="pill heavy">Mucho ↑↑</span></td>
+      <td><strong>El que más escala.</strong> Cada documento es trabajo de segundos a minutos (OCR + LLM). En una ráfaga de ingesta la cola se llena y necesitamos muchas réplicas en paralelo; al vaciarse, bajan. Es la pieza a la que conviene dedicarle autoescalado agresivo.</td>
+    </tr>
+    <tr>
+      <td><strong>Backend API</strong></td>
+      <td><span class="pill heavy">Mucho ↑↑</span></td>
+      <td>Crece con usuarios concurrentes y con ráfagas de entrada por canales/API/webhooks. Además mantiene conexiones de streaming (SSE) abiertas, así que el límite suele ser el <strong>número de conexiones</strong>, no solo la CPU.</td>
+    </tr>
+    <tr>
+      <td><strong>SAQ Worker</strong></td>
+      <td><span class="pill mod">Moderado ↑</span></td>
+      <td>Sube con el volumen de jobs y tareas programadas. Más liviano que el Temporal Worker; crece según el tamaño de su cola.</td>
+    </tr>
+    <tr>
+      <td><strong>Frontend</strong></td>
+      <td><span class="pill mod">Moderado ↑</span></td>
+      <td>Acompaña a los usuarios concurrentes. Es barato de replicar; rara vez es el cuello de botella.</td>
+    </tr>
+    <tr>
+      <td><strong>PostgreSQL</strong></td>
+      <td><span class="pill fixed">Vertical</span></td>
+      <td>Estado compartido: se dimensiona en vertical y, si hace falta, con réplicas de lectura. <strong>Es el techo del sistema</strong>: cuidar el número de conexiones, porque cada réplica de API y de worker abre conexiones contra él.</td>
+    </tr>
+    <tr>
+      <td><strong>Redis</strong></td>
+      <td><span class="pill fixed">Vertical</span></td>
+      <td>Se dimensiona en vertical / alta disponibilidad. La cola de jobs vive aquí, no se reparte en muchas réplicas.</td>
+    </tr>
+    <tr>
+      <td><strong>Temporal Server</strong></td>
+      <td><span class="pill low">Estable</span></td>
+      <td>Puede ir en alta disponibilidad, pero no «escala un montón»: su límite práctico es la base de datos que lo respalda.</td>
+    </tr>
+    <tr>
+      <td><strong>Object Storage</strong></td>
+      <td><span class="pill low">Gestionado</span></td>
+      <td>Escala solo (es un servicio gestionado); solo crece el almacenamiento.</td>
+    </tr>
+    <tr>
+      <td><strong>Directus (admin)</strong></td>
+      <td><span class="pill low">1 réplica</span></td>
+      <td>Uso interno y esporádico; no necesita escalar.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="senales">Señales de escalado</h3>
+<div class="grid2">
+  <div class="card">
+    <h4>Los workers escalan por cola, no por CPU</h4>
+    <p>El Temporal Worker y el SAQ Worker deben crecer según el <strong>backlog</strong> (cuánto trabajo espera en su cola), no según la CPU. Así responden al instante a una ráfaga de ingesta y se apagan cuando la cola se vacía.</p>
+  </div>
+  <div class="card">
+    <h4>La API escala por tráfico y conexiones</h4>
+    <p>Réplicas según peticiones y conexiones SSE abiertas. Al añadir réplicas de API y de worker, vigilar que el <strong>total de conexiones a Postgres</strong> no supere su límite — ese suele ser el primer muro.</p>
+  </div>
+</div>
+
+<div class="note act">
+  <span class="lbl">Regla práctica</span>
+  Dimensionar primero <strong>Temporal Worker</strong> (techo alto, autoescalado por cola) y <strong>Backend API</strong> (tráfico + conexiones). Tratar <strong>Postgres</strong> como recurso escaso: el número de réplicas de cómputo está acotado por las conexiones que la base de datos aguanta.
+</div>
+
+<footer>
+  doxiq · llamitai — datasheet de infraestructura<br>
+  Describe piezas y relaciones, no configuración. Las herramientas concretas (proveedor de nube, base de datos gestionada, autoescalado) las decide el equipo de plataforma.
+</footer>
+</main>
+</div>
+</body>
+</html>

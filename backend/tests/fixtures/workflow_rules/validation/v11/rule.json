@@ -1,0 +1,16 @@
+{
+  "id": "V11",
+  "name": "KB lookup + match semántico — coherencia items con giro emisor",
+  "rule": {
+    "prompt": "Las descripciones de los @invoice.items[].descripcion deben ser semánticamente coherentes con el giro registrado del emisor. El giro se obtiene buscando @invoice.emisor.rut en #giros_sii_por_rut (campos giro_principal y giros_secundarios). Una empresa con giro 'Venta de alimentos al por menor' no debería facturar 'Servicios de consultoría legal'. Aceptar variaciones razonables; el juicio es de coherencia semántica, no de match exacto.",
+    "config": {
+      "severity": "MINOR"
+    }
+  },
+  "available_doctypes": [
+    "invoice"
+  ],
+  "kb_slugs": [
+    "giros_sii_por_rut"
+  ]
+}

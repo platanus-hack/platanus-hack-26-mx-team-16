@@ -1,0 +1,19 @@
+{
+  "tree_op": "AND",
+  "tree_children_count": 2,
+  "sub_check_count": 2,
+  "methods": [
+    "AGGREGATE_CHECK",
+    "AGGREGATE_CHECK"
+  ],
+  "sub_check_inputs_by_id": {
+    "c1": [
+      "@invoice[]"
+    ],
+    "c2": [
+      "@invoice.monto_total",
+      "@invoice.moneda"
+    ]
+  },
+  "knowledge_refs_count": 0
+}

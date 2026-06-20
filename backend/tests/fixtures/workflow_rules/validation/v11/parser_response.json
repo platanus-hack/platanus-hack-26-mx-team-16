@@ -1,0 +1,54 @@
+{
+  "tree": {
+    "op": "AND",
+    "children": [
+      {
+        "ref": "c1"
+      },
+      {
+        "ref": "c2"
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "El @invoice.emisor.rut existe en el catálogo de giros del SII",
+      "inputs": [
+        "@invoice.emisor.rut"
+      ],
+      "knowledge_refs": [
+        "giros_sii_por_rut"
+      ],
+      "method": "CROSS_REF_CHECK",
+      "params": {
+        "primary": "@invoice.emisor.rut",
+        "lookup_in": "#giros_sii_por_rut",
+        "match_field": "rut"
+      }
+    },
+    {
+      "id": "c2",
+      "description": "Cada items[].descripcion es plausible para el giro registrado del emisor",
+      "inputs": [
+        "@invoice.emisor.rut",
+        "@invoice.items[].descripcion"
+      ],
+      "knowledge_refs": [
+        "giros_sii_por_rut"
+      ],
+      "method": "LLM_CHECK",
+      "params": {
+        "context_lookup": {
+          "from": "#giros_sii_por_rut",
+          "by": "@invoice.emisor.rut",
+          "extract": [
+            "giro_principal",
+            "giros_secundarios"
+          ]
+        },
+        "judgement": "Para cada items[].descripcion, decidir si es una actividad razonablemente compatible con giro_principal o alguno de giros_secundarios."
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "tree_op": "AND",
+  "tree_children_count": 2,
+  "sub_check_count": 5,
+  "methods": [
+    "DATE_CHECK",
+    "LLM_CHECK",
+    "LLM_CHECK",
+    "DATE_CHECK",
+    "DATE_CHECK"
+  ],
+  "sub_check_inputs_by_id": {
+    "c1": [
+      "@dni.fecha_nacimiento"
+    ],
+    "c2": [
+      "@dni.nacionalidad"
+    ],
+    "c3": [
+      "@dni.nacionalidad"
+    ],
+    "c4": [
+      "@dni.fecha_emision"
+    ],
+    "c5": [
+      "@dni.fecha_vencimiento"
+    ]
+  },
+  "knowledge_refs_count": 0
+}

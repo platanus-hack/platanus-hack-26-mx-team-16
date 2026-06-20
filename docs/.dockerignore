@@ -1,0 +1,17 @@
+node_modules
+dist
+.astro
+.cache
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+.vscode
+.idea
+.git
+.gitignore
+README.md
+.dockerignore
+Dockerfile
+docker-compose.yml

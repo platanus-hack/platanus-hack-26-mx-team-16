@@ -1,0 +1,136 @@
+# =============================================================================
+# Docker build context exclusions (backend)
+#
+# Goal: keep the build context tiny and reproducible.
+# Dockerfile uses `COPY . /app` plus `uv sync`, so everything below is either
+# regenerated inside the container (caches, venvs), irrelevant to the runtime
+# image (tests, lint configs, docs), or secret material that should come from
+# the orchestrator (Portainer env_data).
+# =============================================================================
+
+# --- Python bytecode & caches (regenerated at runtime) ----------------------
+__pycache__
+**/__pycache__
+*.py[cod]
+**/*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.pyright
+.pyre
+.pytype
+.cython_debug
+*.egg-info
+**/*.egg-info
+.tox
+.nox
+.ipynb_checkpoints
+**/.ipynb_checkpoints
+.coverage
+.coverage.*
+coverage
+htmlcov
+coverage.xml
+
+# --- Virtualenvs (recreated by uv inside the container) ---------------------
+.venv
+**/.venv
+venv
+env
+ENV
+
+# --- Build artifacts --------------------------------------------------------
+build
+dist
+*.egg
+pip-wheel-metadata
+target
+
+# --- Environments & secrets (must come from Portainer env_data) -------------
+.env
+.env.*
+!.env.example
+
+# --- Tests (not needed in production image) ---------------------------------
+tests
+**/tests
+**/test_*.py
+**/*_test.py
+.hypothesis
+
+# --- Local DB / runtime state (not part of the image) -----------------------
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+admin
+temporal-data
+public
+local_data
+data
+
+# --- Editor / VCS / dev tooling ---------------------------------------------
+.git
+.gitignore
+.gitattributes
+.github
+.gitlab-ci.yml
+.idea
+.vscode
+.claude
+.cursor
+.devcontainer
+.husky
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- Docker / compose (used by the host, not by the image) ------------------
+Dockerfile
+Dockerfile.*
+.dockerignore
+docker-compose*.yml
+docker-compose*.yaml
+
+# --- Docs (not needed at runtime) -------------------------------------------
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE*
+docs
+**/*.md
+
+# --- Tooling configs not needed at runtime ----------------------------------
+Makefile
+ruff.toml
+ty.toml
+pyrightconfig.json
+.python-version
+.editorconfig
+.pre-commit-config.yaml
+bandit-report.json
+*.bak
+*.tmp
+
+# --- JS stragglers (admin extensions live in admin/, already excluded) ------
+node_modules
+**/node_modules
+package.json
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# --- Misc -------------------------------------------------------------------
+*.pem
+*.key
+*.log
+.cache
+tmp
+temp
+.local
+*.tgz

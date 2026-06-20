@@ -1,0 +1,126 @@
+{
+  "id": "D5",
+  "name": "Orquestación de fields — perfil 360",
+  "rule": {
+    "prompt": "Construir un perfil 360 del solicitante con tres bloques. Personal: @dni.nombres, @dni.apellidos, @dni.rut, edad calculada desde @dni.fecha_nacimiento hasta {{now}}, @dni.nacionalidad. Financiero: promedio de @payslip.liquido_a_pago como ingreso_mensual_promedio, @commercial_report.score como score_comercial, y tiene_deudas_vigentes = @commercial_report.deudas_vigentes[] no vacío. Domicilio: @dni.domicilio.calle, @dni.domicilio.numero, @dni.domicilio.comuna, @dni.domicilio.region.",
+    "config": {
+      "output_shape": {
+        "type": "object",
+        "required": [
+          "personal",
+          "financiero",
+          "domicilio"
+        ],
+        "properties": {
+          "personal": {
+            "type": "object"
+          },
+          "financiero": {
+            "type": "object"
+          },
+          "domicilio": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "available_doctypes": [
+    "dni",
+    "payslip",
+    "commercial_report"
+  ],
+  "expected_artifact": {
+    "inputs": [
+      {
+        "ref": "@dni.nombres",
+        "doctype": "dni",
+        "path": "nombres",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.apellidos",
+        "doctype": "dni",
+        "path": "apellidos",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.rut",
+        "doctype": "dni",
+        "path": "rut",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.fecha_nacimiento",
+        "doctype": "dni",
+        "path": "fecha_nacimiento",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.nacionalidad",
+        "doctype": "dni",
+        "path": "nacionalidad",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@payslip.liquido_a_pago",
+        "doctype": "payslip",
+        "path": "liquido_a_pago",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@commercial_report.score",
+        "doctype": "commercial_report",
+        "path": "score",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@commercial_report.deudas_vigentes[]",
+        "doctype": "commercial_report",
+        "path": "deudas_vigentes",
+        "required": true,
+        "kind": "array"
+      },
+      {
+        "ref": "@dni.domicilio.calle",
+        "doctype": "dni",
+        "path": "domicilio.calle",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.domicilio.numero",
+        "doctype": "dni",
+        "path": "domicilio.numero",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.domicilio.comuna",
+        "doctype": "dni",
+        "path": "domicilio.comuna",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.domicilio.region",
+        "doctype": "dni",
+        "path": "domicilio.region",
+        "required": true,
+        "kind": "scalar"
+      }
+    ],
+    "tokens": [
+      "now"
+    ],
+    "knowledge_refs": [],
+    "output_shape_validated": true
+  }
+}

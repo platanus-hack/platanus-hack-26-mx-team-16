@@ -1,0 +1,17 @@
+Hola {{ name }},
+
+Has sido invitado a unirte al equipo "{{ tenant_name }}" en Doxiq.
+
+Acepta la invitación para acceder a la plataforma y comenzar a trabajar
+con tu equipo. Este enlace expirará en 7 días.
+
+Aceptar invitación:
+{{ invitation_url }}
+
+---
+
+Si no esperabas esta invitación, puedes ignorar este mensaje.
+Tu cuenta no será modificada.
+
+El equipo de Doxiq
+© 2026 Llamitai · Todos los derechos reservados

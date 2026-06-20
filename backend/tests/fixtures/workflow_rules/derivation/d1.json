@@ -1,0 +1,55 @@
+{
+  "id": "D1",
+  "name": "Extracción simple — identidad del titular",
+  "rule": {
+    "prompt": "Extraer el nombre completo (concatenando @dni.nombres y @dni.apellidos) y el RUT del titular: @dni.rut.",
+    "config": {
+      "output_shape": {
+        "type": "object",
+        "required": [
+          "nombre_completo",
+          "rut"
+        ],
+        "properties": {
+          "nombre_completo": {
+            "type": "string"
+          },
+          "rut": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "available_doctypes": [
+    "dni"
+  ],
+  "expected_artifact": {
+    "inputs": [
+      {
+        "ref": "@dni.nombres",
+        "doctype": "dni",
+        "path": "nombres",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.apellidos",
+        "doctype": "dni",
+        "path": "apellidos",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@dni.rut",
+        "doctype": "dni",
+        "path": "rut",
+        "required": true,
+        "kind": "scalar"
+      }
+    ],
+    "tokens": [],
+    "knowledge_refs": [],
+    "output_shape_validated": true
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "tree": {
+    "op": "AND",
+    "children": [
+      {
+        "op": "OR",
+        "children": [
+          {
+            "op": "AND",
+            "children": [
+              {
+                "ref": "c1"
+              },
+              {
+                "ref": "c2"
+              }
+            ]
+          },
+          {
+            "op": "AND",
+            "children": [
+              {
+                "ref": "c3"
+              },
+              {
+                "ref": "c4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "ref": "c5"
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "La edad calculada desde fecha_nacimiento es ≥ 18",
+      "inputs": [
+        "@dni.fecha_nacimiento"
+      ],
+      "tokens": [
+        "now"
+      ],
+      "method": "DATE_CHECK",
+      "params": {
+        "min_age_years": 18,
+        "reference": "{{now}}"
+      }
+    },
+    {
+      "id": "c2",
+      "description": "La nacionalidad es 'CHILENA'",
+      "inputs": [
+        "@dni.nacionalidad"
+      ],
+      "method": "LLM_CHECK",
+      "params": {
+        "expected_values": [
+          "CHILENA"
+        ]
+      }
+    },
+    {
+      "id": "c3",
+      "description": "La nacionalidad indica residencia permanente (extranjero residente)",
+      "inputs": [
+        "@dni.nacionalidad"
+      ],
+      "method": "LLM_CHECK",
+      "params": {}
+    },
+    {
+      "id": "c4",
+      "description": "La fecha_emision del DNI tiene al menos 5 años respecto a la fecha del case",
+      "inputs": [
+        "@dni.fecha_emision"
+      ],
+      "tokens": [
+        "now"
+      ],
+      "method": "DATE_CHECK",
+      "params": {
+        "min_age_days": 1825,
+        "reference": "{{now}}"
+      }
+    },
+    {
+      "id": "c5",
+      "description": "El DNI no está vencido (fecha_vencimiento > fecha del case)",
+      "inputs": [
+        "@dni.fecha_vencimiento"
+      ],
+      "tokens": [
+        "now"
+      ],
+      "method": "DATE_CHECK",
+      "params": {
+        "not_before": "{{now}}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release-backend:
+    runs-on: ubuntu-latest
+    environment: Production
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.BACKEND_REPOSITORY_URI }}
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,format=short
+            type=raw,value=stable
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+          context: backend
+          file: backend/Dockerfile
+          push: true
+          target: production
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Deploy backend to Portainer
+        uses: cssnr/portainer-stack-deploy-action@v1
+        with:
+          token: ${{ secrets.PORTAINER_TOKEN }}
+          repo: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          url: ${{ vars.PORTAINER_URL }}
+          name: ${{ vars.BACKEND_DEPLOYMENT_SERVICE }}
+          file: ${{ vars.BACKEND_DEPLOYMENT_COMPOSE_FILE }}
+          standalone: true
+          prune: true
+          pull: true
+          type: repo
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          env_data: >
+            {
+              "IMAGE_TAG": "${{ github.ref_name }}",
+              "INFISICAL_SECRET_ENV": "${{ vars.INFISICAL_SECRET_ENV }}",
+              "PROJECT_ID": "${{ vars.BACKEND_PROJECT_ID }}",
+              "INFISICAL_API_URL": "${{ vars.INFISICAL_API_URL }}",
+              "INFISICAL_MACHINE_CLIENT_ID": "${{ secrets.INFISICAL_MACHINE_CLIENT_ID }}",
+              "INFISICAL_MACHINE_CLIENT_SECRET": "${{ secrets.INFISICAL_MACHINE_CLIENT_SECRET }}",
+              "ADMIN_SECRET": "${{ secrets.ADMIN_SECRET }}",
+              "ADMIN_EMAIL": "${{ vars.ADMIN_EMAIL }}",
+              "ADMIN_PASSWORD": "${{ secrets.ADMIN_PASSWORD }}",
+              "ADMIN_DB_HOST": "${{ vars.ADMIN_DB_HOST }}",
+              "ADMIN_DB_DATABASE": "${{ vars.ADMIN_DB_DATABASE }}",
+              "ADMIN_DB_USER": "${{ vars.ADMIN_DB_USER }}",
+              "ADMIN_DB_PASSWORD": "${{ secrets.ADMIN_DB_PASSWORD }}",
+              "ADMIN_PUBLIC_URL": "${{ vars.ADMIN_PUBLIC_URL }}"
+            }
+
+  build-and-release-frontend:
+    runs-on: ubuntu-latest
+    environment: Production
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.FRONTEND_REPOSITORY_URI }}
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,format=short
+            type=raw,value=stable
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+          context: frontend
+          file: frontend/Dockerfile
+          push: true
+          target: production
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Deploy frontend to Portainer
+        uses: cssnr/portainer-stack-deploy-action@v1
+        with:
+          token: ${{ secrets.PORTAINER_TOKEN }}
+          repo: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          url: ${{ vars.PORTAINER_URL }}
+          name: ${{ vars.FRONTEND_DEPLOYMENT_SERVICE }}
+          file: ${{ vars.FRONTEND_DEPLOYMENT_COMPOSE_FILE }}
+          standalone: true
+          prune: true
+          pull: true
+          type: repo
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          env_data: >
+            {
+              "IMAGE_TAG": "${{ github.ref_name }}",
+              "INFISICAL_SECRET_ENV": "${{ vars.INFISICAL_SECRET_ENV }}",
+              "PROJECT_ID": "${{ vars.FRONTEND_PROJECT_ID }}",
+              "INFISICAL_API_URL": "${{ vars.INFISICAL_API_URL }}",
+              "INFISICAL_MACHINE_CLIENT_ID": "${{ secrets.INFISICAL_MACHINE_CLIENT_ID }}",
+              "INFISICAL_MACHINE_CLIENT_SECRET": "${{ secrets.INFISICAL_MACHINE_CLIENT_SECRET }}"
+            }

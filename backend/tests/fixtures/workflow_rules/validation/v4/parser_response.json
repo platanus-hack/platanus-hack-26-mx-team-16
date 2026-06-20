@@ -1,0 +1,27 @@
+{
+  "tree": {
+    "op": "AND",
+    "children": [
+      {
+        "ref": "c1"
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "La comuna del emisor está dentro del listado de comunas de la Región Metropolitana",
+      "inputs": [
+        "@invoice.emisor.direccion.comuna"
+      ],
+      "knowledge_refs": [
+        "comunas_region_metropolitana"
+      ],
+      "method": "CROSS_REF_CHECK",
+      "params": {
+        "lookup_in": "#comunas_region_metropolitana",
+        "match_field": "@invoice.emisor.direccion.comuna"
+      }
+    }
+  ]
+}

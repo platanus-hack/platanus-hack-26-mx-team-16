@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doxiq · Re-arquitectura — Casos → Pipelines de fases</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Geist+Mono:wght@300..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#128279; --teal-deep:#0c5f5a; --teal-tint:#e6f3f1; --teal-soft:#9fcfca;
+  --ink:#1c2526; --ink-2:#3a4a4c; --muted:#5f7173; --faint:#8fa0a1;
+  --paper:#f5f8f7; --card:#ffffff; --hairline:#dce6e4; --hairline-2:#cbd9d6;
+  --amber:#a96f12; --amber-tint:#faf2e2; --amber-line:#e3cb96;
+  --red:#b14227; --red-tint:#f9eae5; --red-line:#e4b5a6;
+  --green:#2c7a4b; --green-tint:#e8f2ec; --green-line:#aed3bc;
+  --new-bg:#1c2526; --new-fg:#eef4f3;
+  --r:0.75rem; --r-s:0.5rem;
+  --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"Figtree",-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);color:var(--ink);background:var(--paper);
+  font-size:16px;line-height:1.62;
+  background-image:radial-gradient(circle at 1px 1px, rgba(18,130,121,.055) 1px, transparent 0);
+  background-size:26px 26px;
+}
+::selection{background:var(--teal);color:#fff}
+
+/* ---------- layout ---------- */
+.shell{max-width:1280px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px}
+@media(max-width:1080px){.shell{grid-template-columns:1fr}.toc{display:none !important}}
+main{min-width:0;padding-bottom:120px}
+.toc{position:sticky;top:0;align-self:start;height:100vh;padding:130px 0 40px;display:flex;flex-direction:column;gap:2px}
+.toc a{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--muted);text-decoration:none;
+  padding:7px 10px;border-left:2px solid var(--hairline);transition:all .18s}
+.toc a:hover{color:var(--teal-deep)}
+.toc a.on{color:var(--teal-deep);border-left-color:var(--teal);background:linear-gradient(90deg,var(--teal-tint),transparent)}
+.toc .toc-cap{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--faint);text-transform:uppercase;margin:0 0 10px 12px}
+
+/* ---------- masthead ---------- */
+header.mast{padding:64px 0 8px;border-bottom:1px solid var(--hairline-2);margin-bottom:8px}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal-deep);display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:26px;height:1px;background:var(--teal)}
+h1{font-size:clamp(34px,4.6vw,54px);font-weight:800;letter-spacing:-.025em;line-height:1.06;margin:18px 0 14px;max-width:21ch}
+h1 em{font-style:normal;color:var(--teal-deep);
+  background:linear-gradient(180deg,transparent 64%,var(--teal-tint) 64%)}
+.lede{font-size:18.5px;color:var(--ink-2);max-width:62ch;font-weight:420}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 30px}
+.meta-chip{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--hairline-2);
+  border-radius:99px;padding:4px 12px;background:var(--card)}
+.meta-chip b{color:var(--ink);font-weight:600}
+
+/* ---------- sections ---------- */
+section{padding:56px 0 8px;scroll-margin-top:24px}
+.sec-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--hairline-2);padding-bottom:14px;margin-bottom:26px}
+.sec-num{font-family:var(--mono);font-size:13px;color:var(--teal);font-weight:600;letter-spacing:.08em}
+h2{font-size:clamp(23px,2.6vw,30px);font-weight:750;letter-spacing:-.018em}
+h3{font-size:18px;font-weight:700;letter-spacing:-.01em;margin:34px 0 10px}
+h3 .h3-tag{font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--teal-deep);background:var(--teal-tint);
+  border-radius:99px;padding:3px 10px;vertical-align:2px;margin-left:8px;letter-spacing:.05em}
+p{margin:0 0 14px;max-width:78ch;color:var(--ink-2)}
+p b,li b{color:var(--ink)}
+ul.plain{margin:0 0 16px 0;padding-left:0;list-style:none}
+ul.plain li{padding:7px 0 7px 22px;position:relative;color:var(--ink-2);max-width:76ch}
+ul.plain li::before{content:"";position:absolute;left:4px;top:16px;width:7px;height:7px;border-radius:2px;background:var(--teal);opacity:.85}
+code{font-family:var(--mono);font-size:.86em;background:var(--teal-tint);color:var(--teal-deep);padding:1.5px 6px;border-radius:6px}
+.note{border:1px solid var(--hairline-2);border-left:3px solid var(--teal);background:var(--card);
+  border-radius:var(--r-s);padding:14px 18px;margin:18px 0;max-width:78ch;font-size:15px;color:var(--ink-2)}
+.note.warn{border-left-color:var(--amber);background:linear-gradient(90deg,var(--amber-tint),var(--card) 55%)}
+.note b{color:var(--ink)}
+
+/* ---------- cards & figure frames ---------- */
+.fig{background:var(--card);border:1px solid var(--hairline-2);border-radius:var(--r);padding:10px 10px 4px;margin:20px 0 8px;
+  box-shadow:0 1px 2px rgba(28,37,38,.04)}
+.fig svg{width:100%;height:auto;display:block}
+.fig-cap{font-family:var(--mono);font-size:11px;color:var(--muted);padding:10px 14px 12px;display:flex;gap:10px;align-items:baseline}
+.fig-cap b{color:var(--teal-deep);font-weight:600;letter-spacing:.06em;white-space:nowrap}
+@media(max-width:700px){.fig{overflow-x:auto}.fig svg{min-width:720px}}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--hairline-2);border-radius:var(--r);padding:18px 20px}
+.card h4{font-size:14.5px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.card h4 .dot{width:8px;height:8px;border-radius:99px;background:var(--teal)}
+.card p{font-size:14px;margin:0;color:var(--muted);max-width:none}
+.card code{font-size:.84em}
+
+/* ---------- phase chips ---------- */
+.ph-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.ph{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.02em;border-radius:8px;
+  padding:5px 11px;border:1px solid transparent;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.ph::before{content:"";width:6px;height:6px;border-radius:99px;flex:none}
+.ph.ok{background:var(--teal-tint);color:var(--teal-deep);border-color:#c4e2de}.ph.ok::before{background:var(--teal)}
+.ph.up{background:var(--amber-tint);color:var(--amber);border-color:var(--amber-line)}.ph.up::before{background:var(--amber)}
+.ph.new{background:var(--new-bg);color:var(--new-fg);border-color:var(--new-bg)}.ph.new::before{background:#5ad2c5}
+.ph-arrow{color:var(--faint);font-family:var(--mono);font-size:12px;user-select:none}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0 4px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+.recipe{background:var(--card);border:1px solid var(--hairline-2);border-radius:var(--r);padding:14px 18px;margin:12px 0}
+.recipe .r-name{font-family:var(--mono);font-size:12px;color:var(--ink);font-weight:600;margin-bottom:2px}
+.recipe .r-name small{color:var(--faint);font-weight:400}
+
+/* ---------- stage cards (plan de construcción) ---------- */
+.stage{background:var(--card);border:1px solid var(--hairline-2);border-radius:var(--r);margin:16px 0;overflow:hidden;box-shadow:0 1px 2px rgba(28,37,38,.04)}
+.stage-head{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--hairline-2);background:linear-gradient(180deg,#fbfdfc,#f4f8f7);flex-wrap:wrap}
+.stage-head .e{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--teal-deep);background:var(--teal-tint);border-radius:8px;padding:3px 10px}
+.stage-head h4{font-size:15.5px;font-weight:700;flex:1;margin:0}
+.stage-grid{display:grid;grid-template-columns:1fr 1fr 1fr}
+.stage-col{padding:13px 16px;border-right:1px solid var(--hairline);min-width:0}
+.stage-col:last-child{border-right:none}
+.stage-col h5{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 9px;font-weight:600}
+.stage-col ul{list-style:none;margin:0;padding:0}
+.stage-col li{font-size:12.8px;color:var(--ink-2);padding:4px 0 4px 14px;position:relative;line-height:1.5}
+.stage-col li::before{content:"";position:absolute;left:0;top:11px;width:5px;height:5px;border-radius:2px;background:var(--teal-soft)}
+.stage-col li.del::before{background:var(--red-line)}
+.stage-col li.big::before{background:var(--ink)}
+.stage-col li code{font-size:.84em;padding:1px 5px}
+@media(max-width:860px){.stage-grid{grid-template-columns:1fr}.stage-col{border-right:none;border-bottom:1px solid var(--hairline)}.stage-col:last-child{border-bottom:none}}
+
+/* ---------- tables ---------- */
+.tbl{width:100%;border-collapse:collapse;margin:16px 0 8px;background:var(--card);border:1px solid var(--hairline-2);
+  border-radius:var(--r);overflow:hidden;font-size:14px}
+.tbl th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);
+  text-align:left;padding:11px 14px;border-bottom:1px solid var(--hairline-2);background:linear-gradient(180deg,#fbfdfc,#f4f8f7);font-weight:600}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--hairline);vertical-align:top;color:var(--ink-2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td:first-child{white-space:nowrap}
+.tbl .mono, td.mono{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+@media(max-width:860px){.tbl{display:block;overflow-x:auto}}
+.tag{font-family:var(--mono);font-size:10.5px;border-radius:99px;padding:2.5px 9px;font-weight:600;letter-spacing:.03em;white-space:nowrap}
+.tag.ok{background:var(--teal-tint);color:var(--teal-deep)}
+.tag.up{background:var(--amber-tint);color:var(--amber)}
+.tag.new{background:var(--new-bg);color:var(--new-fg)}
+.tag.case1{background:#e9f0fa;color:#2b5e9e}.tag.case2{background:var(--green-tint);color:var(--green)}.tag.case3{background:#f1eaf8;color:#6d4b9e}.tag.case4{background:#fdeee0;color:#a3541c}.tag.case5{background:#fbe9f1;color:#a3346b}
+
+/* ---------- code ---------- */
+pre{background:var(--ink);color:#dbe7e5;border-radius:var(--r);padding:18px 20px;overflow-x:auto;
+  font-family:var(--mono);font-size:12.5px;line-height:1.66;margin:16px 0;border:1px solid #2c3a3c}
+pre .c{color:#7e9694}pre .k{color:#7fd4c9}pre .s{color:#e8cf9a}pre .n{color:#c8b4ef}
+pre b{color:#fff;font-weight:600}
+.pre-cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:18px 0 -10px}
+
+/* ---------- SVG shared ---------- */
+svg text{font-family:var(--mono)}
+.sv-t{font-size:11.5px;fill:var(--ink);font-weight:500}
+.sv-tt{font-size:11.5px;fill:#fff;font-weight:600}
+.sv-s{font-size:10px;fill:var(--muted)}
+.sv-xs{font-size:9px;fill:var(--faint)}
+.sv-cap{font-size:10px;fill:var(--teal-deep);font-weight:600;letter-spacing:.14em}
+.sv-amber{fill:var(--amber)}
+.sv-box{fill:var(--card);stroke:var(--hairline-2)}
+.sv-box-teal{fill:var(--teal-tint);stroke:#bfdeda}
+.sv-box-ink{fill:var(--ink);stroke:var(--ink)}
+.sv-box-amber{fill:var(--amber-tint);stroke:var(--amber-line)}
+.sv-box-green{fill:var(--green-tint);stroke:var(--green-line)}
+.sv-box-red{fill:var(--red-tint);stroke:var(--red-line)}
+.sv-lane{stroke:var(--hairline-2);stroke-dasharray:3 4}
+.sv-flow{stroke:var(--teal);stroke-width:1.4;fill:none}
+.sv-flow-soft{stroke:var(--hairline-2);stroke-width:1.2;fill:none}
+.sv-flow-dash{stroke:var(--amber);stroke-width:1.3;fill:none;stroke-dasharray:5 4}
+.sv-flow-ret{stroke:var(--muted);stroke-width:1.1;fill:none;stroke-dasharray:2 3}
+
+/* ---------- inspection bench mock ---------- */
+.bench{display:grid;grid-template-columns:1.25fr 1fr;border:1px solid var(--hairline-2);border-radius:var(--r);overflow:hidden;margin:20px 0 8px;background:var(--card);box-shadow:0 1px 2px rgba(28,37,38,.04)}
+@media(max-width:860px){.bench{grid-template-columns:1fr}.b-field{flex-wrap:wrap}.bench-bar{flex-wrap:wrap;gap:6px}.bench-bar .tag{margin-left:0}.b-doc{border-right:none;border-bottom:1px solid var(--hairline-2)}}
+.bench-bar{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--hairline-2);background:linear-gradient(180deg,#fbfdfc,#f4f8f7)}
+.bench-bar .b-title{font-family:var(--mono);font-size:11.5px;color:var(--ink);font-weight:600}
+.bench-bar .tag{margin-left:auto}
+.b-doc{background:#eef2f1;padding:22px;display:flex;justify-content:center;border-right:1px solid var(--hairline-2)}
+.b-page{background:#fff;border:1px solid var(--hairline-2);border-radius:4px;width:100%;max-width:330px;aspect-ratio:3/4;position:relative;box-shadow:0 8px 22px -14px rgba(28,37,38,.3);padding:18px}
+.b-line{height:7px;border-radius:3px;background:#e6ecea;margin-bottom:9px}
+.b-bbox{position:absolute;border:1.5px solid var(--teal);background:rgba(18,130,121,.08);border-radius:3px}
+.b-bbox.low{border-color:var(--amber);border-style:dashed;background:rgba(169,111,18,.08)}
+.b-bbox .b-pct{position:absolute;top:-19px;left:-1px;font-family:var(--mono);font-size:9px;background:var(--teal);color:#fff;border-radius:4px;padding:1px 6px}
+.b-bbox.low .b-pct{background:var(--amber)}
+.b-fields{padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+.b-field{border:1px solid var(--hairline);border-radius:10px;padding:9px 12px;display:flex;align-items:center;gap:10px}
+.b-field.sel{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-tint)}
+.b-field.editing{border-color:var(--amber-line);background:var(--amber-tint)}
+.b-k{font-family:var(--mono);font-size:10px;color:var(--muted);width:96px;flex:none;letter-spacing:.03em}
+.b-v{font-family:var(--mono);font-size:12.5px;color:var(--ink);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.b-v input{font-family:var(--mono);font-size:12.5px;border:1px solid var(--amber-line);border-radius:6px;padding:3px 8px;width:100%;background:#fff;color:var(--ink)}
+.b-conf{font-family:var(--mono);font-size:10px;display:inline-flex;align-items:center;gap:5px;flex:none}
+.b-conf i{width:7px;height:7px;border-radius:99px;display:inline-block}
+.b-conf.hi{color:var(--teal-deep)}.b-conf.hi i{background:var(--teal)}
+.b-conf.lo{color:var(--amber)}.b-conf.lo i{background:var(--amber)}
+.b-check{flex:none;font-size:11px;font-family:var(--mono)}
+.b-check.l1{color:var(--teal-deep)}.b-check.auto{color:var(--faint)}
+.b-foot{grid-column:1/-1;border-top:1px solid var(--hairline-2);padding:9px 16px;display:flex;gap:14px;font-family:var(--mono);font-size:10px;color:var(--muted);flex-wrap:wrap}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+footer{border-top:1px solid var(--hairline-2);margin-top:70px;padding:26px 0 60px;font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap}
+footer b{color:var(--teal-deep)}
+@media print{.toc{display:none}.shell{display:block}body{background:#fff}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<nav class="toc" aria-label="Contenido">
+  <div class="toc-cap">Contenido</div>
+  <a href="#tesis">00 · La tesis</a>
+  <a href="#arquitectura">01 · Arquitectura</a>
+  <a href="#caso1">02 · Caso 1 — Recetas</a>
+  <a href="#caso2">03 · Caso 2 — Fondos</a>
+  <a href="#caso3">04 · Caso 3 — Circulares</a>
+  <a href="#caso4">05 · Caso 4 — Pedidos</a>
+  <a href="#caso5">06 · Caso 5 — CVs</a>
+  <a href="#plan">07 · Plan de construcción</a>
+</nav>
+
+<main>
+
+<!-- ============================ MASTHEAD ============================ -->
+<header class="mast reveal">
+  <div class="kicker">Doxiq · Propuesta de re-arquitectura</div>
+  <h1>Un motor, un catálogo de fases. <em>Cada caso es una receta.</em></h1>
+  <p class="lede">Farmacias que mandan recetas por WhatsApp, un banco que libera fondos de garantía,
+  otro que procesa circulares judiciales, un fabricante que recibe pedidos por tres canales y un
+  equipo de RRHH que filtra CVs: los <b>cinco casos</b> se resuelven con el <b>mismo motor de
+  pipelines</b> componiendo fases distintas — sin código por cliente, solo configuración.</p>
+  <div class="meta-row">
+    <span class="meta-chip">branch <b>feat/re-arch</b></span>
+    <span class="meta-chip">2026-06-09</span>
+    <span class="meta-chip">análisis completo en <b>product/plans/re-architecture/re-architecture.md</b></span>
+  </div>
+</header>
+
+<!-- ============================ 00 TESIS ============================ -->
+<section id="tesis" class="reveal">
+  <div class="sec-head"><span class="sec-num">00</span><h2>La tesis en 60 segundos</h2></div>
+
+  <p>En <code>feat/re-arch</code> ya existe un intérprete genérico de pipelines
+  (<code>PipelineInterpreterWorkflow</code> sobre Temporal) que ejecuta fases configurables,
+  pausas humanas durables y enriquecimiento con tools. Pero convive con el motor legacy de
+  secuencia fija, el análisis de reglas se dispara a mano, y no hay forma de inyectar datos
+  validados sin documento. <b>La propuesta: el intérprete se convierte en el único motor</b>,
+  se elevan cuatro fases nuevas (<code>assess</code>, <code>analyze</code>, <code>output</code>,
+  <code>deliver</code>) y el expediente (<code>Case</code>) pasa a ser el agregado central.</p>
+
+  <div class="legend" style="margin-top:22px">
+    <span><i style="background:var(--teal)"></i> ya existe</span>
+    <span><i style="background:var(--amber)"></i> existe — se extiende</span>
+    <span><i style="background:var(--new-bg)"></i> nuevo</span>
+  </div>
+
+  <h3>El catálogo de fases <span class="h3-tag">unidad de composición</span></h3>
+  <div class="ph-row">
+    <span class="ph up">ingest</span>
+    <span class="ph up">extract_text</span>
+    <span class="ph up">split_classify</span>
+    <span class="ph up">extract_fields</span>
+    <span class="ph new">assess</span>
+    <span class="ph ok">validate_extraction</span>
+    <span class="ph up">confidence_gate</span>
+    <span class="ph up">enrich</span>
+    <span class="ph up">await_documents</span>
+    <span class="ph up">await_clarification</span>
+    <span class="ph up">human_review</span>
+    <span class="ph new">analyze</span>
+    <span class="ph new">output</span>
+    <span class="ph new">deliver</span>
+  </div>
+
+  <h3>Cinco casos, cinco recetas del mismo catálogo</h3>
+
+  <div class="recipe">
+    <div class="r-name"><span class="tag case1">CASO 1</span>&nbsp; receta-extract@v1 + cobertura-poliza@v1 <small>· farmacias / seguros — dos recetas, dos planos</small></div>
+    <div class="ph-row" style="margin-bottom:2px">
+      <span class="ph up">extract_text<small>:vlm</small></span><span class="ph-arrow">→</span>
+      <span class="ph up">extract_fields</span><span class="ph-arrow">→</span>
+      <span class="ph new">assess</span><span class="ph-arrow">⇢ responde confianza + señales</span>
+    </div>
+    <div class="ph-row">
+      <span class="ph new" style="background:#2b5e9e;border-color:#2b5e9e">cases/data</span><span class="ph-arrow">→</span>
+      <span class="ph up">enrich<small>:póliza</small></span><span class="ph-arrow">→</span>
+      <span class="ph new">analyze</span><span class="ph-arrow">→</span>
+      <span class="ph new">output</span><span class="ph-arrow">→</span>
+      <span class="ph new">deliver</span>
+    </div>
+  </div>
+
+  <div class="recipe">
+    <div class="r-name"><span class="tag case2">CASO 2</span>&nbsp; fondos-garantia <small>· banco — expediente de 3 documentos</small></div>
+    <div class="ph-row">
+      <span class="ph up">ingest</span><span class="ph-arrow">→</span>
+      <span class="ph up">extract_text</span><span class="ph-arrow">→</span>
+      <span class="ph up">split_classify</span><span class="ph-arrow">→</span>
+      <span class="ph up">extract_fields</span><span class="ph-arrow">→</span>
+      <span class="ph up">await_documents<small>:3/3</small></span><span class="ph-arrow">→</span>
+      <span class="ph new">analyze<small>:paridad</small></span><span class="ph-arrow">→</span>
+      <span class="ph up">human_review<small>:aprobación</small></span><span class="ph-arrow">→</span>
+      <span class="ph new">output<small>:ACEPTADO/RECHAZADO</small></span><span class="ph-arrow">→</span>
+      <span class="ph new">deliver</span>
+    </div>
+  </div>
+
+  <div class="recipe">
+    <div class="r-name"><span class="tag case3">CASO 3</span>&nbsp; circulares-judiciales <small>· banco — fan-out + revisión en dos niveles</small></div>
+    <div class="ph-row">
+      <span class="ph up">ingest<small>:tiff</small></span><span class="ph-arrow">→</span>
+      <span class="ph up">extract_text</span><span class="ph-arrow">→</span>
+      <span class="ph up">split_classify<small>:oficios ⇒ casos hijos</small></span><span class="ph-arrow">⇉</span>
+      <span class="ph up">extract_fields</span><span class="ph-arrow">→</span>
+      <span class="ph ok">validate_extraction<small>:CI/NIT</small></span><span class="ph-arrow">→</span>
+      <span class="ph up">enrich<small>:BD jueces·when</small></span><span class="ph-arrow">→</span>
+      <span class="ph up">human_review<small>:L1 Doxiq</small></span><span class="ph-arrow">→</span>
+      <span class="ph up">human_review<small>:L2 Banco</small></span><span class="ph-arrow">→</span>
+      <span class="ph new">output</span><span class="ph-arrow">→</span>
+      <span class="ph new">deliver</span>
+    </div>
+  </div>
+
+  <div class="recipe">
+    <div class="r-name"><span class="tag case4">CASO 4</span>&nbsp; pedidos-multicanal <small>· fabricante de helados — straight-through, sin pausas</small></div>
+    <div class="ph-row">
+      <span class="ph up">ingest<small>:email·wa·voz</small></span><span class="ph-arrow">→</span>
+      <span class="ph up">extract_text<small>:ocr/asr</small></span><span class="ph-arrow">→</span>
+      <span class="ph up">extract_fields<small>:productos[]</small></span><span class="ph-arrow">→</span>
+      <span class="ph new">assess</span><span class="ph-arrow">→</span>
+      <span class="ph new">analyze<small>:#catalogo→SKU</small></span><span class="ph-arrow">→</span>
+      <span class="ph new">output</span><span class="ph-arrow">→</span>
+      <span class="ph new">deliver<small>:webhook ERP</small></span>
+    </div>
+  </div>
+
+  <div class="recipe">
+    <div class="r-name"><span class="tag case5">CASO 5</span>&nbsp; cv-vs-puesto <small>· RRHH — match scoring con reglas DERIVATION</small></div>
+    <div class="ph-row">
+      <span class="ph up">ingest<small>:cv.pdf</small></span><span class="ph-arrow">→</span>
+      <span class="ph up">extract_text</span><span class="ph-arrow">→</span>
+      <span class="ph up">extract_fields</span><span class="ph-arrow">+</span>
+      <span class="ph new" style="background:#2b5e9e;border-color:#2b5e9e">cases/data<small>:@puesto</small></span><span class="ph-arrow">→</span>
+      <span class="ph new">analyze<small>:derivation</small></span><span class="ph-arrow">→</span>
+      <span class="ph new">output<small>:match</small></span><span class="ph-arrow">→</span>
+      <span class="ph new">deliver</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 01 ARQUITECTURA ============================ -->
+<section id="arquitectura" class="reveal">
+  <div class="sec-head"><span class="sec-num">01</span><h2>La arquitectura propuesta</h2></div>
+
+  <p><b>Cuatro decisiones estructurales</b>, todas validadas contra el mercado
+  (Extend, Rossum, Hyperscience, Instabase, Ocrolus, Reducto, AWS IDP — detalle en
+  <code>product/plans/re-architecture/re-architecture.md §3</code>):</p>
+
+  <ul class="plain">
+    <li><b>Un solo motor.</b> Todo procesamiento (UI, ingesta webhook, API M2M) corre por el
+    intérprete; el flujo actual se congela como la receta <code>standard@v1</code>.</li>
+    <li><b>El expediente es el agregado.</b> Documentos, datos inyectados, resultados de tools,
+    runs y revisiones cuelgan de un <code>Case</code> con máquina de estados pública.</li>
+    <li><b>Todo dato es un documento.</b> Datos validados por el cliente y respuestas de tools se
+    materializan como <em>documentos virtuales</em> con doc-type y slug — así
+    <code>@poliza.coberturas</code> funciona en reglas y output <b>sin tocar el motor de reglas</b>.</li>
+    <li><b>Pipeline lineal con condicionales, no DAG.</b> Lista ordenada de fases con predicado
+    <code>when</code> — es el consenso de toda la industria y cabe en un stepper vertical. Cada fase
+    declara su <code>scope</code>: <b>document</b> (corre por cada documento al llegar — de
+    <code>ingest</code> a <code>validate_extraction</code>) o <b>case</b> (corre una vez por
+    expediente — ahí viven los gates y el análisis).</li>
+  </ul>
+
+  <div class="fig">
+  <svg viewBox="0 0 960 540" role="img" aria-label="Diagrama de la arquitectura runtime">
+    <defs>
+      <marker id="a1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--teal)"/></marker>
+      <marker id="a2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="#5f7173"/></marker>
+      <marker id="a3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--amber)"/></marker>
+    </defs>
+
+    <!-- canales de entrada -->
+    <text x="20" y="34" class="sv-cap">CANALES DE ENTRADA</text>
+    <rect x="20" y="48" width="180" height="34" rx="8" class="sv-box"/><text x="32" y="69" class="sv-t">POST /v1/extract</text>
+    <rect x="20" y="92" width="180" height="34" rx="8" class="sv-box"/><text x="32" y="113" class="sv-t">POST /v1/ingest/{token}</text>
+    <rect x="20" y="136" width="180" height="34" rx="8" class="sv-box"/><text x="32" y="157" class="sv-t">UI · upload</text>
+    <rect x="20" y="180" width="180" height="34" rx="8" class="sv-box"/><text x="32" y="201" class="sv-t">POST /v1/cases/{id}/data</text>
+    <text x="20" y="236" class="sv-xs">archivos, fotos, TIFF…</text>
+    <text x="20" y="250" class="sv-xs">o datos ya validados (sin archivo)</text>
+
+    <path d="M200,65 H236" class="sv-flow" marker-end="url(#a1)"/>
+    <path d="M200,109 H236" class="sv-flow" marker-end="url(#a1)"/>
+    <path d="M200,153 H236" class="sv-flow" marker-end="url(#a1)"/>
+    <path d="M200,197 H236" class="sv-flow" marker-end="url(#a1)"/>
+
+    <!-- case -->
+    <text x="244" y="34" class="sv-cap">EL EXPEDIENTE</text>
+    <rect x="240" y="48" width="208" height="230" rx="12" fill="var(--teal-tint)" stroke="#bfdeda"/>
+    <text x="256" y="74" class="sv-t" style="font-weight:700">CASE</text>
+    <text x="300" y="74" class="sv-xs">workflow_cases</text>
+    <rect x="256" y="88" width="184" height="28" rx="7" class="sv-box"/><text x="266" y="106" class="sv-s">📄 doc físico · receta.jpg</text>
+    <rect x="256" y="122" width="184" height="28" rx="7" class="sv-box"/><text x="266" y="140" class="sv-s">📄 doc hijo · split (of. 2)</text>
+    <rect x="256" y="156" width="184" height="28" rx="7" class="sv-box" stroke-dasharray="4 3"/><text x="266" y="174" class="sv-s">⬡ virtual · @datos_validados</text>
+    <rect x="256" y="190" width="184" height="28" rx="7" class="sv-box" stroke-dasharray="4 3"/><text x="266" y="208" class="sv-s">⬡ virtual · @poliza (tool)</text>
+    <text x="256" y="244" class="sv-xs">+ runs · tareas · timeline · output</text>
+    <text x="256" y="262" class="sv-xs">parent_case_id ⇒ lineage de split</text>
+
+    <path d="M448,160 H486" class="sv-flow" marker-end="url(#a1)"/>
+
+    <!-- pipeline -->
+    <text x="494" y="34" class="sv-cap">EL MOTOR · PipelineInterpreterWorkflow (Temporal)</text>
+    <rect x="490" y="48" width="450" height="230" rx="12" class="sv-box"/>
+    <text x="506" y="72" class="sv-xs">PipelineVersion inmutable · fases JSONB · cada run sella la versión que usó</text>
+
+    <rect x="506" y="86" width="96" height="28" rx="7" class="sv-box-teal"/><text x="516" y="104" class="sv-s">extract_text</text>
+    <path d="M602,100 H614" class="sv-flow-soft" marker-end="url(#a2)"/>
+    <rect x="616" y="86" width="100" height="28" rx="7" class="sv-box-teal"/><text x="624" y="104" class="sv-s">split_classify</text>
+    <path d="M716,100 H728" class="sv-flow-soft" marker-end="url(#a2)"/>
+    <rect x="730" y="86" width="100" height="28" rx="7" class="sv-box-teal"/><text x="738" y="104" class="sv-s">extract_fields</text>
+    <path d="M830,100 H842" class="sv-flow-soft" marker-end="url(#a2)"/>
+    <rect x="844" y="86" width="78" height="28" rx="7" class="sv-box-ink"/><text x="856" y="104" class="sv-s" fill="#fff">assess</text>
+
+    <path d="M883,114 V134 H545 V152" class="sv-flow-soft" marker-end="url(#a2)"/>
+
+    <rect x="506" y="154" width="128" height="28" rx="7" class="sv-box-teal"/><text x="514" y="172" class="sv-s">validate_extraction</text>
+    <path d="M634,168 H644" class="sv-flow-soft" marker-end="url(#a2)"/>
+    <rect x="646" y="154" width="110" height="28" rx="7" class="sv-box-teal"/><text x="654" y="172" class="sv-s">confidence_gate</text>
+    <path d="M756,168 H766" class="sv-flow-soft" marker-end="url(#a2)"/>
+    <rect x="768" y="154" width="58" height="28" rx="7" class="sv-box-teal"/><text x="776" y="172" class="sv-s">enrich</text>
+    <path d="M826,168 H836" class="sv-flow-soft" marker-end="url(#a2)"/>
+    <rect x="838" y="154" width="66" height="28" rx="7" class="sv-box-ink"/><text x="847" y="172" class="sv-s" fill="#fff">analyze</text>
+
+    <path d="M883,182 V202 H545 V220" class="sv-flow-soft" marker-end="url(#a2)"/>
+
+    <rect x="506" y="222" width="118" height="28" rx="7" class="sv-box-amber"/><text x="514" y="240" class="sv-s">human_review</text>
+    <path d="M624,236 H636" class="sv-flow-soft" marker-end="url(#a2)"/>
+    <rect x="638" y="222" width="78" height="28" rx="7" class="sv-box-ink"/><text x="652" y="240" class="sv-s" fill="#fff">output</text>
+    <path d="M716,236 H728" class="sv-flow-soft" marker-end="url(#a2)"/>
+    <rect x="730" y="222" width="80" height="28" rx="7" class="sv-box-ink"/><text x="742" y="240" class="sv-s" fill="#fff">deliver</text>
+
+    <!-- gates -->
+    <path d="M676,154 V134" class="sv-flow-dash" marker-end="url(#a3)"/>
+    <text x="506" y="268" class="sv-xs">sustrato: fase ⇒ activity ⇒ Lambda de procesamiento versionada · pin por run</text>
+    <text x="20" y="302" class="sv-xs" fill="var(--amber)">⏸ fases ámbar = pausas durables (HumanTask + task_resolved) — sobreviven restarts</text>
+
+    <!-- webhooks out (izquierda) -->
+    <rect x="490" y="330" width="180" height="64" rx="10" class="sv-box"/>
+    <text x="506" y="354" class="sv-t">Sistema cliente</text>
+    <text x="506" y="372" class="sv-xs">webhooks firmados</text>
+    <text x="506" y="386" class="sv-xs">HMAC estilo Svix</text>
+    <path d="M770,250 V300 H580 V328" class="sv-flow" marker-end="url(#a1)"/>
+
+    <!-- tools (derecha) -->
+    <rect x="700" y="330" width="240" height="64" rx="10" class="sv-box"/>
+    <text x="716" y="354" class="sv-t">Servicios web del cliente</text>
+    <text x="716" y="374" class="sv-xs">ToolDefinition · HTTP firmado · retries</text>
+    <text x="716" y="388" class="sv-xs">póliza (policy_id, pharmacy_id) · BD jueces…</text>
+    <path d="M825,328 V184" class="sv-flow-dash" marker-end="url(#a3)"/>
+    <text x="838" y="262" class="sv-xs">enrich ⇄ tool</text>
+    <text x="838" y="276" class="sv-xs">resultado ⇒ doc</text>
+    <text x="838" y="290" class="sv-xs">virtual @slug</text>
+
+    <text x="490" y="414" class="sv-xs" fill="var(--teal-deep)">eventos: case.created · case.needs_review · case.output.ready (+5, catálogo md §4.4)</text>
+
+    <!-- footer note -->
+    <rect x="20" y="430" width="920" height="86" rx="12" fill="#fbfdfc" stroke="var(--hairline-2)"/>
+    <text x="40" y="458" class="sv-cap">CONTRATO DE CONFIANZA — por campo, siempre</text>
+    <text x="40" y="480" class="sv-s">parse_confidence (OCR/bbox · ya existe)  +  extract_confidence (LLM/assess · nueva)  +  señales cualitativas  +  citations con bbox</text>
+    <text x="40" y="500" class="sv-xs">señales: multiple_possible_answers · answer_may_be_incomplete · illegible  →  cada una se convierte en UNA pregunta concreta al humano</text>
+  </svg>
+  <div class="fig-cap"><b>FIG 01-A</b> El runtime: canales → expediente → intérprete de fases → tools y webhooks. Lo punteado es condicional o virtual.</div>
+  </div>
+
+  <h3>La máquina de estados pública del expediente</h3>
+  <p>Los integradores programan contra estos estados (patrón Rossum/Extend): cada transición emite
+  un evento webhook firmado sobre el outbox <code>WorkflowEvent</code> ya construido.</p>
+
+  <div class="fig">
+  <svg viewBox="0 0 960 250" role="img" aria-label="Máquina de estados del caso">
+    <defs>
+      <marker id="b1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="#5f7173"/></marker>
+      <marker id="b3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--amber)"/></marker>
+    </defs>
+    <rect x="20"  y="58" width="118" height="36" rx="10" class="sv-box"/><text x="36" y="81" class="sv-t">RECEIVING</text>
+    <rect x="168" y="58" width="122" height="36" rx="10" class="sv-box"/><text x="182" y="81" class="sv-t">PROCESSING</text>
+    <rect x="320" y="58" width="118" height="36" rx="10" class="sv-box"/><text x="336" y="81" class="sv-t">ANALYZING</text>
+    <rect x="468" y="58" width="118" height="36" rx="10" class="sv-box"/><text x="484" y="81" class="sv-t">REVIEW_L1</text>
+    <rect x="616" y="58" width="118" height="36" rx="10" class="sv-box"/><text x="632" y="81" class="sv-t">REVIEW_L2</text>
+    <rect x="764" y="58" width="130" height="36" rx="10" class="sv-box-green"/><text x="780" y="81" class="sv-t" fill="var(--green)">COMPLETED</text>
+
+    <path d="M138,76 H166" class="sv-flow-soft" marker-end="url(#b1)"/>
+    <path d="M290,76 H318" class="sv-flow-soft" marker-end="url(#b1)"/>
+    <path d="M438,76 H466" class="sv-flow-soft" marker-end="url(#b1)"/>
+    <path d="M586,76 H614" class="sv-flow-soft" marker-end="url(#b1)"/>
+    <path d="M734,76 H762" class="sv-flow-soft" marker-end="url(#b1)"/>
+
+    <rect x="120" y="160" width="190" height="34" rx="10" class="sv-box-amber"/><text x="134" y="182" class="sv-t" fill="var(--amber)">NEEDS_CLARIFICATION</text>
+    <rect x="340" y="160" width="150" height="34" rx="10" class="sv-box-amber"/><text x="356" y="182" class="sv-t" fill="var(--amber)">NEEDS_REVIEW</text>
+    <path d="M214,94 V158" class="sv-flow-dash" marker-end="url(#b3)"/>
+    <path d="M236,158 V94"  class="sv-flow-dash" marker-end="url(#b3)"/>
+    <text x="246" y="132" class="sv-xs">gate de confianza /</text>
+    <text x="246" y="145" class="sv-xs">tasks/resolve</text>
+    <path d="M396,94 V158" class="sv-flow-dash" marker-end="url(#b3)"/>
+    <path d="M418,158 V94"  class="sv-flow-dash" marker-end="url(#b3)"/>
+
+    <rect x="616" y="160" width="118" height="34" rx="10" class="sv-box-red"/><text x="640" y="182" class="sv-t" fill="var(--red)">REJECTED</text>
+    <path d="M675,94 V158" class="sv-flow-soft" marker-end="url(#b1)"/>
+    <rect x="764" y="160" width="130" height="34" rx="10" class="sv-box-red"/><text x="800" y="182" class="sv-t" fill="var(--red)">FAILED</text>
+    <path d="M829,120 V158" class="sv-flow-ret" marker-end="url(#b1)"/>
+    <text x="766" y="114" class="sv-xs">cualquier estado ↓</text>
+    <text x="20" y="226" class="sv-xs">await_documents retiene el caso en RECEIVING hasta cumplir la CompletenessPolicy — cada documento se procesa al llegar (estado por doc ≠ estado del caso)</text>
+    <text x="20" y="242" class="sv-xs">REVIEW_L1/L2 solo aparecen si la receta los incluye · FAILED = error no recuperable · los desvíos NEEDS_* pueden colgar de PROCESSING o de ANALYZING</text>
+  </svg>
+  <div class="fig-cap"><b>FIG 01-B</b> Estados del caso. Ámbar = esperando a un humano (webhook dedicado + endpoint de resolución).</div>
+  </div>
+
+  <h3>Los seis bloques que sostienen todo</h3>
+  <div class="grid2">
+    <div class="card"><h4><span class="dot"></span>Documento virtual</h4>
+      <p><code>WorkflowDocument</code> con <code>source=EXTERNAL_DATA|TOOL</code> y
+      <code>extraction=payload</code>. Los datos del cliente y los resultados de tools entran al
+      mismo carril que un PDF: reglas, output y provenance los ven idénticos.</p></div>
+    <div class="card"><h4><span class="dot"></span>ToolDefinition</h4>
+      <p>Sobre <code>ConnectionAccount</code> (provider <code>HTTP</code>, capability
+      <code>LOOKUP</code> — enums ya existen): URL template + auth del cliente + schemas I/O +
+      retries. <b>Ningún IDP lo ofrece nativo: es el diferenciador.</b></p></div>
+    <div class="card"><h4><span class="dot"></span>ActivationPolicy</h4>
+      <p>JSON declarativo versionado (patrón AWS A2I): <code>{field_thresholds, blocking_rule_severities,
+      sample_rate, mode}</code>. Decide qué cae a clarificación o revisión — editable sin deploy.</p></div>
+    <div class="card"><h4><span class="dot"></span>Revisión por etapas</h4>
+      <p><code>HumanTask</code> + <code>stage</code> (<code>internal</code>/<code>client</code>), pool por
+      etapa, lock pesimista, verificación <b>por campo</b> (auto / L1 / L2): el nivel 2 solo toca lo
+      que el nivel 1 no verificó.</p></div>
+    <div class="card"><h4><span class="dot"></span>CompletenessPolicy</h4>
+      <p><code>{required_types: {anexo:1, evaluacion:1, resolucion:1}}</code> +
+      <code>GET /v1/cases/{id}/completeness</code> + cierre explícito <code>POST /v1/cases/{id}/ready</code>
+      (patrones Ocrolus y Heron). Los casos data-only sin <code>await_documents</code> arrancan solos al recibir <code>/data</code>.</p></div>
+    <div class="card"><h4><span class="dot"></span>Corrección sin re-procesar</h4>
+      <p><code>POST /v1/cases/{id}/corrections</code> y <code>POST /v1/tasks/{id}/resolve</code> (ya existe):
+      inyectan el valor confirmado, registran quién, y <b>re-evalúan solo reglas downstream</b> —
+      jamás re-OCR.</p></div>
+  </div>
+</section>
+
+<!-- ============================ 02 CASO 1 ============================ -->
+<section id="caso1" class="reveal">
+  <div class="sec-head"><span class="sec-num">02</span><h2>Caso 1 — Recetas por WhatsApp <span class="tag case1" style="vertical-align:6px">FARMACIAS / SEGUROS</span></h2></div>
+
+  <p>El cliente (agrupador de seguros) es <b>dueño del canal WhatsApp</b> — consenso del mercado:
+  ningún IDP serio conversa; Doxiq emite estructuras (confianza, señales, candidatos) y el bot del
+  cliente las convierte en preguntas al farmacéutico. Dos puntos de interacción = dos planos de API.</p>
+
+  <div class="fig">
+  <svg viewBox="0 0 960 716" role="img" aria-label="Diagrama de secuencia del caso 1">
+    <defs>
+      <marker id="c1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--teal)"/></marker>
+      <marker id="c2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="#5f7173"/></marker>
+      <marker id="c3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--amber)"/></marker>
+    </defs>
+
+    <!-- cabeceras y lifelines -->
+    <rect x="20" y="16" width="180" height="38" rx="10" class="sv-box"/><text x="34" y="40" class="sv-t">Farmacéutico · WhatsApp</text>
+    <rect x="270" y="16" width="180" height="38" rx="10" class="sv-box"/><text x="284" y="40" class="sv-t">Sistema cliente (bot)</text>
+    <rect x="600" y="16" width="340" height="38" rx="10" class="sv-box-ink"/><text x="616" y="40" class="sv-tt">DOXIQ · PipelineInterpreterWorkflow</text>
+    <line x1="110" y1="54" x2="110" y2="706" class="sv-lane"/>
+    <line x1="360" y1="54" x2="360" y2="706" class="sv-lane"/>
+    <rect x="600" y="54" width="340" height="652" rx="10" fill="var(--teal-tint)" opacity="0.35" stroke="var(--hairline-2)"/>
+
+    <!-- plano A -->
+    <rect x="20" y="72" width="920" height="24" rx="6" fill="var(--teal-tint)"/>
+    <text x="32" y="89" class="sv-cap">PLANO A — EXTRACCIÓN STATELESS (SIN EXPEDIENTE; EL JOB SE RETIENE PARA REUSO)</text>
+
+    <path d="M110,124 H356" class="sv-flow" marker-end="url(#c1)"/>
+    <text x="120" y="117" class="sv-s">1 · foto de la receta manuscrita</text>
+
+    <path d="M360,156 H596" class="sv-flow" marker-end="url(#c1)"/>
+    <text x="372" y="137" class="sv-xs">imagen · X-Api-Key dxk_</text>
+    <text x="372" y="150" class="sv-s">2 · POST /v1/extract?mode=sync</text>
+
+    <!-- dentro de Doxiq: pipeline efímero -->
+    <rect x="616" y="170" width="308" height="100" rx="10" class="sv-box"/>
+    <text x="630" y="190" class="sv-cap">RECETA-EXTRACT@V1</text>
+    <text x="772" y="190" class="sv-xs">pipeline efímero</text>
+    <rect x="630" y="202" width="112" height="26" rx="7" class="sv-box-teal"/><text x="638" y="219" class="sv-s">extract_text:vlm</text>
+    <path d="M742,215 H750" class="sv-flow-soft" marker-end="url(#c2)"/>
+    <rect x="752" y="202" width="98" height="26" rx="7" class="sv-box-teal"/><text x="760" y="219" class="sv-s">extract_fields</text>
+    <path d="M850,215 H858" class="sv-flow-soft" marker-end="url(#c2)"/>
+    <rect x="860" y="202" width="56" height="26" rx="7" class="sv-box-ink"/><text x="868" y="219" class="sv-s" fill="#fff">assess</text>
+    <text x="630" y="246" class="sv-xs">VLM para manuscritos → campos por schema</text>
+    <text x="630" y="260" class="sv-xs">assess: confianza 2 capas + señales + candidatos</text>
+
+    <path d="M596,290 H364" class="sv-flow-ret" marker-end="url(#c2)"/>
+    <text x="372" y="270" class="sv-xs">incluye candidatos para campos dudosos</text>
+    <text x="372" y="283" class="sv-s">3 · campos + confianza + señales</text>
+
+    <path d="M356,322 H114" class="sv-flow-dash" marker-end="url(#c3)"/>
+    <text x="120" y="315" class="sv-s sv-amber">4 · «¿50mg o 500mg?» (si confianza baja)</text>
+
+    <path d="M110,354 H356" class="sv-flow" marker-end="url(#c1)"/>
+    <text x="120" y="347" class="sv-s">5 · confirma medicamentos y dosis</text>
+
+    <!-- plano B -->
+    <rect x="20" y="386" width="920" height="24" rx="6" fill="#e9f0fa"/>
+    <text x="32" y="403" class="sv-cap" fill="#2b5e9e">PLANO B — ANÁLISIS DE COBERTURA (EXPEDIENTE DATA-ONLY)</text>
+
+    <path d="M360,436 H596" class="sv-flow" marker-end="url(#c1)"/>
+    <text x="372" y="417" class="sv-xs">{datos validados, pharmacy_id, policy_id}</text>
+    <text x="372" y="430" class="sv-s">6 · POST /v1/cases + /data (auto-start)</text>
+
+    <!-- dentro de Doxiq: el expediente -->
+    <rect x="616" y="450" width="308" height="196" rx="10" class="sv-box"/>
+    <text x="630" y="470" class="sv-cap">CASE · COBERTURA-POLIZA@V1</text>
+    <text x="830" y="470" class="sv-xs">expediente</text>
+    <rect x="630" y="480" width="186" height="24" rx="7" class="sv-box" stroke-dasharray="4 3"/><text x="638" y="496" class="sv-s">⬡ @datos_validados (virtual)</text>
+    <path d="M644,504 V510" class="sv-flow-soft" marker-end="url(#c2)"/>
+    <rect x="630" y="512" width="156" height="24" rx="7" class="sv-box-teal"/><text x="638" y="528" class="sv-s">enrich · consulta póliza</text>
+    <text x="796" y="528" class="sv-xs">tool ⇄</text>
+    <path d="M644,536 V542" class="sv-flow-soft" marker-end="url(#c2)"/>
+    <rect x="630" y="544" width="130" height="24" rx="7" class="sv-box" stroke-dasharray="4 3"/><text x="638" y="560" class="sv-s">⬡ @poliza (virtual)</text>
+    <path d="M644,568 V574" class="sv-flow-soft" marker-end="url(#c2)"/>
+    <rect x="630" y="576" width="210" height="24" rx="7" class="sv-box-teal"/><text x="638" y="592" class="sv-s">analyze · reglas de cobertura</text>
+    <text x="850" y="592" class="sv-xs">child wf</text>
+    <path d="M644,600 V606" class="sv-flow-soft" marker-end="url(#c2)"/>
+    <rect x="630" y="608" width="150" height="24" rx="7" class="sv-box-ink"/><text x="638" y="624" class="sv-s" fill="#fff">output → deliver</text>
+
+    <!-- tool call hacia el servicio del cliente -->
+    <path d="M616,524 H364" class="sv-flow-dash" marker-end="url(#c3)"/>
+    <text x="372" y="517" class="sv-xs sv-amber">7 · GET póliza (policy_id + pharmacy_id)</text>
+    <path d="M360,546 H612" class="sv-flow-ret" marker-end="url(#c2)"/>
+    <text x="372" y="539" class="sv-xs">8 · datos de la póliza</text>
+
+    <path d="M596,670 H364" class="sv-flow" marker-end="url(#c1)"/>
+    <text x="372" y="651" class="sv-xs">{cubiertos[], noCubiertos[], copagos}</text>
+    <text x="372" y="664" class="sv-s">9 · webhook case.output.ready</text>
+
+    <path d="M356,698 H114" class="sv-flow" marker-end="url(#c1)"/>
+    <text x="120" y="691" class="sv-s">10 · respuesta al farmacéutico</text>
+  </svg>
+  <div class="fig-cap"><b>FIG 02-A</b> La banda derecha muestra lo que pasa DENTRO de Doxiq: plano A = pipeline efímero sin estado; plano B = expediente con documentos virtuales, tool firmada y reglas. Doxiq nunca toca WhatsApp.</div>
+  </div>
+
+  <h3>El contrato del Plano A <span class="h3-tag">confianza accionable</span></h3>
+  <div class="pre-cap">POST /v1/extract → 200 (sync ≤5 págs) ó 202 + GET /v1/jobs/{id} · contrato completo desde E3 (en E1: solo parseConfidence)</div>
+<pre>{
+  <span class="k">"documents"</span>: [{
+    <span class="k">"type"</span>: <span class="s">"receta_medica"</span>,
+    <span class="k">"fields"</span>: {
+      <span class="k">"paciente.nombre"</span>:  { <span class="k">"value"</span>: <span class="s">"María Quispe"</span>, <span class="k">"parseConfidence"</span>: <span class="n">0.91</span>, <span class="k">"extractConfidence"</span>: <span class="n">0.95</span> },
+      <span class="k">"medicamentos[0].nombre"</span>: { <span class="k">"value"</span>: <span class="s">"Amoxicilina"</span>,  <span class="k">"parseConfidence"</span>: <span class="n">0.84</span>, <span class="k">"extractConfidence"</span>: <span class="n">0.88</span> },
+      <span class="k">"medicamentos[0].dosis"</span>:  { <span class="k">"value"</span>: <span class="s">"500mg"</span>, <span class="k">"parseConfidence"</span>: <span class="n">0.31</span>, <span class="k">"extractConfidence"</span>: <span class="n">0.42</span>,
+        <span class="k">"signals"</span>: [<span class="s">"multiple_possible_answers"</span>],          <span class="c">// ⇒ pregunta con opciones</span>
+        <span class="k">"candidates"</span>: [<span class="s">"50mg"</span>, <span class="s">"500mg"</span>],
+        <span class="k">"citation"</span>: { <span class="k">"page"</span>: <span class="n">1</span>, <span class="k">"bbox"</span>: [<span class="n">0.42</span>,<span class="n">0.55</span>,<span class="n">0.61</span>,<span class="n">0.58</span>] } }
+    }
+  }],
+  <span class="k">"jobId"</span>: <span class="s">"job_8f2…"</span>   <span class="c">// reusable: re-extraer / abrir caso sin re-OCR</span>
+}</pre>
+
+  <h3>El contrato del Plano B <span class="h3-tag">datos sin documento</span></h3>
+  <div class="pre-cap">POST /v1/cases/{id}/data — implementa el stub /v1/case existente</div>
+<pre>{
+  <span class="k">"docType"</span>: <span class="s">"datos_validados"</span>,            <span class="c">// ⇒ documento VIRTUAL con slug @datos_validados</span>
+  <span class="k">"payload"</span>: {
+    <span class="k">"medicamentos"</span>: [{ <span class="k">"nombre"</span>: <span class="s">"Amoxicilina"</span>, <span class="k">"dosis"</span>: <span class="s">"500mg"</span>, <span class="k">"cantidad"</span>: <span class="n">21</span> }],
+    <span class="k">"pharmacyId"</span>: <span class="s">"FARM-0231"</span>, <span class="k">"policyId"</span>: <span class="s">"POL-99812"</span>
+  },
+  <span class="k">"verifiedBy"</span>: <span class="s">"external:farmaceutico"</span>, <span class="k">"sourceJobId"</span>: <span class="s">"job_8f2…"</span>
+}</pre>
+
+  <p>Las reglas de cobertura se escriben con la sintaxis existente —
+  <code>@datos_validados.medicamentos[*]</code> contra <code>@poliza.coberturas</code>
+  (scope de colección ya soportado por <code>scope_resolver</code>), con
+  <code>#vademecum</code> opcional para normalizar nombres de fármacos.</p>
+
+  <div class="note"><b>Qué falta construir para este caso:</b> <code>POST /v1/extract</code> +
+  resultado en <code>GET /v1/jobs/{id}</code> y extractor <code>vlm</code> (plano A);
+  <code>POST /v1/cases</code>, <code>cases/{id}/data</code> con documentos virtuales y los GET de
+  lectura <code>/v1/cases/{id}</code> / <code>/v1/cases/{id}/output</code> (plano B — del stub
+  <code>/v1/case</code> actual solo existe el eco); tools HTTP; fases <code>assess</code> y
+  <code>analyze</code> encadenadas. La base — intérprete, confianza bbox, webhooks firmados, API
+  keys — <b>ya existe</b>.</div>
+</section>
+
+<!-- ============================ 03 CASO 2 ============================ -->
+<section id="caso2" class="reveal">
+  <div class="sec-head"><span class="sec-num">03</span><h2>Caso 2 — Fondos de Garantía y Crédito <span class="tag case2" style="vertical-align:6px">BANCO</span></h2></div>
+
+  <p><b>Veredicto: se mapea sin cambios estructurales sobre la propuesta.</b> Es el caso que mejor
+  encaja con lo ya construido — expediente multi-documento con reglas cruzadas (los scopes
+  <code>TUPLE_CARTESIAN</code> y los handlers de fecha/montos ya existen). Lo único genuinamente
+  nuevo que exige: la <b>CompletenessPolicy</b> como gate de fase y el <b>gate de aprobación humana</b>
+  antes de emitir la resolución.</p>
+
+  <div class="fig">
+  <svg viewBox="0 0 960 620" role="img" aria-label="Flujo del caso 2">
+    <defs>
+      <marker id="d1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--teal)"/></marker>
+      <marker id="d2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="#5f7173"/></marker>
+      <marker id="d3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--amber)"/></marker>
+    </defs>
+
+    <rect x="20" y="30" width="150" height="40" rx="10" class="sv-box-ink"/><text x="38" y="55" class="sv-tt">Sistema BANCO</text>
+    <text x="20" y="92" class="sv-xs">1 PDF combinado</text>
+    <text x="20" y="106" class="sv-xs">o N archivos sueltos</text>
+    <path d="M170,50 H182" class="sv-flow" marker-end="url(#d1)"/>
+
+    <rect x="184" y="32" width="108" height="36" rx="9" class="sv-box-amber"/><text x="194" y="55" class="sv-s">ingest {caseId}</text>
+    <path d="M292,50 H302" class="sv-flow-soft" marker-end="url(#d2)"/>
+    <rect x="304" y="32" width="104" height="36" rx="9" class="sv-box-teal"/><text x="314" y="55" class="sv-s">extract_text</text>
+    <path d="M408,50 H418" class="sv-flow-soft" marker-end="url(#d2)"/>
+    <rect x="420" y="32" width="118" height="36" rx="9" class="sv-box-teal"/><text x="430" y="55" class="sv-s">split_classify</text>
+
+    <path d="M538,50 H548 V96 H560" class="sv-flow-soft" marker-end="url(#d2)"/>
+    <path d="M538,50 H548 V160 H560" class="sv-flow-soft" marker-end="url(#d2)"/>
+    <path d="M538,50 H548 V224 H560" class="sv-flow-soft" marker-end="url(#d2)"/>
+
+    <rect x="562" y="76"  width="180" height="46" rx="9" class="sv-box"/><text x="576" y="95" class="sv-t">ANEXO</text><text x="576" y="112" class="sv-xs">solicitante · monto · fecha</text>
+    <rect x="562" y="140" width="180" height="46" rx="9" class="sv-box"/><text x="576" y="159" class="sv-t">EVALUACIÓN</text><text x="576" y="176" class="sv-xs">nombre · monto · fecha · firma</text>
+    <rect x="562" y="204" width="180" height="46" rx="9" class="sv-box"/><text x="576" y="223" class="sv-t">RESOLUCIÓN</text><text x="576" y="240" class="sv-xs">decisión · datos clave · firma</text>
+
+    <!-- completeness gate -->
+    <rect x="790" y="130" width="150" height="62" rx="10" class="sv-box-amber"/>
+    <text x="804" y="153" class="sv-t" fill="var(--amber)">await_documents</text>
+    <text x="804" y="171" class="sv-s" fill="var(--amber)">¿3 de 3 tipos? ⏸</text>
+    <path d="M742,99 H766 V146 H788"  class="sv-flow-soft" marker-end="url(#d2)"/>
+    <path d="M742,163 H788" class="sv-flow-soft" marker-end="url(#d2)"/>
+    <path d="M742,227 H766 V178" class="sv-flow-soft"/>
+    <path d="M865,130 V20 H270 V30" class="sv-flow-dash" marker-end="url(#d3)"/>
+    <text x="560" y="14" class="sv-xs" fill="var(--amber)">faltan documentos → el caso espera en RECEIVING (pausa durable)</text>
+
+    <!-- reglas -->
+    <path d="M865,192 V268" class="sv-flow" marker-end="url(#d1)"/>
+    <rect x="150" y="272" width="790" height="180" rx="12" class="sv-box"/>
+    <text x="170" y="298" class="sv-cap">ANALYZE — REGLAS DE PARIDAD (cross-documento · scope TUPLE_CARTESIAN — ya soportado)</text>
+
+    <text x="170" y="328" class="sv-t" fill="var(--green)">✓</text><text x="190" y="328" class="sv-s">@anexo.solicitante.nombre  ≈  @evaluacion.solicitante.nombre</text><text x="700" y="328" class="sv-xs">match difuso de nombres</text>
+    <text x="170" y="354" class="sv-t" fill="var(--green)">✓</text><text x="190" y="354" class="sv-s">@anexo.monto  ==  @evaluacion.monto</text><text x="700" y="354" class="sv-xs">handler numérico</text>
+    <text x="170" y="380" class="sv-t" fill="var(--green)">✓</text><text x="190" y="380" class="sv-s">@evaluacion.fecha − @anexo.fecha_presentacion  ≤  48h</text><text x="700" y="380" class="sv-xs">handler de fechas</text>
+    <text x="170" y="406" class="sv-t" fill="var(--red)">✗</text><text x="190" y="406" class="sv-s">@evaluacion.firmada == true  ∧  @resolucion.firmada == true</text><text x="700" y="406" class="sv-xs">llm_check visual (firma)</text>
+    <text x="170" y="432" class="sv-xs">+ otras reglas de paridad — cada resultado con severidad (BLOCKER/MAJOR/…), citations por campo y reasoning</text>
+
+    <!-- approval + output -->
+    <path d="M545,452 V488" class="sv-flow" marker-end="url(#d1)"/>
+    <rect x="150" y="492" width="280" height="74" rx="10" class="sv-box-amber"/>
+    <text x="168" y="518" class="sv-t" fill="var(--amber)">human_review · aprobación ⏸</text>
+    <text x="168" y="537" class="sv-xs">analista valida la resolución (opcional:</text>
+    <text x="168" y="551" class="sv-xs">mandatory o por flags — ActivationPolicy)</text>
+    <path d="M430,529 H466" class="sv-flow-soft" marker-end="url(#d2)"/>
+
+    <rect x="468" y="492" width="240" height="74" rx="10" class="sv-box-ink"/>
+    <text x="486" y="518" class="sv-tt">output</text>
+    <text x="486" y="538" class="sv-s" fill="#9fcfca">{ resolucion: ACEPTADO | RECHAZADO,</text>
+    <text x="486" y="554" class="sv-s" fill="#9fcfca">  motivo, señales, provenance }</text>
+    <path d="M708,529 H744" class="sv-flow" marker-end="url(#d1)"/>
+
+    <rect x="746" y="492" width="194" height="74" rx="10" class="sv-box-green"/>
+    <text x="764" y="518" class="sv-t" fill="var(--green)">deliver → webhook</text>
+    <text x="764" y="537" class="sv-xs">case.output.ready → BANCO</text>
+    <text x="764" y="551" class="sv-xs">(siempre tras la aprobación)</text>
+
+    <text x="150" y="596" class="sv-xs">split_classify y extract_fields corren por documento al llegar (scope document); await_documents pausa a nivel de caso</text>
+    <text x="150" y="610" class="sv-xs">analysis_run.completed se emite al cerrar analyze (informativo, pre-aprobación); el evento contractual del caso es case.output.ready</text>
+  </svg>
+  <div class="fig-cap"><b>FIG 03-A</b> Expediente de 3 documentos: gate de completitud, reglas de paridad, aprobación humana opcional y resolución estructurada.</div>
+  </div>
+
+  <h3>Por qué encaja casi gratis</h3>
+  <table class="tbl">
+    <thead><tr><th>Requisito del banco</th><th>Pieza que lo resuelve</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Docs en 1 archivo o separados</td><td class="mono">split_classify (page_range + tipo) existe · la agrupación por caseId en el ingest viene del spec source_webhooks (pendiente)</td><td><span class="tag up">extender</span></td></tr>
+      <tr><td>Analizar solo con los 3 docs</td><td class="mono">await_documents + CompletenessPolicy {anexo:1, evaluacion:1, resolucion:1} — un 4º tipo es solo una entrada más</td><td><span class="tag up">extender</span></td></tr>
+      <tr><td>Reglas de paridad cross-doc</td><td class="mono">WorkflowRule scope TUPLE_CARTESIAN · handlers date/range/format · llm_check (firmas)</td><td><span class="tag ok">existe</span></td></tr>
+      <tr><td>Revisión humana pre-resolución</td><td class="mono">human_review (HumanTask kind=approval) como fase de la receta</td><td><span class="tag up">extender</span></td></tr>
+      <tr><td>Custom output ACEPTADO/RECHAZADO</td><td class="mono">output_schema + verdict (PASS/FAIL/REVIEW) + síntesis existen (spec case-output) — la fase output encadenada llega en E2</td><td><span class="tag up">existe · fase E2</span></td></tr>
+      <tr><td>Carga y resultado por servicios web</td><td class="mono">POST /v1/ingest/{token} + webhook firmado HMAC al sistema del banco</td><td><span class="tag ok">existe</span></td></tr>
+      <tr><td>Encadenar análisis tras completitud</td><td class="mono">fase analyze (hoy el run es solo manual)</td><td><span class="tag new">nuevo</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================ 04 CASO 3 ============================ -->
+<section id="caso3" class="reveal">
+  <div class="sec-head"><span class="sec-num">04</span><h2>Caso 3 — Procesamiento de Circulares <span class="tag case3" style="vertical-align:6px">BANCO · REGULADOR</span></h2></div>
+
+  <p>El caso más exigente: <b>fan-out</b> (un TIFF diario contiene N oficios → N casos hijos),
+  validaciones de formato por persona afectada, <b>enriquecimiento condicional</b> (BD de jueces
+  cuando el sello arruina el nombre) y <b>revisión en dos niveles</b> — analistas Doxiq afinan,
+  analistas del banco validan. Exercita las tres piezas nuevas más grandes: child workflows,
+  tools condicionales y review stages.</p>
+
+  <div class="fig">
+  <svg viewBox="0 0 960 760" role="img" aria-label="Flujo del caso 3">
+    <defs>
+      <marker id="e1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--teal)"/></marker>
+      <marker id="e2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="#5f7173"/></marker>
+      <marker id="e3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--amber)"/></marker>
+    </defs>
+
+    <rect x="20" y="24" width="140" height="40" rx="10" class="sv-box-ink"/><text x="42" y="49" class="sv-tt">REGULADOR</text>
+    <path d="M160,44 H196" class="sv-flow" marker-end="url(#e1)"/>
+    <text x="166" y="36" class="sv-xs">diario</text>
+    <rect x="198" y="26" width="150" height="36" rx="9" class="sv-box"/><text x="212" y="49" class="sv-t">TIFF · N oficios</text>
+    <path d="M348,44 H384" class="sv-flow" marker-end="url(#e1)"/>
+    <rect x="386" y="26" width="170" height="36" rx="9" class="sv-box-teal"/><text x="398" y="49" class="sv-s">ingest → extract_text</text>
+    <path d="M556,44 H592" class="sv-flow-soft" marker-end="url(#e2)"/>
+    <rect x="594" y="20" width="210" height="48" rx="9" class="sv-box-amber"/>
+    <text x="608" y="40" class="sv-t" fill="var(--amber)">split_classify · oficios</text>
+    <text x="608" y="58" class="sv-xs">fan_out: child_cases (Temporal)</text>
+
+    <!-- fan out -->
+    <path d="M699,68 V100 H180 V128" class="sv-flow" marker-end="url(#e1)"/>
+    <path d="M699,68 V128" class="sv-flow" marker-end="url(#e1)"/>
+    <path d="M699,68 V100 H880 V128" class="sv-flow" marker-end="url(#e1)"/>
+    <text x="245" y="94"  class="sv-xs">⇉ un CASE hijo por oficio · parent_case_id = caso del TIFF (lineage estilo Rossum)</text>
+
+    <!-- collapsed children -->
+    <rect x="60"  y="130" width="240" height="56" rx="10" class="sv-box"/><text x="76" y="153" class="sv-t">CASE hijo · Oficio 1</text><text x="76" y="171" class="sv-xs">juez · juzgado · personas[1..n]</text>
+    <rect x="760" y="130" width="180" height="56" rx="10" class="sv-box"/><text x="776" y="153" class="sv-t">… Oficio N</text><text x="776" y="171" class="sv-xs">cientos de personas posibles</text>
+
+    <!-- expanded child -->
+    <rect x="330" y="130" width="400" height="328" rx="12" fill="#fbfdfc" stroke="var(--teal)" stroke-width="1.3"/>
+    <text x="348" y="156" class="sv-t" style="font-weight:700">CASE hijo · Oficio 2</text>
+    <text x="520" y="156" class="sv-xs">(expandido)</text>
+
+    <rect x="348" y="170" width="170" height="30" rx="7" class="sv-box-teal"/><text x="358" y="189" class="sv-s">extract_fields</text>
+    <text x="530" y="189" class="sv-xs">formato variable por juez</text>
+    <path d="M433,200 V214" class="sv-flow-soft" marker-end="url(#e2)"/>
+
+    <rect x="348" y="216" width="170" height="30" rx="7" class="sv-box-teal"/><text x="358" y="235" class="sv-s">validate_extraction</text>
+    <text x="530" y="235" class="sv-xs">CI persona · NIT empresa (when)</text>
+    <path d="M433,246 V260" class="sv-flow-soft" marker-end="url(#e2)"/>
+
+    <rect x="348" y="262" width="170" height="30" rx="7" class="sv-box-amber"/><text x="358" y="281" class="sv-s">enrich · BD jueces</text>
+    <text x="530" y="258" class="sv-xs">when: juez.nombre.confidence &lt; 0.7</text>
+    <text x="530" y="270" class="sv-xs">input: @oficio.juzgado (nítido)</text>
+    <path d="M433,292 V306" class="sv-flow-soft" marker-end="url(#e2)"/>
+
+    <!-- personas -->
+    <rect x="348" y="308" width="360" height="146" rx="9" class="sv-box"/>
+    <text x="364" y="330" class="sv-cap">PERSONAS AFECTADAS — confianza por campo</text>
+    <circle cx="372" cy="352" r="4" fill="var(--teal)"/><text x="384" y="356" class="sv-s">CI 4.892.114  ·  congelamiento  ·  Bs 182.000</text><text x="640" y="356" class="sv-xs" fill="var(--teal-deep)">0.96 ✓</text>
+    <circle cx="372" cy="376" r="4" fill="var(--teal)"/><text x="384" y="380" class="sv-s">NIT 1023456029  ·  solicitud de información</text><text x="640" y="380" class="sv-xs" fill="var(--teal-deep)">0.93 ✓</text>
+    <circle cx="372" cy="400" r="4" fill="var(--amber)"/><text x="384" y="404" class="sv-s">CI 6.1?4.20?  ·  descongelamiento</text><text x="640" y="404" class="sv-xs" fill="var(--amber)">0.41 ⚠</text>
+    <text x="364" y="426" class="sv-xs">checksum inválido o confianza &lt; umbral</text>
+    <text x="364" y="440" class="sv-xs">⇒ flag por campo (ActivationPolicy)</text>
+
+    <!-- tool box -->
+    <rect x="770" y="262" width="170" height="64" rx="10" class="sv-box"/>
+    <text x="784" y="284" class="sv-t">BD de jueces</text>
+    <text x="784" y="302" class="sv-xs">tool del banco · lookup</text>
+    <text x="784" y="316" class="sv-xs">por juzgado → juez</text>
+    <path d="M518,277 H768" class="sv-flow-dash" marker-end="url(#e3)"/>
+
+    <!-- convergence to review -->
+    <path d="M180,186 V212" class="sv-flow-soft" marker-end="url(#e2)"/>
+    <text x="120" y="230" class="sv-xs">mismo pipeline ↓</text>
+    <path d="M530,458 V488" class="sv-flow" marker-end="url(#e1)"/>
+    <path d="M850,186 V212" class="sv-flow-soft" marker-end="url(#e2)"/>
+    <text x="790" y="230" class="sv-xs">mismo pipeline ↓</text>
+
+    <!-- review stages -->
+    <rect x="312" y="492" width="338" height="92" rx="12" class="sv-box-amber"/>
+    <text x="330" y="518" class="sv-t" fill="var(--amber)">REVIEW L1 ⏸ · analistas Doxiq</text>
+    <text x="330" y="538" class="sv-xs">consola staff (cross-tenant) · lock por caso · campos en el</text>
+    <text x="330" y="552" class="sv-xs">Inspection Bench · re-evalúa reglas al corregir</text>
+    <text x="330" y="572" class="sv-xs" fill="var(--teal-deep)">cada campo queda: verificado-L1 ✓</text>
+
+    <path d="M650,538 H686" class="sv-flow" marker-end="url(#e1)"/>
+
+    <rect x="688" y="492" width="252" height="92" rx="12" class="sv-box-amber"/>
+    <text x="706" y="518" class="sv-t" fill="var(--amber)">REVIEW L2 ⏸ · analistas BANCO</text>
+    <text x="706" y="538" class="sv-xs">UI restringida (roles por workflow) ·</text>
+    <text x="706" y="552" class="sv-xs">solo toca lo NO verificado por L1 ·</text>
+    <text x="706" y="572" class="sv-xs">aprueba / rechaza con comentarios</text>
+
+    <!-- output -->
+    <path d="M814,584 V614" class="sv-flow" marker-end="url(#e1)"/>
+    <rect x="312" y="616" width="628" height="60" rx="12" class="sv-box-ink"/>
+    <text x="332" y="642" class="sv-tt">output final → deliver</text>
+    <text x="332" y="662" class="sv-s" fill="#9fcfca">{ oficio, juez, juzgado, personas[{id, acción, montos}] } → webhook / API al BANCO</text>
+
+    <text x="20" y="724" class="sv-xs">El caso padre (TIFF) permanece en PROCESSING y expone el avance de sus hijos (children {total, por_estado} en GET /v1/cases/{id}) · un oficio atascado no bloquea a los demás.</text>
+  </svg>
+  <div class="fig-cap"><b>FIG 04-A</b> Fan-out por oficio, enriquecimiento condicional por confianza y revisión secuencial en dos niveles.</div>
+  </div>
+
+  <h3>Las dos interfaces son la misma, con permisos distintos <span class="h3-tag">Inspection Bench</span></h3>
+  <p>El visor PDF/imagen con bounding boxes y tiers de confianza <b>ya existe</b> en el frontend
+  (952 líneas, sync bidireccional campo↔box). Lo que falta es la capa de <b>edición</b>:
+  corregir un campo, registrar quién y re-evaluar reglas. La vista L2 (banco) es la misma bench
+  con roles aplicados y los campos verificados por L1 marcados.</p>
+
+  <div class="bench" role="img" aria-label="Maqueta del Inspection Bench">
+    <div class="bench-bar">
+      <span class="b-title">Oficio 2 · Juzgado 4º de Instrucción Civil</span>
+      <span class="tag up">REVIEW L1 · bloqueado por ti</span>
+    </div>
+    <div class="b-doc">
+      <div class="b-page">
+        <div class="b-line" style="width:62%"></div>
+        <div class="b-line" style="width:88%"></div>
+        <div class="b-line" style="width:74%"></div>
+        <div class="b-line" style="width:81%"></div>
+        <div class="b-line" style="width:56%"></div>
+        <div class="b-line" style="width:84%"></div>
+        <div class="b-line" style="width:70%"></div>
+        <div class="b-bbox" style="left:12%;top:32%;width:42%;height:6%"><span class="b-pct">0.93</span></div>
+        <div class="b-bbox low" style="left:18%;top:58%;width:52%;height:7%"><span class="b-pct">0.41</span></div>
+      </div>
+    </div>
+    <div class="b-fields">
+      <div class="b-field"><span class="b-k">JUZGADO</span><span class="b-v">4º de Instrucción Civil</span><span class="b-conf hi"><i></i>0.95</span><span class="b-check auto">auto ✓</span></div>
+      <div class="b-field sel"><span class="b-k">JUEZ</span><span class="b-v">R. Mendoza Vargas</span><span class="b-conf hi"><i></i>@juez_db</span><span class="b-check l1">L1 ✓</span></div>
+      <div class="b-field"><span class="b-k">PERSONA[1].CI</span><span class="b-v">4.892.114</span><span class="b-conf hi"><i></i>0.96</span><span class="b-check auto">auto ✓</span></div>
+      <div class="b-field editing"><span class="b-k">PERSONA[3].CI</span><span class="b-v"><input value="6.184.207" aria-label="Corregir CI"></span><span class="b-conf lo"><i></i>0.41</span><span class="b-check">✎</span></div>
+      <div class="b-field"><span class="b-k">MONTO</span><span class="b-v">Bs 182.000,00</span><span class="b-conf hi"><i></i>0.91</span><span class="b-check auto">auto ✓</span></div>
+    </div>
+    <div class="b-foot">
+      <span>Tab → siguiente campo pendiente</span><span>orden: confianza ascendente</span>
+      <span>al corregir: checksum CI + reglas re-evaluadas</span><span>audit log por campo</span>
+    </div>
+  </div>
+  <div class="fig-cap" style="padding-left:2px"><b>FIG 04-B</b> Maqueta. Verde/teal = confiable, ámbar punteado = a verificar; «@juez_db» = valor enriquecido por tool, con provenance.</div>
+</section>
+
+<!-- ============================ 05 CASO 4 ============================ -->
+<section id="caso4" class="reveal">
+  <div class="sec-head"><span class="sec-num">05</span><h2>Caso 4 — Órdenes de compra multicanal <span class="tag case4" style="vertical-align:6px">FABRICANTE DE HELADOS</span></h2></div>
+
+  <p>El caso más simple del documento, y por eso el más ilustrativo: <b>no necesita ninguna pieza
+  propia</b>. Los pedidos llegan por email, WhatsApp o llamada telefónica; hay que extraer productos
+  y cantidades y devolverlos por webhook. La clave del diseño: <b>el canal solo cambia cómo llega el
+  documento</b> — el email aporta un PDF adjunto o el cuerpo del correo, WhatsApp una foto o una nota
+  de voz, la llamada su grabación. Todo converge en <code>ingest</code> y de ahí el pipeline es
+  idéntico, sin pausas ni expediente formal: un caso por pedido, directo a la salida.</p>
+
+  <div class="fig">
+  <svg viewBox="0 0 960 350" role="img" aria-label="Flujo del caso 4: pedidos multicanal">
+    <defs>
+      <marker id="g1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--teal)"/></marker>
+      <marker id="g2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="#5f7173"/></marker>
+      <marker id="g3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--amber)"/></marker>
+    </defs>
+
+    <rect x="20" y="28" width="180" height="56" rx="10" class="sv-box"/>
+    <text x="34" y="50" class="sv-t">✉ EMAIL</text><text x="34" y="68" class="sv-xs">adjunto o cuerpo del correo</text>
+    <rect x="20" y="100" width="180" height="56" rx="10" class="sv-box"/>
+    <text x="34" y="122" class="sv-t">💬 WHATSAPP</text><text x="34" y="140" class="sv-xs">foto del pedido · nota de voz</text>
+    <rect x="20" y="172" width="180" height="56" rx="10" class="sv-box"/>
+    <text x="34" y="194" class="sv-t">📞 LLAMADA</text><text x="34" y="212" class="sv-xs">grabación de la llamada (audio)</text>
+
+    <path d="M200,56 H236 V114 H266" class="sv-flow" marker-end="url(#g1)"/>
+    <path d="M200,128 H266" class="sv-flow" marker-end="url(#g1)"/>
+    <path d="M200,200 H236 V142 H266" class="sv-flow" marker-end="url(#g1)"/>
+
+    <rect x="270" y="100" width="120" height="56" rx="10" class="sv-box-amber"/>
+    <text x="284" y="124" class="sv-t" fill="var(--amber)">ingest</text><text x="284" y="142" class="sv-xs">multicanal</text>
+    <text x="270" y="176" class="sv-xs">hoy: el sistema del cliente reenvía</text>
+    <text x="270" y="190" class="sv-xs">por API · canales nativos en E6</text>
+
+    <path d="M390,128 H420" class="sv-flow-soft" marker-end="url(#g2)"/>
+    <rect x="422" y="100" width="150" height="56" rx="10" class="sv-box-teal"/>
+    <text x="436" y="124" class="sv-t">extract_text</text><text x="436" y="142" class="sv-xs">ocr · asr para audio</text>
+    <path d="M572,128 H602" class="sv-flow-soft" marker-end="url(#g2)"/>
+    <rect x="604" y="100" width="160" height="56" rx="10" class="sv-box-teal"/>
+    <text x="618" y="124" class="sv-t">extract_fields</text><text x="618" y="142" class="sv-xs">productos[] · cliente</text>
+
+    <rect x="790" y="100" width="150" height="56" rx="10" class="sv-box" stroke-dasharray="4 3"/>
+    <text x="804" y="124" class="sv-t">#catalogo (KB)</text><text x="804" y="142" class="sv-xs">SKU vía regla DERIVATION</text>
+
+    <path d="M684,156 V192 H885 V228" class="sv-flow-soft" marker-end="url(#g2)"/>
+    <path d="M810,156 V228" class="sv-flow-dash" marker-end="url(#g3)"/>
+
+    <rect x="845" y="230" width="80" height="44" rx="9" class="sv-box-ink"/><text x="859" y="256" class="sv-s" fill="#fff">assess</text>
+    <path d="M845,252 H824" class="sv-flow-soft" marker-end="url(#g2)"/>
+    <rect x="700" y="230" width="122" height="44" rx="9" class="sv-box-ink"/><text x="712" y="256" class="sv-s" fill="#fff">analyze·#catalogo</text>
+    <path d="M700,252 H662" class="sv-flow-soft" marker-end="url(#g2)"/>
+    <rect x="570" y="230" width="90" height="44" rx="9" class="sv-box-ink"/><text x="586" y="256" class="sv-s" fill="#fff">output</text>
+    <path d="M570,252 H532" class="sv-flow-soft" marker-end="url(#g2)"/>
+    <rect x="440" y="230" width="90" height="44" rx="9" class="sv-box-ink"/><text x="452" y="256" class="sv-s" fill="#fff">deliver</text>
+    <path d="M440,252 H412" class="sv-flow" marker-end="url(#g1)"/>
+    <rect x="20" y="232" width="390" height="52" rx="10" class="sv-box-green"/>
+    <text x="36" y="254" class="sv-t" fill="var(--green)">ERP / sistema del fabricante</text>
+    <text x="36" y="272" class="sv-xs">webhook firmado: productos[], cantidades, confidence por ítem</text>
+
+    <text x="20" y="316" class="sv-xs">Receta straight-through (sin pausas ni expediente formal): un caso por pedido — los tres canales convergen en el mismo pipeline.</text>
+    <text x="20" y="332" class="sv-xs">Audio (voz/llamada) ⇒ extract_text:asr (una entrada más del catálogo de Lambdas) · alternativa v1: el transcript entra por /v1/cases/{id}/data</text>
+  </svg>
+  <div class="fig-cap"><b>FIG 05-A</b> Tres canales, un pipeline. La normalización a SKU corre como regla DERIVATION (#catalogo) en analyze — los refs #kb solo se resuelven en el motor de reglas; assess marca los ítems dudosos.</div>
+  </div>
+
+  <h3>Lo que recibe el ERP <span class="h3-tag">confianza por ítem</span></h3>
+  <p>El fabricante no revisa nada en Doxiq: recibe el pedido estructurado con la confianza de cada
+  ítem y decide en su ERP qué confirma directo y qué verifica con el cliente (la nota de voz con
+  ruido cae a confianza baja — exactamente como la receta manuscrita del Caso 1, sin trabajo extra).</p>
+<pre>{
+  <span class="k">"event"</span>: <span class="s">"case.output.ready"</span>,
+  <span class="k">"output"</span>: {
+    <span class="k">"cliente"</span>: <span class="s">"Distribuidora El Polo"</span>,
+    <span class="k">"fechaEntrega"</span>: <span class="s">"2026-06-12"</span>,
+    <span class="k">"canal"</span>: <span class="s">"whatsapp_audio"</span>,
+    <span class="k">"items"</span>: [
+      { <span class="k">"descripcion"</span>: <span class="s">"helado choco crujiente 1L"</span>, <span class="k">"sku"</span>: <span class="s">"CHO-1L"</span>,   <span class="c">// ⇐ #catalogo</span>
+        <span class="k">"cantidad"</span>: <span class="n">24</span>, <span class="k">"unidad"</span>: <span class="s">"caja"</span>, <span class="k">"confidence"</span>: <span class="n">0.94</span> },
+      { <span class="k">"descripcion"</span>: <span class="s">"paleta de fresa"</span>, <span class="k">"sku"</span>: <span class="s">"FRE-PAL"</span>,
+        <span class="k">"cantidad"</span>: <span class="n">12</span>, <span class="k">"unidad"</span>: <span class="s">"docena"</span>, <span class="k">"confidence"</span>: <span class="n">0.71</span> }  <span class="c">// nota de voz con ruido</span>
+    ]
+  }
+}</pre>
+
+  <table class="tbl">
+    <thead><tr><th>Requisito</th><th>Pieza que lo resuelve</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Pedido por email / WhatsApp / llamada</td><td class="mono">v1: el sistema del cliente reenvía adjunto, foto o audio por /v1/ingest · nativos: source email (buzón por workflow) + source WhatsApp Business (los enums EMAIL/WHATSAPP ya existen en ConnectionProvider)</td><td><span class="tag new">E6 (API: E3)</span></td></tr>
+      <tr><td>Audio de voz / llamada</td><td class="mono">extract_text con extractor asr — una entrada más del catálogo de Lambdas de E1</td><td><span class="tag new">E6</span></td></tr>
+      <tr><td>Extraer productos y cantidades</td><td class="mono">extract_fields con schema de orden de compra (existe) · normalización a SKU = regla DERIVATION con #catalogo en analyze — los refs #kb solo se resuelven en el motor de reglas, no en la extracción</td><td><span class="tag up">existe · fase E2</span></td></tr>
+      <tr><td>Devolver por webhook</td><td class="mono">output (schema del pedido) → deliver → webhook firmado HMAC</td><td><span class="tag up">E2</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================ 06 CASO 5 ============================ -->
+<section id="caso5" class="reveal">
+  <div class="sec-head"><span class="sec-num">06</span><h2>Caso 5 — CV contra puesto <span class="tag case5" style="vertical-align:6px">RRHH · RECLUTAMIENTO</span></h2></div>
+
+  <p>Llegan CVs en PDF, se extraen con estructura y las reglas evalúan <b>cuánto coincide el
+  candidato con un puesto</b>. La elegancia del mapeo está en dos piezas que ya existen:
+  (1) <b>el puesto es un documento más</b> — el perfil de la vacante entra como documento virtual
+  <code>@puesto</code> por <code>cases/{id}/data</code>, así que cambiar de vacante no toca el
+  pipeline, solo los datos (y el mismo CV puede evaluarse contra N puestos como N casos baratos,
+  reutilizando el <code>jobId</code> sin re-OCR); (2) <b>las reglas <code>DERIVATION</code> ya
+  existen</b> y son exactamente esto: reglas que <em>calculan</em> un valor (el score por dimensión)
+  en vez de solo aprobar o fallar.</p>
+
+  <div class="fig">
+  <svg viewBox="0 0 960 380" role="img" aria-label="Flujo del caso 5: CV contra puesto">
+    <defs>
+      <marker id="h1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--teal)"/></marker>
+      <marker id="h2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="#5f7173"/></marker>
+    </defs>
+
+    <rect x="20" y="40" width="170" height="56" rx="10" class="sv-box"/>
+    <text x="34" y="62" class="sv-t">📄 CV.pdf</text><text x="34" y="80" class="sv-xs">del candidato</text>
+    <path d="M190,68 H216" class="sv-flow" marker-end="url(#h1)"/>
+
+    <rect x="218" y="48" width="76" height="40" rx="9" class="sv-box-teal"/><text x="230" y="72" class="sv-s">ingest</text>
+    <path d="M294,68 H304" class="sv-flow-soft" marker-end="url(#h2)"/>
+    <rect x="306" y="48" width="110" height="40" rx="9" class="sv-box-teal"/><text x="316" y="72" class="sv-s">extract_text</text>
+    <path d="M416,68 H426" class="sv-flow-soft" marker-end="url(#h2)"/>
+    <rect x="428" y="42" width="182" height="52" rx="9" class="sv-box-teal"/>
+    <text x="442" y="62" class="sv-s">extract_fields</text>
+    <text x="442" y="80" class="sv-xs">experiencia · skills · educación</text>
+    <path d="M610,68 H654" class="sv-flow" marker-end="url(#h1)"/>
+
+    <rect x="20" y="150" width="240" height="80" rx="10" class="sv-box" stroke-dasharray="4 3"/>
+    <text x="34" y="174" class="sv-t">⬡ @puesto (doc virtual)</text>
+    <text x="34" y="192" class="sv-xs">perfil vía POST /v1/cases/{id}/data</text>
+    <text x="34" y="208" class="sv-xs">(o #puestos en KB si es fijo)</text>
+    <path d="M260,190 H654" class="sv-flow" marker-end="url(#h1)"/>
+
+    <rect x="660" y="42" width="280" height="180" rx="12" class="sv-box"/>
+    <text x="676" y="66" class="sv-cap">ANALYZE — MATCH (DERIVATION)</text>
+    <text x="676" y="92" class="sv-s">✓ @puesto.requisitos × @cv.experiencia</text>
+    <text x="676" y="116" class="sv-s">✓ skills: cobertura semántica</text>
+    <text x="676" y="140" class="sv-s">✓ años mínimos · educación</text>
+    <text x="676" y="164" class="sv-s">⇒ score 0–1 por dimensión</text>
+    <text x="676" y="190" class="sv-xs">derivation = la regla CALCULA un valor,</text>
+    <text x="676" y="204" class="sv-xs">no solo aprueba/falla (kind ya existente)</text>
+
+    <path d="M800,222 V248" class="sv-flow" marker-end="url(#h1)"/>
+    <rect x="660" y="250" width="280" height="64" rx="10" class="sv-box-ink"/>
+    <text x="676" y="276" class="sv-s" fill="#fff">output → {matchScore, dimensiones,</text>
+    <text x="676" y="294" class="sv-s" fill="#fff">fortalezas[], brechas[], veredicto}</text>
+    <path d="M660,282 H602" class="sv-flow" marker-end="url(#h1)"/>
+    <rect x="360" y="250" width="240" height="64" rx="10" class="sv-box-green"/>
+    <text x="376" y="276" class="sv-t" fill="var(--green)">ATS / sistema de RRHH</text>
+    <text x="376" y="294" class="sv-xs">webhook case.output.ready</text>
+
+    <text x="20" y="348" class="sv-xs">El puesto es un documento más: cambiar de vacante no toca el pipeline — solo los datos. Mismo CV × N puestos = N casos data-light.</text>
+    <text x="20" y="364" class="sv-xs">Sin revisión humana, sin fan-out, sin tools: receta corta del mismo catálogo.</text>
+  </svg>
+  <div class="fig-cap"><b>FIG 06-A</b> Dos entradas (CV físico + puesto virtual), un cruce de reglas DERIVATION, un output estructurado con provenance.</div>
+  </div>
+
+  <h3>Lo que recibe el ATS <span class="h3-tag">score con provenance</span></h3>
+<pre>{
+  <span class="k">"matchScore"</span>: <span class="n">0.82</span>,
+  <span class="k">"dimensiones"</span>: { <span class="k">"experiencia"</span>: <span class="n">0.90</span>, <span class="k">"skills"</span>: <span class="n">0.78</span>, <span class="k">"educacion"</span>: <span class="n">0.75</span> },
+  <span class="k">"fortalezas"</span>: [<span class="s">"5 años en backend Python"</span>, <span class="s">"liderazgo de equipo en 2 empresas"</span>],
+  <span class="k">"brechas"</span>: [<span class="s">"sin experiencia con Temporal"</span>, <span class="s">"inglés no certificado"</span>],
+  <span class="k">"veredicto"</span>: <span class="s">"ENTREVISTAR"</span>,
+  <span class="k">"provenance"</span>: { <span class="k">"matchScore"</span>: [{ <span class="k">"rule"</span>: <span class="s">"score-skills"</span>, <span class="k">"citations"</span>: [<span class="s">"@cv.skills[3]"</span>, <span class="s">"@puesto.requisitos[1]"</span>] }] }
+}</pre>
+
+  <table class="tbl">
+    <thead><tr><th>Requisito</th><th>Pieza que lo resuelve</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td>Extraer el CV con estructura</td><td class="mono">extract_fields con schema de CV (experiencia[], skills[], educación[]) — doc-type del catálogo</td><td><span class="tag ok">existe</span></td></tr>
+      <tr><td>El puesto como entrada variable</td><td class="mono">documento virtual @puesto vía /v1/cases/{id}/data (por caso) · o #puestos en KB (fijo por workflow — esa variante cierra en E2)</td><td><span class="tag new">E3 · KB: E2</span></td></tr>
+      <tr><td>Calcular cuánto coincide</td><td class="mono">reglas DERIVATION (@cv × @puesto, scopes cross-doc) + verdict agregado + confidence_score del summary</td><td><span class="tag ok">existe</span></td></tr>
+      <tr><td>Responder la estructura de match</td><td class="mono">output_schema {matchScore, dimensiones, brechas[]} con provenance por campo → deliver webhook</td><td><span class="tag up">E2</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><b>Cuándo funciona:</b> la variante con <code>#puestos</code> en KB cierra en
+  <b>E2</b> (solo necesita <code>analyze</code>/<code>output</code>/<code>deliver</code> encadenadas);
+  la variante con <code>@puesto</code> por caso cierra en <b>E3</b> (necesita <code>cases/data</code>).
+  El Caso 4 funciona vía API también desde E3 y gana los canales nativos en E6.</div>
+</section>
+
+<!-- ============================ 07 PLAN ============================ -->
+<section id="plan" class="reveal">
+  <div class="sec-head"><span class="sec-num">07</span><h2>Plan de construcción</h2></div>
+
+  <p>Seis etapas incrementales, cada una shippeable. Las tres primeras desbloquean el Caso 1;
+  el Caso 2 cae en la cuarta; el Caso 3 cierra en la quinta. <b>Los casos express viajan gratis</b>:
+  el Caso 5 cierra en E3 (variante KB desde E2) y el Caso 4 funciona vía API desde E3 — los canales
+  nativos de email/WhatsApp y el extractor de audio llegan en E6. Cada tarjeta desglosa qué se
+  <b>cambia</b> sobre lo existente, qué se <b>agrega</b> desde cero, y qué ve el usuario en la
+  <b>UI</b> (rutas relativas a <code>backend/src/workflows/</code> salvo indicación).</p>
+
+  <div class="stage">
+    <div class="stage-head"><span class="e">E1</span><h4>Un solo motor</h4><span class="tag ok">desbloquea · paridad + API M2M útil</span></div>
+    <div class="stage-grid">
+      <div class="stage-col"><h5>Cambiar</h5><ul>
+        <li><code>application/document_sets/dispatcher.py</code>: todo upload despacha <code>PipelineInterpreterWorkflow</code> con la receta <code>standard@v1</code> (hoy lanza el legacy); binding: columna <code>workflows.pipeline_id</code> (FK, default a la <code>standard@v1</code> global) — la receta toma doc-types y reglas del workflow en runtime</li>
+        <li><code>application/pipelines/runtime.py</code>: <code>PipelineState</code> → mapa de artefactos por fase (refs S3, nunca &gt;2&nbsp;MiB inline); <code>when</code> inválido = error al publicar la versión</li>
+        <li><code>presentation/endpoints/m2m_control.py</code>: <code>GET /v1/jobs/{id}</code> devuelve el resultado (extracción + confianza), no solo el estado</li>
+        <li>La re-extracción de la UI se reimplementa como run «extract-only» del intérprete sobre los artefactos existentes (sin re-OCR)</li>
+        <li class="del"><b>Eliminar</b> tras la suite de paridad: <code>document_set_processing.py</code> y <code>document_set_re_extraction.py</code> (cutover directo, D4)</li>
+      </ul></div>
+      <div class="stage-col"><h5>Agregar</h5><ul>
+        <li><code>POST /v1/extract</code> async-first con <code>mode=sync</code> ≤5 págs y <code>?pipeline=</code> opcional (D1; timeout o &gt;5 págs ⇒ degrada a 202 + job_id, nunca error)</li>
+        <li>Run «efímero» = sin <code>Case</code>, no sin estado: persiste job + documento + artefactos S3 (retención TBD) — el <code>jobId</code> es reusable sin re-OCR. Payload en E1: solo <code>parseConfidence</code>; la capa <code>assess</code> llega en E3</li>
+        <li>Catálogo <code>phase_kind → Lambda (alias/versión)</code> por fase en la <code>PipelineVersion</code>, con pin de versión por run — el extractor deja de estar clavado a TEXTRACT_LAYOUT</li>
+        <li>Receta <code>standard@v1</code> como seed (migración Alembic; paridad 1:1 con la secuencia actual de 4 Lambdas)</li>
+        <li>Suite de regresión: corpus ≥3 docs por doc-type en fixtures; compara el JSON de extracción normalizado campo a campo; umbral de paridad ≥98% de campos idénticos (LLM no determinista) — fijarlo antes del cutover</li>
+      </ul></div>
+      <div class="stage-col"><h5>UI</h5><ul>
+        <li>Sin cambios visibles para el usuario final</li>
+        <li><code>/pipelines</code> (visor read-only existente) ahora muestra la receta que realmente ejecuta todo</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head"><span class="e">E2</span><h4>Encadenar el final + catálogo de doc-types</h4><span class="tag ok">pipelines end-to-end</span></div>
+    <div class="stage-grid">
+      <div class="stage-col"><h5>Cambiar</h5><ul>
+        <li><code>WorkflowAnalysisRunWorkflow</code>: invocable como child workflow (D3) además del endpoint manual</li>
+        <li><code>application/analysis_run_summary/complete_run.py</code>: extraer síntesis y entrega a fases reutilizables</li>
+        <li><code>DocumentType</code> → catálogo org-level con <code>document_type_versions</code> (D6); eliminar <code>default_schemas</code>/<code>per_doc_schema</code>/<code>doc_type_catalog</code> de <code>WorkflowORM</code></li>
+      </ul></div>
+      <div class="stage-col"><h5>Agregar</h5><ul>
+        <li>PhaseKinds <code>analyze</code>, <code>output</code>, <code>deliver</code> en <code>application/pipelines/</code></li>
+        <li>Eventos de checkpoint en <code>enums/webhooks.py</code>: <code>case.output.ready</code>, <code>case.failed</code> (payloads firmados por el outbox existente; <code>case.needs_review</code> llega en E4 junto a su decisor, la ActivationPolicy)</li>
+        <li>Migraciones: <code>document_type_versions</code> + limpieza de columnas JSONB en <code>workflows</code> (trivial sin datos en prod)</li>
+      </ul></div>
+      <div class="stage-col"><h5>UI</h5><ul>
+        <li><code>/doctypes</code> pasa a ser el catálogo real, con historial de versiones de schema por tipo</li>
+        <li>La config del workflow referencia doc-types del catálogo (desaparece la duplicación de schemas)</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head"><span class="e">E3</span><h4>Datos y tools</h4><span class="tag case5">+ CASO 5</span><span class="tag case4">+ CASO 4 · API</span><span class="tag case1">CASO 1 completo</span></div>
+    <div class="stage-grid">
+      <div class="stage-col"><h5>Cambiar</h5><ul>
+        <li><code>domain/services/field_confidence.py</code>: contrato de 2 capas — <code>parse</code> (bbox, existente) + <code>extract</code> (del assess)</li>
+        <li>Fase <code>enrich</code> (<code>enrich_phases.py</code>): de <code>tool_lookup</code> determinista a ejecutor HTTP firmado con retries y SSRF-guard (reusar el del spec source_webhooks); resultado ⇒ doc virtual <code>source=TOOL</code>; defaults: retries=3, backoff exp., timeout 10 s, <code>on_failure: review|continue|fail</code> (default review)</li>
+        <li>Payloads de <code>document.extracted</code> y <code>/v1/extract</code>: + <code>extractConfidence</code>, señales cualitativas, candidatos (máx 3, solo con <code>multiple_possible_answers</code>) y citations</li>
+        <li>Extractor <code>vlm</code> para manuscritos en <code>receta-extract@v1</code> (usa el catálogo de Lambdas de E1)</li>
+      </ul></div>
+      <div class="stage-col"><h5>Agregar</h5><ul>
+        <li><code>POST /v1/cases</code> (crea/encuentra por <code>external_ref</code> + pipeline; emite <code>case.created</code>) y lectura <code>GET /v1/cases/{id}</code> + <code>GET /v1/cases/{id}/output</code> (el timeline llega en E4 con <code>case_events</code>)</li>
+        <li><code>POST /v1/cases/{id}/data</code> — implementa el stub <code>/v1/case</code>: crea doc virtual <code>source=EXTERNAL_DATA</code> con doc-type del catálogo; <b>auto-start</b>: el caso data-only (receta sin <code>await_documents</code>) arranca al recibir los datos</li>
+        <li>Modelo <code>tool_definitions</code> sobre <code>ConnectionAccount</code> (HTTP/LOOKUP ya en enums): URL template, auth del cliente, schemas I/O, retries</li>
+        <li>Fase <code>assess</code>: activity LLM que puntúa cada campo contra la evidencia → columnas <code>extract_confidence</code>/<code>signals</code> en <code>workflow_documents</code></li>
+      </ul></div>
+      <div class="stage-col"><h5>UI</h5><ul>
+        <li><code>/tools</code> (scaffolding <code>tools-view.tsx</code> existente): CRUD de tools + botón «probar lookup» contra el servicio del cliente</li>
+        <li>Vista de caso: documentos virtuales visibles con badge ⬡ y filtro por origen (archivo / datos / tool)</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head"><span class="e">E4</span><h4>Expediente formal</h4><span class="tag case2">CASO 2 completo</span></div>
+    <div class="stage-grid">
+      <div class="stage-col"><h5>Cambiar</h5><ul>
+        <li><code>await_documents</code> (<code>pause_phases.py</code>): evalúa la CompletenessPolicy de la <code>PipelineVersion</code> (D5)</li>
+        <li><code>confidence_gate</code> → evaluador de ActivationPolicy: decide <code>continue / clarify / review</code></li>
+        <li><code>POST /v1/ingest/{token}</code>: <code>caseId</code> find-or-create (cierra la brecha con el spec source_webhooks)</li>
+        <li><code>WorkflowCaseStatus</code>: máquina de estados pública (<code>RECEIVING…REJECTED</code>) con tabla de transiciones legales y migración del enum actual (DRAFT→RECEIVING, IN_PROGRESS→PROCESSING; ARCHIVED se conserva); REVIEW_L1/L2 se declaran pero se alcanzan desde E5; cada transición <b>con evento en el catálogo</b> emite su webhook (las internas no)</li>
+        <li><code>extract_fields</code>: invocación por documento (hoy: todo el set en una llamada) — prerequisito de «cada documento se procesa al llegar» con <code>await_documents</code></li>
+      </ul></div>
+      <div class="stage-col"><h5>Agregar</h5><ul>
+        <li>Columnas <code>activation_policy</code> / <code>completeness_policy</code> en <code>pipeline_versions</code>, validadas al publicar</li>
+        <li><code>GET /v1/cases/{id}/completeness</code> · <code>POST /v1/cases/{id}/ready</code> idempotente (auto + manual concurrentes ⇒ no-op; con faltantes ⇒ 409 salvo <code>force</code>); <code>auto_ready</code> opt-in en la CompletenessPolicy (default false)</li>
+        <li>Tabla <code>case_events</code>: timeline append-only del caso (alimenta UI y auditoría)</li>
+        <li>Gate <code>human_review</code> kind=<code>approval</code>: aprobar / rechazar con comentario; durante la pausa el caso queda en <code>NEEDS_REVIEW</code> (REVIEW_L1/L2 llegan en E5); rechazo ⇒ caso <code>REJECTED</code>, <b>sin deliver</b> (el ACEPTADO/RECHAZADO de negocio lo produce <code>output</code> y sí se entrega; el evento <code>case.review.completed</code> debuta en E5 con los stages)</li>
+        <li>Eventos <code>case.needs_review</code> y <code>case.needs_clarification</code> + upgrade de <code>await_clarification</code> (emite el clarification request estructurado del md §4.5)</li>
+        <li class="big"><b>Diseño + ADR del authz de la consola staff cross-tenant (D7)</b> — entregable de diseño, sin código; prerequisito de E5</li>
+      </ul></div>
+      <div class="stage-col"><h5>UI</h5><ul>
+        <li>Vista de caso: barra de completitud («2 de 3 documentos»), timeline de eventos, acción «marcar listo»</li>
+        <li><code>/review</code>: la cola genérica (hoy resuelve con JSON crudo en un textarea) se vuelve cola de aprobaciones con veredicto, señales y resumen del run</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head"><span class="e">E5</span><h4>Fan-out y revisión en dos niveles</h4><span class="tag case3">CASO 3 completo</span></div>
+    <div class="stage-grid">
+      <div class="stage-col"><h5>Cambiar</h5><ul>
+        <li><code>split_classify</code>: modo <code>fan_out: child_cases</code> — un child workflow Temporal por oficio, <code>parent_case_id</code>; el padre permanece <code>PROCESSING</code> y expone <code>children {total, por_estado}</code>; padre COMPLETED cuando todos los hijos terminan (hijos FAILED ⇒ flag <code>children_failed</code>)</li>
+        <li><code>WorkflowDocument</code>: <code>parent_document_id</code>, <code>source=SPLIT_CHILD</code> y <code>verification</code> JSONB por campo (valor, quién, nivel, valor anterior)</li>
+        <li><code>HumanTask</code>: <code>stage</code> (L1/L2), <code>assignee</code>, <code>locked_by/locked_at</code>; pool v1 = miembros del workflow con el rol del stage (sin tabla nueva), asignación por claim manual + lock; al cerrar un stage se emite <code>case.review.completed</code></li>
+        <li>Enforce de roles por workflow — <b>primer ítem de la etapa</b> (prerequisito de la bandeja L2): matriz rol × acción {ver caso, editar campos, resolver tarea de su stage, aprobar/rechazar} gateando <code>GET /v1/cases/{id}</code>, <code>corrections</code>, <code>tasks/resolve</code> y el bench</li>
+      </ul></div>
+      <div class="stage-col"><h5>Agregar</h5><ul>
+        <li>Checksums de CI/NIT del país en <code>infrastructure/services/rules/checksums/algorithms/</code> + regla condicional por tipo de entidad (CI persona · NIT empresa)</li>
+        <li><code>POST /v1/cases/{id}/corrections</code>: persiste la corrección + audit y emite la señal <code>field_corrected</code> al run pausado; <code>human_review</code> relanza <code>analyze</code> como child (un run por lote de correcciones; alcance v1: todas las reglas del caso); «aprobar» queda deshabilitado hasta el nuevo verdict — jamás re-OCR</li>
+        <li class="big"><b>Consola staff cross-tenant (D7)</b>: rol de plataforma Llamitai + cola L1 unificada + audit por tenant — modelo de authz nuevo, diseñarlo antes de esta etapa</li>
+      </ul></div>
+      <div class="stage-col"><h5>UI · lo más grande del plan</h5><ul>
+        <li class="big"><b>Inspection Bench editable</b>: inputs inline en <code>document-data-pane</code> (hoy read-only), aceptar/corregir por campo, Tab al siguiente pendiente, orden por confianza ascendente, panel de bloqueadores, comentarios y lock visible</li>
+        <li>Bandeja L2 del banco: la misma bench con rol restringido — solo toca lo no verificado por L1</li>
+        <li>Consola staff: cola cross-tenant + métricas de turnaround por analista</li>
+        <li>Vista padre→hijos del TIFF con progreso agregado por oficio</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-head"><span class="e">E6</span><h4>Plataforma self-service</h4><span class="tag up">desbloquea · self-service (onboarding sin ingeniería)</span></div>
+    <div class="stage-grid">
+      <div class="stage-col"><h5>Cambiar</h5><ul>
+        <li><code>/pipelines</code>: de visor read-only a editor completo — draft → publish → diff entre versiones</li>
+      </ul></div>
+      <div class="stage-col"><h5>Agregar</h5><ul>
+        <li>QA sampling: % de casos auto-aprobados auditados → accuracy del modelo y de cada analista (base del SLA)</li>
+        <li>Export/import del workflow completo como JSON git-able + catálogo de plantillas de receta</li>
+        <li>Canales de ingesta nativos (Caso 4): source <b>email</b> (buzón por workflow) y <b>WhatsApp Business</b> para media — <code>ConnectionProvider.EMAIL/WHATSAPP</code> ya existen en los enums; + extractor <code>asr</code> para audio de llamadas (una entrada más del catálogo de Lambdas). Hasta entonces: el sistema del cliente reenvía por <code>/v1/ingest</code></li>
+      </ul></div>
+      <div class="stage-col"><h5>UI</h5><ul>
+        <li>Editor de fases: stepper vertical con dnd-kit (ya instalado) + config-form por <code>kind</code> (reusa los config-forms existentes) + editor de <code>when</code> con token-chips</li>
+        <li>ActivationPolicy UI: umbrales por campo + simulador «con estos umbrales, X% habría caído a revisión»</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <p style="font-size:14px;color:var(--muted)">Reuso de frontend ya inventariado: el visor PDF/imagen
+  con bboxes y tiers de confianza (952 líneas), el data-pane sincronizado campo↔box, la tabla de casos
+  con filtros, la familia verdict y los config-forms por paso — el corazón del workbench ya existe;
+  lo que se construye encima es la capa de edición, colas y el editor de recetas.</p>
+
+  <div class="note"><b>Decisiones zanjadas (2026-06-09):</b> extracción <b>async-first</b> con modo
+  sync ≤5 páginas (202 + <code>GET /v1/jobs/{id}</code> para el resto) · el loop de clarificación del Caso 1
+  <b>lo gobierna el cliente</b> (Doxiq responde confianza + señales + candidatos, stateless) ·
+  <code>analyze</code> como <b>child workflow</b> del run existente · <b>cutover directo</b> del motor
+  legacy (no hay producción) · ActivationPolicy y CompletenessPolicy viven en
+  <code>PipelineVersion</code> (inmutables, «duplicar y publicar») · doc-types a <b>catálogo org
+  versionado ya en E2</b> · cola L1 = <b>consola staff cross-tenant</b> de Llamitai.
+  Detalle y trade-offs en <code>product/plans/re-architecture/re-architecture.md §8.1</code>.</div>
+
+  <div class="note warn"><b>Riesgos vigilados:</b> límite 2 MiB de Temporal (artefactos siempre como
+  refs S3) · costo LLM del fan-out del Caso 3 (presupuesto por caso, paralelismo por child workflow) ·
+  documentos virtuales filtrados por <code>source</code> en webhooks/UI · roles por workflow hoy se
+  guardan pero no se aplican — prerequisito del stage L2 · la <b>consola staff</b> exige un modelo de
+  autorización cross-tenant nuevo: diseñarlo antes de E5 (fallback temporal: invitar analistas como
+  miembros del tenant).</div>
+
+  <p style="margin-top:26px">El análisis completo — estado actual archivo por archivo, investigación
+  de 17 plataformas, modelo de datos y decisiones abiertas — vive en
+  <code>product/plans/re-architecture/re-architecture.md</code>.</p>
+</section>
+
+<footer>
+  <span><b>Doxiq</b> · Llamitai</span>
+  <span>product/plans/re-architecture/mockups/cases.html · auto-contenido</span>
+  <span>fuentes: docs de Extend, Reducto, Rossum, Hyperscience, Instabase, ABBYY, Azure, AWS IDP/A2I, Unstructured, Sensible, Docsumo, Nanonets, Klippa, Ocrolus, Heron, Casca</span>
+</footer>
+
+</main>
+</div>
+
+<script>
+(function(){
+  var els=document.querySelectorAll('.reveal');
+  if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return}
+  var io=new IntersectionObserver(function(es){es.forEach(function(en){
+    if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}
+  })},{threshold:.08});
+  els.forEach(function(e){io.observe(e)});
+  setTimeout(function(){els.forEach(function(e){e.classList.add('in')})},1500);
+
+  var links=document.querySelectorAll('.toc a');
+  var secs=Array.prototype.map.call(links,function(a){return document.querySelector(a.getAttribute('href'))});
+  var spy=new IntersectionObserver(function(es){
+    es.forEach(function(en){
+      if(en.isIntersecting){
+        links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+en.target.id)});
+      }
+    })
+  },{rootMargin:'-20% 0px -65% 0px'});
+  secs.forEach(function(s){if(s)spy.observe(s)});
+})();
+</script>
+</body>
+</html>

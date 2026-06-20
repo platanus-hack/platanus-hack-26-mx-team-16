@@ -1,0 +1,56 @@
+name: Promote dev → main
+
+on:
+  workflow_dispatch:
+    inputs:
+      strategy:
+        description: 'How to promote dev into main'
+        required: true
+        type: choice
+        default: merge
+        options:
+          - merge
+          - reset
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    name: Promote dev into main (${{ inputs.strategy }})
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.PROMOTE_APP_ID }}
+          private-key: ${{ secrets.PROMOTE_APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+          git config user.email "${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+
+      - name: Fetch all branches
+        run: git fetch --all --prune
+
+      - name: Merge dev into main (ff-only)
+        if: inputs.strategy == 'merge'
+        run: |
+          git merge --ff-only origin/dev
+          git push origin main
+
+      - name: Reset main to dev (force)
+        if: inputs.strategy == 'reset'
+        run: |
+          echo "::warning::Resetting main to origin/dev — main history will be overwritten"
+          git reset --hard origin/dev
+          git push --force-with-lease origin main

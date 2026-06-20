@@ -1,0 +1,113 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "doxiq-ws"
+version = "0.1.0"
+description = "Whatsapp Sessions Management"
+authors = [{name = "Victor Aguilar", email = "victor@llamitai.com"}]
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "fastapi>=0.115.12",
+    "uvicorn>=0.34.3",
+    "python-dotenv>=1.1.0",
+    "pytz>=2025.2",
+    "httpx>=0.28.1",
+    "authlib>=1.2.0",
+    "pydantic-settings>=2.8.0",
+    "sentry-sdk[fastapi]>=2.35.0",
+    "alembic>=1.16.4",
+    "asyncpg>=0.30.0",
+    "sqlalchemy>=2.0.41",
+    "psycopg[binary]>=3.2.9",
+    "bcrypt>=4.2.1",
+    "pydantic[email]>=2.11.7",
+    "python-slugify>=8.0.4",
+    "python-multipart>=0.0.9",
+    "saq>=0.12.0",
+    "redis>=5.0.0",
+    "aiosmtplib>=4.0.1",
+    "jinja2>=3.1.6",
+    "typer>=0.16.0",
+    "pyyaml>=6.0.2",
+    "pytest-sugar>=1.0.0",
+    "pytest-clarity>=1.0.1",
+    "pytest-cov>=6.2.1",
+    "uuid6>=2025.0.1",
+    "boto3>=1.35.0",
+    "temporalio>=1.7.0",
+    "nanoid>=2.0.0",
+    "structlog>=25.5.0",
+    "pgvector>=0.3.6",
+    "google-genai>=1.0.0",
+    "openpyxl>=3.1.0",
+    "google-cloud-vision>=3.7.0",
+    "openai>=2.33.0",
+    "pdf2image>=1.17.0",
+    "pdfplumber>=0.11.0",
+    "Pillow>=10.0.0",
+    "numpy>=1.26.0",
+    "tenacity>=8.2.0",
+    "jsonschema>=4.22.0",
+    "jmespath>=1.0.0",
+    "anthropic>=0.40.0",
+    "agno>=2.6.4",
+    "RestrictedPython>=8.0",
+    "sse-starlette>=2.1.0,<3.0",
+    "greenlet>=3.2.4",
+    "doxiq-shared==0.1.3",
+]
+
+[dependency-groups]
+dev = [
+    # Testing
+    "pytest>=8.4.0",
+    "pytest-asyncio>=1.2.0",
+    "pytest-cov>=6.1.1",
+    "expects>=0.9.0",
+    "factory-boy>=3.3.3",
+    "async-factory-boy>=1.0.1",
+    "nest-asyncio>=1.6.0",
+    "requests>=2.32.0",
+    "faker>=40.0.0",
+    # Code quality
+    "ruff>=0.11.13",
+    "ty>=0.0.10",
+    "vulture>=2.14",
+    # Development tools
+    "ipdb>=0.13.13",
+    "ipython>=9.3.0",
+    "debugpy>=1.8.20",
+]
+
+[tool.anyio]
+test_mode = "asyncio"
+
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+norecursedirs = "build dist _darcs {arch} *.egg node_modules */migrations/* */static/* docs *.egg-info .git __pycache__"
+# -s >> no capture warnings
+addopts = "--tb=short --maxfail=100 --strict -s"
+  testpaths = "tests"
+  python_files = "tests.py test_*.py"
+  python_classes = "*Tests"
+  python_functions = "test_*"
+  log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+  console_output_style = "progress"
+  filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+  ]
+  markers = [
+    "single: Run single test to debug it",
+    "asyncio: mark test as async",
+    "api: end-to-end API test (requires the running stack — use `make test_api`)",
+    "webhook: mark test for webhook",
+    "llm: test that issues a real LLM call (requires API keys — use `make test_llm`)"
+  ]

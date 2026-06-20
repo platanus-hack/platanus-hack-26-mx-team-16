@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+
+if [ $# -eq 0 ]; then
+    echo "Usage: run-script <script.py> [args...]"
+    echo "Example: run-script scripts/sync_stripe_refunds.py --apply"
+    exit 1
+fi
+
+# shellcheck disable=SC2155,SC2046,SC2086
+export INFISICAL_TOKEN=$(infisical login --method=universal-auth --client-id=$INFISICAL_MACHINE_CLIENT_ID --client-secret=$INFISICAL_MACHINE_CLIENT_SECRET --plain --silent)
+# shellcheck disable=SC2086
+exec infisical run \
+    --token $INFISICAL_TOKEN \
+    --projectId $PROJECT_ID \
+    --env $INFISICAL_SECRET_ENV \
+    --domain $INFISICAL_API_URL \
+    -- python "$@"

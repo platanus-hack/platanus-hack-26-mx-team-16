@@ -1,0 +1,65 @@
+{
+  "id": "D2",
+  "name": "Suma sobre colección — total facturado",
+  "rule": {
+    "prompt": "Sumar @invoice.monto_total sobre todos los @invoice[] del case. Reportar el total, la @invoice.moneda dominante y la cantidad de @invoice[] consideradas.",
+    "config": {
+      "output_shape": {
+        "type": "object",
+        "required": [
+          "total_facturado",
+          "moneda",
+          "cantidad_facturas"
+        ],
+        "properties": {
+          "total_facturado": {
+            "type": "number"
+          },
+          "moneda": {
+            "type": "string",
+            "enum": [
+              "CLP",
+              "USD",
+              "UF"
+            ]
+          },
+          "cantidad_facturas": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  },
+  "available_doctypes": [
+    "invoice"
+  ],
+  "expected_artifact": {
+    "inputs": [
+      {
+        "ref": "@invoice.monto_total",
+        "doctype": "invoice",
+        "path": "monto_total",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@invoice[]",
+        "doctype": "invoice",
+        "path": "",
+        "required": true,
+        "kind": "array"
+      },
+      {
+        "ref": "@invoice.moneda",
+        "doctype": "invoice",
+        "path": "moneda",
+        "required": true,
+        "kind": "scalar"
+      }
+    ],
+    "tokens": [],
+    "knowledge_refs": [],
+    "output_shape_validated": true
+  }
+}

@@ -1,0 +1,579 @@
+"""Static country lookup table.
+
+Source of truth for resolving a ``CountryConfig`` (currency, dial_code,
+timezone, emoji, ...) from a ``CountryIsoCode``.
+
+Unknown ISO codes fall back to :data:`DEFAULT_COUNTRY_CONFIG`.
+"""
+
+from src.common.domain.enums.countries import CountryIsoCode
+from src.common.domain.enums.currencies import CurrencyCode
+from src.common.domain.enums.locales import TimeZone
+from src.common.domain.entities.common.country_config import CountryConfig
+
+
+def _flag(iso_alpha2: str) -> str:
+    """Build the Unicode flag emoji from an ISO 3166-1 alpha-2 code."""
+    return "".join(chr(0x1F1E6 + ord(c) - ord("A")) for c in iso_alpha2.upper())
+
+
+COUNTRIES: list[CountryConfig] = [
+    # Americas
+    CountryConfig(
+        name="Mexico",
+        iso_code=CountryIsoCode.MEXICO,
+        currency_code=CurrencyCode.MXN,
+        dial_code=52,
+        dial_prefix=1,
+        time_zone=TimeZone.AMERICA_MEXICO_CITY,
+        emoji=_flag("MX"),
+    ),
+    CountryConfig(
+        name="United States",
+        iso_code=CountryIsoCode.UNITED_STATES,
+        currency_code=CurrencyCode.USD,
+        dial_code=1,
+        time_zone=TimeZone.AMERICA_NEW_YORK,
+        emoji=_flag("US"),
+    ),
+    CountryConfig(
+        name="Canada",
+        iso_code=CountryIsoCode.CANADA,
+        currency_code=CurrencyCode.CAD,
+        dial_code=1,
+        time_zone=TimeZone.AMERICA_TORONTO,
+        emoji=_flag("CA"),
+    ),
+    CountryConfig(
+        name="Brazil",
+        iso_code=CountryIsoCode.BRAZIL,
+        currency_code=CurrencyCode.BRL,
+        dial_code=55,
+        dial_prefix=9,
+        time_zone=TimeZone.AMERICA_SAO_PAULO,
+        emoji=_flag("BR"),
+    ),
+    CountryConfig(
+        name="Bolivia",
+        iso_code=CountryIsoCode.BOLIVIA,
+        currency_code=CurrencyCode.BOB,
+        dial_code=591,
+        time_zone=TimeZone.AMERICA_LA_PAZ,
+        emoji=_flag("BO"),
+    ),
+    CountryConfig(
+        name="Argentina",
+        iso_code=CountryIsoCode.ARGENTINA,
+        currency_code=CurrencyCode.ARS,
+        dial_code=54,
+        time_zone=TimeZone.AMERICA_ARGENTINA_BUENOS_AIRES,
+        emoji=_flag("AR"),
+    ),
+    CountryConfig(
+        name="Chile",
+        iso_code=CountryIsoCode.CHILE,
+        currency_code=CurrencyCode.CLP,
+        dial_code=56,
+        time_zone=TimeZone.AMERICA_SANTIAGO,
+        emoji=_flag("CL"),
+    ),
+    CountryConfig(
+        name="Colombia",
+        iso_code=CountryIsoCode.COLOMBIA,
+        currency_code=CurrencyCode.COP,
+        dial_code=57,
+        time_zone=TimeZone.AMERICA_BOGOTA,
+        emoji=_flag("CO"),
+    ),
+    CountryConfig(
+        name="Peru",
+        iso_code=CountryIsoCode.PERU,
+        currency_code=CurrencyCode.PEN,
+        dial_code=51,
+        time_zone=TimeZone.AMERICA_LIMA,
+        emoji=_flag("PE"),
+    ),
+    CountryConfig(
+        name="Uruguay",
+        iso_code=CountryIsoCode.URUGUAY,
+        currency_code=CurrencyCode.UYU,
+        dial_code=598,
+        time_zone=TimeZone.AMERICA_MONTEVIDEO,
+        emoji=_flag("UY"),
+    ),
+    CountryConfig(
+        name="Paraguay",
+        iso_code=CountryIsoCode.PARAGUAY,
+        currency_code=CurrencyCode.PYG,
+        dial_code=595,
+        time_zone=TimeZone.AMERICA_ASUNCION,
+        emoji=_flag("PY"),
+    ),
+    CountryConfig(
+        name="Ecuador",
+        iso_code=CountryIsoCode.ECUADOR,
+        currency_code=CurrencyCode.USD,
+        dial_code=593,
+        time_zone=TimeZone.AMERICA_GUAYAQUIL,
+        emoji=_flag("EC"),
+    ),
+    CountryConfig(
+        name="Venezuela",
+        iso_code=CountryIsoCode.VENEZUELA,
+        currency_code=CurrencyCode.VEF,
+        dial_code=58,
+        time_zone=TimeZone.AMERICA_CARACAS,
+        emoji=_flag("VE"),
+    ),
+    CountryConfig(
+        name="Costa Rica",
+        iso_code=CountryIsoCode.COSTA_RICA,
+        currency_code=CurrencyCode.CRC,
+        dial_code=506,
+        time_zone=TimeZone.AMERICA_COSTA_RICA,
+        emoji=_flag("CR"),
+    ),
+    CountryConfig(
+        name="Panama",
+        iso_code=CountryIsoCode.PANAMA,
+        currency_code=CurrencyCode.PAB,
+        dial_code=507,
+        time_zone=TimeZone.AMERICA_PANAMA,
+        emoji=_flag("PA"),
+    ),
+    CountryConfig(
+        name="Guatemala",
+        iso_code=CountryIsoCode.GUATEMALA,
+        currency_code=CurrencyCode.GTQ,
+        dial_code=502,
+        time_zone=TimeZone.AMERICA_GUATEMALA,
+        emoji=_flag("GT"),
+    ),
+    CountryConfig(
+        name="Honduras",
+        iso_code=CountryIsoCode.HONDURAS,
+        currency_code=CurrencyCode.HNL,
+        dial_code=504,
+        time_zone=TimeZone.AMERICA_TEGUCIGALPA,
+        emoji=_flag("HN"),
+    ),
+    CountryConfig(
+        name="El Salvador",
+        iso_code=CountryIsoCode.EL_SALVADOR,
+        currency_code=CurrencyCode.USD,
+        dial_code=503,
+        time_zone=TimeZone.AMERICA_EL_SALVADOR,
+        emoji=_flag("SV"),
+    ),
+    CountryConfig(
+        name="Nicaragua",
+        iso_code=CountryIsoCode.NICARAGUA,
+        currency_code=CurrencyCode.NIO,
+        dial_code=505,
+        time_zone=TimeZone.AMERICA_MANAGUA,
+        emoji=_flag("NI"),
+    ),
+    CountryConfig(
+        name="Dominican Republic",
+        iso_code=CountryIsoCode.DOMINICAN_REPUBLIC,
+        currency_code=CurrencyCode.DOP,
+        dial_code=1,
+        time_zone=TimeZone.AMERICA_SANTO_DOMINGO,
+        emoji=_flag("DO"),
+    ),
+    CountryConfig(
+        name="Cuba",
+        iso_code=CountryIsoCode.CUBA,
+        currency_code=CurrencyCode.CUP,
+        dial_code=53,
+        time_zone=TimeZone.AMERICA_HAVANA,
+        emoji=_flag("CU"),
+    ),
+    # Europe
+    CountryConfig(
+        name="Spain",
+        iso_code=CountryIsoCode.SPAIN,
+        currency_code=CurrencyCode.EUR,
+        dial_code=34,
+        time_zone=TimeZone.EUROPE_MADRID,
+        emoji=_flag("ES"),
+    ),
+    CountryConfig(
+        name="Portugal",
+        iso_code=CountryIsoCode.PORTUGAL,
+        currency_code=CurrencyCode.EUR,
+        dial_code=351,
+        time_zone=TimeZone.EUROPE_LISBON,
+        emoji=_flag("PT"),
+    ),
+    CountryConfig(
+        name="France",
+        iso_code=CountryIsoCode.FRANCE,
+        currency_code=CurrencyCode.EUR,
+        dial_code=33,
+        time_zone=TimeZone.EUROPE_PARIS,
+        emoji=_flag("FR"),
+    ),
+    CountryConfig(
+        name="Germany",
+        iso_code=CountryIsoCode.GERMANY,
+        currency_code=CurrencyCode.EUR,
+        dial_code=49,
+        time_zone=TimeZone.EUROPE_BERLIN,
+        emoji=_flag("DE"),
+    ),
+    CountryConfig(
+        name="Italy",
+        iso_code=CountryIsoCode.ITALY,
+        currency_code=CurrencyCode.EUR,
+        dial_code=39,
+        time_zone=TimeZone.EUROPE_ROME,
+        emoji=_flag("IT"),
+    ),
+    CountryConfig(
+        name="United Kingdom",
+        iso_code=CountryIsoCode.GREAT_BRITAIN,
+        currency_code=CurrencyCode.GBP,
+        dial_code=44,
+        time_zone=TimeZone.EUROPE_LONDON,
+        emoji=_flag("GB"),
+    ),
+    CountryConfig(
+        name="Netherlands",
+        iso_code=CountryIsoCode.NETHERLANDS,
+        currency_code=CurrencyCode.EUR,
+        dial_code=31,
+        time_zone=TimeZone.EUROPE_AMSTERDAM,
+        emoji=_flag("NL"),
+    ),
+    CountryConfig(
+        name="Belgium",
+        iso_code=CountryIsoCode.BELGIUM,
+        currency_code=CurrencyCode.EUR,
+        dial_code=32,
+        time_zone=TimeZone.EUROPE_BRUSSELS,
+        emoji=_flag("BE"),
+    ),
+    CountryConfig(
+        name="Switzerland",
+        iso_code=CountryIsoCode.SWITZERLAND,
+        currency_code=CurrencyCode.CHF,
+        dial_code=41,
+        time_zone=TimeZone.EUROPE_ZURICH,
+        emoji=_flag("CH"),
+    ),
+    CountryConfig(
+        name="Austria",
+        iso_code=CountryIsoCode.AUSTRIA,
+        currency_code=CurrencyCode.EUR,
+        dial_code=43,
+        time_zone=TimeZone.EUROPE_VIENNA,
+        emoji=_flag("AT"),
+    ),
+    CountryConfig(
+        name="Ireland",
+        iso_code=CountryIsoCode.IRELAND,
+        currency_code=CurrencyCode.EUR,
+        dial_code=353,
+        time_zone=TimeZone.EUROPE_DUBLIN,
+        emoji=_flag("IE"),
+    ),
+    CountryConfig(
+        name="Poland",
+        iso_code=CountryIsoCode.POLAND,
+        currency_code=CurrencyCode.PLN,
+        dial_code=48,
+        time_zone=TimeZone.EUROPE_WARSAW,
+        emoji=_flag("PL"),
+    ),
+    CountryConfig(
+        name="Sweden",
+        iso_code=CountryIsoCode.SWEDEN,
+        currency_code=CurrencyCode.SEK,
+        dial_code=46,
+        time_zone=TimeZone.EUROPE_STOCKHOLM,
+        emoji=_flag("SE"),
+    ),
+    CountryConfig(
+        name="Norway",
+        iso_code=CountryIsoCode.NORWAY,
+        currency_code=CurrencyCode.NOK,
+        dial_code=47,
+        time_zone=TimeZone.EUROPE_OSLO,
+        emoji=_flag("NO"),
+    ),
+    CountryConfig(
+        name="Denmark",
+        iso_code=CountryIsoCode.DENMARK,
+        currency_code=CurrencyCode.DKK,
+        dial_code=45,
+        time_zone=TimeZone.EUROPE_COPENHAGEN,
+        emoji=_flag("DK"),
+    ),
+    CountryConfig(
+        name="Finland",
+        iso_code=CountryIsoCode.FINLAND,
+        currency_code=CurrencyCode.EUR,
+        dial_code=358,
+        time_zone=TimeZone.EUROPE_HELSINKI,
+        emoji=_flag("FI"),
+    ),
+    CountryConfig(
+        name="Romania",
+        iso_code=CountryIsoCode.ROMANIA,
+        currency_code=CurrencyCode.RON,
+        dial_code=40,
+        time_zone=TimeZone.EUROPE_BUCHAREST,
+        emoji=_flag("RO"),
+    ),
+    CountryConfig(
+        name="Czech Republic",
+        iso_code=CountryIsoCode.CZECH_REPUBLIC,
+        currency_code=CurrencyCode.CZK,
+        dial_code=420,
+        time_zone=TimeZone.EUROPE_PRAGUE,
+        emoji=_flag("CZ"),
+    ),
+    CountryConfig(
+        name="Hungary",
+        iso_code=CountryIsoCode.HUNGARY,
+        currency_code=CurrencyCode.HUF,
+        dial_code=36,
+        time_zone=TimeZone.EUROPE_BUDAPEST,
+        emoji=_flag("HU"),
+    ),
+    CountryConfig(
+        name="Greece",
+        iso_code=CountryIsoCode.GREECE,
+        currency_code=CurrencyCode.EUR,
+        dial_code=30,
+        time_zone=TimeZone.EUROPE_ATHENS,
+        emoji=_flag("GR"),
+    ),
+    CountryConfig(
+        name="Turkey",
+        iso_code=CountryIsoCode.TURKEY,
+        currency_code=CurrencyCode.TRY,
+        dial_code=90,
+        time_zone=TimeZone.EUROPE_ISTANBUL,
+        emoji=_flag("TR"),
+    ),
+    CountryConfig(
+        name="Russia",
+        iso_code=CountryIsoCode.RUSSIA,
+        currency_code=CurrencyCode.RUB,
+        dial_code=7,
+        time_zone=TimeZone.EUROPE_MOSCOW,
+        emoji=_flag("RU"),
+    ),
+    CountryConfig(
+        name="Ukraine",
+        iso_code=CountryIsoCode.UKRAINE,
+        currency_code=CurrencyCode.UAH,
+        dial_code=380,
+        time_zone=TimeZone.EUROPE_KIEV,
+        emoji=_flag("UA"),
+    ),
+    # Asia
+    CountryConfig(
+        name="Japan",
+        iso_code=CountryIsoCode.JAPAN,
+        currency_code=CurrencyCode.JPY,
+        dial_code=81,
+        time_zone=TimeZone.ASIA_TOKYO,
+        emoji=_flag("JP"),
+    ),
+    CountryConfig(
+        name="China",
+        iso_code=CountryIsoCode.CHINA,
+        currency_code=CurrencyCode.CNY,
+        dial_code=86,
+        time_zone=TimeZone.ASIA_SHANGHAI,
+        emoji=_flag("CN"),
+    ),
+    CountryConfig(
+        name="South Korea",
+        iso_code=CountryIsoCode.SOUTH_KOREA,
+        currency_code=CurrencyCode.KRW,
+        dial_code=82,
+        time_zone=TimeZone.ASIA_SEOUL,
+        emoji=_flag("KR"),
+    ),
+    CountryConfig(
+        name="India",
+        iso_code=CountryIsoCode.INDIA,
+        currency_code=CurrencyCode.INR,
+        dial_code=91,
+        time_zone=TimeZone.ASIA_KOLKATA,
+        emoji=_flag("IN"),
+    ),
+    CountryConfig(
+        name="Singapore",
+        iso_code=CountryIsoCode.SINGAPORE,
+        currency_code=CurrencyCode.SGD,
+        dial_code=65,
+        time_zone=TimeZone.ASIA_SINGAPORE,
+        emoji=_flag("SG"),
+    ),
+    CountryConfig(
+        name="Hong Kong",
+        iso_code=CountryIsoCode.HONG_KONG,
+        currency_code=CurrencyCode.HKD,
+        dial_code=852,
+        time_zone=TimeZone.ASIA_HONG_KONG,
+        emoji=_flag("HK"),
+    ),
+    CountryConfig(
+        name="Taiwan",
+        iso_code=CountryIsoCode.TAIWAN,
+        currency_code=CurrencyCode.TWD,
+        dial_code=886,
+        time_zone=TimeZone.ASIA_TAIPEI,
+        emoji=_flag("TW"),
+    ),
+    CountryConfig(
+        name="Thailand",
+        iso_code=CountryIsoCode.THAILAND,
+        currency_code=CurrencyCode.THB,
+        dial_code=66,
+        time_zone=TimeZone.ASIA_BANGKOK,
+        emoji=_flag("TH"),
+    ),
+    CountryConfig(
+        name="Vietnam",
+        iso_code=CountryIsoCode.VIETNAM,
+        currency_code=CurrencyCode.VND,
+        dial_code=84,
+        time_zone=TimeZone.ASIA_HO_CHI_MINH,
+        emoji=_flag("VN"),
+    ),
+    CountryConfig(
+        name="Indonesia",
+        iso_code=CountryIsoCode.INDONESIA,
+        currency_code=CurrencyCode.IDR,
+        dial_code=62,
+        time_zone=TimeZone.ASIA_JAKARTA,
+        emoji=_flag("ID"),
+    ),
+    CountryConfig(
+        name="Philippines",
+        iso_code=CountryIsoCode.PHILIPPINES,
+        currency_code=CurrencyCode.PHP,
+        dial_code=63,
+        time_zone=TimeZone.ASIA_MANILA,
+        emoji=_flag("PH"),
+    ),
+    CountryConfig(
+        name="Malaysia",
+        iso_code=CountryIsoCode.MALAYSIA,
+        currency_code=CurrencyCode.MYR,
+        dial_code=60,
+        time_zone=TimeZone.ASIA_KUALA_LUMPUR,
+        emoji=_flag("MY"),
+    ),
+    CountryConfig(
+        name="Israel",
+        iso_code=CountryIsoCode.ISRAEL,
+        currency_code=CurrencyCode.ILS,
+        dial_code=972,
+        time_zone=TimeZone.ASIA_JERUSALEM,
+        emoji=_flag("IL"),
+    ),
+    CountryConfig(
+        name="United Arab Emirates",
+        iso_code=CountryIsoCode.UNITED_ARAB_EMIRATES,
+        currency_code=CurrencyCode.AED,
+        dial_code=971,
+        time_zone=TimeZone.ASIA_DUBAI,
+        emoji=_flag("AE"),
+    ),
+    CountryConfig(
+        name="Saudi Arabia",
+        iso_code=CountryIsoCode.SAUDI_ARABIA,
+        currency_code=CurrencyCode.SAR,
+        dial_code=966,
+        time_zone=TimeZone.ASIA_RIYADH,
+        emoji=_flag("SA"),
+    ),
+    # Oceania
+    CountryConfig(
+        name="Australia",
+        iso_code=CountryIsoCode.AUSTRALIA,
+        currency_code=CurrencyCode.AUD,
+        dial_code=61,
+        time_zone=TimeZone.AUSTRALIA_SYDNEY,
+        emoji=_flag("AU"),
+    ),
+    CountryConfig(
+        name="New Zealand",
+        iso_code=CountryIsoCode.NEW_ZEALAND,
+        currency_code=CurrencyCode.NZD,
+        dial_code=64,
+        time_zone=TimeZone.PACIFIC_AUCKLAND,
+        emoji=_flag("NZ"),
+    ),
+    # Africa
+    CountryConfig(
+        name="South Africa",
+        iso_code=CountryIsoCode.SOUTH_AFRICA,
+        currency_code=CurrencyCode.ZAR,
+        dial_code=27,
+        time_zone=TimeZone.AFRICA_JOHANNESBURG,
+        emoji=_flag("ZA"),
+    ),
+    CountryConfig(
+        name="Egypt",
+        iso_code=CountryIsoCode.EGYPT,
+        currency_code=CurrencyCode.EGP,
+        dial_code=20,
+        time_zone=TimeZone.AFRICA_CAIRO,
+        emoji=_flag("EG"),
+    ),
+    CountryConfig(
+        name="Nigeria",
+        iso_code=CountryIsoCode.NIGERIA,
+        currency_code=CurrencyCode.NGN,
+        dial_code=234,
+        time_zone=TimeZone.AFRICA_LAGOS,
+        emoji=_flag("NG"),
+    ),
+    CountryConfig(
+        name="Kenya",
+        iso_code=CountryIsoCode.KENYA,
+        currency_code=CurrencyCode.KES,
+        dial_code=254,
+        time_zone=TimeZone.AFRICA_NAIROBI,
+        emoji=_flag("KE"),
+    ),
+]
+
+
+ISO_CODE_MAPPING: dict[CountryIsoCode, CountryConfig] = {c.iso_code: c for c in COUNTRIES}
+DIAL_CODE_MAPPING: dict[int, CountryConfig] = {c.dial_code: c for c in COUNTRIES}
+
+
+DEFAULT_COUNTRY_CONFIG = CountryConfig(
+    name="ANY",
+    iso_code=CountryIsoCode.ANY,
+    currency_code=CurrencyCode.USD,
+    time_zone=TimeZone.UTC,
+    dial_code=0,
+    emoji="🌍",
+)
+
+
+class CountryConfigBuilder:
+    @classmethod
+    def from_iso_code(cls, iso_code: CountryIsoCode) -> CountryConfig:
+        return ISO_CODE_MAPPING.get(iso_code, DEFAULT_COUNTRY_CONFIG)
+
+    @classmethod
+    def from_iso_code_str(cls, iso_code: str) -> CountryConfig:
+        try:
+            return cls.from_iso_code(CountryIsoCode(iso_code.upper()))
+        except ValueError:
+            return DEFAULT_COUNTRY_CONFIG
+
+    @classmethod
+    def from_dial_code(cls, dial_code: int) -> CountryConfig:
+        return DIAL_CODE_MAPPING.get(dial_code, DEFAULT_COUNTRY_CONFIG)

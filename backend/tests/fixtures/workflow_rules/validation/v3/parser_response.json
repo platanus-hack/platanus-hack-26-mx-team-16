@@ -1,0 +1,87 @@
+{
+  "tree": {
+    "op": "OR",
+    "children": [
+      {
+        "op": "AND",
+        "children": [
+          {
+            "ref": "c1"
+          },
+          {
+            "ref": "c2"
+          }
+        ]
+      },
+      {
+        "op": "AND",
+        "children": [
+          {
+            "ref": "c3"
+          },
+          {
+            "ref": "c4"
+          }
+        ]
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "Existe al menos una boleta de servicios en el case",
+      "inputs": [
+        "@utility_bill[]"
+      ],
+      "method": "AGGREGATE_CHECK",
+      "params": {
+        "iterator": "@utility_bill[]",
+        "predicate": "EXISTS"
+      }
+    },
+    {
+      "id": "c2",
+      "description": "Al menos una boleta fue emitida hace 60 días o menos",
+      "inputs": [
+        "@utility_bill.fecha_emision"
+      ],
+      "tokens": [
+        "now"
+      ],
+      "method": "AGGREGATE_CHECK",
+      "params": {
+        "iterator": "@utility_bill[]",
+        "predicate": "ANY",
+        "expression": "age_days(fecha_emision, {{now}}) <= 60"
+      }
+    },
+    {
+      "id": "c3",
+      "description": "Existe al menos una cartola bancaria en el case",
+      "inputs": [
+        "@bank_statement[]"
+      ],
+      "method": "AGGREGATE_CHECK",
+      "params": {
+        "iterator": "@bank_statement[]",
+        "predicate": "EXISTS"
+      }
+    },
+    {
+      "id": "c4",
+      "description": "Al menos una cartola tiene periodo.hasta a 60 días o menos del case",
+      "inputs": [
+        "@bank_statement.periodo.hasta"
+      ],
+      "tokens": [
+        "now"
+      ],
+      "method": "AGGREGATE_CHECK",
+      "params": {
+        "iterator": "@bank_statement[]",
+        "predicate": "ANY",
+        "expression": "age_days(periodo.hasta, {{now}}) <= 60"
+      }
+    }
+  ]
+}

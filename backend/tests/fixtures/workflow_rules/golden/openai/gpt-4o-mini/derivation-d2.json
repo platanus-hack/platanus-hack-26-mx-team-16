@@ -1,0 +1,9 @@
+{
+  "payload": {
+    "tree": null,
+    "input_count": 3,
+    "tokens": []
+  },
+  "latency_ms": 0.4,
+  "model": "openai:gpt-4o-mini"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "V6",
+  "name": "Cross-doc TUPLE_CARTESIAN — nombre DNI vs contrato",
+  "rule": {
+    "prompt": "El nombre completo del titular (@dni.nombres + ' ' + @dni.apellidos) debe coincidir con alguna @contract.partes[].nombre, normalizando tildes y mayúsculas. Si no matchea, aceptar como fallback que @contract.partes[].rut sea igual a @dni.rut.",
+    "config": {
+      "severity": "MAJOR"
+    }
+  },
+  "available_doctypes": [
+    "dni",
+    "contract"
+  ],
+  "kb_slugs": []
+}

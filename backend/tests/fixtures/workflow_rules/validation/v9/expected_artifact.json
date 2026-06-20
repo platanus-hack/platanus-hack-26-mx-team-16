@@ -1,0 +1,19 @@
+{
+  "tree_op": "OR",
+  "tree_children_count": 2,
+  "sub_check_count": 2,
+  "methods": [
+    "AGGREGATE_CHECK",
+    "AGGREGATE_CHECK"
+  ],
+  "sub_check_inputs_by_id": {
+    "c1": [
+      "@commercial_report.morosidades[].dias_mora"
+    ],
+    "c2": [
+      "@commercial_report.morosidades[].monto",
+      "@commercial_report.morosidades[].dias_mora"
+    ]
+  },
+  "knowledge_refs_count": 0
+}

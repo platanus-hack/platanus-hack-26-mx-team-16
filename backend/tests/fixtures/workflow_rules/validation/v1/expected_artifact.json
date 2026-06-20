@@ -1,0 +1,18 @@
+{
+  "tree_op": "AND",
+  "tree_children_count": 2,
+  "sub_check_count": 2,
+  "methods": [
+    "FORMAT_CHECK",
+    "CHECKSUM_CHECK"
+  ],
+  "sub_check_inputs_by_id": {
+    "c1": [
+      "@dni.rut"
+    ],
+    "c2": [
+      "@dni.rut"
+    ]
+  },
+  "knowledge_refs_count": 0
+}

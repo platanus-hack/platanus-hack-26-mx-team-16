@@ -1,0 +1,9 @@
+# frontend-shell — plans
+
+> Cómo se construye — referencia a código, pasos, migraciones
+
+| doc | status | cobertura |
+|---|---|---|
+| [`proxy.md`](frontend-shell/proxy.md) | 🟡 parcial | 65% |
+
+**Relacionado:** [índice de auditoría](../../_reorg/STATUS-AUDIT.md)

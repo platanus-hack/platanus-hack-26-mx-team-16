@@ -1,0 +1,14 @@
+{
+  "id": "V2",
+  "name": "AND con field plano + nested + array — factura íntegra",
+  "rule": {
+    "prompt": "La factura debe cumplir todo lo siguiente: @invoice.emisor.razon_social no vacío, @invoice.emisor.rut con formato válido, @invoice.emisor.direccion completa (calle, numero, comuna y region presentes), @invoice.monto_total > 0, y todos los @invoice.items[] con @invoice.items[].cantidad > 0 y @invoice.items[].precio_unitario > 0.",
+    "config": {
+      "severity": "MAJOR"
+    }
+  },
+  "available_doctypes": [
+    "invoice"
+  ],
+  "kb_slugs": []
+}

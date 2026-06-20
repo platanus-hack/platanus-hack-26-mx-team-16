@@ -1,0 +1,12 @@
+{
+  "payload": {
+    "tree_op": "AND",
+    "sub_check_count": 2,
+    "methods": [
+      "CHECKSUM_CHECK",
+      "FORMAT_CHECK"
+    ]
+  },
+  "latency_ms": 2626.3,
+  "model": "openai:gpt-4o-mini"
+}

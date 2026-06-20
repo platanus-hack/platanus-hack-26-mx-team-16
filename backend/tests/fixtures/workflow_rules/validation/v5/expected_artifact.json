@@ -1,0 +1,21 @@
+{
+  "tree_op": "AND",
+  "tree_children_count": 2,
+  "sub_check_count": 2,
+  "methods": [
+    "AGGREGATE_CHECK",
+    "AGGREGATE_CHECK"
+  ],
+  "sub_check_inputs_by_id": {
+    "c1": [
+      "@invoice.items[].cantidad",
+      "@invoice.items[].precio_unitario",
+      "@invoice.items[].subtotal"
+    ],
+    "c2": [
+      "@invoice.items[].subtotal",
+      "@invoice.monto_total"
+    ]
+  },
+  "knowledge_refs_count": 0
+}

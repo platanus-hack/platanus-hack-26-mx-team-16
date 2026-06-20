@@ -1,0 +1,48 @@
+{
+  "tree": {
+    "op": "OR",
+    "children": [
+      {
+        "ref": "c1"
+      },
+      {
+        "ref": "c2"
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "Antecedente falso: no existen morosidades con dias_mora > 90 (la implicación pasa vacuamente)",
+      "inputs": [
+        "@commercial_report.morosidades[].dias_mora"
+      ],
+      "method": "AGGREGATE_CHECK",
+      "params": {
+        "iterator": "@commercial_report.morosidades[]",
+        "predicate": "NONE",
+        "expression": "dias_mora > 90"
+      }
+    },
+    {
+      "id": "c2",
+      "description": "Consecuente: la suma de monto en morosidades con dias_mora > 90 es ≤ 500.000",
+      "inputs": [
+        "@commercial_report.morosidades[].monto",
+        "@commercial_report.morosidades[].dias_mora"
+      ],
+      "method": "AGGREGATE_CHECK",
+      "params": {
+        "iterator": "@commercial_report.morosidades[]",
+        "predicate": "SUM_LTE",
+        "field": "monto",
+        "value": 500000,
+        "filter": {
+          "field": "dias_mora",
+          "op": ">",
+          "value": 90
+        }
+      }
+    }
+  ]
+}

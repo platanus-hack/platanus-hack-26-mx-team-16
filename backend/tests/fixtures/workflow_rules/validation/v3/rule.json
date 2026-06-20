@@ -1,0 +1,15 @@
+{
+  "id": "V3",
+  "name": "OR — comprobante de domicilio aceptable",
+  "rule": {
+    "prompt": "El comprobante de domicilio puede ser: al menos un @utility_bill[] con @utility_bill.fecha_emision a ≤ 60 días de {{now}}, O al menos un @bank_statement[] con @bank_statement.periodo.hasta a ≤ 60 días de {{now}}.",
+    "config": {
+      "severity": "BLOCKER"
+    }
+  },
+  "available_doctypes": [
+    "utility_bill",
+    "bank_statement"
+  ],
+  "kb_slugs": []
+}

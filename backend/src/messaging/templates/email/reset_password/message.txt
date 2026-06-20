@@ -1,0 +1,7 @@
+Hola {{ name }},
+
+Recibimos una solicitud para restablecer tu contraseña en Doxiq. El enlace caduca en 1 hora:
+
+{{ reset_url }}
+
+Si no solicitaste este cambio, puedes ignorar este mensaje.

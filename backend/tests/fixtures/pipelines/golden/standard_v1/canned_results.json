@@ -1,0 +1,555 @@
+{
+  "invoke_lambda": {
+    "extract_text": {
+      "status": "success",
+      "metadata": {
+        "pages": 2,
+        "extractor_used": "textract_layout",
+        "process_time": "5.92s",
+        "bucket": "vnext-assets-dev",
+        "source_uri": "samples/doble_ci.pdf",
+        "job_id": "CASE#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_FILE#eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "output_uri": "s3://vnext-assets-dev/jobs/CASE#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_FILE#eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee/extract_text.json"
+    },
+    "classify_pages": {
+      "status": "success",
+      "metadata": {
+        "process_time": 6.214,
+        "total": 2,
+        "succeeded": 2,
+        "failed": 0,
+        "job_id": "CASE#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_FILE#eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      "output_uri": "s3://vnext-assets-dev/jobs/CASE#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_FILE#eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee/classify_pages.json"
+    },
+    "extract_fields": {
+      "s3://vnext-assets-dev/jobs/CASE#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_FILE#eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee/classify_pages.doc_000.json": {
+        "status": "success",
+        "extractions": [
+          {
+            "document_type": {
+              "uuid": "36aab742-879e-4a3b-b688-5bdb5702ac0b",
+              "name": "Cedula de Identidad"
+            },
+            "document_index": 0,
+            "output": {
+              "nombres": "LAURA VERONICA",
+              "apellidos": "AGUILAR JIMENEZ",
+              "numero_cedula": "13021132",
+              "fecha_nacimiento": "1995-02-02",
+              "sexo": null
+            },
+            "mapped_output": {
+              "nombres": {
+                "value": "LAURA VERONICA",
+                "source_text": "LAURA VERONICA",
+                "page_number": 1,
+                "bbox": [
+                  {
+                    "page_number": 1,
+                    "polygon": [
+                      {
+                        "x": 0.2551685869693756,
+                        "y": 0.7783281803131104
+                      },
+                      {
+                        "x": 0.406283974647522,
+                        "y": 0.7783281803131104
+                      },
+                      {
+                        "x": 0.406283974647522,
+                        "y": 0.788703978061676
+                      },
+                      {
+                        "x": 0.2551685869693756,
+                        "y": 0.788703978061676
+                      }
+                    ],
+                    "matched_text": "LAURA VERONICA",
+                    "confidence": 0.9972377014160156
+                  }
+                ],
+                "ocr_confidence": 0.9972377014160156,
+                "grounded": true,
+                "match_type": "literal",
+                "inferred": false
+              },
+              "apellidos": {
+                "value": "AGUILAR JIMENEZ",
+                "source_text": "AGUILAR JIMENEZ",
+                "page_number": 1,
+                "bbox": [
+                  {
+                    "page_number": 1,
+                    "polygon": [
+                      {
+                        "x": 0.40952062606811523,
+                        "y": 0.7771761417388916
+                      },
+                      {
+                        "x": 0.5607796907424927,
+                        "y": 0.7771761417388916
+                      },
+                      {
+                        "x": 0.5607796907424927,
+                        "y": 0.7875629663467407
+                      },
+                      {
+                        "x": 0.40952062606811523,
+                        "y": 0.7875629663467407
+                      }
+                    ],
+                    "matched_text": "AGUILAR JIMENEZ",
+                    "confidence": 0.9980309295654297
+                  }
+                ],
+                "ocr_confidence": 0.9980309295654297,
+                "grounded": true,
+                "match_type": "literal",
+                "inferred": false
+              },
+              "numero_cedula": {
+                "value": "13021132",
+                "source_text": "13021132",
+                "page_number": 1,
+                "bbox": [
+                  {
+                    "page_number": 1,
+                    "polygon": [
+                      {
+                        "x": 0.2946065366268158,
+                        "y": 0.225934699177742
+                      },
+                      {
+                        "x": 0.396332710981369,
+                        "y": 0.225934699177742
+                      },
+                      {
+                        "x": 0.396332710981369,
+                        "y": 0.23847079277038574
+                      },
+                      {
+                        "x": 0.2946065366268158,
+                        "y": 0.23847079277038574
+                      }
+                    ],
+                    "matched_text": "13021132",
+                    "confidence": 0.99638671875
+                  }
+                ],
+                "ocr_confidence": 0.99638671875,
+                "grounded": true,
+                "match_type": "literal",
+                "inferred": false
+              },
+              "fecha_nacimiento": {
+                "value": "1995-02-02",
+                "source_text": "2 de Febrero de 1995",
+                "page_number": 1,
+                "bbox": [
+                  {
+                    "page_number": 1,
+                    "polygon": [
+                      {
+                        "x": 0.2946065366268158,
+                        "y": 0.225934699177742
+                      },
+                      {
+                        "x": 0.396332710981369,
+                        "y": 0.225934699177742
+                      },
+                      {
+                        "x": 0.396332710981369,
+                        "y": 0.23847079277038574
+                      },
+                      {
+                        "x": 0.2946065366268158,
+                        "y": 0.23847079277038574
+                      }
+                    ],
+                    "matched_text": "2 de Febrero de 1995",
+                    "confidence": 0.9954591827392578
+                  }
+                ],
+                "ocr_confidence": 0.9954591827392578,
+                "grounded": true,
+                "match_type": "literal",
+                "inferred": true
+              },
+              "sexo": {
+                "value": null,
+                "source_text": null,
+                "page_number": null,
+                "bbox": [],
+                "ocr_confidence": null,
+                "grounded": false,
+                "match_type": null,
+                "inferred": false
+              }
+            }
+          }
+        ],
+        "errors": [],
+        "metadata": {
+          "process_time": 4.007665276527405,
+          "total": 1,
+          "succeeded": 1,
+          "failed": 0,
+          "job_id": "CASE#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_FILE#eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        }
+      },
+      "s3://vnext-assets-dev/jobs/CASE#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_FILE#eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee/classify_pages.doc_001.json": {
+        "status": "success",
+        "extractions": [
+          {
+            "document_type": {
+              "uuid": "36aab742-879e-4a3b-b688-5bdb5702ac0b",
+              "name": "Cedula de Identidad"
+            },
+            "document_index": 0,
+            "output": {
+              "nombres": "FILOMENA",
+              "apellidos": "CONDORI LAURA",
+              "numero_cedula": "2659188",
+              "fecha_nacimiento": "1981-11-22",
+              "sexo": "Femenino"
+            },
+            "mapped_output": {
+              "nombres": {
+                "value": "FILOMENA",
+                "source_text": "FILOMENA",
+                "page_number": 2,
+                "bbox": [
+                  {
+                    "page_number": 2,
+                    "polygon": [
+                      {
+                        "x": 0.2551685869693756,
+                        "y": 0.7783281803131104
+                      },
+                      {
+                        "x": 0.406283974647522,
+                        "y": 0.7783281803131104
+                      },
+                      {
+                        "x": 0.406283974647522,
+                        "y": 0.788703978061676
+                      },
+                      {
+                        "x": 0.2551685869693756,
+                        "y": 0.788703978061676
+                      }
+                    ],
+                    "matched_text": "FILOMENA",
+                    "confidence": 0.9912109375
+                  }
+                ],
+                "ocr_confidence": 0.9912109375,
+                "grounded": true,
+                "match_type": "literal",
+                "inferred": false
+              },
+              "apellidos": {
+                "value": "CONDORI LAURA",
+                "source_text": "CONDORI LAURA",
+                "page_number": 2,
+                "bbox": [
+                  {
+                    "page_number": 2,
+                    "polygon": [
+                      {
+                        "x": 0.40952062606811523,
+                        "y": 0.7771761417388916
+                      },
+                      {
+                        "x": 0.5607796907424927,
+                        "y": 0.7771761417388916
+                      },
+                      {
+                        "x": 0.5607796907424927,
+                        "y": 0.7875629663467407
+                      },
+                      {
+                        "x": 0.40952062606811523,
+                        "y": 0.7875629663467407
+                      }
+                    ],
+                    "matched_text": "CONDORI LAURA",
+                    "confidence": 0.9856770634651184
+                  }
+                ],
+                "ocr_confidence": 0.9856770634651184,
+                "grounded": true,
+                "match_type": "literal",
+                "inferred": false
+              },
+              "numero_cedula": {
+                "value": "2659188",
+                "source_text": "2659188",
+                "page_number": 2,
+                "bbox": [
+                  {
+                    "page_number": 2,
+                    "polygon": [
+                      {
+                        "x": 0.2946065366268158,
+                        "y": 0.225934699177742
+                      },
+                      {
+                        "x": 0.396332710981369,
+                        "y": 0.225934699177742
+                      },
+                      {
+                        "x": 0.396332710981369,
+                        "y": 0.23847079277038574
+                      },
+                      {
+                        "x": 0.2946065366268158,
+                        "y": 0.23847079277038574
+                      }
+                    ],
+                    "matched_text": "2659188",
+                    "confidence": 0.9942326545715332
+                  }
+                ],
+                "ocr_confidence": 0.9942326545715332,
+                "grounded": true,
+                "match_type": "literal",
+                "inferred": false
+              },
+              "fecha_nacimiento": {
+                "value": "1981-11-22",
+                "source_text": "22 de Noviembre de 1981",
+                "page_number": 2,
+                "bbox": [
+                  {
+                    "page_number": 2,
+                    "polygon": [
+                      {
+                        "x": 0.2946065366268158,
+                        "y": 0.225934699177742
+                      },
+                      {
+                        "x": 0.396332710981369,
+                        "y": 0.225934699177742
+                      },
+                      {
+                        "x": 0.396332710981369,
+                        "y": 0.23847079277038574
+                      },
+                      {
+                        "x": 0.2946065366268158,
+                        "y": 0.23847079277038574
+                      }
+                    ],
+                    "matched_text": "22 de Noviembre de 1981",
+                    "confidence": 0.9871212244033813
+                  }
+                ],
+                "ocr_confidence": 0.9871212244033813,
+                "grounded": true,
+                "match_type": "literal",
+                "inferred": true
+              },
+              "sexo": {
+                "value": "Femenino",
+                "source_text": "Femenino",
+                "page_number": 2,
+                "bbox": [
+                  {
+                    "page_number": 2,
+                    "polygon": [
+                      {
+                        "x": 0.2551685869693756,
+                        "y": 0.7783281803131104
+                      },
+                      {
+                        "x": 0.406283974647522,
+                        "y": 0.7783281803131104
+                      },
+                      {
+                        "x": 0.406283974647522,
+                        "y": 0.788703978061676
+                      },
+                      {
+                        "x": 0.2551685869693756,
+                        "y": 0.788703978061676
+                      }
+                    ],
+                    "matched_text": "Femenino",
+                    "confidence": 0.5512345671653748
+                  }
+                ],
+                "ocr_confidence": 0.5512345671653748,
+                "grounded": true,
+                "match_type": "literal",
+                "inferred": false
+              }
+            }
+          }
+        ],
+        "errors": [],
+        "metadata": {
+          "process_time": 4.007665276527405,
+          "total": 1,
+          "succeeded": 1,
+          "failed": 0,
+          "job_id": "CASE#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_FILE#eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        }
+      }
+    },
+    "validate_extraction": {
+      "status": "success",
+      "validations": [
+        {
+          "document_type": {
+            "uuid": "36aab742-879e-4a3b-b688-5bdb5702ac0b",
+            "name": "Cedula de Identidad"
+          },
+          "document_index": 0,
+          "output": {
+            "nombres": "LAURA VERONICA",
+            "apellidos": "AGUILAR JIMENEZ",
+            "numero_cedula": "13021132",
+            "fecha_nacimiento": "1995-02-02",
+            "sexo": null
+          },
+          "validation_results": [
+            {
+              "rule_id": "v-nombres-completos",
+              "field": "nombres",
+              "status": "passed",
+              "severity": "info",
+              "reason": "The provided first name contains valid alphanumeric characters and spaces.",
+              "value_analyzed": "LAURA VERONICA"
+            },
+            {
+              "rule_id": "v-fecha-nacimiento",
+              "field": "fecha_nacimiento",
+              "status": "failed",
+              "severity": "medium",
+              "reason": "The date '1995-02-02' does not conform to the required DD/MM/AAAA format, although it is a valid date.",
+              "value_analyzed": "1995-02-02"
+            },
+            {
+              "rule_id": "v-numero-cedula",
+              "field": "numero_cedula",
+              "status": "passed",
+              "severity": "medium",
+              "reason": "The 'numero_cedula' field contains 8 digits, which is within the allowed range of 7 to 9 digits.",
+              "value_analyzed": "13021132"
+            }
+          ]
+        },
+        {
+          "document_type": {
+            "uuid": "36aab742-879e-4a3b-b688-5bdb5702ac0b",
+            "name": "Cedula de Identidad"
+          },
+          "document_index": 1,
+          "output": {
+            "nombres": "FILOMENA",
+            "apellidos": "CONDORI LAURA",
+            "numero_cedula": "2659188",
+            "fecha_nacimiento": "1981-11-22",
+            "sexo": "Femenino"
+          },
+          "validation_results": [
+            {
+              "rule_id": "v-nombres-completos",
+              "field": "nombres",
+              "status": "passed",
+              "severity": "info",
+              "reason": "The provided name 'FILOMENA' consists of valid characters and is a recognized given name.",
+              "value_analyzed": "FILOMENA"
+            },
+            {
+              "rule_id": "v-fecha-nacimiento",
+              "field": "fecha_nacimiento",
+              "status": "failed",
+              "severity": "medium",
+              "reason": "Expected format DD/MM/AAAA but received YYYY-MM-DD",
+              "value_analyzed": "1981-11-22"
+            },
+            {
+              "rule_id": "v-numero-cedula",
+              "field": "numero_cedula",
+              "status": "passed",
+              "severity": "info",
+              "reason": "The numero_cedula '2659188' contains 7 digits, which is within the allowed range of 7 to 9 digits.",
+              "value_analyzed": "2659188"
+            }
+          ]
+        }
+      ],
+      "errors": [],
+      "metadata": {
+        "process_time": 12.35109806060791,
+        "total": 2,
+        "succeeded": 2,
+        "failed": 0,
+        "job_id": "CASE#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_FILE#eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      }
+    }
+  },
+  "read_classified_refs": {
+    "documents": [
+      {
+        "document_type_id": "36aab742-879e-4a3b-b688-5bdb5702ac0b",
+        "document_type_name": "Cedula de Identidad",
+        "document_index": 0,
+        "page_range": {
+          "from": 1,
+          "to": 1
+        }
+      },
+      {
+        "document_type_id": "36aab742-879e-4a3b-b688-5bdb5702ac0b",
+        "document_type_name": "Cedula de Identidad",
+        "document_index": 1,
+        "page_range": {
+          "from": 2,
+          "to": 2
+        }
+      }
+    ],
+    "total_raw": 2
+  },
+  "persist_classified_documents": {
+    "documents": [
+      {
+        "document_id": "dddddddd-dddd-dddd-dddd-000000000000",
+        "document_type_id": "36aab742-879e-4a3b-b688-5bdb5702ac0b",
+        "document_type_name": "Cedula de Identidad",
+        "document_index": 0,
+        "page_range": {
+          "from": 1,
+          "to": 1
+        }
+      },
+      {
+        "document_id": "dddddddd-dddd-dddd-dddd-000000000001",
+        "document_type_id": "36aab742-879e-4a3b-b688-5bdb5702ac0b",
+        "document_type_name": "Cedula de Identidad",
+        "document_index": 1,
+        "page_range": {
+          "from": 2,
+          "to": 2
+        }
+      }
+    ]
+  },
+  "split_classified_documents": {
+    "documents": [
+      {
+        "document_index": 0,
+        "source_uri": "s3://vnext-assets-dev/jobs/CASE#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_FILE#eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee/classify_pages.doc_000.json"
+      },
+      {
+        "document_index": 1,
+        "source_uri": "s3://vnext-assets-dev/jobs/CASE#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_FILE#eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee/classify_pages.doc_001.json"
+      }
+    ]
+  }
+}

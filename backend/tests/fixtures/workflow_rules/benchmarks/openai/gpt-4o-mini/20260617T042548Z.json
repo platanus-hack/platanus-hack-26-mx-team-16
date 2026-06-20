@@ -1,0 +1,166 @@
+{
+  "samples": [
+    {
+      "id": "V1",
+      "kind": "VALIDATION",
+      "latency_ms": 4636.157989501953,
+      "tokens_in": 28,
+      "tokens_out": 183
+    },
+    {
+      "id": "V2",
+      "kind": "VALIDATION",
+      "latency_ms": 5637.204170227051,
+      "tokens_in": 82,
+      "tokens_out": 469
+    },
+    {
+      "id": "V3",
+      "kind": "VALIDATION",
+      "latency_ms": 5168.331623077393,
+      "tokens_in": 53,
+      "tokens_out": 407
+    },
+    {
+      "id": "V4",
+      "kind": "VALIDATION",
+      "latency_ms": 1880.6171417236328,
+      "tokens_in": 34,
+      "tokens_out": 164
+    },
+    {
+      "id": "V5",
+      "kind": "VALIDATION",
+      "latency_ms": 4052.290439605713,
+      "tokens_in": 62,
+      "tokens_out": 31
+    },
+    {
+      "id": "V6",
+      "kind": "VALIDATION",
+      "latency_ms": 4113.082408905029,
+      "tokens_in": 60,
+      "tokens_out": 29
+    },
+    {
+      "id": "V7",
+      "kind": "VALIDATION",
+      "latency_ms": 3151.616334915161,
+      "tokens_in": 37,
+      "tokens_out": 257
+    },
+    {
+      "id": "V8",
+      "kind": "VALIDATION",
+      "latency_ms": 4622.5855350494385,
+      "tokens_in": 79,
+      "tokens_out": 436
+    },
+    {
+      "id": "V9",
+      "kind": "VALIDATION",
+      "latency_ms": 4276.831150054932,
+      "tokens_in": 69,
+      "tokens_out": 25
+    },
+    {
+      "id": "V10",
+      "kind": "VALIDATION",
+      "latency_ms": 5616.583585739136,
+      "tokens_in": 67,
+      "tokens_out": 27
+    },
+    {
+      "id": "V11",
+      "kind": "VALIDATION",
+      "latency_ms": 3275.238037109375,
+      "tokens_in": 109,
+      "tokens_out": 32
+    },
+    {
+      "id": "V12",
+      "kind": "VALIDATION",
+      "latency_ms": 7535.714864730835,
+      "tokens_in": 119,
+      "tokens_out": 571
+    },
+    {
+      "id": "V13",
+      "kind": "VALIDATION",
+      "latency_ms": 13056.391716003418,
+      "tokens_in": 216,
+      "tokens_out": 25
+    },
+    {
+      "id": "D1",
+      "kind": "DERIVATION",
+      "latency_ms": 0.5788803100585938,
+      "tokens_in": 25,
+      "tokens_out": 125
+    },
+    {
+      "id": "D10",
+      "kind": "DERIVATION",
+      "latency_ms": 0.5118846893310547,
+      "tokens_in": 150,
+      "tokens_out": 631
+    },
+    {
+      "id": "D2",
+      "kind": "DERIVATION",
+      "latency_ms": 0.39267539978027344,
+      "tokens_in": 38,
+      "tokens_out": 142
+    },
+    {
+      "id": "D3",
+      "kind": "DERIVATION",
+      "latency_ms": 0.49805641174316406,
+      "tokens_in": 53,
+      "tokens_out": 161
+    },
+    {
+      "id": "D4",
+      "kind": "DERIVATION",
+      "latency_ms": 0.4200935363769531,
+      "tokens_in": 70,
+      "tokens_out": 158
+    },
+    {
+      "id": "D5",
+      "kind": "DERIVATION",
+      "latency_ms": 0.39577484130859375,
+      "tokens_in": 121,
+      "tokens_out": 489
+    },
+    {
+      "id": "D6",
+      "kind": "DERIVATION",
+      "latency_ms": 0.36406517028808594,
+      "tokens_in": 84,
+      "tokens_out": 236
+    },
+    {
+      "id": "D7",
+      "kind": "DERIVATION",
+      "latency_ms": 0.42557716369628906,
+      "tokens_in": 71,
+      "tokens_out": 167
+    },
+    {
+      "id": "D8",
+      "kind": "DERIVATION",
+      "latency_ms": 0.4253387451171875,
+      "tokens_in": 50,
+      "tokens_out": 135
+    },
+    {
+      "id": "D9",
+      "kind": "DERIVATION",
+      "latency_ms": 0.5626678466796875,
+      "tokens_in": 95,
+      "tokens_out": 247
+    }
+  ],
+  "model": "openai:gpt-4o-mini"
+}

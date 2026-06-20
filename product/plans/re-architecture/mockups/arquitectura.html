@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doxiq · La re-arquitectura, explicada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Geist+Mono:wght@300..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#128279; --teal-deep:#0c5f5a; --teal-tint:#e6f3f1; --teal-soft:#9fcfca;
+  --ink:#1c2526; --ink-2:#3a4a4c; --muted:#5f7173; --faint:#8fa0a1;
+  --paper:#f5f8f7; --card:#ffffff; --hairline:#dce6e4; --hairline-2:#cbd9d6;
+  --amber:#a96f12; --amber-tint:#faf2e2; --amber-line:#e3cb96;
+  --red:#b14227; --red-tint:#f9eae5; --red-line:#e4b5a6;
+  --green:#2c7a4b; --green-tint:#e8f2ec; --green-line:#aed3bc;
+  --ink-bg:#1c2526; --ink-fg:#eef4f3;
+  --r:0.75rem; --r-s:0.5rem;
+  --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"Figtree",-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);
+  -webkit-font-smoothing:antialiased;line-height:1.6;font-size:16px}
+::selection{background:var(--teal);color:#fff}
+
+/* layout */
+.wrap{display:grid;grid-template-columns:236px minmax(0,1fr);gap:0;max-width:1180px;margin:0 auto}
+.toc{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:38px 18px 38px 28px;border-right:1px solid var(--hairline)}
+.toc .toc-cap{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--faint);text-transform:uppercase;margin:18px 0 10px 12px}
+.toc a{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.03em;color:var(--muted);text-decoration:none;
+  padding:5px 12px;border-left:2px solid transparent;border-radius:0 6px 6px 0;transition:.15s}
+.toc a:hover{color:var(--teal-deep);background:var(--teal-tint)}
+.toc a.on{color:var(--teal-deep);border-left-color:var(--teal);background:linear-gradient(90deg,var(--teal-tint),transparent)}
+main{padding:48px 56px 120px;min-width:0}
+@media(max-width:880px){.wrap{grid-template-columns:1fr}.toc{display:none}main{padding:32px 22px 80px}}
+
+/* type */
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal-deep);display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.kicker::before{content:"";width:26px;height:1px;background:var(--teal)}
+h1{font-size:40px;line-height:1.12;letter-spacing:-.02em;margin:0 0 14px;font-weight:700}
+h1 em{font-style:normal;background:linear-gradient(180deg,transparent 64%,var(--teal-tint) 64%)}
+.lede{font-size:19px;color:var(--ink-2);max-width:70ch;margin:0 0 22px}
+h2{font-size:25px;letter-spacing:-.01em;margin:54px 0 6px;display:flex;align-items:baseline;gap:12px;scroll-margin-top:24px}
+.sec-num{font-family:var(--mono);font-size:13px;color:var(--teal);font-weight:600;letter-spacing:.08em}
+h3{font-size:17px;margin:30px 0 8px;letter-spacing:-.01em}
+h3 .tag{font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--teal-deep);background:var(--teal-tint);
+  border-radius:99px;padding:3px 10px;vertical-align:2px;margin-left:8px;letter-spacing:.05em}
+p{max-width:72ch;color:var(--ink-2)}
+strong{color:var(--ink);font-weight:600}
+code{font-family:var(--mono);font-size:.85em;background:var(--teal-tint);color:var(--teal-deep);padding:1.5px 6px;border-radius:6px}
+a.ref{color:var(--teal-deep);text-decoration:none;border-bottom:1px solid var(--teal-soft)}
+
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 8px}
+.meta-chip{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--hairline-2);
+  border-radius:99px;padding:5px 13px;background:var(--card)}
+.meta-chip b{color:var(--teal-deep)}
+
+ul.plain{list-style:none;padding:0;margin:14px 0;max-width:72ch}
+ul.plain li{position:relative;padding:5px 0 5px 22px;color:var(--ink-2)}
+ul.plain li::before{content:"";position:absolute;left:4px;top:15px;width:7px;height:7px;border-radius:2px;background:var(--teal);opacity:.85}
+
+.note{border:1px solid var(--hairline-2);border-left:3px solid var(--teal);background:var(--card);
+  border-radius:var(--r-s);padding:14px 18px;margin:20px 0;max-width:80ch;font-size:15px;color:var(--ink-2)}
+.note.warn{border-left-color:var(--amber);background:linear-gradient(90deg,var(--amber-tint),var(--card) 60%)}
+.note .nl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal-deep);display:block;margin-bottom:5px}
+.note.warn .nl{color:var(--amber)}
+
+/* cards */
+.grid{display:grid;gap:16px;margin:22px 0}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:760px){.g3,.g2{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--hairline-2);border-radius:var(--r);padding:18px 20px;box-shadow:0 1px 2px rgba(28,37,38,.04)}
+.card h4{margin:0 0 8px;font-size:15.5px;display:flex;align-items:center;gap:9px}
+.card h4 .dot{width:8px;height:8px;border-radius:99px;background:var(--teal);flex:none}
+.card p{font-size:14px;margin:0;max-width:none}
+.card .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:6px}
+
+/* before/after */
+.cmp{display:grid;grid-template-columns:1fr 54px 1fr;align-items:stretch;gap:0;margin:24px 0;border:1px solid var(--hairline-2);border-radius:var(--r);overflow:hidden;background:var(--card)}
+@media(max-width:760px){.cmp{grid-template-columns:1fr;}.cmp .arrow{transform:rotate(90deg);height:40px}}
+.cmp-side{padding:20px 22px}
+.cmp-side.old{background:linear-gradient(180deg,#fbf4f1,#fff)}
+.cmp-side h4{margin:0 0 4px;font-size:14px;font-family:var(--mono);letter-spacing:.04em}
+.cmp-side.old h4{color:var(--red)}
+.cmp-side.new h4{color:var(--teal-deep)}
+.cmp-side .sub{font-size:12px;color:var(--muted);margin:0 0 14px;font-family:var(--mono)}
+.arrow{display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:22px;background:var(--paper);border-left:1px solid var(--hairline);border-right:1px solid var(--hairline)}
+.box{font-family:var(--mono);font-size:11.5px;border-radius:8px;padding:8px 11px;margin:7px 0;border:1px solid var(--hairline-2);background:#fff;color:var(--ink-2)}
+.box.legacy{border-style:dashed;border-color:var(--red-line);color:var(--red)}
+.box.engine{background:var(--ink-bg);color:var(--ink-fg);border-color:var(--ink-bg);font-weight:600}
+.box.recipe{border-color:var(--teal-soft);background:var(--teal-tint);color:var(--teal-deep)}
+
+/* pipeline ribbon */
+.pipe{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0;padding:18px;background:var(--card);border:1px solid var(--hairline-2);border-radius:var(--r)}
+.ph{font-family:var(--mono);font-size:11.5px;font-weight:500;border-radius:8px;padding:7px 11px;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--hairline-2);white-space:nowrap}
+.ph::before{content:"";width:6px;height:6px;border-radius:99px;flex:none}
+.ph.doc{background:var(--teal-tint);color:var(--teal-deep);border-color:#c4e2de}.ph.doc::before{background:var(--teal)}
+.ph.case{background:#eef0f3;color:var(--ink-2);border-color:var(--hairline-2)}.ph.case::before{background:var(--ink-2)}
+.ph.gate{background:var(--amber-tint);color:var(--amber);border-color:var(--amber-line)}.ph.gate::before{background:var(--amber)}
+.ph.out{background:var(--ink-bg);color:var(--ink-fg);border-color:var(--ink-bg)}.ph.out::before{background:#5ad2c5}
+.arr{color:var(--faint);font-family:var(--mono);font-size:13px;user-select:none}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin:10px 2px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;margin:18px 0;background:var(--card);border:1px solid var(--hairline-2);
+  border-radius:var(--r);overflow:hidden;font-size:14px;display:table}
+.tbl th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);
+  text-align:left;padding:11px 14px;border-bottom:1px solid var(--hairline-2);background:linear-gradient(180deg,#fbfdfc,#f4f8f7);font-weight:600}
+.tbl td{padding:11px 14px;border-bottom:1px solid var(--hairline);vertical-align:top;color:var(--ink-2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.mono{font-family:var(--mono);font-size:12.5px;color:var(--teal-deep);white-space:nowrap}
+.scope{font-family:var(--mono);font-size:10px;border-radius:99px;padding:2px 8px;font-weight:600;letter-spacing:.03em}
+.scope.d{background:var(--teal-tint);color:var(--teal-deep)}
+.scope.c{background:#eef0f3;color:var(--ink-2)}
+
+/* state machine */
+.sm{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:18px 0;padding:18px;background:var(--card);border:1px solid var(--hairline-2);border-radius:var(--r)}
+.st{font-family:var(--mono);font-size:11px;font-weight:600;border-radius:7px;padding:6px 10px;border:1px solid var(--hairline-2);background:#fff;color:var(--ink-2)}
+.st.start{background:var(--teal-tint);color:var(--teal-deep);border-color:var(--teal-soft)}
+.st.gate{background:var(--amber-tint);color:var(--amber);border-color:var(--amber-line)}
+.st.good{background:var(--green-tint);color:var(--green);border-color:var(--green-line)}
+.st.bad{background:var(--red-tint);color:var(--red);border-color:var(--red-line)}
+
+/* token list */
+.tokens{display:grid;gap:10px;margin:18px 0;grid-template-columns:1fr}
+.tok{display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:baseline;padding:11px 16px;background:var(--card);border:1px solid var(--hairline-2);border-radius:var(--r-s)}
+@media(max-width:620px){.tok{grid-template-columns:1fr;gap:3px}}
+.tok .k{font-family:var(--mono);font-size:13px;color:var(--teal-deep);font-weight:600}
+.tok .d{font-size:14px;color:var(--ink-2)}
+
+/* walkthrough */
+.steps{counter-reset:s;margin:20px 0;display:grid;gap:0}
+.step{position:relative;padding:16px 0 16px 52px;border-left:2px solid var(--hairline-2);margin-left:16px}
+.step:last-child{border-left-color:transparent}
+.step::before{counter-increment:s;content:counter(s);position:absolute;left:-15px;top:14px;width:30px;height:30px;border-radius:99px;
+  background:var(--teal);color:#fff;font-family:var(--mono);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.step h4{margin:2px 0 4px;font-size:15px}
+.step p{margin:0;font-size:14px;max-width:64ch}
+
+footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--hairline);font-family:var(--mono);font-size:11px;color:var(--faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc">
+  <div class="toc-cap">Doxiq · Re-arq</div>
+  <a href="#idea">La idea en una frase</a>
+  <a href="#nucleo">1 · Los tres conceptos núcleo</a>
+  <a href="#fases">2 · Las fases</a>
+  <a href="#virtuales">3 · Documentos virtuales</a>
+  <a href="#caso">4 · El Caso y su ciclo</a>
+  <a href="#policies">5 · La capa de decisión</a>
+  <a href="#review">6 · Revisión humana L1/L2</a>
+  <a href="#fanout">7 · Fan-out a child cases</a>
+  <a href="#reglas">8 · Reglas y tokens</a>
+  <a href="#conectividad">9 · Conectividad</a>
+  <a href="#selfservice">10 · Plataforma self-service</a>
+  <a href="#flujo">11 · Cómo fluye un documento</a>
+  <a href="#glosario">Glosario rápido</a>
+</nav>
+
+<main>
+  <div class="kicker">Documento explicativo · Arquitectura</div>
+  <h1>La re-arquitectura de Doxiq,<br><em>explicada en simple</em></h1>
+  <p class="lede">Una guía conceptual de los componentes clave: qué es cada pieza, por qué existe y cómo
+  encajan. Sin jerga innecesaria — la idea es que cualquiera del equipo entienda el modelo mental completo.</p>
+  <div class="meta-row">
+    <span class="meta-chip">Etapas <b>E1 → E6</b> completas</span>
+    <span class="meta-chip"><b>1 motor</b> reemplaza N workflows</span>
+    <span class="meta-chip">Suite <b>1610 verde</b></span>
+    <span class="meta-chip">Branch <b>feat/re-arch</b></span>
+  </div>
+
+  <!-- ============ IDEA ============ -->
+  <h2 id="idea"><span class="sec-num">§0</span> La idea en una frase</h2>
+  <p>Antes, cada flujo de procesamiento era <strong>código a medida</strong>: un workflow de Temporal
+  distinto y hardcodeado para cada cosa (subir docs, ingerir de una fuente, re-extraer…). Cambiar el
+  comportamiento significaba tocar y desplegar código.</p>
+  <p>Ahora hay <strong>un solo motor</strong> que no sabe nada de casos concretos: lee una
+  <strong>receta</strong> (una lista de pasos guardada como datos) y la ejecuta. Cambiar el
+  comportamiento es cambiar la receta — incluso desde una UI, sin tocar código.</p>
+
+  <div class="cmp">
+    <div class="cmp-side old">
+      <h4>ANTES — un motor por flujo</h4>
+      <p class="sub">lógica hardcodeada · desplegar para cambiar</p>
+      <div class="box legacy">DocumentSetProcessingWorkflow</div>
+      <div class="box legacy">run_extraction_pipeline</div>
+      <div class="box legacy">FieldReExtractionWorkflow</div>
+      <div class="box legacy">…activities pre-spec</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="cmp-side new">
+      <h4>AHORA — motor único + recetas</h4>
+      <p class="sub">pipeline-as-data · cambiar = editar datos</p>
+      <div class="box engine">PipelineInterpreterWorkflow</div>
+      <div class="box recipe">receta: standard-extraction@v1</div>
+      <div class="box recipe">receta: data-analysis@v1</div>
+      <div class="box recipe">receta: pedidos-heladería@v2</div>
+    </div>
+  </div>
+  <div class="note"><span class="nl">Por qué importa</span>
+  El flujo legacy no desapareció: quedó <em>congelado</em> como una receta más
+  (<code>standard-extraction@v1</code>), con tests golden que garantizan que da byte-idéntico el mismo
+  resultado. La migración fue un cambio de motor, no un cambio de comportamiento.</div>
+
+  <!-- ============ NÚCLEO ============ -->
+  <h2 id="nucleo"><span class="sec-num">§1</span> Los tres conceptos núcleo</h2>
+  <p>Todo el sistema se entiende con tres piezas. Si solo te llevas algo de este documento, que sea esto.</p>
+  <div class="grid g3">
+    <div class="card">
+      <span class="lbl">El que ejecuta</span>
+      <h4><span class="dot"></span>El Motor</h4>
+      <p><code>PipelineInterpreter</code> es un intérprete genérico sobre Temporal. No conoce
+      "farmacias" ni "circulares": recibe una receta y va corriendo sus pasos uno a uno, guardando
+      lo que cada paso produce.</p>
+    </div>
+    <div class="card">
+      <span class="lbl">El qué ejecutar</span>
+      <h4><span class="dot"></span>La Receta</h4>
+      <p>Un <code>PipelineVersion</code>: una lista ordenada de fases, guardada como datos e
+      <strong>inmutable</strong> (versionada). Cada workflow apunta a su receta por
+      <code>pipeline_id</code>. Editarla crea una versión nueva; las anteriores siguen reproducibles.</p>
+    </div>
+    <div class="card">
+      <span class="lbl">Los pasos</span>
+      <h4><span class="dot"></span>Las Fases</h4>
+      <p>Cada paso de la receta es una <strong>fase</strong> de un <em>kind</em> conocido
+      (<code>extract</code>, <code>analyze</code>, <code>human_review</code>…). Son piezas
+      intercambiables con su propio <code>config</code>. Armar un flujo = ordenar fases.</p>
+    </div>
+  </div>
+  <div class="note"><span class="nl">Analogía</span>
+  El motor es la <strong>cocina</strong>; la receta es la <strong>tarjeta de recetas</strong>; las
+  fases son los <strong>pasos</strong> ("picar", "hervir", "emplatar"). Cambias el plato cambiando la
+  tarjeta, no rehaciendo la cocina.</div>
+
+  <!-- ============ FASES ============ -->
+  <h2 id="fases"><span class="sec-num">§2</span> Las fases — el vocabulario del sistema</h2>
+  <p>Una receta encadena fases. Cada fase tiene un <strong>scope</strong>: corre por
+  <span class="scope d">documento</span> (una vez por cada archivo) o sobre el
+  <span class="scope c">caso</span> completo (el expediente, y puede pausar de forma durable).
+  Un flujo típico de expediente se ve así:</p>
+
+  <div class="pipe">
+    <span class="ph doc">classify_pages</span><span class="arr">→</span>
+    <span class="ph doc">extract</span><span class="arr">→</span>
+    <span class="ph doc">assess</span><span class="arr">→</span>
+    <span class="ph doc">enrich</span><span class="arr">→</span>
+    <span class="ph case">await_documents</span><span class="arr">→</span>
+    <span class="ph case">analyze</span><span class="arr">→</span>
+    <span class="ph gate">confidence_gate</span><span class="arr">→</span>
+    <span class="ph gate">human_review</span><span class="arr">→</span>
+    <span class="ph out">output</span><span class="arr">→</span>
+    <span class="ph out">deliver</span>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--teal)"></i>scope documento</span>
+    <span><i style="background:var(--ink-2)"></i>scope caso</span>
+    <span><i style="background:var(--amber)"></i>decisión / pausa</span>
+    <span><i style="background:#5ad2c5"></i>salida</span>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Fase</th><th>Scope</th><th>Qué hace, en simple</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">classify_pages</td><td><span class="scope d">documento</span></td><td>Mira las páginas y decide qué tipo de documento es cada una. Opcionalmente <strong>parte</strong> un PDF multi-doc en varios casos hijos (ver §7).</td></tr>
+      <tr><td class="mono">extract</td><td><span class="scope d">documento</span></td><td>Saca texto y campos estructurados. El extractor se elige por tipo: <code>OCR</code>, <code>VLM</code> (manuscritos, vía Gemini Vision) o <code>ASR</code> (audio→texto). <code>auto</code> despacha solo.</td></tr>
+      <tr><td class="mono">assess</td><td><span class="scope d">documento</span></td><td>Un agente LLM evalúa <strong>qué tan seguro</strong> está de cada campo (confianza capa-2), deja señales cualitativas y hasta 3 candidatos. "¿Confío en lo que leí?"</td></tr>
+      <tr><td class="mono">enrich</td><td><span class="scope d">documento</span></td><td>Llama a un servicio externo del cliente (HTTP <strong>firmado</strong>) para traer datos extra. El resultado se guarda como un documento <code>TOOL</code> (ver §3).</td></tr>
+      <tr><td class="mono">await_documents</td><td><span class="scope c">caso</span></td><td>Espera durable: ¿el expediente está <strong>completo</strong> según la CompletenessPolicy? Aguanta hasta que llegue todo lo requerido o alguien marque "listo".</td></tr>
+      <tr><td class="mono">analyze</td><td><span class="scope c">caso</span></td><td>Corre las <strong>reglas de negocio</strong> sobre los datos del expediente (es un child workflow de análisis). Produce veredictos PASS/FAIL por regla.</td></tr>
+      <tr><td class="mono">confidence_gate</td><td><span class="scope c">caso</span></td><td>Evalúa la ActivationPolicy: ¿la confianza alcanza?, ¿hay reglas bloqueantes? Decide entre <strong>seguir</strong>, <strong>pedir aclaración</strong> o <strong>mandar a revisión</strong>.</td></tr>
+      <tr><td class="mono">human_review</td><td><span class="scope c">caso</span></td><td>Pausa durable para revisión humana por niveles <strong>L1</strong> (analistas Doxiq) → <strong>L2</strong> (cliente), con verificación por campo, lock y correcciones (ver §6).</td></tr>
+      <tr><td class="mono">await_clarification</td><td><span class="scope c">caso</span></td><td>Emite una solicitud de aclaración <strong>estructurada</strong> al cliente y espera. El loop lo gobierna el cliente; Doxiq se mantiene stateless.</td></tr>
+      <tr><td class="mono">output</td><td><span class="scope c">caso</span></td><td>Proyecta los datos + resultados de reglas a un <strong>JSON de salida limpio</strong> (con citations y referencias <code>@rule.&lt;slug&gt;</code>).</td></tr>
+      <tr><td class="mono">deliver</td><td><span class="scope c">caso</span></td><td>Entrega ese output a los destinos configurados vía <strong>webhook firmado</strong> (HMAC estilo Svix).</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><span class="nl">El truco de los scopes</span>
+  Las fases de <span class="scope d">documento</span> corren en paralelo por cada archivo; las de
+  <span class="scope c">caso</span> esperan a tener el expediente entero. El motor sabe cuándo "subir"
+  del documento al caso, y las fases de caso pueden <strong>dormir días</strong> (esperando un doc o
+  una firma humana) sin consumir recursos — eso es lo que aporta Temporal.</div>
+
+  <!-- ============ VIRTUALES ============ -->
+  <h2 id="virtuales"><span class="sec-num">§3</span> El concepto unificador: documentos virtuales</h2>
+  <p>Problema: no todo lo que entra a un expediente es un archivo escaneado. A veces es
+  <strong>datos que manda el cliente por API</strong>, o la <strong>respuesta de una herramienta</strong>
+  externa. ¿Cómo hacemos que las reglas funcionen igual sobre todo eso?</p>
+  <p>Solución elegante: <strong>todo es un <code>WorkflowDocument</code></strong>. Lo que cambia es su
+  origen:</p>
+  <div class="grid g3">
+    <div class="card"><span class="lbl">source = UPLOAD / SOURCE</span><h4><span class="dot"></span>Documento real</h4><p>Un PDF, imagen o audio que llegó por upload o por un canal. Se le hace OCR/VLM/ASR.</p></div>
+    <div class="card"><span class="lbl">source = EXTERNAL_DATA</span><h4><span class="dot"></span>Documento virtual</h4><p>Datos JSON inyectados por el cliente vía <code>POST /v1/cases/{id}/data</code>. No hay archivo; el payload <em>es</em> la extracción.</p></div>
+    <div class="card"><span class="lbl">source = TOOL</span><h4><span class="dot"></span>Resultado de tool</h4><p>Lo que devolvió una fase <code>enrich</code> al llamar un servicio externo. Se guarda como un doc más.</p></div>
+  </div>
+  <div class="note"><span class="nl">Por qué es clave</span>
+  Como los tres son <code>WorkflowDocument</code>, una regla como
+  <code>@persona.nombre</code> funciona <strong>sin cambios</strong> sin importar si el dato vino de
+  un escaneo, de la API del cliente o de un servicio externo. Una sola abstracción elimina tres casos
+  especiales. Por dentro, el motor lleva un <code>PipelineState</code> = un mapa de "artefactos" que
+  cada fase lee y escribe.</div>
+
+  <!-- ============ CASO ============ -->
+  <h2 id="caso"><span class="sec-num">§4</span> El Caso y su ciclo de vida</h2>
+  <p>Un <strong>Caso</strong> (expediente) es la unidad de trabajo end-to-end: agrupa todos los
+  documentos de un mismo trámite y lleva su propio estado. Hay una <strong>máquina de estados pública</strong>
+  de 11 estados con transiciones legales — nada de cambiar de estado a mano por fuera. Todo pasa por un
+  único <em>choke point</em> (<code>TransitionCaseStatus</code>) que además registra cada cambio en
+  <code>case_events</code> con clave de deduplicación para reintentos.</p>
+
+  <div class="sm">
+    <span class="st start">RECEIVING</span><span class="arr">→</span>
+    <span class="st">PROCESSING</span><span class="arr">→</span>
+    <span class="st gate">NEEDS_CLARIFICATION</span><span class="arr">↺</span>
+    <span class="st">ANALYZING</span><span class="arr">→</span>
+    <span class="st gate">NEEDS_REVIEW</span><span class="arr">→</span>
+    <span class="st gate">REVIEW_L1</span><span class="arr">→</span>
+    <span class="st gate">REVIEW_L2</span><span class="arr">→</span>
+    <span class="st good">COMPLETED</span>
+    <span class="arr">·</span><span class="st bad">REJECTED</span>
+    <span class="arr">·</span><span class="st bad">FAILED</span>
+  </div>
+  <ul class="plain">
+    <li><strong>Completitud explícita</strong> — un expediente multi-doc no avanza hasta tener todo lo requerido (CompletenessPolicy), o hasta que alguien lo marque <code>ready</code> (con confirmación <code>force</code> si falta algo).</li>
+    <li><strong>Durabilidad</strong> — el caso vive en un workflow durable <code>CASE#…</code> que puede pausar en revisión o esperando docs, y reanudar exactamente donde quedó vía señales de Temporal.</li>
+    <li><strong>Trazabilidad</strong> — cada transición queda en el timeline; el output sella la versión de pipeline y de cada tipo de documento que se usó (reproducibilidad total).</li>
+  </ul>
+
+  <!-- ============ POLICIES ============ -->
+  <h2 id="policies"><span class="sec-num">§5</span> La capa de decisión: policies declarativas</h2>
+  <p>¿Quién decide si un caso pasa solo, necesita aclaración o va a revisión humana? No es código
+  if/else regado: son <strong>dos policies declarativas</strong> que viven dentro del
+  <code>PipelineVersion</code> (inmutables, versionadas).</p>
+  <div class="grid g2">
+    <div class="card">
+      <span class="lbl">¿Está completo?</span>
+      <h4><span class="dot"></span>CompletenessPolicy</h4>
+      <p>Define qué documentos/tipos hacen falta para considerar el expediente completo. La fase
+      <code>await_documents</code> la evalúa en loop hasta cumplirla (o hasta un <code>ready</code> manual).</p>
+    </div>
+    <div class="card">
+      <span class="lbl">¿Pasa, aclara o revisa?</span>
+      <h4><span class="dot"></span>ActivationPolicy</h4>
+      <p>Combina <strong>umbrales de confianza</strong> (por campo → por tipo → default),
+      <strong>reglas bloqueantes</strong> y <strong>muestreo</strong>. La fase <code>confidence_gate</code>
+      la evalúa y elige el camino: seguir, <code>gate.clarify</code> o <code>gate.review</code>.</p>
+    </div>
+  </div>
+  <div class="note"><span class="nl">Dos tipos de muestreo</span>
+  La ActivationPolicy tiene <code>sample_rate</code> ("manda un % a revisión aunque pase") y
+  <code>qa_sample_rate</code> ("audita un % <em>después</em> de completado"). El primero frena el caso;
+  el segundo crea una tarea de QA para staff sin tocar el run, que ya cerró.</div>
+
+  <!-- ============ REVIEW ============ -->
+  <h2 id="review"><span class="sec-num">§6</span> Revisión humana multinivel (L1 / L2)</h2>
+  <p>Cuando un caso necesita ojos humanos, la fase <code>human_review</code> lo pausa y abre tareas en
+  <strong>stages</strong>:</p>
+  <div class="grid g2">
+    <div class="card"><span class="lbl">Stage L1</span><h4><span class="dot"></span>Analistas de Doxiq</h4><p>Una <strong>consola staff cross-tenant</strong> de Llamitai. Un analista puede ver casos de cualquier tenant — pero solo los que estén <strong>ligados a una tarea L1 que le tocó</strong> (sino, fuga de PII). Todo queda en un log de auditoría append-only.</p></div>
+    <div class="card"><span class="lbl">Stage L2</span><h4><span class="dot"></span>El cliente</h4><p>El equipo del cliente aprueba/rechaza en su propio bench, viendo solo lo que L1 no resolvió ya (filtro por nivel de verificación). Rechazo en cualquier stage ⇒ el caso termina <code>REJECTED</code>, sin output ni deliver.</p></div>
+  </div>
+  <ul class="plain">
+    <li><strong>Verificación por campo</strong> — cada campo lleva <code>{value, verified_by, level, …}</code>. Corregir un valor re-dispara el análisis (señal <code>corrections</code>) antes de permitir aprobar.</li>
+    <li><strong>Claim / lock</strong> — un revisor "reclama" una tarea; si otro intenta editar campos de una tarea reclamada, recibe <code>423 case.locked</code>. Las resoluciones son updates condicionales (a prueba de carreras).</li>
+    <li><strong>Permisos por acción</strong> — el código chequea la <em>acción</em> (<code>operate</code>, <code>approve</code>, <code>manage</code>), nunca el nombre del rol. La matriz rol×acción es por workflow.</li>
+  </ul>
+
+  <!-- ============ FANOUT ============ -->
+  <h2 id="fanout"><span class="sec-num">§7</span> Fan-out a casos hijos</h2>
+  <p>Algunos documentos son en realidad <strong>varios</strong>: un PDF de circulares judiciales con
+  una portada + 3 oficios distintos. La fase <code>classify_pages</code> con <code>fan_out</code> los
+  <strong>parte en casos hijos</strong> independientes:</p>
+  <ul class="plain">
+    <li>La <strong>portada se queda en el padre</strong>; solo los tipos listados en <code>fan_out_types</code> se separan en hijos.</li>
+    <li>Cada hijo recibe una clave determinista namespaceada por origen — un segundo archivo crea <strong>hermanos nuevos</strong>, no pisa los existentes; y nunca "adopta" casos ajenos.</li>
+    <li>Cada hijo corre su propio ciclo (extracción, reglas, revisión). El <strong>padre queda en PROCESSING y auto-COMPLETA</strong> cuando todos los hijos terminan.</li>
+  </ul>
+  <div class="note"><span class="nl">Esto era imposible antes</span>
+  El motor legacy no tenía noción de "un trabajo que genera más trabajos". El fan-out a child cases es
+  justo lo que desbloqueó el Caso 3 (circulares judiciales).</div>
+
+  <!-- ============ REGLAS ============ -->
+  <h2 id="reglas"><span class="sec-num">§8</span> Reglas y tokens — el lenguaje de negocio</h2>
+  <p>Las reglas de negocio se escriben con un mini-lenguaje de <strong>tokens</strong>. La regla
+  mnemónica: <strong><code>@</code> mira adentro</strong> (datos del expediente),
+  <strong><code>#</code> mira afuera</strong> (conocimiento y servicios externos),
+  <strong><code>&#123;&#123;&#125;&#125;</code></strong> es runtime:</p>
+  <div class="tokens">
+    <div class="tok"><span class="k">@slug.path</span><span class="d">Datos del caso: un documento por su <em>slug</em>, un campo por su <em>path</em>. P.ej. <code>@poliza.numero</code>. Las llaves son opcionales.</span></div>
+    <div class="tok"><span class="k">@rule.&lt;slug&gt;</span><span class="d">El <strong>resultado de otra regla</strong>. (<code>rule</code> es un slug reservado.) Permite componer reglas.</span></div>
+    <div class="tok"><span class="k">#kb.&lt;slug&gt;</span><span class="d">Una referencia a la <strong>base de conocimiento</strong> del workflow. (La forma plana <code>#slug</code> sigue funcionando como alias.)</span></div>
+    <div class="tok"><span class="k">#tool.&lt;slug&gt;.path</span><span class="d">La <strong>respuesta de una tool HTTP firmada</strong>, resuelta <em>lazy</em>: el servicio se llama solo si una regla activa lo referencia; la respuesta queda auditada como documento TOOL. P.ej. <code>#tool.dian.estado == "ACTIVO"</code>. <span style="font-family:var(--mono);font-size:10px;letter-spacing:.06em;background:var(--amber-tint);color:var(--amber);border:1px solid var(--amber-line);border-radius:99px;padding:2px 9px;white-space:nowrap">PROPUESTO · spec rule-tools.md</span></span></div>
+    <div class="tok"><span class="k">&#123;&#123;system_var&#125;&#125;</span><span class="d">Variables de runtime que resuelve el sistema, como <code>&#123;&#123;now&#125;&#125;</code>.</span></div>
+  </div>
+  <ul class="plain">
+    <li><strong><code>when</code> por regla</strong> — una regla puede aplicar solo si un predicado es verdadero: <code>when @persona.tipo_entidad == "natural"</code>. Si el predicado es falso, la regla queda <code>SKIPPED</code> y <strong>no afecta</strong> el veredicto ni la confianza.</li>
+    <li><strong>Checksums multi-país</strong> — validadores integrados de identificadores: NIT/CI Bolivia, NIT/CC Colombia, RUT Chile, Luhn, IBAN…</li>
+    <li><strong>Slugs estables</strong> — los slugs de reglas y tipos de documento sobreviven a los renames; export/import los preserva.</li>
+  </ul>
+
+  <!-- ============ CONECTIVIDAD ============ -->
+  <h2 id="conectividad"><span class="sec-num">§9</span> Conectividad: cómo entran y salen los datos</h2>
+  <div class="grid g2">
+    <div class="card"><span class="lbl">Entrada · canales nativos</span><h4><span class="dot"></span>Channels provider-agnostic</h4><p>Un contrato único <code>ChannelMessage</code> con adapters para email (Mailgun/Mailpit) y WhatsApp Cloud. Cada proveedor verifica su <strong>firma</strong> (Meta X-Hub-Signature-256, Mailgun HMAC). Dedup por <code>Message-ID</code>/<code>wamid</code>. El audio entra solo por canal y va al extractor <code>asr</code>.</p></div>
+    <div class="card"><span class="lbl">Entrada · API M2M</span><h4><span class="dot"></span>POST /v1/cases</h4><p>API plana para integraciones: crear caso (find-or-create por <code>external_ref</code>), inyectar datos (<code>/data</code>), leer estado y output. Pensada para que el cliente orqueste sin saber de Temporal.</p></div>
+    <div class="card"><span class="lbl">Salida · enrich</span><h4><span class="dot"></span>Tools HTTP firmadas</h4><p>La fase <code>enrich</code> llama servicios del cliente con firma HMAC verificable offline, valida entrada/salida con JSON Schema y maneja fallos (<code>review</code>/<code>continue</code>/<code>fail</code>). Es un diferenciador: ningún IDP del mercado lo ofrece nativo.</p></div>
+    <div class="card"><span class="lbl">Salida · deliver</span><h4><span class="dot"></span>Webhooks firmados</h4><p>El output se entrega a destinos opt-in <strong>por workflow</strong> con webhooks firmados. Eventos del ciclo: <code>case.created</code>, <code>case.needs_review</code>, <code>case.review.completed</code>, <code>case.output.ready</code>, <code>case.failed</code>.</p></div>
+  </div>
+
+  <!-- ============ SELF-SERVICE ============ -->
+  <h2 id="selfservice"><span class="sec-num">§10</span> La plataforma se vuelve self-service (E6)</h2>
+  <p>El gran salto final: dejar de configurar workflows por código y dárselo al usuario.</p>
+  <div class="grid g2">
+    <div class="card"><span class="lbl">Editor visual</span><h4><span class="dot"></span>/pipelines editable</h4><p>Un stepper de tarjetas de fase (drag &amp; drop) alimentado por un catálogo único de fases. Validación continua con el mismo 422 que el publish, modal de diff estructural e historial de versiones.</p></div>
+    <div class="card"><span class="lbl">Portabilidad</span><h4><span class="dot"></span>Export / import bundle</h4><p>Exportar un workflow completo (tipos de doc + reglas + pipeline + policies) a un JSON git-able, sin secretos. Importar en otra cuenta con find-or-create por slug. Hace los workflows versionables y compartibles.</p></div>
+    <div class="card"><span class="lbl">Arranque rápido</span><h4><span class="dot"></span>Plantillas</h4><p>Plantillas estáticas ("crear desde plantilla") para que un cliente nuevo tenga un workflow funcional en segundos.</p></div>
+    <div class="card"><span class="lbl">Calidad continua</span><h4><span class="dot"></span>QA sampling</h4><p>Tras completar, un % de casos auto-aprobados se sortea (determinista) para auditoría de staff. Métricas en <code>/staff/v1/metrics</code>.</p></div>
+  </div>
+
+  <!-- ============ FLUJO ============ -->
+  <h2 id="flujo"><span class="sec-num">§11</span> Cómo fluye un documento — ejemplo end-to-end</h2>
+  <p>Ejemplo concreto: un <strong>pedido de helados que llega por email con un PDF</strong> (Caso 4).</p>
+  <div class="steps">
+    <div class="step"><h4>Llega por canal</h4><p>El email entra por <code>POST /v1/channels/email/…</code>. Se verifica la firma del proveedor y se deduplica por <code>Message-ID</code>. El adjunto se baja en background tras responder 200.</p></div>
+    <div class="step"><h4>Se crea el caso y arranca el motor</h4><p>Se crea un <code>WorkflowDocument</code> y se dispara el <code>PipelineInterpreter</code> con la receta del workflow "Pedidos Heladería".</p></div>
+    <div class="step"><h4>Extracción automática</h4><p>El extractor <code>auto</code> ve que es un PDF → OCR. (Si hubiera sido un audio adjunto, habría ido a <code>asr</code> → Gemini transcribe el pedido.)</p></div>
+    <div class="step"><h4>Reglas de negocio</h4><p>La fase <code>analyze</code> corre las reglas: por ejemplo, <code>@pedido.total &gt; 0</code> ⇒ PASS.</p></div>
+    <div class="step"><h4>El gate decide</h4><p><code>confidence_gate</code> evalúa la ActivationPolicy. Confianza alta y sin reglas bloqueantes ⇒ <strong>straight-through</strong>, sin revisión humana.</p></div>
+    <div class="step"><h4>Salida y entrega</h4><p><code>output</code> arma el JSON limpio del pedido; <code>deliver</code> lo manda al ERP del cliente con un webhook firmado (<code>case.output.ready</code>). El caso queda <span class="st good" style="font-size:10px">COMPLETED</span>.</p></div>
+  </div>
+  <div class="note"><span class="nl">Lo importante</span>
+  Ese mismo motor, con otra receta y otras policies, atiende farmacias por WhatsApp, fondos de garantía
+  bancarios con doble aprobación y circulares judiciales con fan-out. <strong>Una sola pieza de código,
+  N comportamientos — definidos como datos.</strong></div>
+
+  <!-- ============ GLOSARIO ============ -->
+  <h2 id="glosario"><span class="sec-num">§∗</span> Glosario rápido</h2>
+  <table class="tbl">
+    <thead><tr><th>Término</th><th>En una línea</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">PipelineInterpreter</td><td>El motor único que ejecuta cualquier receta.</td></tr>
+      <tr><td class="mono">PipelineVersion</td><td>Una receta: lista ordenada de fases, inmutable y versionada.</td></tr>
+      <tr><td class="mono">Fase (kind)</td><td>Un paso de la receta (<code>extract</code>, <code>analyze</code>…), con scope documento o caso.</td></tr>
+      <tr><td class="mono">PipelineState</td><td>El mapa de artefactos que las fases leen y escriben mientras corre el pipeline.</td></tr>
+      <tr><td class="mono">WorkflowDocument</td><td>Cualquier dato del caso: archivo real, dato virtual (API) o resultado de tool.</td></tr>
+      <tr><td class="mono">Caso / expediente</td><td>La unidad de trabajo end-to-end; agrupa docs y lleva su máquina de estados.</td></tr>
+      <tr><td class="mono">CompletenessPolicy</td><td>Define cuándo el expediente está completo.</td></tr>
+      <tr><td class="mono">ActivationPolicy</td><td>Decide pasar / aclarar / revisar según confianza, reglas y muestreo.</td></tr>
+      <tr><td class="mono">L1 / L2</td><td>Niveles de revisión: analistas de Doxiq (staff) → cliente.</td></tr>
+      <tr><td class="mono">Fan-out</td><td>Partir un documento multi-parte en casos hijos independientes.</td></tr>
+      <tr><td class="mono">Channel</td><td>Vía de entrada provider-agnostic (email, WhatsApp) con firma y dedup.</td></tr>
+      <tr><td class="mono">Bundle</td><td>Export/import git-able de un workflow completo (sin secretos).</td></tr>
+    </tbody>
+  </table>
+
+  <footer>
+    <span>Doxiq · by Llamitai — documento conceptual de la re-arquitectura</span>
+    <span>E1–E6 · feat/re-arch</span>
+  </footer>
+</main>
+</div>
+
+<script>
+// resaltar sección activa en el TOC
+const links=[...document.querySelectorAll('.toc a')];
+const map=new Map(links.map(a=>[a.getAttribute('href').slice(1),a]));
+const obs=new IntersectionObserver((es)=>{
+  es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('on'));
+    const a=map.get(e.target.id); if(a)a.classList.add('on');}});
+},{rootMargin:'-10% 0px -80% 0px',threshold:0});
+document.querySelectorAll('main h2[id]').forEach(h=>obs.observe(h));
+</script>
+</body>
+</html>

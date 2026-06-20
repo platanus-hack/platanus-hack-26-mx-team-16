@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spec: Webhooks de entrada (source_webhooks) — Doxiq</title>
+<style>
+  /* ============================================================
+     Doxiq Design System — "The Inspection Bench"
+     Near-flat, sharp/trustworthy. Teal accents <=10% surface.
+     ============================================================ */
+  :root {
+    /* Hex fallbacks (browsers without oklch) */
+    --primary: #2c8a85;
+    --primary-deep: #1f6d68;
+    --teal-tint: #ecf6f3;
+    --ink: #2b313a;
+    --surface: #fbfbfc;
+    --card: #ffffff;
+    --muted: #f0f1f3;
+    --muted-fg: #757d89;
+    --border: #e4e6ea;
+    --success: #2f9e54;
+    --warning: #e0a015;
+    --destructive: #d2453a;
+  }
+  @supports (color: oklch(0.5 0.1 180)) {
+    :root {
+      --primary: oklch(0.59 0.095 180.54);
+      --primary-deep: oklch(0.468 0.074 180.8);
+      --teal-tint: oklch(0.951 0.018 186.07);
+      --ink: oklch(0.222 0.029 253.225);
+      --surface: oklch(0.984 0.002 252.121);
+      --card: #ffffff;
+      --muted: oklch(0.945 0.005 252.232);
+      --muted-fg: oklch(0.558 0.025 252.534);
+      --border: oklch(0.905 0.011 252.311);
+      --success: oklch(0.626 0.139 155.038);
+      --warning: oklch(0.77 0.18 75.998);
+      --destructive: oklch(0.579 0.214 27.166);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--surface);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  code, pre, .mono {
+    font-family: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  a { color: var(--primary-deep); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 2.5rem 1.5rem 2rem;
+  }
+  .hero-inner { max-width: 1100px; margin: 0 auto; }
+  .hero .eyebrow {
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--primary-deep); font-weight: 600; margin: 0 0 0.6rem;
+  }
+  .hero h1 {
+    margin: 0 0 0.5rem; font-size: 2.05rem; line-height: 1.18; letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  .hero .subtitle { margin: 0 0 1.1rem; color: var(--muted-fg); font-size: 1.02rem; max-width: 720px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.78rem; font-weight: 500;
+    padding: 0.28rem 0.6rem; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--muted); color: var(--ink);
+  }
+  .badge.accent { background: var(--teal-tint); border-color: color-mix(in srgb, var(--primary) 30%, transparent); color: var(--primary-deep); }
+  .badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+  .badge.accent .dot { background: var(--primary); }
+
+  /* ---------- Layout ---------- */
+  .layout { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 230px 1fr; gap: 2rem; padding: 2rem 1.5rem 4rem; }
+
+  /* ---------- TOC ---------- */
+  nav.toc {
+    position: sticky; top: 1rem; align-self: start;
+    max-height: calc(100vh - 2rem); overflow-y: auto;
+    font-size: 0.86rem;
+  }
+  nav.toc .toc-title { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-fg); margin: 0 0 0.6rem; font-weight: 600; }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+  nav.toc li { margin: 0; }
+  nav.toc a {
+    display: block; padding: 0.32rem 0.6rem; border-radius: 0.4rem;
+    color: var(--muted-fg); border-left: 2px solid transparent;
+  }
+  nav.toc a:hover { background: var(--muted); color: var(--ink); text-decoration: none; }
+  nav.toc a.active { color: var(--primary-deep); background: var(--teal-tint); border-left-color: var(--primary); font-weight: 600; }
+
+  /* ---------- Main ---------- */
+  main { min-width: 0; }
+  section { scroll-margin-top: 1rem; margin-bottom: 2.75rem; }
+  section > h2 {
+    font-size: 1.4rem; letter-spacing: -0.01em; margin: 0 0 0.4rem;
+    padding-bottom: 0.45rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: baseline; gap: 0.55rem;
+  }
+  section > h2 .num {
+    font-size: 0.82rem; font-weight: 600; color: var(--primary);
+    font-family: ui-monospace, monospace;
+  }
+  h3 { font-size: 1.05rem; margin: 1.6rem 0 0.5rem; letter-spacing: -0.01em; }
+  h4 { font-size: 0.92rem; margin: 1.1rem 0 0.4rem; color: var(--ink); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.78rem; color: var(--muted-fg); }
+  p { margin: 0.5rem 0; }
+  ul, ol { margin: 0.5rem 0; padding-left: 1.3rem; }
+  li { margin: 0.25rem 0; }
+  strong { font-weight: 600; }
+
+  .lead { color: var(--muted-fg); font-size: 1rem; }
+
+  /* inline code */
+  p code, li code, td code, h3 code, h2 code, summary code {
+    background: var(--muted); border: 1px solid var(--border);
+    padding: 0.05rem 0.35rem; border-radius: 0.35rem; font-size: 0.85em;
+    color: var(--primary-deep); white-space: nowrap;
+  }
+
+  /* ---------- Cards / callouts ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 0.75rem; padding: 1.1rem 1.25rem; margin: 1rem 0;
+    box-shadow: 0 1px 2px rgba(20,30,45,0.03);
+  }
+  .callout {
+    border-left: 3px solid var(--primary); background: var(--teal-tint);
+    border-radius: 0 0.5rem 0.5rem 0; padding: 0.75rem 1rem; margin: 1rem 0;
+    font-size: 0.92rem;
+  }
+  .callout.warn { border-left-color: var(--warning); background: color-mix(in srgb, var(--warning) 9%, white); }
+  .callout.note { border-left-color: var(--muted-fg); background: var(--muted); }
+  .callout .lbl { font-weight: 600; display: block; margin-bottom: 0.15rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ---------- Tables ---------- */
+  .table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: 0.75rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
+  thead th {
+    background: var(--muted); text-align: left; font-weight: 600;
+    padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border);
+    color: var(--ink); white-space: nowrap; font-size: 0.78rem;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  tbody td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) { background: color-mix(in srgb, var(--muted) 40%, white); }
+  td code { white-space: normal; }
+
+  .pill { display: inline-block; font-size: 0.72rem; font-weight: 600; padding: 0.1rem 0.45rem; border-radius: 0.35rem; font-family: ui-monospace, monospace; }
+  .pill.exists { background: color-mix(in srgb, var(--success) 14%, white); color: var(--success); }
+  .pill.gap { background: color-mix(in srgb, var(--destructive) 12%, white); color: var(--destructive); }
+  .pill.partial { background: color-mix(in srgb, var(--warning) 16%, white); color: color-mix(in srgb, var(--warning) 60%, black); }
+  .http { font-family: ui-monospace, monospace; font-weight: 600; }
+  .http-2 { color: var(--success); }
+  .http-4 { color: var(--warning); }
+  .http-5 { color: var(--destructive); }
+
+  /* ---------- Figures / SVG ---------- */
+  figure { margin: 1.4rem 0; }
+  figure .svg-frame {
+    background: var(--card); border: 1px solid var(--border); border-radius: 0.75rem;
+    padding: 1rem; overflow-x: auto;
+    box-shadow: 0 1px 2px rgba(20,30,45,0.03);
+  }
+  figure svg { display: block; max-width: 100%; height: auto; min-width: 560px; margin: 0 auto; }
+  figcaption { font-size: 0.82rem; color: var(--muted-fg); margin-top: 0.55rem; text-align: center; }
+
+  /* SVG primitive styles */
+  .svg-box { fill: var(--card); stroke: var(--border); stroke-width: 1; }
+  .svg-box-accent { fill: var(--teal-tint); stroke: var(--primary); stroke-width: 1; }
+  .svg-box-muted { fill: var(--muted); stroke: var(--border); stroke-width: 1; }
+  .svg-hdr { fill: var(--primary); }
+  .svg-hdr-deep { fill: var(--primary-deep); }
+  .svg-store { fill: var(--muted); stroke: var(--muted-fg); stroke-width: 1; }
+  .svg-t { fill: var(--ink); font-size: 12px; font-family: ui-sans-serif, -apple-system, "Segoe UI", sans-serif; }
+  .svg-t-sm { fill: var(--ink); font-size: 11px; font-family: ui-sans-serif, -apple-system, "Segoe UI", sans-serif; }
+  .svg-t-w { fill: #fff; font-size: 12px; font-weight: 600; font-family: ui-sans-serif, -apple-system, "Segoe UI", sans-serif; }
+  .svg-t-mono { fill: var(--primary-deep); font-size: 11px; font-family: ui-monospace, monospace; }
+  .svg-lbl { fill: var(--muted-fg); font-size: 10.5px; font-family: ui-sans-serif, sans-serif; }
+  .svg-edge { stroke: var(--muted-fg); stroke-width: 1.4; fill: none; }
+  .svg-edge-accent { stroke: var(--primary); stroke-width: 1.6; fill: none; }
+  .svg-edge-dash { stroke: var(--muted-fg); stroke-width: 1.4; fill: none; stroke-dasharray: 4 3; }
+  .svg-lifeline { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 3; }
+
+  /* ---------- Code blocks + tabs ---------- */
+  .code-block { position: relative; margin: 0.8rem 0; }
+  pre {
+    margin: 0; background: var(--muted); border: 1px solid var(--border);
+    border-radius: 0.6rem; padding: 0.9rem 1rem; overflow-x: auto;
+    font-size: 0.82rem; line-height: 1.55; color: var(--ink);
+  }
+  pre code { background: none; border: none; padding: 0; white-space: pre; color: inherit; }
+  .copy-btn {
+    position: absolute; top: 0.5rem; right: 0.5rem;
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    background: var(--card); color: var(--muted-fg);
+    border: 1px solid var(--border); border-radius: 0.4rem;
+    padding: 0.22rem 0.55rem; font-family: ui-sans-serif, sans-serif;
+    transition: color .15s, border-color .15s;
+  }
+  .copy-btn:hover { color: var(--primary-deep); border-color: var(--primary); }
+  .copy-btn.copied { color: var(--success); border-color: var(--success); }
+
+  /* example matrix selectors */
+  .examples-controls { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-bottom: 0.8rem; }
+  .control-group .control-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted-fg); font-weight: 600; margin-bottom: 0.35rem; }
+  .seg { display: inline-flex; flex-wrap: wrap; gap: 0.25rem; padding: 0.2rem; background: var(--muted); border: 1px solid var(--border); border-radius: 0.55rem; }
+  .seg button {
+    font: inherit; font-size: 0.8rem; font-weight: 500; cursor: pointer;
+    border: 1px solid transparent; background: transparent; color: var(--muted-fg);
+    padding: 0.3rem 0.7rem; border-radius: 0.4rem;
+  }
+  .seg button:hover { color: var(--ink); }
+  .seg button.active { background: var(--card); color: var(--primary-deep); border-color: var(--border); box-shadow: 0 1px 1px rgba(20,30,45,0.04); font-weight: 600; }
+
+  .example-meta { font-size: 0.8rem; color: var(--muted-fg); margin: 0.3rem 0 0.5rem; }
+
+  /* ---------- details ---------- */
+  details { border: 1px solid var(--border); border-radius: 0.6rem; padding: 0.2rem 0.9rem; margin: 0.7rem 0; background: var(--card); }
+  details > summary { cursor: pointer; font-weight: 600; padding: 0.55rem 0; font-size: 0.92rem; }
+  details[open] > summary { border-bottom: 1px solid var(--border); margin-bottom: 0.5rem; }
+
+  /* ---------- footer ---------- */
+  footer { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 3rem; border-top: 1px solid var(--border); color: var(--muted-fg); font-size: 0.84rem; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.toc { position: static; max-height: none; order: -1; border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.9rem; background: var(--card); }
+    nav.toc ol { columns: 2; column-gap: 1rem; }
+    .hero h1 { font-size: 1.6rem; }
+  }
+
+  /* ---------- print ---------- */
+  @media print {
+    nav.toc, .copy-btn, .examples-controls, .seg { display: none !important; }
+    .layout { display: block; padding: 0; }
+    body { background: #fff; font-size: 11px; }
+    section { page-break-inside: avoid; }
+    .example-pane { display: block !important; }
+    a { color: var(--ink); text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow">Doxiq · Llamitai · Connections ▸ Orígenes</p>
+    <h1>Spec: Webhooks de entrada (<code style="font-size:0.78em;background:var(--teal-tint);border-color:color-mix(in srgb,var(--primary) 30%,transparent)">source_webhooks</code>)</h1>
+    <p class="subtitle">
+      Permitir que sistemas externos empujen documentos a un workflow de Doxiq vía HTTP:
+      cada workflow expone una URL de ingesta dedicada protegida por API key, con cuatro
+      modos de recepción y status URL consultable.
+    </p>
+    <div class="badges">
+      <span class="badge accent"><span class="dot"></span>Diseño cerrado</span>
+      <span class="badge">STANDARD + ANALYSIS</span>
+      <span class="badge">4 modos de ingesta</span>
+      <span class="badge">Hermano de <code style="white-space:nowrap">standard-webhooks</code></span>
+      <span class="badge">branch <code>dev</code> · 2026-06-03</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <nav class="toc" aria-label="Tabla de contenido">
+    <p class="toc-title">Contenido</p>
+    <ol>
+      <li><a href="#objetivo">1 · Objetivo</a></li>
+      <li><a href="#contexto">2 · Contexto del codebase</a></li>
+      <li><a href="#decisiones">3 · Decisiones</a></li>
+      <li><a href="#modelo-datos">4 · Modelo de datos</a></li>
+      <li><a href="#ingesta">5 · Superficie de ingesta</a></li>
+      <li><a href="#archivos-grandes">6 · Archivos grandes</a></li>
+      <li><a href="#pipeline">7 · Integración pipeline</a></li>
+      <li><a href="#gestion">8 · API de gestión</a></li>
+      <li><a href="#frontend">9 · Frontend / UI</a></li>
+      <li><a href="#ejemplos">10 · Ejemplos de código</a></li>
+      <li><a href="#edge-cases">11 · Edge cases</a></li>
+      <li><a href="#seguridad">12 · Seguridad</a></li>
+      <li><a href="#plan">13 · Plan de implementación</a></li>
+      <li><a href="#aceptacion">14 · Criterios de aceptación</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+  <!-- ===================== 1. OBJETIVO ===================== -->
+  <section id="objetivo">
+    <h2><span class="num">01</span> Objetivo</h2>
+    <p>
+      Permitir que <strong>sistemas externos empujen documentos</strong> a un workflow de
+      Doxiq vía HTTP (estilo <em>inbound webhook</em> de n8n): cada workflow expone una
+      <strong>URL de ingesta dedicada</strong> protegida por <strong>API key</strong>, capaz de
+      recibir los documentos como <strong>binario (multipart)</strong>, como
+      <strong>URL pública descargable</strong>, o como <strong>base64</strong>, y un flujo
+      <strong>presign de dos pasos</strong> para archivos muy grandes.
+    </p>
+    <p>Al recibir archivos válidos, la plataforma:</p>
+    <ol>
+      <li>Sube cada archivo a S3 (streaming, sin cargarlo entero en RAM).</li>
+      <li>Crea <strong>un <code>workflow_document_set</code> por archivo</strong> (el modelo existente es 1 set = 1 archivo).</li>
+      <li>Despacha el pipeline Temporal existente (<code>DocumentSetProcessingWorkflow</code>: OCR → clasificación → persistencia de <code>workflow_documents</code> → extracción → validación).</li>
+      <li>Responde <strong>202 inmediato</strong> con los IDs y una <strong>status URL</strong> consultable.</li>
+      <li>El resultado final puede llegar al cliente por sus <strong>destination webhooks</strong> ya existentes (<code>document.extracted</code> / <code>document.failed</code>).</li>
+    </ol>
+
+    <!-- DIAGRAM A: Arquitectura general -->
+    <figure>
+      <div class="svg-frame">
+        <svg viewBox="0 0 880 320" role="img" aria-label="Arquitectura general de ingesta">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#757d89"/>
+            </marker>
+            <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#2c8a85"/>
+            </marker>
+          </defs>
+
+          <!-- Cliente externo -->
+          <rect class="svg-box-accent" x="20" y="120" width="150" height="74" rx="10"/>
+          <rect class="svg-hdr" x="20" y="120" width="150" height="22" rx="10"/>
+          <rect class="svg-hdr" x="20" y="131" width="150" height="11"/>
+          <text class="svg-t-w" x="95" y="135" text-anchor="middle">Cliente externo</text>
+          <text class="svg-t-sm" x="95" y="162" text-anchor="middle">ERP / n8n / script</text>
+          <text class="svg-lbl" x="95" y="180" text-anchor="middle">multipart · {url} · {base64}</text>
+
+          <!-- Doxiq API publica -->
+          <rect class="svg-box" x="270" y="40" width="200" height="74" rx="10"/>
+          <rect class="svg-hdr-deep" x="270" y="40" width="200" height="22" rx="10"/>
+          <rect class="svg-hdr-deep" x="270" y="51" width="200" height="11"/>
+          <text class="svg-t-w" x="370" y="55" text-anchor="middle">Doxiq API pública</text>
+          <text class="svg-t-mono" x="370" y="80" text-anchor="middle">POST /v1/ingest/{token}</text>
+          <text class="svg-lbl" x="370" y="98" text-anchor="middle">header X-Api-Key</text>
+
+          <rect class="svg-box-muted" x="270" y="230" width="200" height="56" rx="10"/>
+          <text class="svg-t-mono" x="370" y="254" text-anchor="middle">GET …/status/{deliveryId}</text>
+          <text class="svg-lbl" x="370" y="272" text-anchor="middle">polling opcional</text>
+
+          <!-- Plataforma stores -->
+          <path class="svg-store" d="M560,55 a40,9 0 0 0 80,0 v34 a40,9 0 0 1 -80,0 z"/>
+          <ellipse class="svg-store" cx="600" cy="55" rx="40" ry="9"/>
+          <text class="svg-t-sm" x="600" y="78" text-anchor="middle">S3</text>
+
+          <path class="svg-store" d="M560,115 a40,9 0 0 0 80,0 v34 a40,9 0 0 1 -80,0 z"/>
+          <ellipse class="svg-store" cx="600" cy="115" rx="40" ry="9"/>
+          <text class="svg-t-sm" x="600" y="138" text-anchor="middle">PostgreSQL</text>
+
+          <rect class="svg-box-muted" x="555" y="170" width="92" height="44" rx="8"/>
+          <text class="svg-t-sm" x="601" y="188" text-anchor="middle">Temporal</text>
+          <text class="svg-lbl" x="601" y="203" text-anchor="middle">SetProcessing</text>
+
+          <!-- Destination webhooks -->
+          <rect class="svg-box" x="710" y="105" width="150" height="64" rx="10"/>
+          <rect class="svg-hdr" x="710" y="105" width="150" height="22" rx="10"/>
+          <rect class="svg-hdr" x="710" y="116" width="150" height="11"/>
+          <text class="svg-t-w" x="785" y="120" text-anchor="middle">Destination webhooks</text>
+          <text class="svg-lbl" x="785" y="145" text-anchor="middle">document.extracted</text>
+          <text class="svg-lbl" x="785" y="159" text-anchor="middle">document.failed</text>
+
+          <!-- edges -->
+          <path class="svg-edge-accent" d="M170,150 C220,150 240,90 268,82" marker-end="url(#arrowA)"/>
+          <path class="svg-edge" d="M470,75 C510,70 525,62 558,58" marker-end="url(#arrow)"/>
+          <path class="svg-edge" d="M470,90 C510,100 525,110 558,114" marker-end="url(#arrow)"/>
+          <path class="svg-edge" d="M470,105 C505,130 520,170 553,188" marker-end="url(#arrow)"/>
+          <text class="svg-lbl" x="512" y="50" text-anchor="middle">stream + start_workflow</text>
+
+          <path class="svg-edge" d="M647,192 C680,180 690,160 720,148" marker-end="url(#arrow)"/>
+          <text class="svg-lbl" x="690" y="178" text-anchor="middle">dispatch</text>
+          <path class="svg-edge-accent" d="M710,138 C540,250 300,260 172,178" marker-end="url(#arrowA)"/>
+          <text class="svg-lbl" x="430" y="248" text-anchor="middle">POST firmado HMAC</text>
+
+          <!-- 202 back -->
+          <path class="svg-edge-dash" d="M268,100 C220,115 200,128 172,135" marker-end="url(#arrow)"/>
+          <text class="svg-lbl" x="218" y="118" text-anchor="middle">202 {deliveryId, files[], statusUrl}</text>
+
+          <!-- polling -->
+          <path class="svg-edge-dash" d="M95,194 C95,255 180,258 268,258" marker-end="url(#arrow)"/>
+        </svg>
+      </div>
+      <figcaption>Diagrama A — Arquitectura general: cliente externo → ingesta pública → S3 + PostgreSQL + Temporal → destination webhooks de vuelta (+ statusUrl polling).</figcaption>
+    </figure>
+  </section>
+
+  <!-- ===================== 2. CONTEXTO ===================== -->
+  <section id="contexto">
+    <h2><span class="num">02</span> Contexto del codebase (qué existe y qué falta)</h2>
+    <p class="lead">Verificado contra el código el 2026-06-03 (branch <code>dev</code>).</p>
+
+    <h3>2.1 Lo que ya existe y se reutiliza</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pieza</th><th>Dónde</th><th>Relevancia</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill exists">EXISTE</span> Dispatcher de sets <code>WorkflowDocumentSetDispatcher</code></td><td><code>backend/src/workflows/application/document_sets/dispatcher.py</code></td><td>Punto de entrada único para crear sets + lanzar Temporal. Acepta <code>trigger</code> y <code>created_by_id</code>. Idempotente por <code>processing_job_id</code> (<code>build_job_id</code> = <code>CASE#&lt;hex&gt;_FILE#&lt;hex&gt;</code>; STANDARD usa <code>workflow_id</code>). Valida: con <code>workflow_case_id</code> ⇒ ANALYSIS + case existente; sin él ⇒ STANDARD.</td></tr>
+          <tr><td><span class="pill exists">EXISTE</span> Pipeline Temporal <code>DocumentSetProcessingWorkflow</code></td><td><code>backend/src/workflows/presentation/workflows/document_set_processing.py</code></td><td>5 pasos (extract_text → classify_pages → persist_documents → extract_fields → validate_extraction), checkpoints PG→Redis, estados <code>PENDING/RUNNING/PROCESSING/COMPLETED/PARTIAL/FAILED</code>.</td></tr>
+          <tr><td><span class="pill exists">EXISTE</span> Storage S3 + <code>POST /documents/upload</code></td><td><code>backend/src/storage/</code></td><td>Tabla <code>documents</code>. S3 key = <code>{tenant_id}/{file_id}/{safe_filename}</code>. Whitelist MIME (pdf/jpeg/jpg/png), <code>MAX_UPLOAD_SIZE</code> = 100 MB. Presigned <strong>GET</strong> existe (1 h); presigned <strong>PUT</strong> NO.</td></tr>
+          <tr><td><span class="pill exists">EXISTE</span> Destination webhooks (espejo de salida)</td><td><code>backend/src/workflows/{application,presentation}/webhook_destinations/</code></td><td>Patrón completo a imitar: multi-destino, <code>secret</code> <code>whsec_</code> + reveal/regenerate, delivery log con replay, presenters que ocultan secrets, permisos view/update.</td></tr>
+          <tr><td><span class="pill exists">EXISTE</span> Connections / Orígenes (UI)</td><td><code>frontend/.../connections/source-type-grid.tsx</code></td><td>Grid de orígenes con tiles <code>ComingSoonTile</code> (Email/WhatsApp/Drive). El tile <strong>Webhook</strong> será el <strong>primer origen activo</strong>.</td></tr>
+          <tr><td><span class="pill exists">EXISTE</span> Cases (ANALYSIS) <code>WorkflowCaseCreator</code></td><td><code>backend/src/workflows/application/workflow_cases/creator.py</code></td><td><code>WorkflowCase{uuid, tenant_id, workflow_id, name(1–255), status=DRAFT, created_by}</code>. <code>POST /v1/workflows/{id}/cases</code> existente.</td></tr>
+          <tr><td><span class="pill exists">EXISTE</span> Rate limiting</td><td><code>backend/src/common/infrastructure/dependencies/rate_limit.py</code></td><td><code>create_rate_limit_dependency(limit, window, strategy, key_func)</code> sobre Redis. Preset <code>RateLimitPublic</code> = 20/min por IP+path.</td></tr>
+          <tr><td><span class="pill exists">EXISTE</span> SSE / status en vivo</td><td><code>GET …/document-sets</code> + canal <code>workflow:{id}:document_sets:events</code></td><td>La UI interna ya muestra el progreso del set; los sets creados por webhook aparecen ahí automáticamente.</td></tr>
+          <tr><td><span class="pill exists">EXISTE</span> Validación SSRF</td><td>helpers de <code>webhook_destinations</code></td><td>Reutilizar para el modo <code>{url}</code> de ingesta.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.2 Lo que FALTA (gaps que este spec cierra)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill gap">🔴</span></td><td><strong>No existe NINGÚN endpoint público de escritura.</strong> Toda la API exige <code>Authorization: Bearer</code> + <code>X-Tenant</code>. <code>workflows_router</code> guarda con <code>verify_workflow_access</code> ⇒ la ingesta necesita un <strong>router público nuevo</strong> (<code>/v1/ingest</code>).</td></tr>
+          <tr><td><span class="pill gap">🔴</span></td><td><strong>No hay resolución de tenant sin header.</strong> El token de la URL + API key deben resolver tenant + workflow por sí solos.</td></tr>
+          <tr><td><span class="pill gap">🔴</span></td><td><strong>El upload actual carga TODO el archivo en RAM</strong> (<code>await file.read()</code>). Hace falta <strong>streaming a S3</strong> (y presigned PUT para &gt;100 MB).</td></tr>
+          <tr><td><span class="pill gap">🔴</span></td><td><strong>No existen modos <code>{url}</code> ni <code>{base64}</code>:</strong> no hay código que descargue una URL remota a S3 ni que decodifique base64.</td></tr>
+          <tr><td><span class="pill partial">🟡</span></td><td><strong>No hay API keys por workflow/tenant</strong> (solo <code>ADMIN_API_KEY</code> global y <code>tenant.webhook_signature_key</code> para firmar salida). La credencial inbound es nueva.</td></tr>
+          <tr><td><span class="pill partial">🟡</span></td><td><code>ConnectionProvider.WEBHOOK</code> solo tiene capability <code>SEND</code>; el grid de Orígenes no tiene tile webhook.</td></tr>
+          <tr><td><span class="pill partial">🟡</span></td><td><code>WorkflowDocumentSetTrigger</code> = <code>USER/RETRY/ORPHAN_SWEEPER/SYSTEM</code> — falta valor <code>WEBHOOK</code>.</td></tr>
+          <tr><td><span class="pill partial">🟡</span></td><td>No hay rastro de auditoría de ingesta — se introduce <code>source_webhook_deliveries</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== 3. DECISIONES ===================== -->
+  <section id="decisiones">
+    <h2><span class="num">03</span> Decisiones</h2>
+
+    <h3>3.1 Resueltas (confirmadas con el usuario)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Decisión</th><th>Valor elegido</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><strong>Modelado vs Connections</strong></td><td><strong>Binding directo por workflow</strong>: tabla nueva <code>source_webhooks</code> (sin <code>ConnectionAccount</code> org). Aparece como tipo de origen en la página <strong>Orígenes</strong>. Varios webhooks por workflow.</td></tr>
+          <tr><td>2</td><td><strong>Autenticación</strong></td><td><strong>URL opaca + API key</strong>: <code>POST /v1/ingest/{token}</code> (<code>src_…</code>) + header <code>X-Api-Key: dxk_…</code> por webhook. La key rota sin cambiar URL y viceversa.</td></tr>
+          <tr><td>3</td><td><strong>Modos de ingesta</strong></td><td><strong>Los 3 modos + presign</strong>: multipart streaming, JSON <code>{url}</code> (SSRF guard), JSON <code>{base64}</code> (límite menor), y two-step <code>presign → PUT S3 → complete</code>.</td></tr>
+          <tr><td>4</td><td><strong>Respuesta</strong></td><td><strong>202 async + status URL</strong>: respuesta inmediata <code>{deliveryId, files[…], statusUrl}</code>. Sin modo síncrono.</td></tr>
+          <tr><td>5</td><td><strong>Alcance de workflow</strong></td><td><strong>STANDARD + ANALYSIS</strong>. Para ANALYSIS el request lleva <code>caseId</code> o <code>caseName</code> (find-or-create). STANDARD rechaza campos de case.</td></tr>
+          <tr><td>6</td><td><strong>Almacenamiento de la API key</strong></td><td><strong>Plaintext + reveal</strong> (como <code>webhook_destinations.secret</code>): columna <code>String(512)</code>, endpoints reveal/regenerate, presenter expone solo <code>hasApiKey</code>. <em>(Mitigación futura: cifrado en reposo — §3.4.)</em></td></tr>
+          <tr><td>7</td><td><strong>Multi-archivo</strong></td><td><strong>Múltiples archivos por llamada</strong>: multipart con N partes <code>files</code>, JSON con array <code>files[]</code>. <strong>Cada archivo crea SU document_set</strong>. Tope <code>SOURCE_WEBHOOK_MAX_FILES_PER_REQUEST</code> (default 10).</td></tr>
+          <tr><td>8</td><td><strong>Lenguajes de ejemplos en la UI</strong></td><td><strong>cURL, Python, Node.js, TypeScript, Go, C#, Java</strong> (§10).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>3.2 Resueltas (decisión técnica del autor)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Decisión técnica</th></tr></thead>
+        <tbody>
+          <tr><td>9</td><td><strong>Router público dedicado</strong> <code>/v1/ingest/{token}/…</code>, registrado en <code>config/main.py</code> <strong>fuera</strong> de <code>workflows_router</code>. Sin JWT, sin <code>X-Tenant</code>: una dependencia resuelve <code>token → SourceWebhook → tenant_id + workflow_id</code> y valida <code>X-Api-Key</code> con <code>hmac.compare_digest</code>.</td></tr>
+          <tr><td>10</td><td><strong>Formato de credenciales</strong>: token URL = <code>src_{secrets.token_urlsafe(24)}</code> (<code>token String(64) UNIQUE</code>); API key = <code>dxk_{secrets.token_urlsafe(32)}</code> (<code>api_key String(512)</code>). Prefijos distintos de <code>whsec_</code>.</td></tr>
+          <tr><td>11</td><td><strong>Modo <code>{url}</code> se descarga inline</strong> con streaming a S3, timeout <code>SOURCE_WEBHOOK_URL_FETCH_TIMEOUT</code> (60 s/archivo), tope de bytes durante el stream y validación SSRF (https/http públicos; bloquear privadas, loopback, link-local, metadata).</td></tr>
+          <tr><td>12</td><td><strong>Streaming multipart</strong>: el endpoint NO hace <code>await file.read()</code>. FastAPI spoolea a disco las partes &gt;1 MB; el use case sube con <code>s3_client.upload_fileobj</code> contando bytes — si supera el tope, aborta el multipart upload y rechaza con 413 (parcial).</td></tr>
+          <tr><td>13</td><td><strong>Presign</strong>: <code>POST …/presign</code> devuelve por archivo una presigned PUT URL (15 min) + un <code>uploadToken</code> firmado stateless (HMAC con <code>JWT_SECRET_KEY</code>). <code>POST …/complete</code> verifica firma + <code>HEAD</code> y recién entonces crea <code>documents</code> + sets. Tope <code>SOURCE_WEBHOOK_MAX_PRESIGNED_FILE_SIZE</code> (default 5 GB).</td></tr>
+          <tr><td>14</td><td><strong>Idempotencia a nivel delivery</strong>: header opcional <code>Idempotency-Key</code> (≤255). <code>UNIQUE(source_webhook_id, idempotency_key)</code>; repetición ⇒ snapshot original (<code>response_snapshot</code> JSONB) con header <code>Idempotent-Replay: true</code>.</td></tr>
+          <tr><td>15</td><td><strong>Trazabilidad</strong>: nuevo valor <code>WEBHOOK</code> en <code>WorkflowDocumentSetTrigger</code> + columna <code>source_webhook_id UUID NULL</code> (FK SET NULL) en <code>workflow_document_sets</code>.</td></tr>
+          <tr><td>16</td><td><strong>Validación de contenido</strong>: además del whitelist, se validan <strong>magic bytes</strong> (<code>%PDF</code>, <code>\x89PNG</code>, <code>\xFF\xD8\xFF</code>). No se confía en el <code>Content-Type</code> declarado.</td></tr>
+          <tr><td>17</td><td><strong>Rate limit por webhook</strong>: <code>key_func = "ingest:{token}"</code>, default <code>SOURCE_WEBHOOK_RATE_LIMIT_PER_MINUTE</code> = 60 (+ límite IP global). 429 con headers <code>X-RateLimit-*</code>.</td></tr>
+          <tr><td>18</td><td><strong><code>ingestUrl</code> lo compone el backend</strong> (presenter) con <code>settings.PUBLIC_INGEST_BASE_URL</code> — el frontend nunca conoce el host del backend (regla BFF).</td></tr>
+          <tr><td>19</td><td><strong>Catálogo Orígenes</strong>: <code>PROVIDER_CAPABILITIES[WEBHOOK]</code> pasa a <code>{SEND, RECEIVE}</code>. No se crean <code>ConnectionAccount</code>s para source webhooks.</td></tr>
+          <tr><td>20</td><td><strong>Cierre del ciclo</strong>: la pareja natural es un <strong>destination webhook</strong> suscrito a <code>document.extracted</code>/<code>document.failed</code>; la correlación es <code>files[].documentSetId == payload.documentSet.id</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>3.3 Heredadas (no re-litigar)</h3>
+    <ul>
+      <li>Payload de eventos de salida, firma HMAC Svix, reintentos: <code>product/specs/source-webhooks/standard-webhooks.md</code> (cerrado 1–24).</li>
+      <li>Estructura Orígenes/Destinos, sidebar, permisos <code>manage_connections</code> vs admin de workflow: <code>product/specs/connections/spec.md</code>.</li>
+      <li>1 archivo ⇒ 1 set ⇒ N <code>workflow_documents</code> clasificados: <code>product/plans/sse-events/upload-document.md</code> (D1–D7).</li>
+    </ul>
+
+    <h3>3.4 Abiertas (no bloqueantes)</h3>
+    <div class="callout note">
+      <ul style="margin:0">
+        <li><strong>Cifrado en reposo</strong> de <code>api_key</code> (y de los secrets existentes) — mejora transversal.</li>
+        <li><strong>Quotas por tenant</strong> (archivos/día, GB/mes) — necesita modelo de billing.</li>
+        <li><strong>Allowlist de IPs</strong> por webhook (<code>params.allowedIps</code>) — fase 2.</li>
+        <li><strong>MIME types extra</strong> (docx, xlsx) — depende del pipeline.</li>
+        <li><strong>Firma de respuesta</strong> del status endpoint — hoy basta con la API key.</li>
+        <li><strong>Sweeper de deliveries <code>RECEIVED</code> colgadas</strong> (crash a mitad de request): job que las marque <code>FAILED</code> tras N minutos, liberando la <code>Idempotency-Key</code> (§5.9).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== 4. MODELO DE DATOS ===================== -->
+  <section id="modelo-datos">
+    <h2><span class="num">04</span> Modelo de datos</h2>
+
+    <!-- DIAGRAM D: ERD -->
+    <figure>
+      <div class="svg-frame">
+        <svg viewBox="0 0 880 470" role="img" aria-label="Diagrama entidad-relación">
+          <defs>
+            <marker id="erd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#757d89"/>
+            </marker>
+          </defs>
+
+          <!-- workflows -->
+          <g>
+            <rect class="svg-box-accent" x="30" y="30" width="180" height="78" rx="8"/>
+            <rect class="svg-hdr" x="30" y="30" width="180" height="22" rx="8"/>
+            <rect class="svg-hdr" x="30" y="41" width="180" height="11"/>
+            <text class="svg-t-w" x="120" y="45" text-anchor="middle">workflows</text>
+            <text class="svg-t-mono" x="42" y="68" >uuid PK</text>
+            <text class="svg-t-sm" x="42" y="84" >type (STANDARD|ANALYSIS)</text>
+            <text class="svg-t-sm" x="42" y="100" >tenant_id</text>
+          </g>
+
+          <!-- source_webhooks -->
+          <g>
+            <rect class="svg-box" x="330" y="20" width="210" height="118" rx="8"/>
+            <rect class="svg-hdr-deep" x="330" y="20" width="210" height="22" rx="8"/>
+            <rect class="svg-hdr-deep" x="330" y="31" width="210" height="11"/>
+            <text class="svg-t-w" x="435" y="35" text-anchor="middle">source_webhooks ★</text>
+            <text class="svg-t-mono" x="342" y="58">uuid PK · tenant_id</text>
+            <text class="svg-t-sm" x="342" y="74">workflow_id FK CASCADE</text>
+            <text class="svg-t-sm" x="342" y="90">token (64 UNIQUE) src_…</text>
+            <text class="svg-t-sm" x="342" y="106">api_key (512) dxk_…</text>
+            <text class="svg-t-sm" x="342" y="122">enabled · params jsonb</text>
+          </g>
+
+          <!-- webhook_destinations -->
+          <g>
+            <rect class="svg-box-muted" x="330" y="160" width="210" height="48" rx="8"/>
+            <text class="svg-t" x="435" y="180" text-anchor="middle" font-weight="600">webhook_destinations</text>
+            <text class="svg-lbl" x="435" y="196" text-anchor="middle">(salida — existente)</text>
+          </g>
+
+          <!-- source_webhook_deliveries -->
+          <g>
+            <rect class="svg-box" x="640" y="30" width="220" height="118" rx="8"/>
+            <rect class="svg-hdr-deep" x="640" y="30" width="220" height="22" rx="8"/>
+            <rect class="svg-hdr-deep" x="640" y="41" width="220" height="11"/>
+            <text class="svg-t-w" x="750" y="45" text-anchor="middle">source_webhook_deliveries ★</text>
+            <text class="svg-t-mono" x="652" y="68">uuid PK · source_webhook_id</text>
+            <text class="svg-t-sm" x="652" y="84">idempotency_key (UNIQUE)</text>
+            <text class="svg-t-sm" x="652" y="100">mode · status · files jsonb</text>
+            <text class="svg-t-sm" x="652" y="116">response_snapshot · case_id</text>
+            <text class="svg-t-sm" x="652" y="132">remote_ip · user_agent · error</text>
+          </g>
+
+          <!-- workflow_cases -->
+          <g>
+            <rect class="svg-box" x="30" y="230" width="180" height="62" rx="8"/>
+            <rect class="svg-hdr" x="30" y="230" width="180" height="22" rx="8"/>
+            <rect class="svg-hdr" x="30" y="241" width="180" height="11"/>
+            <text class="svg-t-w" x="120" y="245" text-anchor="middle">workflow_cases</text>
+            <text class="svg-t-mono" x="42" y="268">uuid PK · workflow_id</text>
+            <text class="svg-t-sm" x="42" y="284">status=DRAFT (ANALYSIS)</text>
+          </g>
+
+          <!-- workflow_document_sets -->
+          <g>
+            <rect class="svg-box-accent" x="330" y="250" width="220" height="110" rx="8"/>
+            <rect class="svg-hdr" x="330" y="250" width="220" height="22" rx="8"/>
+            <rect class="svg-hdr" x="330" y="261" width="220" height="11"/>
+            <text class="svg-t-w" x="440" y="265" text-anchor="middle">workflow_document_sets</text>
+            <text class="svg-t-mono" x="342" y="288">uuid PK · file_id FK</text>
+            <text class="svg-t-sm" x="342" y="304">workflow_case_id (null)</text>
+            <text class="svg-t-mono" x="342" y="320" fill="var(--primary-deep)" font-weight="700">+ source_webhook_id (SET NULL) ★</text>
+            <text class="svg-t-sm" x="342" y="336">trigger (+WEBHOOK) · status</text>
+            <text class="svg-t-sm" x="342" y="352">processing_job_id</text>
+          </g>
+
+          <!-- workflow_documents -->
+          <g>
+            <rect class="svg-box" x="640" y="270" width="200" height="62" rx="8"/>
+            <rect class="svg-hdr" x="640" y="270" width="200" height="22" rx="8"/>
+            <rect class="svg-hdr" x="640" y="281" width="200" height="11"/>
+            <text class="svg-t-w" x="740" y="285" text-anchor="middle">workflow_documents</text>
+            <text class="svg-t-mono" x="652" y="308">uuid · set_id · status</text>
+            <text class="svg-t-sm" x="652" y="324">document_type_id · pages</text>
+          </g>
+
+          <!-- documents -->
+          <g>
+            <rect class="svg-box" x="330" y="395" width="220" height="56" rx="8"/>
+            <rect class="svg-hdr" x="330" y="395" width="220" height="22" rx="8"/>
+            <rect class="svg-hdr" x="330" y="406" width="220" height="11"/>
+            <text class="svg-t-w" x="440" y="410" text-anchor="middle">documents</text>
+            <text class="svg-t-mono" x="342" y="433">uuid · tenant_id · s3_key · mime</text>
+          </g>
+
+          <!-- relationships -->
+          <path class="svg-edge" d="M210,60 L328,72" marker-end="url(#erd)"/>
+          <text class="svg-lbl" x="265" y="58">1..N</text>
+          <path class="svg-edge" d="M210,90 C260,130 290,165 328,178" marker-end="url(#erd)"/>
+          <path class="svg-edge" d="M540,78 L638,80" marker-end="url(#erd)"/>
+          <text class="svg-lbl" x="585" y="72">auditoría</text>
+          <path class="svg-edge" d="M540,118 C580,180 540,300 552,312" marker-end="url(#erd)"/>
+          <text class="svg-lbl" x="600" y="220" text-anchor="middle">source_webhook_id</text>
+          <path class="svg-edge" d="M120,292 C150,330 250,330 328,322" marker-end="url(#erd)"/>
+          <text class="svg-lbl" x="225" y="345">ANALYSIS</text>
+          <path class="svg-edge" d="M550,300 L638,300" marker-end="url(#erd)"/>
+          <text class="svg-lbl" x="595" y="294">clasificación</text>
+          <path class="svg-edge" d="M440,393 L440,362" marker-end="url(#erd)"/>
+          <text class="svg-lbl" x="475" y="382">file_id (1:1)</text>
+        </svg>
+      </div>
+      <figcaption>Diagrama D — ERD. ★ = entidades/columnas nuevas. <code>source_webhooks</code> y <code>source_webhook_deliveries</code> nuevas; <code>workflow_document_sets</code> gana <code>source_webhook_id</code> (SET NULL).</figcaption>
+    </figure>
+
+    <h3>4.1 <code>source_webhooks</code> (NUEVA)</h3>
+    <p>ORM: <code>backend/src/common/database/models/source_webhook.py</code> — <code>SourceWebhookORM(Base, UUIDTenantTimestampMixin)</code>. Dominio: <code>backend/src/common/domain/models/source_webhook.py</code>.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo (ORM)</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><code>uuid</code> / <code>tenant_id</code> / timestamps</td><td>mixin</td><td>igual que <code>webhook_destinations</code></td></tr>
+          <tr><td><code>workflow_id</code></td><td>UUID FK <code>workflows.uuid</code>, CASCADE, not null</td><td>varios webhooks por workflow</td></tr>
+          <tr><td><code>name</code></td><td><code>String(255)</code>, not null</td><td>ej. "Ingesta SAP"</td></tr>
+          <tr><td><code>description</code></td><td><code>Text</code>, nullable</td><td></td></tr>
+          <tr><td><code>enabled</code></td><td><code>Boolean</code>, not null, server_default <code>true</code></td><td>gate de ingesta</td></tr>
+          <tr><td><code>token</code></td><td><code>String(64)</code>, not null, UNIQUE</td><td><code>src_{token_urlsafe(24)}</code>; segmento de la URL pública</td></tr>
+          <tr><td><code>api_key</code></td><td><code>String(512)</code>, not null</td><td><code>dxk_{token_urlsafe(32)}</code>; plaintext + reveal (§3.1.6)</td></tr>
+          <tr><td><code>params</code></td><td><code>JSONB</code>, not null, server_default <code>{}</code></td><td>extensión futura (allowedIps, mime overrides)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Índices: <code>ix_source_webhooks_workflow (workflow_id)</code>, <code>ix_source_webhooks_tenant_created (tenant_id, created_at)</code>, unique implícito en <code>token</code>.</p>
+
+    <h3>4.2 <code>source_webhook_deliveries</code> (NUEVA — auditoría)</h3>
+    <p>Registro <strong>append-only</strong> de cada llamada aceptada o rechazada-con-auth-válida (los 401/404 de credenciales NO crean filas; sí los 4xx de validación de archivos). Se inserta <strong>al inicio del request</strong> con status <code>RECEIVED</code> y se actualiza al final (<strong>delivery-first</strong>, §5.9) — garantiza que la idempotencia corta duplicados antes de crear sets. Alimenta la pestaña <strong>Receptions</strong> (§9) y la idempotencia (§5.9).</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Tipo (ORM)</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><code>uuid</code> / <code>tenant_id</code> / timestamps</td><td>mixin</td><td></td></tr>
+          <tr><td><code>source_webhook_id</code></td><td>UUID FK, CASCADE, not null</td><td></td></tr>
+          <tr><td><code>idempotency_key</code></td><td><code>String(255)</code>, nullable</td><td>header <code>Idempotency-Key</code></td></tr>
+          <tr><td><code>mode</code></td><td><code>String(12)</code>, not null</td><td><code>MULTIPART/URL/BASE64/PRESIGNED</code></td></tr>
+          <tr><td><code>status</code></td><td><code>String(10)</code>, not null</td><td><code>SourceWebhookDeliveryStatus</code> (§4.4)</td></tr>
+          <tr><td><code>files</code></td><td><code>JSONB</code>, not null</td><td><code>[{fileName, size, mime, fileId?, documentSetId?, processingJobId?, error?}]</code></td></tr>
+          <tr><td><code>document_set_ids</code></td><td><code>JSONB</code>, not null, default <code>[]</code></td><td>para componer el status endpoint</td></tr>
+          <tr><td><code>response_snapshot</code></td><td><code>JSONB</code>, not null</td><td>cuerpo 202/400 devuelto (replay idempotente)</td></tr>
+          <tr><td><code>case_id</code></td><td>UUID, nullable</td><td>case resuelto (ANALYSIS)</td></tr>
+          <tr><td><code>remote_ip</code></td><td><code>String(45)</code>, nullable</td><td>auditoría</td></tr>
+          <tr><td><code>user_agent</code></td><td><code>String(255)</code>, nullable</td><td>auditoría</td></tr>
+          <tr><td><code>error</code></td><td><code>Text</code>, nullable</td><td>solo <code>FAILED</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Constraints: UNIQUE parcial <code>(source_webhook_id, idempotency_key) WHERE idempotency_key IS NOT NULL</code>; <code>ix_swd_webhook_created</code>; <code>ix_swd_tenant_created</code>.</p>
+
+    <h3>4.3 Cambios a tablas existentes</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tabla</th><th>Cambio</th></tr></thead>
+        <tbody>
+          <tr><td><code>workflow_document_sets</code></td><td>+ <code>source_webhook_id UUID NULL</code> FK <code>source_webhooks.uuid</code> SET NULL + índice <code>(source_webhook_id, created_at)</code></td></tr>
+          <tr><td>enum (string)</td><td><code>WorkflowDocumentSetTrigger</code> += <code>WEBHOOK = "WEBHOOK"</code> (columna ya <code>String(20)</code>, sin migración de tipo)</td></tr>
+          <tr><td><code>PROVIDER_CAPABILITIES</code></td><td><code>WEBHOOK: {SEND}</code> → <code>{SEND, RECEIVE}</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>4.4 Enums nuevos</h3>
+    <p><code>backend/src/common/domain/enums/source_webhooks.py</code>:</p>
+    <div class="code-block">
+      <button class="copy-btn" type="button">Copiar</button>
+<pre><code>class SourceWebhookIngestMode(BaseEnum):
+    MULTIPART = "MULTIPART"
+    URL = "URL"
+    BASE64 = "BASE64"
+    PRESIGNED = "PRESIGNED"
+
+class SourceWebhookDeliveryStatus(BaseEnum):
+    RECEIVED = "RECEIVED"   # fila creada al INICIO del request (delivery-first §5.9);
+                            # si queda así tras un crash, es visible como incompleta
+    ACCEPTED = "ACCEPTED"   # todos los archivos validados; sets creados
+    PARTIAL = "PARTIAL"     # >=1 aceptado, >=1 rechazado (mime/tamaño/descarga)
+    REJECTED = "REJECTED"   # auth OK pero 0 archivos aceptados (4xx)
+    FAILED = "FAILED"       # error interno tras aceptar (5xx)</code></pre>
+    </div>
+
+    <!-- DIAGRAM E: State machine -->
+    <figure>
+      <div class="svg-frame">
+        <svg viewBox="0 0 820 230" role="img" aria-label="Máquina de estados del delivery">
+          <defs>
+            <marker id="sm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#757d89"/>
+            </marker>
+          </defs>
+          <circle cx="30" cy="115" r="11" fill="var(--ink)"/>
+          <circle cx="30" cy="115" r="6" fill="#fff"/>
+
+          <!-- RECEIVED: estado inicial (delivery-first) -->
+          <rect class="svg-box-accent" x="70" y="95" width="118" height="40" rx="8"/>
+          <text class="svg-t" x="129" y="113" text-anchor="middle" font-weight="600">RECEIVED</text>
+          <text class="svg-lbl" x="129" y="127" text-anchor="middle">INSERT al inicio</text>
+
+          <rect class="svg-box-accent" x="320" y="20" width="150" height="40" rx="8"/>
+          <text class="svg-t" x="395" y="44" text-anchor="middle" font-weight="600">ACCEPTED</text>
+          <rect class="svg-box-muted" x="320" y="78" width="150" height="40" rx="8"/>
+          <text class="svg-t" x="395" y="102" text-anchor="middle" font-weight="600">PARTIAL</text>
+          <rect class="svg-box-muted" x="320" y="136" width="150" height="40" rx="8"/>
+          <text class="svg-t" x="395" y="160" text-anchor="middle" font-weight="600">REJECTED</text>
+          <rect class="svg-box-muted" x="320" y="194" width="150" height="34" rx="8" stroke="var(--destructive)"/>
+          <text class="svg-t" x="395" y="216" text-anchor="middle" font-weight="600" fill="var(--destructive)">FAILED</text>
+
+          <!-- [*] → RECEIVED -->
+          <path class="svg-edge" d="M41,115 L68,115" marker-end="url(#sm)"/>
+          <text class="svg-lbl" x="36" y="150">[*]</text>
+
+          <!-- RECEIVED → 4 estados finales -->
+          <path class="svg-edge" d="M188,108 C240,80 270,55 318,45" marker-end="url(#sm)"/>
+          <text class="svg-lbl" x="235" y="66">todos OK</text>
+          <path class="svg-edge" d="M188,113 C240,108 270,100 318,98" marker-end="url(#sm)"/>
+          <text class="svg-lbl" x="245" y="100">mezcla OK/rechaz.</text>
+          <path class="svg-edge" d="M188,120 C240,135 270,150 318,156" marker-end="url(#sm)"/>
+          <text class="svg-lbl" x="240" y="146">0 archivos OK</text>
+          <path class="svg-edge" d="M180,134 C225,185 270,205 318,210" marker-end="url(#sm)"/>
+          <text class="svg-lbl" x="235" y="200">excepción interna</text>
+
+          <!-- note -->
+          <rect class="svg-box" x="430" y="60" width="360" height="110" rx="8" fill="var(--teal-tint)" stroke="var(--primary)"/>
+          <text class="svg-t" x="450" y="84" font-weight="600" fill="var(--primary-deep)">El procesamiento NO vive aquí.</text>
+          <text class="svg-t-sm" x="450" y="104">Vive en workflow_document_sets.status:</text>
+          <text class="svg-t-mono" x="450" y="122" fill="var(--ink)">PENDING → RUNNING → PROCESSING</text>
+          <text class="svg-t-mono" x="450" y="138" fill="var(--ink)">→ COMPLETED | PARTIAL | FAILED</text>
+          <text class="svg-t-sm" x="450" y="158">Se sigue por statusUrl / SSE / destino.</text>
+        </svg>
+      </div>
+      <figcaption>Diagrama E — Estados de <code>SourceWebhookDeliveryStatus</code> (recepción): <code>RECEIVED</code> es el estado inicial (delivery-first §5.9) del que salen las 4 transiciones. El progreso de procesamiento es independiente y vive en los sets.</figcaption>
+    </figure>
+
+    <h3>4.5 Settings nuevos (<code>backend/src/common/settings.py</code>)</h3>
+    <div class="code-block">
+      <button class="copy-btn" type="button">Copiar</button>
+<pre><code>PUBLIC_INGEST_BASE_URL: str | None = None          # ej. https://api.doxiq.app — compone ingestUrl
+SOURCE_WEBHOOK_MAX_FILES_PER_REQUEST: int = 10
+SOURCE_WEBHOOK_MAX_BASE64_FILE_SIZE: int = 25 * 1024 * 1024    # 25 MB decodificado
+SOURCE_WEBHOOK_URL_FETCH_TIMEOUT: int = 60                      # s por archivo
+SOURCE_WEBHOOK_MAX_PRESIGNED_FILE_SIZE: int = 5 * 1024**3       # 5 GB (límite PUT S3)
+SOURCE_WEBHOOK_RATE_LIMIT_PER_MINUTE: int = 60                  # por token</code></pre>
+    </div>
+    <p>Por archivo en multipart/URL aplica el <code>MAX_UPLOAD_SIZE</code> existente (100 MB), ahora <strong>enforzado en streaming</strong> (no en RAM).</p>
+  </section>
+
+  <!-- ===================== 5. INGESTA ===================== -->
+  <section id="ingesta">
+    <h2><span class="num">05</span> Superficie pública de ingesta</h2>
+
+    <h3>5.1 Resolución de identidad (dependencia nueva)</h3>
+    <p><code>backend/src/common/infrastructure/dependencies/source_webhook.py</code>:</p>
+    <div class="code-block">
+      <button class="copy-btn" type="button">Copiar</button>
+<pre><code>async def get_ingest_context(
+    token: str,                                  # path param
+    api_key: str | None = Header(alias="X-Api-Key"),
+    domain_context: DomainContextDep,
+) -> IngestContext:                              # {source_webhook, tenant_id, workflow}
+    webhook = await repo.find_by_token(token)    # índice UNIQUE
+    if webhook is None: raise SourceWebhookNotFoundError          # 404
+    if not api_key or not hmac.compare_digest(api_key, webhook.api_key):
+        raise InvalidSourceWebhookApiKeyError                      # 401
+    if not webhook.enabled: raise SourceWebhookDisabledError       # 403
+    workflow = await workflow_repo.find_by_id(webhook.workflow_id, webhook.tenant_id)
+    return IngestContext(webhook=webhook, workflow=workflow)</code></pre>
+    </div>
+    <ul>
+      <li><strong>Sin JWT, sin <code>X-Tenant</code></strong>: el token resuelve tenant/workflow (gap §2.2.2).</li>
+      <li>Comparación <strong>constante</strong> de la key. <strong>Igualación de timing obligatoria</strong>: cuando el token no existe, la implementación DEBE ejecutar igualmente <code>hmac.compare_digest(api_key, DUMMY_KEY)</code> antes de responder 404, para que un atacante no pueda enumerar tokens válidos midiendo latencia (404 rápido vs 401 lento).</li>
+      <li>Rate limit por token (§3.2.17) como segunda dependencia del router.</li>
+    </ul>
+
+    <h3>5.2 Endpoints públicos</h3>
+    <p>Router nuevo <code>ingest_router = APIRouter(prefix="/ingest", tags=["Ingest"])</code> (<code>backend/src/workflows/presentation/ingest_router.py</code>), registrado en <code>config/main.py</code> <strong>sin</strong> dependencias de auth de sesión.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Método</th><th>Ruta</th><th>Propósito</th></tr></thead>
+        <tbody>
+          <tr><td><span class="http">POST</span></td><td><code>/v1/ingest/{token}</code></td><td>Ingesta principal: multipart <strong>o</strong> JSON (<code>{url}</code> / <code>{base64}</code>)</td></tr>
+          <tr><td><span class="http">POST</span></td><td><code>/v1/ingest/{token}/presign</code></td><td>Paso 1 archivos grandes: presigned PUT + uploadToken</td></tr>
+          <tr><td><span class="http">POST</span></td><td><code>/v1/ingest/{token}/complete</code></td><td>Paso 2: confirma uploads → crea sets</td></tr>
+          <tr><td><span class="http">GET</span></td><td><code>/v1/ingest/{token}/status/{delivery_id}</code></td><td>Estado de una recepción y sus sets</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Todos exigen <code>X-Api-Key</code>. Content negotiation del POST principal por <code>Content-Type</code>: <code>multipart/form-data</code> → MULTIPART; <code>application/json</code> → URL o BASE64 según cada item (por archivo: <code>url</code> XOR <code>contentBase64</code>; se permite mezclar).</p>
+
+    <h3>5.3 Modo multipart (binario directo — recomendado hasta 100 MB/archivo)</h3>
+    <div class="code-block">
+      <button class="copy-btn" type="button">Copiar</button>
+<pre><code>POST /v1/ingest/{token}
+Content-Type: multipart/form-data
+X-Api-Key: dxk_...
+Idempotency-Key: &lt;opcional&gt;
+
+files: (binary) factura_001.pdf
+files: (binary) remito_77.png
+caseId | caseName: (opcional, solo ANALYSIS — form fields)</code></pre>
+    </div>
+
+    <!-- DIAGRAM B: secuencia multipart -->
+    <figure>
+      <div class="svg-frame">
+        <svg viewBox="0 0 840 400" role="img" aria-label="Secuencia multipart">
+          <defs>
+            <marker id="seq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#757d89"/>
+            </marker>
+            <marker id="seqA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#2c8a85"/>
+            </marker>
+          </defs>
+          <!-- actor headers -->
+          <g>
+            <rect class="svg-hdr" x="20" y="14" width="110" height="26" rx="6"/><text class="svg-t-w" x="75" y="31" text-anchor="middle">Cliente</text>
+            <rect class="svg-hdr-deep" x="200" y="14" width="160" height="26" rx="6"/><text class="svg-t-w" x="280" y="31" text-anchor="middle">POST /ingest/{token}</text>
+            <rect class="svg-store" x="450" y="14" width="80" height="26" rx="6"/><text class="svg-t" x="490" y="31" text-anchor="middle">S3</text>
+            <rect class="svg-store" x="600" y="14" width="100" height="26" rx="6"/><text class="svg-t" x="650" y="31" text-anchor="middle">PostgreSQL</text>
+            <rect class="svg-box-muted" x="760" y="14" width="70" height="26" rx="6"/><text class="svg-t" x="795" y="31" text-anchor="middle">Temporal</text>
+          </g>
+          <!-- lifelines -->
+          <line class="svg-lifeline" x1="75" y1="40" x2="75" y2="390"/>
+          <line class="svg-lifeline" x1="280" y1="40" x2="280" y2="390"/>
+          <line class="svg-lifeline" x1="490" y1="40" x2="490" y2="390"/>
+          <line class="svg-lifeline" x1="650" y1="40" x2="650" y2="390"/>
+          <line class="svg-lifeline" x1="795" y1="40" x2="795" y2="390"/>
+
+          <path class="svg-edge" d="M75,62 L278,62" marker-end="url(#seq)"/>
+          <text class="svg-lbl" x="80" y="57">1. multipart files[] + X-Api-Key</text>
+
+          <rect x="240" y="74" width="80" height="30" rx="5" class="svg-box-muted"/>
+          <text class="svg-lbl" x="280" y="86" text-anchor="middle">resolver</text>
+          <text class="svg-lbl" x="280" y="99" text-anchor="middle">token+key (§5.1)</text>
+
+          <!-- delivery-first: INSERT al inicio -->
+          <path class="svg-edge" d="M280,124 L648,124" marker-end="url(#seq)"/>
+          <text class="svg-lbl" x="290" y="119">2. INSERT delivery (status=RECEIVED, idempotency_key?) — delivery-first §5.9</text>
+
+          <rect x="232" y="138" width="96" height="32" rx="5" class="svg-box-muted"/>
+          <text class="svg-lbl" x="280" y="151" text-anchor="middle">3. count≤10 · mimes</text>
+          <text class="svg-lbl" x="280" y="164" text-anchor="middle">· magic bytes</text>
+
+          <!-- loop box -->
+          <rect x="200" y="180" width="620" height="118" rx="6" fill="none" stroke="var(--border)" stroke-dasharray="4 3"/>
+          <text class="svg-lbl" x="210" y="194" fill="var(--primary-deep)" font-weight="600">loop · por archivo válido</text>
+
+          <path class="svg-edge-accent" d="M280,210 L488,210" marker-end="url(#seqA)"/>
+          <text class="svg-lbl" x="290" y="205">4. upload_fileobj (streaming, abort si &gt;MAX)</text>
+          <path class="svg-edge" d="M280,236 L648,236" marker-end="url(#seq)"/>
+          <text class="svg-lbl" x="290" y="231">5. INSERT documents</text>
+          <path class="svg-edge" d="M280,260 L648,260" marker-end="url(#seq)"/>
+          <text class="svg-lbl" x="290" y="255">6. dispatcher(trigger=WEBHOOK, source_webhook_id)</text>
+          <path class="svg-edge" d="M648,282 L282,282" marker-end="url(#seq)"/>
+          <text class="svg-lbl" x="300" y="277">7. document_set (PENDING)</text>
+
+          <path class="svg-edge" d="M280,314 L793,314" marker-end="url(#seq)"/>
+          <text class="svg-lbl" x="290" y="309">8. start_workflow(processing_job_id)</text>
+          <path class="svg-edge" d="M280,344 L648,344" marker-end="url(#seq)"/>
+          <text class="svg-lbl" x="290" y="333">9. UPDATE delivery (status final, files snapshot,</text>
+          <text class="svg-lbl" x="290" y="345">document_set_ids, response_snapshot)</text>
+          <path class="svg-edge-dash" d="M278,372 L77,372" marker-end="url(#seq)"/>
+          <text class="svg-lbl" x="90" y="367" fill="var(--success)" font-weight="600">10. 202 {deliveryId, files[], statusUrl}</text>
+        </svg>
+      </div>
+      <figcaption>Diagrama B — Secuencia multipart (delivery-first §5.9): resolver → INSERT delivery RECEIVED → validaciones → streaming a S3 → documents → dispatcher/sets → Temporal → UPDATE delivery final → 202.</figcaption>
+    </figure>
+
+    <h3>5.4 Modo URL (JSON)</h3>
+    <div class="code-block">
+      <button class="copy-btn" type="button">Copiar</button>
+<pre><code>POST /v1/ingest/{token}
+Content-Type: application/json
+X-Api-Key: dxk_...
+
+{
+  "files": [
+    { "url": "https://storage.acme.com/docs/factura_001.pdf",
+      "fileName": "factura_001.pdf",          // opcional: default = último segmento del path
+      "mime": "application/pdf" },             // opcional: default = Content-Type de la descarga
+    { "url": "https://storage.acme.com/docs/remito_77.png" }
+  ],
+  "caseId": null                               // o "caseName" — solo ANALYSIS (§7.3)
+}</code></pre>
+    </div>
+    <ul>
+      <li>Descarga <strong>inline</strong> con <code>httpx.AsyncClient.stream()</code> → S3 <code>upload_fileobj</code>, timeout 60 s/archivo, corte si excede <code>MAX_UPLOAD_SIZE</code>.</li>
+      <li><strong>SSRF guard obligatorio</strong> (extiende el validador de destinos, que hoy solo valida la URL inicial): solo http/https; resolver DNS y rechazar IPs privadas/loopback/link-local/metadata (169.254.169.254). <strong>Redirects manuales</strong>: <code>follow_redirects=False</code> y seguir cada <code>Location</code> a mano (máx 3) re-validando ANTES de cada hop. <strong>Anti DNS-rebinding</strong>: conectar contra la IP ya resuelta y validada, no re-resolver entre validación y conexión.</li>
+      <li>Fallo de descarga de UN archivo ⇒ ese item con <code>error</code> (delivery <code>PARTIAL</code>), no aborta los demás.</li>
+    </ul>
+
+    <h3>5.5 Modo base64 (JSON — integraciones low-code)</h3>
+    <div class="code-block">
+      <button class="copy-btn" type="button">Copiar</button>
+<pre><code>{
+  "files": [
+    { "fileName": "factura_001.pdf",
+      "mime": "application/pdf",
+      "contentBase64": "JVBERi0xLjcKJ..." }    // &lt;= 25 MB decodificado
+  ]
+}</code></pre>
+    </div>
+    <ul>
+      <li>Límite menor (<code>SOURCE_WEBHOOK_MAX_BASE64_FILE_SIZE</code>, 25 MB): el JSON infla ~33% y el body se parsea en memoria. Decodificación incremental hacia el stream de S3.</li>
+      <li>Pensado para n8n/Zapier/Make y firmware que no puede hacer multipart.</li>
+    </ul>
+
+    <h3>5.6 Flujo presign (archivos muy grandes, hasta 5 GB)</h3>
+
+    <!-- DIAGRAM C: presign sequence -->
+    <figure>
+      <div class="svg-frame">
+        <svg viewBox="0 0 760 280" role="img" aria-label="Secuencia presign">
+          <defs>
+            <marker id="pre" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#757d89"/>
+            </marker>
+            <marker id="preA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#2c8a85"/>
+            </marker>
+          </defs>
+          <rect class="svg-hdr" x="40" y="14" width="120" height="26" rx="6"/><text class="svg-t-w" x="100" y="31" text-anchor="middle">Cliente</text>
+          <rect class="svg-hdr-deep" x="320" y="14" width="160" height="26" rx="6"/><text class="svg-t-w" x="400" y="31" text-anchor="middle">/v1/ingest/{token}</text>
+          <rect class="svg-store" x="620" y="14" width="100" height="26" rx="6"/><text class="svg-t" x="670" y="31" text-anchor="middle">S3</text>
+          <line class="svg-lifeline" x1="100" y1="40" x2="100" y2="270"/>
+          <line class="svg-lifeline" x1="400" y1="40" x2="400" y2="270"/>
+          <line class="svg-lifeline" x1="670" y1="40" x2="670" y2="270"/>
+
+          <path class="svg-edge" d="M100,64 L398,64" marker-end="url(#pre)"/>
+          <text class="svg-lbl" x="108" y="59">1. POST /presign {files:[{fileName,mime,size}]}</text>
+          <path class="svg-edge-dash" d="M398,90 L102,90" marker-end="url(#pre)"/>
+          <text class="svg-lbl" x="118" y="85">2. 200 {uploads:[{uploadUrl, uploadToken, headers, expiresAt}]}</text>
+
+          <path class="svg-edge-accent" d="M100,124 L668,124" marker-end="url(#preA)"/>
+          <text class="svg-lbl" x="150" y="119">3. PUT uploadUrl (binario directo, sin pasar por la API)</text>
+          <path class="svg-edge-dash" d="M668,150 L102,150" marker-end="url(#pre)"/>
+          <text class="svg-lbl" x="300" y="145">4. 200</text>
+
+          <path class="svg-edge" d="M100,184 L398,184" marker-end="url(#pre)"/>
+          <text class="svg-lbl" x="108" y="179">5. POST /complete {files:["&lt;uploadToken&gt;", ...], caseId?}</text>
+          <path class="svg-edge" d="M400,210 L668,210" marker-end="url(#pre)"/>
+          <text class="svg-lbl" x="410" y="205">6. HEAD + GET Range 0-15 (magic bytes)</text>
+          <path class="svg-edge-dash" d="M398,244 L102,244" marker-end="url(#pre)"/>
+          <text class="svg-lbl" x="118" y="239" fill="var(--success)" font-weight="600">7. 202 {deliveryId, files[], statusUrl} (envelope §5.7)</text>
+        </svg>
+      </div>
+      <figcaption>Diagrama C — Secuencia presign: <code>/presign</code> → PUT directo a S3 → <code>/complete</code> (HEAD verify) → 202.</figcaption>
+    </figure>
+    <ul>
+      <li><code>uploadUrl</code>: presigned <strong>PUT</strong> (nuevo <code>FileRepository.get_presigned_put_url</code>), expiración 15 min, <code>Content-Type</code> fijado.</li>
+      <li><code>uploadToken</code>: HMAC stateless (§3.2.13) — sin tabla extra. En <code>/complete</code> la verificación es <strong>triple</strong>: (1) <strong>firma</strong> válida y no expirada; (2) <strong><code>webhookId</code> del payload == webhook resuelto por el token de la ruta</strong> (un uploadToken emitido para otro webhook/tenant no sirve aquí); (3) <code>HEAD</code> del objeto: existe y tamaño ≤ declarado — si excede el tope se <strong>borra</strong> y se rechaza el item.</li>
+      <li><strong>Validación de contenido en presign</strong>: como el PUT no pasa por la API, <code>/complete</code> hace un <strong><code>GET</code> con <code>Range: bytes=0-15</code></strong> del objeto y valida los magic bytes (§3.2.16) antes de crear <code>documents</code>; mismatch ⇒ borrar objeto + item 415.</li>
+      <li><strong>El secreto de firma debe ser persistente</strong>: <code>JWT_SECRET_KEY</code> (o el secreto dedicado) NO puede regenerarse en cada arranque — invalidaría los uploadTokens en vuelo. Rotación solo explícita por operador.</li>
+      <li>El S3 key sigue el patrón <code>{tenant_id}/{file_id}/{safe_filename}</code> con <code>file_id</code> generado en <code>/presign</code>.</li>
+    </ul>
+
+    <h3>5.7 Respuesta 202 (envelope común a §5.3–5.6)</h3>
+    <div class="code-block">
+      <button class="copy-btn" type="button">Copiar</button>
+<pre><code>HTTP/1.1 202 Accepted
+{
+  "deliveryId": "9f1c…",
+  "status": "ACCEPTED",                        // ACCEPTED | PARTIAL
+  "statusUrl": "https://api.doxiq.app/v1/ingest/src_8fK…/status/9f1c…",
+  "workflow": { "id": "…", "name": "Facturación", "type": "STANDARD" },
+  "case": null,                                // {id, name} si ANALYSIS
+  "files": [
+    {
+      "fileName": "factura_001.pdf", "size": 482113, "mime": "application/pdf",
+      "fileId": "…", "documentSetId": "…",
+      "processingJobId": "CASE#…_FILE#…",
+      "status": "PENDING",                     // estado inicial del set
+      "error": null
+    },
+    {
+      "fileName": "notas.txt", "size": 1024, "mime": "text/plain",
+      "fileId": null, "documentSetId": null, "processingJobId": null, "status": null,
+      "error": { "code": "storage.UnsupportedMime",
+                 "message": "Unsupported file type 'text/plain'. Allowed: application/pdf, image/jpeg, image/jpg, image/png" }
+    }
+  ]
+}</code></pre>
+    </div>
+    <p>camelCase (presenters + <code>convert_to_camel_case</code>). Códigos:</p>
+    <div class="callout">
+      <span class="lbl">Regla normativa de códigos</span>
+      Los rechazos <strong>por archivo</strong> (tamaño, MIME, magic bytes, descarga fallida, upload no encontrado) son SIEMPRE <strong>item-level</strong> — <code>files[n].error.code</code> lleva el código preciso (<code>storage.FileTooLarge</code>, <code>storage.UnsupportedMime</code>, <code>ingest.FetchFailed</code>, <code>ingest.UploadNotFound</code>, …). El código HTTP global depende solo del agregado: <strong>202 si ≥1 aceptado, 400 si 0 aceptados</strong> (incluido el caso de un único archivo demasiado grande). 413/415 a nivel respuesta quedan reservados para condiciones de transporte (body que excede el límite del servidor antes de poder parsear / <code>Content-Type</code> del request inválido).
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>HTTP</th><th>Cuándo</th><th>Cuerpo / delivery</th></tr></thead>
+        <tbody>
+          <tr><td><span class="http http-2">202</span></td><td>≥1 archivo aceptado</td><td>envelope; delivery <code>ACCEPTED</code>/<code>PARTIAL</code></td></tr>
+          <tr><td><span class="http http-4">400</span></td><td>0 archivos aceptados / payload malformado / case inválido / &gt;10 archivos</td><td><code>{errors:[{code,message}]}</code> (+ <code>files[]</code> con errores item-level si aplica); delivery <code>REJECTED</code></td></tr>
+          <tr><td><span class="http http-4">401</span></td><td>API key ausente/incorrecta</td><td><code>ingest.InvalidApiKey</code> (sin delivery)</td></tr>
+          <tr><td><span class="http http-4">403</span></td><td>webhook <code>enabled=false</code></td><td><code>ingest.SourceDisabled</code> (sin delivery)</td></tr>
+          <tr><td><span class="http http-4">404</span></td><td>token inexistente / deliveryId ajeno</td><td><code>ingest.NotFound</code> (sin delivery)</td></tr>
+          <tr><td><span class="http http-4">409</span></td><td><code>Idempotency-Key</code> repetida con la original aún en vuelo (<code>RECEIVED</code>) / <code>caseName</code> ambiguo</td><td><code>ingest.IdempotencyInFlight</code> / <code>ingest.AmbiguousCaseName</code></td></tr>
+          <tr><td><span class="http http-4">413</span></td><td>body del request excede el límite de transporte (no parseable)</td><td>sin delivery</td></tr>
+          <tr><td><span class="http http-4">415</span></td><td><code>Content-Type</code> del request no soportado (ni multipart ni JSON)</td><td>sin delivery</td></tr>
+          <tr><td><span class="http http-4">422</span></td><td>JSON inválido (pydantic)</td><td>estándar FastAPI</td></tr>
+          <tr><td><span class="http http-4">429</span></td><td>rate limit por token o IP</td><td>headers <code>X-RateLimit-*</code></td></tr>
+          <tr><td><span class="http http-5">500</span></td><td>error interno tras crear la delivery</td><td>delivery <code>FAILED</code> con <code>error</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>5.8 Status endpoint (polling)</h3>
+    <div class="code-block">
+      <button class="copy-btn" type="button">Copiar</button>
+<pre><code>GET /v1/ingest/{token}/status/{deliveryId}
+X-Api-Key: dxk_...
+
+HTTP/1.1 200 OK
+{
+  "deliveryId": "9f1c…",
+  "status": "ACCEPTED",                          // recepción (§4.4)
+  "receivedAt": "2026-06-03T15:04:05Z",
+  "files": [
+    {
+      "fileName": "factura_001.pdf", "documentSetId": "…",
+      "processingJobId": "CASE#…_FILE#…",
+      "status": "COMPLETED",                     // estado VIVO del set
+      "startedAt": "…", "finishedAt": "…", "durationMs": 12000,
+      "documents": [
+        { "id": "…", "name": "factura_001.pdf", "status": "EXTRACTED",
+          "documentTypeId": "…", "documentIndex": 0,
+          "pageRange": { "from": 1, "to": 2 } }
+      ],
+      "error": null
+    }
+  ]
+}</code></pre>
+    </div>
+    <ul>
+      <li>Compone <code>source_webhook_deliveries.files</code> + lookup vivo de los sets y sus documentos. <strong>No</strong> incluye <code>extraction</code> ni <code>plainText</code> (eso viaja por el destination webhook o la API autenticada).</li>
+      <li><strong>Scoping normativo</strong>: la query de la delivery DEBE filtrar <code>uuid = :delivery_id AND source_webhook_id = :webhook.uuid AND tenant_id = :webhook.tenant_id</code> (el webhook resuelto por <code>get_ingest_context</code>); los lookups de sets/documentos también filtran <code>tenant_id</code>. <code>deliveryId</code> de otro webhook/tenant ⇒ 404 uniforme.</li>
+    </ul>
+
+    <h3>5.9 Idempotencia (header <code>Idempotency-Key</code>)</h3>
+    <div class="callout">
+      <span class="lbl">Patrón delivery-first (normativo)</span>
+      La fila de <code>source_webhook_deliveries</code> se inserta al INICIO del request (status <code>RECEIVED</code>, con la <code>Idempotency-Key</code> si vino), <strong>antes</strong> de subir archivos o crear sets. Así el <code>UNIQUE(source_webhook_id, idempotency_key)</code> corta duplicados y carreras <strong>antes</strong> de que exista ningún efecto secundario (cero sets huérfanos). Al terminar, un <code>UPDATE</code> fija el status final + <code>files</code> + <code>document_set_ids</code> + <code>response_snapshot</code>.
+    </div>
+    <div class="callout note">
+      <span class="lbl">Flujo</span>
+      <code>POST con Idempotency-Key</code> → INSERT delivery <code>RECEIVED</code> con <code>UNIQUE(webhook, key)</code>. <strong>Insert OK</strong>: procesa archivos → sets, UPDATE status final + snapshot → 202 nuevo. <strong>Conflicto con delivery TERMINADA</strong>: devuelve <code>response_snapshot</code> con header <code>Idempotent-Replay: true</code> → 200 mismo cuerpo original. <strong>Conflicto con delivery aún <code>RECEIVED</code> (en vuelo)</strong>: 409 <code>ingest.IdempotencyInFlight</code> (el cliente reintenta luego).
+    </div>
+    <ul>
+      <li>Sin el header, cada llamada crea sets nuevos (cada archivo recibe <code>file_id</code> uuid4 ⇒ <code>processing_job_id</code> distinto).</li>
+      <li>Si el proceso muere a mitad, la delivery queda <code>RECEIVED</code> (visible como incompleta en Receptions); los sets ya despachados siguen su curso normal y son visibles vía sets. Un retry del cliente con la misma key recibe 409 hasta que un operador o un sweeper futuro marque la delivery <code>FAILED</code> (TODO listado en §3.4).</li>
+    </ul>
+  </section>
+
+  <!-- ===================== 6. ARCHIVOS GRANDES ===================== -->
+  <section id="archivos-grandes">
+    <h2><span class="num">06</span> Optimización para archivos grandes</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Camino</th><th>Tope/archivo</th><th>Memoria</th><th>Mecanismo</th></tr></thead>
+        <tbody>
+          <tr><td>multipart</td><td>100 MB (<code>MAX_UPLOAD_SIZE</code>)</td><td><code>O(chunk)</code></td><td>FastAPI spool ≥1 MB a disco → <code>upload_fileobj</code> multipart S3; conteo de bytes con aborto</td></tr>
+          <tr><td><code>{url}</code></td><td>100 MB</td><td><code>O(chunk)</code></td><td><code>httpx</code> stream → S3; <code>Content-Length</code> pre-check + corte durante stream</td></tr>
+          <tr><td><code>{base64}</code></td><td>25 MB decodificado</td><td><code>O(body JSON)</code></td><td>decode incremental → stream S3</td></tr>
+          <tr><td>presign</td><td>5 GB</td><td><strong>0 en la API</strong></td><td>PUT directo del cliente a S3; la API solo firma y verifica</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>Reglas:</strong></p>
+    <ol>
+      <li><strong>Prohibido <code>await file.read()</code></strong> en el camino de ingesta (el use case nuevo <code>StreamUploadFile</code> reemplaza ese patrón; <code>/documents/upload</code> migra después — fuera de alcance).</li>
+      <li><code>upload_fileobj</code> con <code>TransferConfig(multipart_threshold=8MB, multipart_chunksize=8MB)</code>.</li>
+      <li><strong>Mecanismo de corte</strong>: el conteo lo hace un <em>counting reader</em> que envuelve el file object y lanza <code>FileTooLargeError</code> al superar el tope; <code>upload_fileobj</code> propaga la excepción y boto3 aborta el multipart upload (si quedara basura, <code>abort_multipart_upload</code> explícito en el <code>except</code>). El item se reporta con error 413 item-level.</li>
+      <li>boto3 es sync: cada subida corre con <code>asyncio.to_thread</code> (patrón ya usado por <code>download_file_to_temp</code>) — incluye el abort, que también es bloqueante. Nunca llamar boto3 directo en el event loop.</li>
+    </ol>
+  </section>
+
+  <!-- ===================== 7. PIPELINE ===================== -->
+  <section id="pipeline">
+    <h2><span class="num">07</span> Integración con el pipeline</h2>
+
+    <h3>7.1 Despacho (reutilización del dispatcher)</h3>
+    <p>Por cada archivo aceptado, el use case <code>IngestSourceWebhookFiles</code> invoca el <strong><code>WorkflowDocumentSetDispatcher</code> existente</strong>:</p>
+    <div class="code-block">
+      <button class="copy-btn" type="button">Copiar</button>
+<pre><code>WorkflowDocumentSetDispatcher(
+    tenant_id=ctx.webhook.tenant_id,
+    workflow_id=ctx.webhook.workflow_id,
+    file_id=document.uuid,                  # documents row recién creada
+    workflow_case_id=case_id,               # None en STANDARD
+    trigger=WorkflowDocumentSetTrigger.WEBHOOK,   # NUEVO valor
+    created_by_id=None,                     # no hay usuario
+    source_webhook_id=ctx.webhook.uuid,     # NUEVO kwarg → columna nueva
+    force_restart=False,
+    ...repos/temporal_client/task_queue como hoy
+).execute()</code></pre>
+    </div>
+    <ul>
+      <li>El dispatcher <strong>no cambia su lógica</strong>: solo acepta y persiste <code>source_webhook_id</code> y el nuevo trigger. Idempotencia por <code>processing_job_id</code> intacta.</li>
+      <li>Workflow sin document types ⇒ comportamiento actual (warning + set con 0 documentos). La UI muestra advertencia preventiva (§9.3) — no se rechaza la ingesta.</li>
+    </ul>
+
+    <h3>7.2 STANDARD</h3>
+    <ul>
+      <li><code>caseId</code>/<code>caseName</code> presentes ⇒ <strong>400</strong> <code>ingest.CaseNotAllowed</code>.</li>
+      <li>El set corre el pipeline y el resultado llega vía destination webhooks/status URL.</li>
+    </ul>
+
+    <h3>7.3 ANALYSIS (resolución de case)</h3>
+    <ol>
+      <li><strong><code>caseId</code></strong> (UUID): el case debe existir en ese workflow/tenant ⇒ si no, 400 <code>ingest.CaseNotFound</code>. Los N archivos van al MISMO case.</li>
+      <li><strong><code>caseName</code></strong> (string 1–255): <code>find_by_name(workflow_id, name)</code> —
+        <ul>
+          <li>1 match exacto ⇒ se reutiliza;</li>
+          <li>0 matches ⇒ se <strong>crea</strong> vía <code>WorkflowCaseCreator</code> (<code>created_by=None</code>, status DRAFT);</li>
+          <li>&gt;1 matches ⇒ 409 <code>ingest.AmbiguousCaseName</code>.</li>
+        </ul>
+        Requiere método nuevo <code>WorkflowCaseRepository.find_by_name(workflow_id, tenant_id, name)</code>.
+      </li>
+      <li><strong>Ninguno</strong> ⇒ ANALYSIS sin case ⇒ 400 <code>ingest.CaseRequired</code>.</li>
+    </ol>
+    <div class="callout note">
+      Los webhooks de salida hoy son solo STANDARD; para ANALYSIS el cliente se entera por la API autenticada o el futuro spec <code>analysis_run.completed</code>. El status endpoint (§5.8) sí cubre ambos tipos.
+    </div>
+
+    <h3>7.4 Notificación de resultado (cierre del ciclo)</h3>
+    <div class="callout">
+      <span class="lbl">Dos vías</span>
+      <strong>Polling</strong>: <code>GET /status/:deliveryId</code> (status por set + documentos). <strong>Push (recomendado)</strong>: destination webhook <code>document.extracted</code> / <code>document.failed</code>. Correlación: <code>payload.documentSet.id == files[n].documentSetId</code>.
+    </div>
+  </section>
+
+  <!-- ===================== 8. API DE GESTIÓN ===================== -->
+  <section id="gestion">
+    <h2><span class="num">08</span> API de gestión (autenticada — espejo de webhook-destinations)</h2>
+    <p>Bajo <code>workflows_router</code> (hereda <code>verify_workflow_access</code>); permisos: <strong>view</strong> para leer, <strong>update</strong> para mutar.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Método</th><th>Ruta</th><th>Función</th></tr></thead>
+        <tbody>
+          <tr><td><span class="http">GET</span></td><td><code>/source-webhooks</code></td><td>listar</td></tr>
+          <tr><td><span class="http">POST</span></td><td><code>/source-webhooks</code></td><td>crear (genera <code>token</code> + <code>api_key</code>; responde <strong>una vez</strong> con <code>apiKey</code> e <code>ingestUrl</code>)</td></tr>
+          <tr><td><span class="http">GET</span></td><td><code>/source-webhooks/{id}</code></td><td>detalle</td></tr>
+          <tr><td><span class="http">PUT</span></td><td><code>/source-webhooks/{id}</code></td><td>actualizar <code>name/description/enabled</code> (PATCH-like)</td></tr>
+          <tr><td><span class="http">DELETE</span></td><td><code>/source-webhooks/{id}</code></td><td>eliminar (CASCADE deliveries; sets quedan FK NULL)</td></tr>
+          <tr><td><span class="http">POST</span></td><td><code>/{id}/api-key/reveal</code></td><td>revela <code>apiKey</code> (permiso view)</td></tr>
+          <tr><td><span class="http">POST</span></td><td><code>/{id}/api-key/regenerate</code></td><td>rota <code>apiKey</code> (update) — invalida la anterior al instante</td></tr>
+          <tr><td><span class="http">POST</span></td><td><code>/{id}/token/regenerate</code></td><td>rota <code>token</code> (update) — <strong>cambia la URL</strong>; confirm fuerte en UI</td></tr>
+          <tr><td><span class="http">GET</span></td><td><code>/{id}/deliveries</code></td><td>log de recepciones; filtros <code>status</code>, <code>limit</code> (50, máx 200), <code>offset</code></td></tr>
+          <tr><td><span class="http">GET</span></td><td><code>/{id}/deliveries/{delivery_id}</code></td><td>detalle (<code>files</code> snapshot + <code>documentSetIds</code>)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Base de rutas: <code>/v1/workflows/{workflow_id}/source-webhooks</code>.</p>
+    <h4>Presenter (<code>SourceWebhookPresenter</code>)</h4>
+    <div class="code-block">
+      <button class="copy-btn" type="button">Copiar</button>
+<pre><code>{
+  "uuid": "…", "workflowId": "…", "name": "Ingesta SAP",
+  "description": null, "enabled": true,
+  "ingestUrl": "https://api.doxiq.app/v1/ingest/src_8fK…",   // PUBLIC_INGEST_BASE_URL + token
+  "hasApiKey": true,                                          // nunca la key en list/detail
+  "createdAt": "…", "updatedAt": "…"
+}</code></pre>
+    </div>
+    <p><code>create</code> / <code>*/regenerate</code> devuelven además <code>"apiKey": "dxk_…"</code>. Excepciones <code>DomainError</code> nuevas: <code>SourceWebhookNotFoundError</code> (404), <code>InvalidSourceWebhookApiKeyError</code> (401), <code>SourceWebhookDisabledError</code> (403), <code>IngestValidationError</code> (400) con códigos <code>ingest.*</code>.</p>
+  </section>
+
+  <!-- ===================== 9. FRONTEND ===================== -->
+  <section id="frontend">
+    <h2><span class="num">09</span> Frontend (UI de configuración)</h2>
+    <div class="callout">
+      Cumple <code>PRODUCT.md</code> / <code>DESIGN.md</code>: teal <code>oklch(0.59 0.095 180.54)</code> ≤10% de pantalla, Figtree + Geist Mono, near-flat. Patrón <strong>BFF obligatorio</strong> — el cliente usa <code>authHttp</code> → proxy <code>/api/v1/*</code>; nunca el host del backend.
+    </div>
+
+    <h3>9.1 Navegación</h3>
+    <!-- DIAGRAM F: UI nav map -->
+    <figure>
+      <div class="svg-frame">
+        <svg viewBox="0 0 840 360" role="img" aria-label="Mapa de navegación UI">
+          <defs>
+            <marker id="ui" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#757d89"/>
+            </marker>
+            <marker id="uiA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="#2c8a85"/>
+            </marker>
+          </defs>
+
+          <rect class="svg-box-muted" x="20" y="150" width="140" height="56" rx="8"/>
+          <text class="svg-t" x="90" y="174" text-anchor="middle" font-weight="600">Sidebar</text>
+          <text class="svg-lbl" x="90" y="190" text-anchor="middle">Connections ▸ Sources</text>
+
+          <rect class="svg-box" x="210" y="130" width="160" height="96" rx="8"/>
+          <rect class="svg-hdr" x="210" y="130" width="160" height="20" rx="8"/><rect class="svg-hdr" x="210" y="140" width="160" height="10"/>
+          <text class="svg-t-w" x="290" y="144" text-anchor="middle">SourceTypeGrid</text>
+          <rect class="svg-box-accent" x="222" y="160" width="136" height="22" rx="5"/>
+          <text class="svg-t-sm" x="290" y="175" text-anchor="middle" fill="var(--primary-deep)" font-weight="600">tile Webhook ★ ACTIVO</text>
+          <text class="svg-lbl" x="290" y="200" text-anchor="middle">Email · WhatsApp · Drive</text>
+          <text class="svg-lbl" x="290" y="214" text-anchor="middle">(ComingSoonTile)</text>
+
+          <rect class="svg-box" x="430" y="135" width="160" height="50" rx="8"/>
+          <text class="svg-t" x="510" y="156" text-anchor="middle" font-weight="600">SourceWebhooksList</text>
+          <text class="svg-lbl" x="510" y="172" text-anchor="middle">.../webhooks</text>
+
+          <rect class="svg-box" x="650" y="40" width="170" height="180" rx="8"/>
+          <rect class="svg-hdr-deep" x="650" y="40" width="170" height="20" rx="8"/><rect class="svg-hdr-deep" x="650" y="50" width="170" height="10"/>
+          <text class="svg-t-w" x="735" y="54" text-anchor="middle">SourceWebhookDetail</text>
+          <rect class="svg-box-muted" x="662" y="72" width="146" height="26" rx="5"/><text class="svg-t-sm" x="735" y="89" text-anchor="middle">Tab Overview</text>
+          <rect class="svg-box-muted" x="662" y="104" width="146" height="26" rx="5"/><text class="svg-t-sm" x="735" y="121" text-anchor="middle">Tab Setup · code examples</text>
+          <rect class="svg-box-muted" x="662" y="136" width="146" height="26" rx="5"/><text class="svg-t-sm" x="735" y="153" text-anchor="middle">Tab Receptions · log</text>
+          <text class="svg-lbl" x="735" y="180" text-anchor="middle">EndpointCard · ApiKeyCard</text>
+          <text class="svg-lbl" x="735" y="195" text-anchor="middle">DangerZone · LimitsCard</text>
+
+          <rect class="svg-box" x="430" y="250" width="180" height="44" rx="8" stroke="var(--primary)"/>
+          <text class="svg-t" x="520" y="271" text-anchor="middle" font-weight="600">SourceWebhookFormDialog</text>
+          <text class="svg-lbl" x="520" y="286" text-anchor="middle">éxito one-time: URL + key</text>
+
+          <path class="svg-edge" d="M160,178 L208,178" marker-end="url(#ui)"/>
+          <path class="svg-edge-accent" d="M370,170 L428,165" marker-end="url(#uiA)"/>
+          <text class="svg-lbl" x="400" y="150">tile Webhook + count</text>
+          <path class="svg-edge" d="M590,150 C620,130 630,120 648,115" marker-end="url(#ui)"/>
+          <text class="svg-lbl" x="620" y="118">row click</text>
+          <path class="svg-edge" d="M520,185 L520,248" marker-end="url(#ui)"/>
+          <text class="svg-lbl" x="560" y="220">"Add webhook"</text>
+        </svg>
+      </div>
+      <figcaption>Diagrama F — Mapa de navegación UI: Sidebar → SourceTypeGrid (tile Webhook activo) → lista → detalle (tabs Overview/Setup/Receptions) + form dialog.</figcaption>
+    </figure>
+    <ul>
+      <li><strong><code>SourceTypeGrid</code></strong>: el tile Webhook deja de ser <code>ComingSoonTile</code> → espejo del <code>WebhookTile</code> de destinos (icono <code>Webhook</code> teal, contador <code>configuredCount</code>, link a la lista). Email/WhatsApp/Drive siguen coming-soon.</li>
+      <li>Rutas nuevas: <code>.../connections/sources/webhooks/page.tsx</code> y <code>.../webhooks/[sourceWebhookId]/page.tsx</code>, ambas con <code>WorkflowAppShell</code> + <code>PageContent.Header</code> + <code>PageContent.Body</code>.</li>
+    </ul>
+
+    <h3>9.2 Lista (<code>source-webhooks-list.tsx</code>)</h3>
+    <p>Clon de <code>webhook-destinations-list.tsx</code>: cards-row navegables (hairline ring, hover well), leading icon, <code>name</code> + <code>ingestUrl</code> truncada en mono xs, badge <code>ACTIVE/DISABLED</code>, columna "última recepción". <code>EmptyState</code> educativo con CTA "Add webhook".</p>
+
+    <h3>9.3 Form dialog (<code>source-webhook-form-dialog.tsx</code>)</h3>
+    <ul>
+      <li>Campos: <code>name</code> (requerido), <code>description</code> (textarea), <code>enabled</code> (switch).</li>
+      <li><strong>Al crear</strong> (única vez): pantalla de éxito con <code>ingestUrl</code> (readOnly mono + Copy), <code>apiKey</code> revelada (mono + Copy + warning ámbar), mini-snippet cURL armado.</li>
+      <li>Advertencia (banner) si el workflow no tiene document types (§7.1).</li>
+    </ul>
+
+    <h3>9.4 Detalle (<code>source-webhook-detail.tsx</code>) — tabs</h3>
+    <div class="card">
+      <strong>Tab Overview</strong>
+      <ul style="margin-top:0.4rem">
+        <li><code>EndpointCard</code>: método <code>POST</code> + <code>ingestUrl</code> (mono, break-all, Copy); switch <code>enabled</code>; descripción.</li>
+        <li><code>ApiKeyCard</code> (patrón <code>SigningSecretCard</code>): input enmascarado <code>dxk_••••…</code>; Eye → reveal → Copy; Regenerate con <code>AlertDialog</code>.</li>
+        <li><code>DangerZone</code>: Regenerate token (cambia la URL — doble confirmación) y Delete.</li>
+        <li><code>LimitsCard</code>: modos, topes (10 archivos, 100 MB multipart/URL, 25 MB base64, 5 GB presign), MIME, rate limit.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <strong>Tab Setup (ejemplos de código)</strong> — el corazón DX (§10)
+      <ul style="margin-top:0.4rem">
+        <li>Selector de <strong>modo</strong>: <code>ToggleGroup</code> [Multipart | URL | Base64 | Presign].</li>
+        <li>Selector de <strong>lenguaje</strong>: <code>Tabs</code> [cURL | Python | Node.js | TypeScript | Go | C# | Java].</li>
+        <li><code>CodeSnippet</code> (componente nuevo): bloque mono, fondo <code>Muted</code>, ring hairline, botón Copy, scroll-x, sin syntax-highlight pesado.</li>
+        <li>Snippets generados client-side con <code>buildSnippet(mode, language, { ingestUrl, workflowType })</code>, placeholder <code>YOUR_API_KEY</code>.</li>
+        <li>Para ANALYSIS añade <code>caseName</code> automáticamente. Callout final "¿Cómo recibo el resultado?" → link a Destinations.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <strong>Tab Receptions (delivery log)</strong>
+      <ul style="margin-top:0.4rem">
+        <li>Tabla: filtros [All | Accepted | Partial | Rejected | Failed | Received]; columnas Received at, Mode, Files (n ok / n error), Status (badge: success/warning/destructive/secondary; <code>RECEIVED</code> = secondary con tooltip "recepción incompleta"), Idempotency key.</li>
+        <li>Row detail: snapshot <code>files[]</code> con error individual y <strong>links a cada document set</strong>. Sin replay (lo reintenta el emisor).</li>
+      </ul>
+    </div>
+
+    <h3>9.5 Capa de datos frontend</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pieza</th><th>Archivo nuevo</th></tr></thead>
+        <tbody>
+          <tr><td>Entidad</td><td><code>src/domain/entities/source-webhook.ts</code></td></tr>
+          <tr><td>Repo HTTP</td><td><code>src/infrastructure/repositories/http-source-webhook.ts</code> (<code>authHttp</code>)</td></tr>
+          <tr><td>Hooks</td><td><code>src/application/hooks/queries/source-webhooks.ts</code> (use…Query/Mutation, reveal/regenerate key+token, deliveries)</td></tr>
+          <tr><td>Snippets</td><td><code>src/application/lib/source-webhook-snippets.ts</code> + tests</td></tr>
+          <tr><td>i18n</td><td>namespace <code>SourceWebhooks</code> (es/en)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>9.6 Accesibilidad / estados</h3>
+    <p>Obligatorio (auditoría DESIGN.md): skeletons, <code>EmptyState</code> educativo, <code>aria-invalid</code> + mensajes, focus-visible rings, contraste AA, sin nesting de cards, teal solo en CTA/active, <code>prefers-reduced-motion</code> para spins.</p>
+  </section>
+
+  <!-- ===================== 10. EJEMPLOS ===================== -->
+  <section id="ejemplos">
+    <h2><span class="num">10</span> Ejemplos de código (pestaña Setup)</h2>
+    <p class="lead">Matriz completa: 4 modos × 7 lenguajes. <code>INGEST_URL = https://api.doxiq.app/v1/ingest/src_8fK3…</code>; key en header <code>X-Api-Key</code>.</p>
+
+    <div class="examples-controls">
+      <div class="control-group">
+        <div class="control-lbl">Modo</div>
+        <div class="seg" id="mode-seg">
+          <button data-mode="multipart" class="active">Multipart</button>
+          <button data-mode="url">URL</button>
+          <button data-mode="base64">Base64</button>
+          <button data-mode="presign">Presign</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="control-lbl">Lenguaje</div>
+        <div class="seg" id="lang-seg">
+          <button data-lang="curl" class="active">cURL</button>
+          <button data-lang="python">Python</button>
+          <button data-lang="node">Node.js</button>
+          <button data-lang="ts">TypeScript</button>
+          <button data-lang="go">Go</button>
+          <button data-lang="csharp">C#</button>
+          <button data-lang="java">Java</button>
+        </div>
+      </div>
+    </div>
+    <p class="example-meta" id="example-meta"></p>
+    <div class="code-block">
+      <button class="copy-btn" type="button" id="example-copy">Copiar</button>
+      <pre><code id="example-code"></code></pre>
+    </div>
+
+    <details>
+      <summary>Nota sobre la matriz</summary>
+      <p>El generador <code>buildSnippet(mode, language, …)</code> produce todas las combinaciones. Los snippets cURL/Python/Node/TS/Go/C#/Java siguen el contrato canónico del spec §10; las variantes por modo derivan mecánicamente (mismo endpoint, headers, shape JSON). <code>BodyPublishers.concat</code> (Java) requiere Java 16+; el generador emite la variante con <code>ofByteArrays</code> para targets 11–15.</p>
+    </details>
+  </section>
+
+  <!-- ===================== 11. EDGE CASES ===================== -->
+  <section id="edge-cases">
+    <h2><span class="num">11</span> Edge cases</h2>
+    <ul>
+      <li><strong>Mezcla válidos/inválidos</strong> (mime/tamaño/descarga) ⇒ se aceptan los válidos, item-level <code>error</code> para el resto, delivery <code>PARTIAL</code>, HTTP 202.</li>
+      <li><strong>Único archivo y excede el tope</strong> ⇒ 400 con <code>files[0].error.code = storage.FileTooLarge</code> (regla de §5.7: el HTTP global solo refleja el agregado); delivery <code>REJECTED</code>.</li>
+      <li><strong>0 archivos</strong> / <code>files: []</code> ⇒ 400 <code>ingest.NoFiles</code>.</li>
+      <li><strong>&gt; 10 archivos</strong> ⇒ 400 <code>ingest.TooManyFiles</code> (validado ANTES de procesar ninguno — determinista; la delivery queda <code>REJECTED</code> con el motivo).</li>
+      <li><strong>Mismo archivo dos veces sin <code>Idempotency-Key</code></strong> ⇒ dos sets distintos (file_id nuevo). La solución es el header.</li>
+      <li><strong><code>Idempotency-Key</code> repetida con payload distinto</strong> ⇒ se devuelve el snapshot original (semántica Stripe).</li>
+      <li><strong>Dos requests simultáneos con la misma <code>Idempotency-Key</code></strong> ⇒ delivery-first (§5.9): el segundo INSERT choca con el UNIQUE antes de crear nada; si la primera sigue en vuelo ⇒ 409 <code>ingest.IdempotencyInFlight</code>; si terminó ⇒ replay del snapshot.</li>
+      <li><strong>Crash a mitad de proceso</strong> ⇒ delivery queda <code>RECEIVED</code> (incompleta y visible); cero sets huérfanos invisibles — los despachados aparecen en la UI de sets.</li>
+      <li><strong><code>caseName</code> en STANDARD</strong> ⇒ 400 <code>ingest.CaseNotAllowed</code>. <strong>ANALYSIS sin case</strong> ⇒ 400 <code>ingest.CaseRequired</code>. <strong>Ambiguo</strong> ⇒ 409.</li>
+      <li><strong>URL que redirige a IP privada</strong> ⇒ rechazo SSRF en cualquier hop (máx 3 redirects).</li>
+      <li><strong>URL sin <code>Content-Length</code></strong> ⇒ se permite; el corte ocurre durante el stream.</li>
+      <li><strong><code>Content-Type</code> mentiroso</strong> (dice pdf, magic bytes no) ⇒ 415 item-level.</li>
+      <li><strong>Cliente corta la conexión a mitad del multipart</strong> ⇒ FastAPI aborta; <code>abort_multipart_upload</code> limpia S3; no se crea delivery.</li>
+      <li><strong>Presign: PUT nunca llega / token expira</strong> ⇒ <code>/complete</code> item error <code>ingest.UploadNotFound</code>; huérfanos los limpia lifecycle rule S3 (24 h).</li>
+      <li><strong>Presign: objeto más grande que lo declarado</strong> ⇒ HEAD lo detecta, borra objeto, item 413.</li>
+      <li><strong>Presign: contenido no coincide con el MIME declarado</strong> ⇒ el <code>GET Range: bytes=0-15</code> de <code>/complete</code> (§5.6) detecta magic bytes inválidos, borra el objeto, item 415.</li>
+      <li><strong>Presign: uploadToken de otro webhook</strong> ⇒ <code>/complete</code> rechaza (payload <code>webhookId</code> ≠ webhook de la ruta), item <code>ingest.UploadNotFound</code> (404 uniforme, sin filtrar detalle).</li>
+      <li><strong>Webhook deshabilitado a mitad de un flujo presign</strong> ⇒ <code>/complete</code> 403.</li>
+      <li><strong>Workflow eliminado</strong> ⇒ FK CASCADE borra los source_webhooks; el token deja de resolver ⇒ 404.</li>
+      <li><strong>Regeneración de api_key en carrera con ingesta en vuelo</strong> ⇒ la request en curso ya validó; las siguientes fallan 401.</li>
+      <li><strong>Temporal caído al despachar</strong> ⇒ el dispatcher hace COMMIT del set antes de <code>start_workflow</code>; el <code>ORPHAN_SWEEPER</code> re-despacha sets PENDING huérfanos. El 202 sigue siendo veraz.</li>
+      <li><strong>Tenancy</strong>: todo lookup filtra <code>tenant_id</code> derivado del webhook; un <code>deliveryId</code> o <code>documentSetId</code> ajeno ⇒ 404.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== 12. SEGURIDAD ===================== -->
+  <section id="seguridad">
+    <h2><span class="num">12</span> Seguridad (consolidado)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Vector</th><th>Mitigación</th></tr></thead>
+        <tbody>
+          <tr><td>Adivinanza de URL</td><td>token <code>src_</code> 24 bytes urlsafe (≥128 bits) + API key obligatoria</td></tr>
+          <tr><td>Fuerza bruta de key</td><td>comparación constante + rate limit por token y por IP + 401 sin detalle</td></tr>
+          <tr><td>Enumeración de tokens por timing</td><td>dummy <code>compare_digest</code> también en la rama 404 (§5.1) — latencia uniforme</td></tr>
+          <tr><td>URL filtrada en logs de terceros</td><td>la key viaja en header, nunca en la URL; rotación de token disponible</td></tr>
+          <tr><td>SSRF (modo url)</td><td>validador de IPs privadas/loopback/metadata + redirects manuales re-validados + IP pinning anti DNS-rebinding + solo http(s)</td></tr>
+          <tr><td>Archivos maliciosos</td><td>whitelist MIME + magic bytes en TODOS los modos (presign: <code>GET Range</code> en <code>/complete</code>) + tope de tamaño en streaming + S3 (nunca FS local servible)</td></tr>
+          <tr><td>uploadToken forjado/reutilizado</td><td>HMAC con secreto persistente + expiración 15 min + binding a <code>webhookId</code> verificado contra la ruta</td></tr>
+          <tr><td>Path traversal en nombres</td><td><code>safe_storage_key_name</code> existente (basename + NFC + control chars)</td></tr>
+          <tr><td>DoS por volumen</td><td>topes por request (10 archivos), rate limit por token, <code>MAX_UPLOAD_SIZE</code> streaming, base64 25 MB</td></tr>
+          <tr><td>Replay de requests</td><td><code>Idempotency-Key</code> (opcional) — el replay devuelve snapshot, no re-procesa</td></tr>
+          <tr><td>Exposición de la key</td><td>presenter <code>hasApiKey</code>; reveal explícito con permiso; nunca en list; UI nunca auto-inyecta en snippets</td></tr>
+          <tr><td>Cross-tenant</td><td>tenant_id siempre derivado del webhook resuelto; jamás de input del cliente</td></tr>
+          <tr><td>Enumeración de deliveries</td><td><code>deliveryId</code> UUID + scoping por webhook + 404 uniforme</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== 13. PLAN ===================== -->
+  <section id="plan">
+    <h2><span class="num">13</span> Plan de implementación</h2>
+    <div class="card">
+      <strong>Fase 0 — Fundaciones</strong>
+      <ol style="margin-top:0.4rem">
+        <li>Enums <code>source_webhooks.py</code> + <code>WorkflowDocumentSetTrigger.WEBHOOK</code> + <code>PROVIDER_CAPABILITIES[WEBHOOK] = {SEND, RECEIVE}</code>.</li>
+        <li>Settings §4.5. Helpers <code>generate_source_webhook_token()</code> / <code>generate_source_webhook_api_key()</code>.</li>
+        <li>Storage: <code>FileRepository.get_presigned_put_url(...)</code> + use case <code>StreamUploadFile</code> + helper magic bytes.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <strong>Fase 1 — Modelos + migración</strong>
+      <ol start="4" style="margin-top:0.4rem">
+        <li>Dominio + ORM + builders + repos (<code>SourceWebhookRepository</code>, <code>SourceWebhookDeliveryRepository</code>).</li>
+        <li><strong>Migración Alembic</strong>: tablas <code>source_webhooks</code>, <code>source_webhook_deliveries</code>, columna <code>workflow_document_sets.source_webhook_id</code> + índices.</li>
+        <li>Dispatcher: kwarg <code>source_webhook_id</code> (persistencia passthrough).</li>
+      </ol>
+    </div>
+    <div class="card">
+      <strong>Fase 2 — Ingesta pública (núcleo)</strong>
+      <ol start="7" style="margin-top:0.4rem">
+        <li>Dependencia <code>get_ingest_context</code> + excepciones <code>ingest.*</code> + rate limit por token.</li>
+        <li><code>ingest_router</code> + endpoint principal: parsing, validaciones, streaming, resolución de case, despacho, delivery, idempotencia.</li>
+        <li>Registro del router en <code>config/main.py</code> (sin auth deps).</li>
+      </ol>
+    </div>
+    <div class="card">
+      <strong>Fase 3 — Presign + status</strong>
+      <ol start="10" style="margin-top:0.4rem">
+        <li><code>/presign</code> (presigned PUT + uploadToken HMAC) y <code>/complete</code> (verify + HEAD + dispatch).</li>
+        <li><code>/status/{delivery_id}</code> (composición delivery + sets + documentos).</li>
+        <li>Lifecycle rule S3 para uploads huérfanos.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <strong>Fase 4 — API de gestión</strong>
+      <ol start="13" style="margin-top:0.4rem">
+        <li>Use cases CRUD + reveal/regenerate(key|token) + list deliveries; schemas; presenters; rutas.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <strong>Fase 5 — Frontend</strong>
+      <ol start="14" style="margin-top:0.4rem">
+        <li>Entidad + repo HTTP + hooks React Query (§9.5).</li>
+        <li><code>SourceTypeGrid</code>: tile activo. Páginas lista + detalle (tabs). Form dialog con éxito one-time.</li>
+        <li><code>CodeSnippet</code> + <code>source-webhook-snippets.ts</code> (4×7) + tests de snapshots.</li>
+        <li>i18n <code>SourceWebhooks</code> (es/en).</li>
+      </ol>
+    </div>
+    <div class="card">
+      <strong>Fase 6 — Hardening + calidad</strong>
+      <ol start="18" style="margin-top:0.4rem">
+        <li>Tests backend: unit, endpoint (modos × códigos, idempotencia, parcialidad, tenancy), e2e.</li>
+        <li>Tests frontend: hooks, dialog one-time key, generador de snippets (golden files).</li>
+        <li>Docs públicas (<code>docs.llamit.ai/ingest</code>).</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== 14. ACEPTACIÓN ===================== -->
+  <section id="aceptacion">
+    <h2><span class="num">14</span> Criterios de aceptación</h2>
+    <ol>
+      <li>Un workflow (STANDARD o ANALYSIS) puede crear ≥1 source webhook desde <strong>Connections ▸ Sources ▸ Webhook</strong>; al crear se muestran URL y API key una vez.</li>
+      <li><code>POST /v1/ingest/{token}</code> con <code>X-Api-Key</code> válida acepta multipart, <code>{url}</code> y <code>{base64}</code>; cada archivo válido crea su set (+ case en ANALYSIS) y dispara el pipeline; responde 202 con <code>deliveryId</code>, <code>documentSetId</code>s y <code>statusUrl</code>.</li>
+      <li>Archivos &gt; 100 MB ingresan por presign hasta 5 GB sin pasar por la RAM; ningún camino hace <code>read()</code> completo.</li>
+      <li>Key/token inválidos ⇒ 401/404 sin filtrar info; disabled ⇒ 403; mime/tamaño inválidos ⇒ error item-level con delivery <code>PARTIAL</code>/<code>REJECTED</code>.</li>
+      <li><code>Idempotency-Key</code> repetida devuelve la respuesta original sin crear sets nuevos.</li>
+      <li>La pestaña Receptions lista las recepciones con filtros y enlaza a los document sets; los sets muestran trigger <code>WEBHOOK</code>.</li>
+      <li>La pestaña Setup genera ejemplos correctos y copiables en los 7 lenguajes para los 4 modos, con la <code>ingestUrl</code> real.</li>
+      <li>El resultado llega por los destination webhooks y es correlacionable por <code>documentSetId</code>; el status endpoint refleja el estado vivo.</li>
+      <li>Patrón BFF intacto: el frontend nunca llama al host del backend ni conoce <code>PUBLIC_INGEST_BASE_URL</code> por env (la URL viene del presenter).</li>
+    </ol>
+
+    <h3>15 · Fuera de alcance (futuro)</h3>
+    <ul>
+      <li>Orígenes Email / WhatsApp / Drive (spec connections fase 2 — reutilizarán auditoría <code>source_webhook_deliveries</code>-like y el mismo dispatch).</li>
+      <li>Webhooks de salida ANALYSIS (<code>analysis_run.completed</code>) — spec aparte.</li>
+      <li>Cifrado en reposo de credenciales; quotas de billing; allowlist de IPs; MIME extra; firma de payload entrante.</li>
+      <li>Migración del <code>/documents/upload</code> interno al camino streaming.</li>
+    </ul>
+  </section>
+
+  </main>
+</div>
+
+<footer>
+  <p><strong>Spec: Webhooks de entrada (<code>source_webhooks</code>)</strong> — Doxiq by Llamitai · diseño cerrado · branch <code>dev</code> · 2026-06-03.</p>
+  <p>Hermano de entrada de <code>product/specs/source-webhooks/standard-webhooks.md</code> (salida) y pieza de la mitad Orígenes de <code>product/specs/connections/spec.md</code>. Documento autocontenido generado desde <code>spec.md</code>.</p>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Copy buttons ---------- */
+  function attachCopy(btn) {
+    btn.addEventListener("click", function () {
+      var block = btn.closest(".code-block");
+      var code = block ? block.querySelector("code, pre") : null;
+      var text = code ? code.innerText : "";
+      var done = function () {
+        var old = btn.textContent;
+        btn.textContent = "Copiado";
+        btn.classList.add("copied");
+        setTimeout(function () { btn.textContent = old; btn.classList.remove("copied"); }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else { fallback(); }
+      function fallback() {
+        var ta = document.createElement("textarea");
+        ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); done(); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".copy-btn"), attachCopy);
+
+  /* ---------- Scroll-spy TOC ---------- */
+  var links = Array.prototype.slice.call(document.querySelectorAll("nav.toc a"));
+  var map = {};
+  links.forEach(function (a) {
+    var id = a.getAttribute("href").slice(1);
+    var sec = document.getElementById(id);
+    if (sec) map[id] = a;
+  });
+  var sections = Object.keys(map).map(function (id) { return document.getElementById(id); });
+  if ("IntersectionObserver" in window) {
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove("active"); });
+          var a = map[e.target.id];
+          if (a) a.classList.add("active");
+        }
+      });
+    }, { rootMargin: "-10% 0px -80% 0px", threshold: 0 });
+    sections.forEach(function (s) { obs.observe(s); });
+  }
+
+  /* ---------- Code examples matrix ---------- */
+  var URL = "https://api.doxiq.app/v1/ingest/src_8fK3...";
+  var KEY = "$DOXIQ_API_KEY";
+
+  var EX = {
+    curl: {
+      multipart: 'curl -X POST "' + URL + '" \\\n  -H "X-Api-Key: ' + KEY + '" \\\n  -H "Idempotency-Key: order-2026-0042" \\\n  -F "files=@factura_001.pdf" \\\n  -F "files=@remito_77.png"',
+      url: 'curl -X POST "' + URL + '" \\\n  -H "X-Api-Key: ' + KEY + '" -H "Content-Type: application/json" \\\n  -d \'{"files":[{"url":"https://storage.acme.com/docs/factura_001.pdf"}]}\'',
+      base64: 'curl -X POST "' + URL + '" \\\n  -H "X-Api-Key: ' + KEY + '" -H "Content-Type: application/json" \\\n  -d "{\\"files\\":[{\\"fileName\\":\\"factura.pdf\\",\\"mime\\":\\"application/pdf\\",\\"contentBase64\\":\\"$(base64 -i factura.pdf)\\"}]}"',
+      presign: 'UPLOAD=$(curl -s -X POST "' + URL + '/presign" \\\n  -H "X-Api-Key: ' + KEY + '" -H "Content-Type: application/json" \\\n  -d \'{"files":[{"fileName":"lote.pdf","mime":"application/pdf","size":734003200}]}\')\ncurl -X PUT "$(echo "$UPLOAD" | jq -r \'.uploads[0].uploadUrl\')" \\\n  -H "Content-Type: application/pdf" --upload-file lote.pdf\ncurl -X POST "' + URL + '/complete" \\\n  -H "X-Api-Key: ' + KEY + '" -H "Content-Type: application/json" \\\n  -d "{\\"files\\":[\\"$(echo "$UPLOAD" | jq -r \'.uploads[0].uploadToken\')\\"]}"'
+    },
+    python: {
+      multipart: 'import requests\n\nINGEST_URL = "' + URL + '"\nHEADERS = {"X-Api-Key": "dxk_..."}\n\nwith open("factura_001.pdf", "rb") as f1, open("remito_77.png", "rb") as f2:\n    r = requests.post(\n        INGEST_URL,\n        headers={**HEADERS, "Idempotency-Key": "order-2026-0042"},\n        files=[\n            ("files", ("factura_001.pdf", f1, "application/pdf")),\n            ("files", ("remito_77.png", f2, "image/png")),\n        ],\n        # ANALYSIS: data={"caseName": "Expediente 2026-0042"},\n        timeout=120,\n    )\nr.raise_for_status()\ndelivery = r.json()\nprint(delivery["deliveryId"], [f["documentSetId"] for f in delivery["files"]])',
+      url: 'import requests\n\nINGEST_URL = "' + URL + '"\nHEADERS = {"X-Api-Key": "dxk_..."}\n\nrequests.post(INGEST_URL, headers=HEADERS, json={\n    "files": [{"url": "https://storage.acme.com/docs/factura_001.pdf"}],\n}, timeout=120)',
+      base64: 'import base64, requests\n\nINGEST_URL = "' + URL + '"\nHEADERS = {"X-Api-Key": "dxk_..."}\n\nwith open("factura.pdf", "rb") as f:\n    b64 = base64.b64encode(f.read()).decode()  # <= 25 MB decodificado\n\nrequests.post(INGEST_URL, headers=HEADERS, json={\n    "files": [{"fileName": "factura.pdf", "mime": "application/pdf",\n               "contentBase64": b64}],\n}, timeout=120)',
+      presign: 'import requests\n\nINGEST_URL = "' + URL + '"\nHEADERS = {"X-Api-Key": "dxk_..."}\n\npre = requests.post(f"{INGEST_URL}/presign", headers=HEADERS, json={\n    "files": [{"fileName": "lote.pdf", "mime": "application/pdf", "size": 734003200}],\n}).json()\nup = pre["uploads"][0]\nwith open("lote.pdf", "rb") as f:\n    requests.put(up["uploadUrl"], data=f, headers={"Content-Type": "application/pdf"})\nrequests.post(f"{INGEST_URL}/complete", headers=HEADERS,\n              json={"files": [up["uploadToken"]]})'
+    },
+    node: {
+      multipart: 'import { openAsBlob } from "node:fs";\n\nconst INGEST_URL = "' + URL + '";\nconst HEADERS = { "X-Api-Key": process.env.DOXIQ_API_KEY };\n\nconst form = new FormData();\nform.append("files", await openAsBlob("factura_001.pdf"), "factura_001.pdf");\nform.append("files", await openAsBlob("remito_77.png"), "remito_77.png");\n// ANALYSIS: form.append("caseName", "Expediente 2026-0042");\n\nconst res = await fetch(INGEST_URL, {\n  method: "POST",\n  headers: { ...HEADERS, "Idempotency-Key": "order-2026-0042" },\n  body: form,\n});\nif (!res.ok) throw new Error(`Ingest failed: ${res.status}`);\nconst delivery = await res.json();\nconsole.log(delivery.deliveryId, delivery.files.map((f) => f.documentSetId));',
+      url: 'const INGEST_URL = "' + URL + '";\nconst HEADERS = { "X-Api-Key": process.env.DOXIQ_API_KEY };\n\nawait fetch(INGEST_URL, {\n  method: "POST",\n  headers: { ...HEADERS, "Content-Type": "application/json" },\n  body: JSON.stringify({ files: [{ url: "https://storage.acme.com/docs/f.pdf" }] }),\n});',
+      base64: 'import { readFile } from "node:fs/promises";\n\nconst INGEST_URL = "' + URL + '";\nconst HEADERS = { "X-Api-Key": process.env.DOXIQ_API_KEY };\n\nconst b64 = (await readFile("factura.pdf")).toString("base64"); // <= 25 MB\nawait fetch(INGEST_URL, {\n  method: "POST",\n  headers: { ...HEADERS, "Content-Type": "application/json" },\n  body: JSON.stringify({\n    files: [{ fileName: "factura.pdf", mime: "application/pdf", contentBase64: b64 }],\n  }),\n});',
+      presign: 'import { openAsBlob } from "node:fs";\n\nconst INGEST_URL = "' + URL + '";\nconst HEADERS = { "X-Api-Key": process.env.DOXIQ_API_KEY };\n\nconst pre = await (await fetch(`${INGEST_URL}/presign`, {\n  method: "POST",\n  headers: { ...HEADERS, "Content-Type": "application/json" },\n  body: JSON.stringify({ files: [{ fileName: "lote.pdf", mime: "application/pdf", size: 734003200 }] }),\n})).json();\nconst up = pre.uploads[0];\nawait fetch(up.uploadUrl, { method: "PUT", headers: { "Content-Type": "application/pdf" },\n  body: await openAsBlob("lote.pdf") });\nawait fetch(`${INGEST_URL}/complete`, {\n  method: "POST",\n  headers: { ...HEADERS, "Content-Type": "application/json" },\n  body: JSON.stringify({ files: [up.uploadToken] }),\n});'
+    },
+    ts: {
+      multipart: 'interface IngestFileResult {\n  fileName: string; size: number | null; mime: string | null;\n  fileId: string | null; documentSetId: string | null;\n  processingJobId: string | null; status: string | null;\n  error: { code: string; message: string } | null;\n}\ninterface IngestResponse {\n  deliveryId: string;\n  status: "ACCEPTED" | "PARTIAL";\n  statusUrl: string;\n  workflow: { id: string; name: string; type: "STANDARD" | "ANALYSIS" };\n  case: { id: string; name: string } | null;\n  files: IngestFileResult[];\n}\n\nconst form = new FormData();\nform.append("files", new Blob([buf], { type: "application/pdf" }), "factura.pdf");\n\nconst res = await fetch(INGEST_URL, {\n  method: "POST",\n  headers: { "X-Api-Key": apiKey },\n  body: form,\n});\nconst delivery: IngestResponse = await res.json();',
+      url: 'const body = { files: [{ url: "https://storage.acme.com/docs/factura_001.pdf" }] };\nconst res = await fetch(INGEST_URL, {\n  method: "POST",\n  headers: { "X-Api-Key": apiKey, "Content-Type": "application/json" },\n  body: JSON.stringify(body),\n});\nconst delivery: IngestResponse = await res.json();',
+      base64: 'const contentBase64 = btoa(String.fromCharCode(...new Uint8Array(buf))); // <= 25 MB\nconst res = await fetch(INGEST_URL, {\n  method: "POST",\n  headers: { "X-Api-Key": apiKey, "Content-Type": "application/json" },\n  body: JSON.stringify({\n    files: [{ fileName: "factura.pdf", mime: "application/pdf", contentBase64 }],\n  }),\n});\nconst delivery: IngestResponse = await res.json();',
+      presign: 'interface PresignUpload { uploadUrl: string; uploadToken: string; expiresAt: string; }\n\nconst pre = await (await fetch(`${INGEST_URL}/presign`, {\n  method: "POST",\n  headers: { "X-Api-Key": apiKey, "Content-Type": "application/json" },\n  body: JSON.stringify({ files: [{ fileName: "lote.pdf", mime: "application/pdf", size: 734003200 }] }),\n})).json() as { uploads: PresignUpload[] };\nconst up = pre.uploads[0];\nawait fetch(up.uploadUrl, { method: "PUT", headers: { "Content-Type": "application/pdf" }, body: blob });\nconst delivery: IngestResponse = await (await fetch(`${INGEST_URL}/complete`, {\n  method: "POST",\n  headers: { "X-Api-Key": apiKey, "Content-Type": "application/json" },\n  body: JSON.stringify({ files: [up.uploadToken] }),\n})).json();'
+    },
+    go: {
+      multipart: 'package main\n\nimport (\n    "io"; "mime/multipart"; "net/http"; "os"\n)\n\nfunc main() {\n    pr, pw := io.Pipe()\n    mw := multipart.NewWriter(pw)\n    go func() {\n        defer pw.Close(); defer mw.Close()\n        f, _ := os.Open("factura_001.pdf"); defer f.Close()\n        part, _ := mw.CreateFormFile("files", "factura_001.pdf")\n        io.Copy(part, f) // streaming: el archivo nunca está entero en RAM\n    }()\n\n    req, _ := http.NewRequest("POST", ingestURL, pr)\n    req.Header.Set("X-Api-Key", os.Getenv("DOXIQ_API_KEY"))\n    req.Header.Set("Content-Type", mw.FormDataContentType())\n    resp, err := http.DefaultClient.Do(req)\n    if err != nil { panic(err) }\n    defer resp.Body.Close() // 202 → decodificar JSON {deliveryId, files[]}\n}',
+      url: 'package main\n\nimport (\n    "bytes"; "net/http"; "os"\n)\n\nfunc main() {\n    body := []byte(`{"files":[{"url":"https://storage.acme.com/docs/factura_001.pdf"}]}`)\n    req, _ := http.NewRequest("POST", ingestURL, bytes.NewReader(body))\n    req.Header.Set("X-Api-Key", os.Getenv("DOXIQ_API_KEY"))\n    req.Header.Set("Content-Type", "application/json")\n    resp, _ := http.DefaultClient.Do(req)\n    defer resp.Body.Close() // 202 {deliveryId, files[]}\n}',
+      base64: 'package main\n\nimport (\n    "bytes"; "encoding/base64"; "encoding/json"; "net/http"; "os"\n)\n\nfunc main() {\n    raw, _ := os.ReadFile("factura.pdf") // <= 25 MB\n    b64 := base64.StdEncoding.EncodeToString(raw)\n    body, _ := json.Marshal(map[string]any{"files": []map[string]string{\n        {"fileName": "factura.pdf", "mime": "application/pdf", "contentBase64": b64},\n    }})\n    req, _ := http.NewRequest("POST", ingestURL, bytes.NewReader(body))\n    req.Header.Set("X-Api-Key", os.Getenv("DOXIQ_API_KEY"))\n    req.Header.Set("Content-Type", "application/json")\n    resp, _ := http.DefaultClient.Do(req)\n    defer resp.Body.Close()\n}',
+      presign: 'package main\n\nimport (\n    "bytes"; "encoding/json"; "net/http"; "os"\n)\n\nfunc main() {\n    key := os.Getenv("DOXIQ_API_KEY")\n    // 1. presign\n    pReq, _ := http.NewRequest("POST", ingestURL+"/presign",\n        bytes.NewReader([]byte(`{"files":[{"fileName":"lote.pdf","mime":"application/pdf","size":734003200}]}`)))\n    pReq.Header.Set("X-Api-Key", key); pReq.Header.Set("Content-Type", "application/json")\n    pResp, _ := http.DefaultClient.Do(pReq)\n    var pre struct{ Uploads []struct{ UploadUrl, UploadToken string } }\n    json.NewDecoder(pResp.Body).Decode(&pre); pResp.Body.Close()\n    up := pre.Uploads[0]\n    // 2. PUT directo a S3\n    f, _ := os.Open("lote.pdf"); defer f.Close()\n    putReq, _ := http.NewRequest("PUT", up.UploadUrl, f)\n    putReq.Header.Set("Content-Type", "application/pdf")\n    http.DefaultClient.Do(putReq)\n    // 3. complete\n    body, _ := json.Marshal(map[string]any{"files": []string{up.UploadToken}})\n    cReq, _ := http.NewRequest("POST", ingestURL+"/complete", bytes.NewReader(body))\n    cReq.Header.Set("X-Api-Key", key); cReq.Header.Set("Content-Type", "application/json")\n    http.DefaultClient.Do(cReq)\n}'
+    },
+    csharp: {
+      multipart: 'using var http = new HttpClient();\nhttp.DefaultRequestHeaders.Add("X-Api-Key",\n    Environment.GetEnvironmentVariable("DOXIQ_API_KEY"));\n\nusing var form = new MultipartFormDataContent();\nawait using var fs = File.OpenRead("factura_001.pdf");\nvar file = new StreamContent(fs);   // streaming desde disco\nfile.Headers.ContentType = new("application/pdf");\nform.Add(file, "files", "factura_001.pdf");\n\nvar res = await http.PostAsync(ingestUrl, form);\nres.EnsureSuccessStatusCode();      // 202\nvar delivery = await res.Content.ReadFromJsonAsync<JsonElement>();\nConsole.WriteLine(delivery.GetProperty("deliveryId"));',
+      url: 'using var http = new HttpClient();\nhttp.DefaultRequestHeaders.Add("X-Api-Key",\n    Environment.GetEnvironmentVariable("DOXIQ_API_KEY"));\n\nvar payload = new { files = new[] { new { url = "https://storage.acme.com/docs/f.pdf" } } };\nvar res = await http.PostAsJsonAsync(ingestUrl, payload);\nres.EnsureSuccessStatusCode();      // 202\nvar delivery = await res.Content.ReadFromJsonAsync<JsonElement>();',
+      base64: 'using var http = new HttpClient();\nhttp.DefaultRequestHeaders.Add("X-Api-Key",\n    Environment.GetEnvironmentVariable("DOXIQ_API_KEY"));\n\nvar b64 = Convert.ToBase64String(await File.ReadAllBytesAsync("factura.pdf")); // <= 25 MB\nvar payload = new { files = new[] {\n    new { fileName = "factura.pdf", mime = "application/pdf", contentBase64 = b64 } } };\nvar res = await http.PostAsJsonAsync(ingestUrl, payload);\nres.EnsureSuccessStatusCode();',
+      presign: 'using var http = new HttpClient();\nhttp.DefaultRequestHeaders.Add("X-Api-Key",\n    Environment.GetEnvironmentVariable("DOXIQ_API_KEY"));\n\nvar pre = await (await http.PostAsJsonAsync(ingestUrl + "/presign", new {\n    files = new[] { new { fileName = "lote.pdf", mime = "application/pdf", size = 734003200L } }\n})).Content.ReadFromJsonAsync<JsonElement>();\nvar up = pre.GetProperty("uploads")[0];\n\nawait using var fs = File.OpenRead("lote.pdf");\nvar put = new StreamContent(fs);\nput.Headers.ContentType = new("application/pdf");\nawait http.PutAsync(up.GetProperty("uploadUrl").GetString(), put);\n\nawait http.PostAsJsonAsync(ingestUrl + "/complete", new {\n    files = new[] { up.GetProperty("uploadToken").GetString() } });'
+    },
+    java: {
+      multipart: 'var boundary = "----doxiq" + System.nanoTime();\nvar path = Path.of("factura_001.pdf");\nvar head = ("--" + boundary + "\\r\\n"\n    + "Content-Disposition: form-data; name=\\"files\\"; filename=\\"factura_001.pdf\\"\\r\\n"\n    + "Content-Type: application/pdf\\r\\n\\r\\n").getBytes();\nvar tail = ("\\r\\n--" + boundary + "--\\r\\n").getBytes();\n\nvar body = HttpRequest.BodyPublishers.concat(          // Java 16+\n    HttpRequest.BodyPublishers.ofByteArray(head),\n    HttpRequest.BodyPublishers.ofFile(path),          // streaming\n    HttpRequest.BodyPublishers.ofByteArray(tail));\n\nvar req = HttpRequest.newBuilder(URI.create(INGEST_URL))\n    .header("X-Api-Key", System.getenv("DOXIQ_API_KEY"))\n    .header("Content-Type", "multipart/form-data; boundary=" + boundary)\n    .POST(body).build();\n\nvar res = HttpClient.newHttpClient().send(req, HttpResponse.BodyHandlers.ofString());\nSystem.out.println(res.statusCode() + " " + res.body());   // 202 {deliveryId,...}',
+      url: 'var json = "{\\"files\\":[{\\"url\\":\\"https://storage.acme.com/docs/factura_001.pdf\\"}]}";\nvar req = HttpRequest.newBuilder(URI.create(INGEST_URL))\n    .header("X-Api-Key", System.getenv("DOXIQ_API_KEY"))\n    .header("Content-Type", "application/json")\n    .POST(HttpRequest.BodyPublishers.ofString(json)).build();\n\nvar res = HttpClient.newHttpClient().send(req, HttpResponse.BodyHandlers.ofString());\nSystem.out.println(res.statusCode() + " " + res.body());   // 202',
+      base64: 'var bytes = Files.readAllBytes(Path.of("factura.pdf")); // <= 25 MB\nvar b64 = Base64.getEncoder().encodeToString(bytes);\nvar json = "{\\"files\\":[{\\"fileName\\":\\"factura.pdf\\",\\"mime\\":\\"application/pdf\\","\n    + "\\"contentBase64\\":\\"" + b64 + "\\"}]}";\nvar req = HttpRequest.newBuilder(URI.create(INGEST_URL))\n    .header("X-Api-Key", System.getenv("DOXIQ_API_KEY"))\n    .header("Content-Type", "application/json")\n    .POST(HttpRequest.BodyPublishers.ofString(json)).build();\n\nvar res = HttpClient.newHttpClient().send(req, HttpResponse.BodyHandlers.ofString());',
+      presign: 'var client = HttpClient.newHttpClient();\nvar key = System.getenv("DOXIQ_API_KEY");\n\n// 1. presign\nvar pre = client.send(HttpRequest.newBuilder(URI.create(INGEST_URL + "/presign"))\n    .header("X-Api-Key", key).header("Content-Type", "application/json")\n    .POST(HttpRequest.BodyPublishers.ofString(\n        "{\\"files\\":[{\\"fileName\\":\\"lote.pdf\\",\\"mime\\":\\"application/pdf\\",\\"size\\":734003200}]}"))\n    .build(), HttpResponse.BodyHandlers.ofString());\n// parse pre.body() -> uploadUrl, uploadToken\n\n// 2. PUT directo a S3 (streaming)\nclient.send(HttpRequest.newBuilder(URI.create(uploadUrl))\n    .header("Content-Type", "application/pdf")\n    .PUT(HttpRequest.BodyPublishers.ofFile(Path.of("lote.pdf"))).build(),\n    HttpResponse.BodyHandlers.discarding());\n\n// 3. complete\nclient.send(HttpRequest.newBuilder(URI.create(INGEST_URL + "/complete"))\n    .header("X-Api-Key", key).header("Content-Type", "application/json")\n    .POST(HttpRequest.BodyPublishers.ofString("{\\"files\\":[\\"" + uploadToken + "\\"]}")).build(),\n    HttpResponse.BodyHandlers.ofString());'
+    }
+  };
+
+  var LANG_NAME = { curl: "cURL", python: "Python (requests)", node: "Node.js (fetch nativo >=18)",
+    ts: "TypeScript", go: "Go", csharp: "C# (.NET 8)", java: "Java (11+, java.net.http)" };
+  var MODE_NAME = { multipart: "Multipart (binario directo)", url: "URL pública (JSON)",
+    base64: "Base64 (JSON, low-code)", presign: "Presign (archivos grandes, hasta 5 GB)" };
+
+  var state = { mode: "multipart", lang: "curl" };
+  var codeEl = document.getElementById("example-code");
+  var metaEl = document.getElementById("example-meta");
+
+  function render() {
+    var byLang = EX[state.lang] || {};
+    var snippet = byLang[state.mode] || "// (snippet no disponible)";
+    codeEl.textContent = snippet;
+    metaEl.textContent = LANG_NAME[state.lang] + " · " + MODE_NAME[state.mode];
+  }
+
+  function wire(segId, key) {
+    var seg = document.getElementById(segId);
+    if (!seg) return;
+    seg.addEventListener("click", function (e) {
+      var btn = e.target.closest("button");
+      if (!btn) return;
+      Array.prototype.forEach.call(seg.querySelectorAll("button"), function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      state[key] = btn.getAttribute("data-" + key);
+      render();
+    });
+  }
+  wire("mode-seg", "mode");
+  wire("lang-seg", "lang");
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+{
+  "id": "D3",
+  "name": "Promedio sobre array — ingreso mensual promedio",
+  "rule": {
+    "prompt": "Calcular el ingreso líquido promedio mensual considerando los últimos 6 recibos de sueldo @payslip[], usando @payslip.liquido_a_pago ordenado por @payslip.fecha_pago descendente. Reportar el rango de fechas usado.",
+    "config": {
+      "output_shape": {
+        "type": "object",
+        "required": [
+          "promedio_liquido",
+          "meses_considerados",
+          "ventana"
+        ],
+        "properties": {
+          "promedio_liquido": {
+            "type": "number"
+          },
+          "meses_considerados": {
+            "type": "integer"
+          },
+          "ventana": {
+            "type": "object",
+            "required": [
+              "desde",
+              "hasta"
+            ],
+            "properties": {
+              "desde": {
+                "type": "string",
+                "format": "date"
+              },
+              "hasta": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "available_doctypes": [
+    "payslip"
+  ],
+  "expected_artifact": {
+    "inputs": [
+      {
+        "ref": "@payslip[]",
+        "doctype": "payslip",
+        "path": "",
+        "required": true,
+        "kind": "array"
+      },
+      {
+        "ref": "@payslip.liquido_a_pago",
+        "doctype": "payslip",
+        "path": "liquido_a_pago",
+        "required": true,
+        "kind": "scalar"
+      },
+      {
+        "ref": "@payslip.fecha_pago",
+        "doctype": "payslip",
+        "path": "fecha_pago",
+        "required": true,
+        "kind": "scalar"
+      }
+    ],
+    "tokens": [],
+    "knowledge_refs": [],
+    "output_shape_validated": true
+  }
+}

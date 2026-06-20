@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "workflow_bundle",
+  "slug": "pedidos-multicanal",
+  "name": "Pedidos Multicanal",
+  "description": "Recibe pedidos por email y WhatsApp (texto + nota de voz), extrae cliente, productos y total, y entrega el pedido estructurado. Caso 4 (fabricante de helados).",
+  "industry": null,
+  "workflow": {
+    "name": "Pedidos Multicanal",
+    "slug": "pedidos-multicanal",
+    "workflowType": "ANALYSIS",
+    "outputSchema": null,
+    "caseNoun": {
+      "es": { "one": "Pedido", "other": "Pedidos" },
+      "en": { "one": "Order", "other": "Orders" }
+    }
+  },
+  "documentTypes": [
+    {
+      "name": "Pedido",
+      "slug": "pedido",
+      "description": "Pedido de cliente recibido por un canal de mensajería (email/WhatsApp).",
+      "keywords": ["pedido", "orden", "compra", "helado"],
+      "examples": [],
+      "fields": {
+        "type": "object",
+        "properties": {
+          "cliente": { "type": "string", "description": "Nombre o razón social del cliente" },
+          "productos": {
+            "type": "array",
+            "description": "Líneas del pedido",
+            "items": {
+              "type": "object",
+              "properties": {
+                "nombre": { "type": "string" },
+                "cantidad": { "type": "number" }
+              }
+            }
+          },
+          "total": { "type": "number", "description": "Total del pedido" },
+          "canal": { "type": "string", "description": "Canal de origen: email | whatsapp" }
+        }
+      },
+      "validation_rules": [
+        {
+          "id": "total-positivo",
+          "name": "Total mayor que cero",
+          "prompt": "El total del pedido debe ser mayor que cero.",
+          "enabled": true
+        }
+      ]
+    }
+  ],
+  "pipeline": {
+    "slug": "pedidos-e2e",
+    "name": "Pedidos (extracción auto + caso simple)",
+    "kind": "ANALYSIS",
+    "outputSchema": null,
+    "phases": [
+      { "id": "ingest", "kind": "ingest", "config": {} },
+      { "id": "extract_text", "kind": "extract_text", "config": { "extractor": "auto" } },
+      { "id": "classify_pages", "kind": "classify_pages", "config": {} },
+      { "id": "extract_fields", "kind": "extract_fields", "config": {} },
+      { "id": "validate_extraction", "kind": "validate_extraction", "config": {} },
+      { "id": "finalize", "kind": "finalize", "config": {} },
+      { "id": "await_documents", "kind": "await_documents", "config": { "required_types": { "pedido": 1 }, "advance": "auto" } },
+      { "id": "extraction_gate", "kind": "extraction_gate", "config": { "activation": { "field_thresholds": { "default": 0.7 }, "on_low_confidence": "clarify", "blocking_rule_severities": ["BLOCKER"], "sample_rate": 0, "mode": "by_exception" } } },
+      { "id": "analyze", "kind": "analyze", "config": {} },
+      { "id": "output", "kind": "output", "config": {} },
+      { "id": "deliver", "kind": "deliver", "config": {} }
+    ]
+  },
+  "rules": [
+    {
+      "name": "Total del pedido positivo",
+      "slug": "total_positivo",
+      "kind": "VALIDATION",
+      "prompt": "Verifica que el total del pedido (@pedido.total) sea un número mayor que cero.",
+      "when": null,
+      "config": { "severity": "BLOCKER" },
+      "scope": { "mode": "ALL_DOCUMENTS", "on_empty": "SKIPPED", "document_type_slug": "pedido" },
+      "knowledge_refs_external": [],
+      "position": 0,
+      "is_active": true
+    }
+  ],
+  "requiresConfiguration": ["destinations", "sources"]
+}

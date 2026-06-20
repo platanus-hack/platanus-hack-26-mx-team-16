@@ -1,0 +1,16 @@
+{
+  "id": "V10",
+  "name": "Cross-doc agregado — RUT del DNI en partes contrato y consistencia con liquidación",
+  "rule": {
+    "prompt": "@dni.rut debe aparecer en @contract.partes[].rut con @contract.partes[].rol ∈ {'TRABAJADOR', 'BENEFICIARIO'}. Además, al menos un @payslip.empleador debe coincidir con alguna @contract.partes[].nombre con rol ∈ {'EMPLEADOR', 'EMPRESA'}, normalizando tildes y mayúsculas.",
+    "config": {
+      "severity": "MAJOR"
+    }
+  },
+  "available_doctypes": [
+    "dni",
+    "contract",
+    "payslip"
+  ],
+  "kb_slugs": []
+}

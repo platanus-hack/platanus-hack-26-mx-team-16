@@ -1,0 +1,124 @@
+/* spine-theme.css — remapea las CSS variables del editor (.pe-root) a los
+   tokens del tema de Doxiq (Tailwind v4, oklch). Se importa DESPUÉS de
+   pipeline-editor.css: misma especificidad, gana el orden. Así el spine hereda
+   light/dark del tema sin tocar el CSS base del paquete. */
+.pe-root {
+  --pe-bg: var(--background);
+  --pe-surface: var(--card);
+  --pe-ink: var(--foreground);
+  --pe-muted: var(--muted-foreground);
+  --pe-faint: color-mix(in oklch, var(--muted-foreground) 70%, var(--background));
+  --pe-line: var(--border);
+  --pe-line-soft: color-mix(in oklch, var(--border) 55%, var(--background));
+  --pe-brand: var(--primary);
+  --pe-edge: color-mix(in oklch, var(--muted-foreground) 48%, var(--background));
+  --pe-edge-soft: var(--border);
+  --pe-font: var(--font-sans);
+  --pe-mono: var(--font-geist-mono);
+
+  /* El spine crece a la altura de su contenido: NO tiene scroll interno propio,
+     el scroll vertical es el del tab (así el lienzo y el drawer comparten un
+     único scroll y se sienten una sola superficie). `min-height: 100%` hace que
+     LLENE la columna del canvas cuando el contenido es más corto que la
+     superficie (si no, el fondo punteado dejaba de verse y aparecía bg-card
+     blanco debajo); con contenido más alto sigue creciendo (height: auto). */
+  height: auto;
+  min-height: 100%;
+}
+.pe-root .pe-vp {
+  /* grow:1 para llenar el alto del root; shrink:0 + basis:auto para no encoger
+     por debajo del contenido (sin scroll interno). Así el fondo blueprint cubre
+     todo el alto disponible y, si el contenido es alto, crece con él. */
+  flex: 1 0 auto;
+  overflow: visible;
+}
+
+/* El paquete hardcodea fondos claros (#fff / --acc-softer) en superficies que
+   llevan texto y en los controles flotantes; en dark mode eso da texto claro
+   sobre fondo claro (labels invisibles). Los remapeamos a tokens del tema; en
+   light el resultado es equivalente. Los chips de acento (--pe-num/--pe-ico/
+   scope) se quedan claros a propósito: son pastillas con su propio texto. */
+.pe-root .pe-inner {
+  background: var(--pe-surface);
+}
+/* Contenedor de grupo: panel NEUTRO (sin tinte de acento), distinto del lienzo
+   por un matiz sutil + borde hairline; así no compite con las cards y el fondo
+   es consistente con las etapas sueltas de caso. */
+.pe-root .pe-group {
+  background: color-mix(in oklch, var(--pe-surface) 84%, var(--pe-line));
+}
+.pe-root .pe-inner.is-branch {
+  background: color-mix(in oklch, var(--pe-surface) 90%, var(--pe-line));
+}
+.pe-root .pe-port,
+.pe-root .pe-addbtn,
+.pe-root .pe-remove,
+.pe-root .pe-addmenu {
+  background: var(--pe-surface);
+}
+
+/* ── Cards uniformes (etapas sueltas de caso ⇄ fases de extracción): sin franja
+   lateral de color (patrón prohibido en DESIGN.md). El acento por etapa vive
+   solo en el icono y los chips, no en una barra de fondo. El borde/sombra/radio
+   base ya son consistentes, así que no los tocamos (no romper hover/selección). */
+.pe-root .pe-card.v-tarjetas::before {
+  content: none;
+}
+.pe-root .pe-card.v-tarjetas .pe-body {
+  padding-left: 15px;
+}
+
+/* Sin numeración de etapa: con capacidades opcionales el número salta (1, 5, 7…)
+   y se ve roto. El orden ya lo comunican la posición y el flujo del spine. */
+.pe-root .pe-num {
+  display: none;
+}
+
+/* Drag eliminado (el orden es estricto): cursor de selección, no de arrastre. */
+.pe-root .pe-card,
+.pe-root .pe-group {
+  cursor: pointer;
+}
+
+/* Cada bloque va en un wrapper `position:absolute; inset:0` (cubre todo el mundo
+   para alojar los nodos en coords absolutas). Sin esto, el wrapper del último
+   bloque tapa los clicks de los demás (el chevron, la ✕, etc. no respondían).
+   El wrapper no captura eventos; solo lo hacen las cards/nodos. */
+.pe-root .pe-card,
+.pe-root .pe-group,
+.pe-root .pe-inner {
+  pointer-events: auto;
+}
+
+/* El chevron de colapsar/expandir es position:absolute (top/right). Reservamos
+   espacio a la derecha del header del grupo para que «N fases» y el chip de
+   scope (documento/caso) no queden pegados ni debajo del botón. */
+.pe-root .pe-ghead {
+  padding-right: 46px;
+}
+.pe-root .pe-grp-collapsed .pe-body {
+  padding-right: 46px;
+}
+
+/* ── Estilo blueprint: lienzo de puntos (como el prototipo). Theme-aware vía
+   --pe-line para que se vea igual en light y dark. ────────────────────────── */
+.pe-root .pe-vp.bg-cuadricula {
+  background-image: radial-gradient(
+    color-mix(in oklch, var(--pe-line) 88%, transparent) 1.1px,
+    transparent 1.1px
+  );
+  background-size: 24px 24px;
+}
+
+/* ── Cards a altura de contenido. El motor mide el DOM y posiciona; aquí las
+   superficies crecen con su contenido y reciben padding vertical (el paquete
+   solo daba padding horizontal porque el alto era fijo). ──────────────────── */
+.pe-root .pe-inner {
+  height: auto;
+  min-height: 0;
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+.pe-root .pe-card .pe-body {
+  height: auto;
+}

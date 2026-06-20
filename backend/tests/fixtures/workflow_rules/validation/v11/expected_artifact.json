@@ -1,0 +1,19 @@
+{
+  "tree_op": "AND",
+  "tree_children_count": 2,
+  "sub_check_count": 2,
+  "methods": [
+    "CROSS_REF_CHECK",
+    "LLM_CHECK"
+  ],
+  "sub_check_inputs_by_id": {
+    "c1": [
+      "@invoice.emisor.rut"
+    ],
+    "c2": [
+      "@invoice.emisor.rut",
+      "@invoice.items[].descripcion"
+    ]
+  },
+  "knowledge_refs_count": 1
+}

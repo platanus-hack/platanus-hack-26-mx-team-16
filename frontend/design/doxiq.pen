@@ -1,0 +1,67 @@
+{
+  "version": "2.13",
+  "children": [
+    {
+      "type": "frame",
+      "id": "bi8Au",
+      "x": 0,
+      "y": 0,
+      "name": "Frame",
+      "clip": true,
+      "width": 800,
+      "height": 600,
+      "fill": "#FFFFFF",
+      "layout": "none"
+    }
+  ],
+  "variables": {
+    "background": {
+      "type": "color",
+      "value": "#F9FAFB"
+    },
+    "card": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "foreground": {
+      "type": "color",
+      "value": "#111C28"
+    },
+    "muted-foreground": {
+      "type": "color",
+      "value": "#6A7583"
+    },
+    "border": {
+      "type": "color",
+      "value": "#DBE0E7"
+    },
+    "border-strong": {
+      "type": "color",
+      "value": "#CBD2DB"
+    },
+    "primary": {
+      "type": "color",
+      "value": "#289080"
+    },
+    "primary-deep": {
+      "type": "color",
+      "value": "#1D685C"
+    },
+    "primary-tint": {
+      "type": "color",
+      "value": "#E2F3F0"
+    },
+    "surface-header": {
+      "type": "color",
+      "value": "#EFF2F6"
+    },
+    "surface-subrow": {
+      "type": "color",
+      "value": "#F4F6F9"
+    },
+    "surface-hover": {
+      "type": "color",
+      "value": "#F1F4F8"
+    }
+  }
+}

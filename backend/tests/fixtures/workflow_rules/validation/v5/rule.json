@@ -1,0 +1,14 @@
+{
+  "id": "V5",
+  "name": "Array — todos los items con subtotal coherente",
+  "rule": {
+    "prompt": "Para cada @invoice.items[], el @invoice.items[].subtotal debe ser ≈ @invoice.items[].cantidad × @invoice.items[].precio_unitario (tolerancia ±$1). Además la suma de @invoice.items[].subtotal debe coincidir con @invoice.monto_total (tolerancia ±$1).",
+    "config": {
+      "severity": "MAJOR"
+    }
+  },
+  "available_doctypes": [
+    "invoice"
+  ],
+  "kb_slugs": []
+}

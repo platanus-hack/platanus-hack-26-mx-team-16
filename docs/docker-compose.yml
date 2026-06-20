@@ -1,0 +1,36 @@
+name: doxiq-docs
+
+services:
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: doxiq-docs:latest
+    container_name: doxiq-docs
+    restart: unless-stopped
+    ports:
+      - "${DOCS_PORT:-4321}:4321"
+    environment:
+      NODE_ENV: production
+      PORT: 4321
+      HOST: 0.0.0.0
+      BACKEND_API_HOST: ${BACKEND_API_HOST:-http://doxiq-backend:8200}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost:4321}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4321/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - doxiq-docs-net
+    depends_on:
+      - backend
+    profiles:
+      - standalone
+      - full
+
+networks:
+  doxiq-docs-net:
+    name: doxiq-docs-net
+    driver: bridge

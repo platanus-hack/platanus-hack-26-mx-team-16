@@ -1,0 +1,151 @@
+name: doxiq-backend
+
+services:
+  admin:
+    image: directus/directus:12.0.2
+    restart: unless-stopped
+    ports:
+      - "8055:8055"
+    volumes:
+      - ./admin/database:/directus/database
+      - ./admin/uploads:/directus/uploads
+      - ./admin/extensions:/directus/extensions
+    environment:
+      SECRET: "7VxOs9fa4HKAy4IkzDpZSNst0QE9ynryoZG7MA11sAc="
+      ADMIN_EMAIL: "team@llamitai.com"
+      ADMIN_PASSWORD: "12345678x"
+      DB_CLIENT: "postgres"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_DATABASE: "postgres"
+      DB_USER: "postgres"
+      DB_PASSWORD: "postgres"
+      PUBLIC_URL: "http://localhost:8000"
+      WEBSOCKETS_ENABLED: "true"
+      BACKEND_API_URL: "https://vnext-ws.codemia.dev"
+      BACKEND_API_KEY: "8r0d3QqFMtLYtjAF89hPtFh960tXffUbSFV4hFTFF8"
+      BACKEND_TENANT: "test"
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./admin/extensions
+          target: /directus/extensions
+
+  api:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - PROCESS_LABEL=api
+      # E6 · W5 (dev): the mailpit channel adapter reads inbound MIME/attachments
+      # from mailpit's HTTP API. Set MP_WEBHOOK_URL on the mailpit service to
+      # http://api:8200/v1/channels/email/<src_token> for the Caso 4 E2E.
+      - MAILPIT_API_URL=http://mailpit:8025
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      temporal:
+        condition: service_healthy
+    ports:
+      - "8200:8200"
+    volumes:
+      - .:/app
+    command: /start
+
+  temporal-worker:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - PROCESS_LABEL=workflow-worker
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      temporal:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    restart: unless-stopped
+    command: python run_worker.py
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    ports:
+      - "5434:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=2MB
+      -c min_wal_size=1GB
+      -c max_wal_size=4GB
+
+  redis:
+    image: redis:7
+    ports:
+      - "6791:6379"
+
+  minio:
+    image: quay.io/minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./public:/data
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+
+  mailpit:
+    image: axllent/mailpit
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=true
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
+    ports:
+      - "8027:8025"
+      - "1027:1025"
+
+  temporal:
+    image: temporalio/temporal:latest
+    container_name: doxiq-temporal
+    ports:
+      - "7233:7233"
+      - "8233:8233"
+    volumes:
+      - ./temporal-data:/home/temporal
+    command: server start-dev --ip 0.0.0.0 --db-filename /home/temporal/temporal.db
+    healthcheck:
+      test: ["CMD-SHELL", "temporal operator cluster health --address 127.0.0.1:7233 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+volumes:
+  postgres_data:

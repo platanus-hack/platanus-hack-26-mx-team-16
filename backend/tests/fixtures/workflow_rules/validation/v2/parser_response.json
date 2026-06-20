@@ -1,0 +1,89 @@
+{
+  "tree": {
+    "op": "AND",
+    "children": [
+      {
+        "ref": "c1"
+      },
+      {
+        "ref": "c2"
+      },
+      {
+        "ref": "c3"
+      },
+      {
+        "ref": "c4"
+      },
+      {
+        "ref": "c5"
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "El emisor tiene razón social no vacía",
+      "inputs": [
+        "@invoice.emisor.razon_social"
+      ],
+      "method": "LLM_CHECK",
+      "params": {}
+    },
+    {
+      "id": "c2",
+      "description": "El RUT del emisor está bien formateado",
+      "inputs": [
+        "@invoice.emisor.rut"
+      ],
+      "method": "FORMAT_CHECK",
+      "params": {
+        "regex": "^\\d{1,2}\\.\\d{3}\\.\\d{3}-[0-9kK]$"
+      }
+    },
+    {
+      "id": "c3",
+      "description": "La dirección del emisor está completa",
+      "inputs": [
+        "@invoice.emisor.direccion"
+      ],
+      "method": "LLM_CHECK",
+      "params": {}
+    },
+    {
+      "id": "c4",
+      "description": "El monto total es mayor a 0",
+      "inputs": [
+        "@invoice.monto_total"
+      ],
+      "method": "RANGE_CHECK",
+      "params": {
+        "min_exclusive": 0
+      }
+    },
+    {
+      "id": "c5",
+      "description": "Todos los items tienen cantidad > 0 y precio_unitario > 0",
+      "inputs": [
+        "@invoice.items[].cantidad",
+        "@invoice.items[].precio_unitario"
+      ],
+      "method": "AGGREGATE_CHECK",
+      "params": {
+        "iterator": "@invoice.items[]",
+        "predicate": "ALL",
+        "conditions": [
+          {
+            "field": "cantidad",
+            "op": ">",
+            "value": 0
+          },
+          {
+            "field": "precio_unitario",
+            "op": ">",
+            "value": 0
+          }
+        ]
+      }
+    }
+  ]
+}

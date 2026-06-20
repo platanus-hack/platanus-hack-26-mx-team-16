@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>{% block title %}Doxiq{% endblock %}</title>
+  <style type="text/css">
+    body { margin: 0; padding: 0; background-color: #f4f4f5; }
+    table { border-collapse: collapse; }
+    img { border: 0; display: block; }
+    a { color: #0d9488; text-decoration: none; }
+    @media only screen and (max-width: 620px) {
+      .email-container { width: 100% !important; }
+      .content-cell { padding: 32px 24px !important; }
+      .header-cell { padding: 24px 24px !important; }
+      .footer-cell { padding: 20px 24px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td align="center" bgcolor="#f4f4f5" style="background-color:#f4f4f5;padding:40px 16px;">
+
+        <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+          <!-- ─── HEADER ─── -->
+          <tr>
+            <td class="header-cell" bgcolor="#0d9488" style="background-color:#0d9488;padding:28px 40px;border-radius:12px 12px 0 0;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <!-- Logo mark: small document icon -->
+                  <td valign="middle" width="44">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" bgcolor="#1aa89f" style="background-color:#1aa89f;border-radius:7px;width:36px;">
+                      <tr>
+                        <td style="padding:9px 8px;">
+                          <!-- Line 1 -->
+                          <table role="presentation" width="20" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background-color:#ffffff;border-radius:1px;margin-bottom:5px;">
+                            <tr><td style="height:2px;line-height:2px;font-size:0;">&nbsp;</td></tr>
+                          </table>
+                          <!-- Line 2 -->
+                          <table role="presentation" width="14" cellpadding="0" cellspacing="0" border="0" bgcolor="#a7ddd9" style="background-color:#a7ddd9;border-radius:1px;margin-bottom:5px;">
+                            <tr><td style="height:2px;line-height:2px;font-size:0;">&nbsp;</td></tr>
+                          </table>
+                          <!-- Line 3 -->
+                          <table role="presentation" width="18" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background-color:#ffffff;border-radius:1px;">
+                            <tr><td style="height:2px;line-height:2px;font-size:0;">&nbsp;</td></tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <!-- Wordmark -->
+                  <td valign="middle">
+                    <div style="font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-0.4px;line-height:1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">Doxiq</div>
+                    <div style="font-size:10px;color:#7dd7d1;letter-spacing:0.13em;text-transform:uppercase;margin-top:3px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">by Llamitai</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ─── ACCENT BAR ─── -->
+          <tr>
+            <td bgcolor="#0a8a7e" style="background-color:#0a8a7e;height:3px;line-height:3px;font-size:0;">&nbsp;</td>
+          </tr>
+
+          <!-- ─── CONTENT ─── -->
+          <tr>
+            <td class="content-cell" bgcolor="#ffffff" style="background-color:#ffffff;padding:48px 40px;">
+              {% block content %}{% endblock %}
+            </td>
+          </tr>
+
+          <!-- ─── FOOTER ─── -->
+          <tr>
+            <td class="footer-cell" bgcolor="#f9fafb" style="background-color:#f9fafb;padding:24px 40px;border-top:1px solid #e5e7eb;border-radius:0 0 12px 12px;text-align:center;">
+              <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;line-height:1.7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                © 2026 Llamitai &middot; Todos los derechos reservados
+              </p>
+              <p style="margin:0;font-size:11px;color:#d1d5db;line-height:1.7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+                Este mensaje fue enviado automáticamente desde Doxiq
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "tree_op": "AND",
+  "tree_children_count": 2,
+  "sub_check_count": 2,
+  "methods": [
+    "CROSS_REF_CHECK",
+    "CROSS_REF_CHECK"
+  ],
+  "sub_check_inputs_by_id": {
+    "c1": [
+      "@dni.rut",
+      "@contract.partes[].rut",
+      "@contract.partes[].rol"
+    ],
+    "c2": [
+      "@payslip.empleador",
+      "@contract.partes[].nombre",
+      "@contract.partes[].rol"
+    ]
+  },
+  "knowledge_refs_count": 0
+}

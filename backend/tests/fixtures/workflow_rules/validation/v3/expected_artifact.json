@@ -1,0 +1,26 @@
+{
+  "tree_op": "OR",
+  "tree_children_count": 2,
+  "sub_check_count": 4,
+  "methods": [
+    "AGGREGATE_CHECK",
+    "AGGREGATE_CHECK",
+    "AGGREGATE_CHECK",
+    "AGGREGATE_CHECK"
+  ],
+  "sub_check_inputs_by_id": {
+    "c1": [
+      "@utility_bill[]"
+    ],
+    "c2": [
+      "@utility_bill.fecha_emision"
+    ],
+    "c3": [
+      "@bank_statement[]"
+    ],
+    "c4": [
+      "@bank_statement.periodo.hasta"
+    ]
+  },
+  "knowledge_refs_count": 0
+}

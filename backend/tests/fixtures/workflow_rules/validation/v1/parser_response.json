@@ -1,0 +1,37 @@
+{
+  "tree": {
+    "op": "AND",
+    "children": [
+      {
+        "ref": "c1"
+      },
+      {
+        "ref": "c2"
+      }
+    ]
+  },
+  "sub_checks": [
+    {
+      "id": "c1",
+      "description": "El RUT tiene el formato XX.XXX.XXX-X (puntos y guion)",
+      "inputs": [
+        "@dni.rut"
+      ],
+      "method": "FORMAT_CHECK",
+      "params": {
+        "regex": "^\\d{1,2}\\.\\d{3}\\.\\d{3}-[0-9kK]$"
+      }
+    },
+    {
+      "id": "c2",
+      "description": "El dígito verificador del RUT es válido según mod 11 chileno",
+      "inputs": [
+        "@dni.rut"
+      ],
+      "method": "CHECKSUM_CHECK",
+      "params": {
+        "algorithm": "rut_chile_mod11"
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+[
+  {
+    "uuid": "36aab742-879e-4a3b-b688-5bdb5702ac0b",
+    "name": "Cedula de Identidad",
+    "description": "Documento de identificacion personal",
+    "fields": {
+      "type": "object",
+      "properties": {
+        "nombres": {
+          "type": "string",
+          "description": "Nombres de la persona"
+        },
+        "apellidos": {
+          "type": "string",
+          "description": "Apellidos de la persona"
+        },
+        "numero_cedula": {
+          "type": "string",
+          "description": "Numero de cedula de identidad"
+        },
+        "fecha_nacimiento": {
+          "type": "string",
+          "format": "date",
+          "description": "Fecha de nacimiento"
+        },
+        "sexo": {
+          "type": "string",
+          "description": "Sexo de la persona"
+        }
+      },
+      "required": ["nombres", "apellidos", "numero_cedula"]
+    },
+    "validation_rules": [
+      {
+        "id": "v-nombres-completos",
+        "prompt": "Verifica que {{nombres}} y {{apellidos}} contengan texto valido y sean coherentes con un nombre de persona real.",
+        "enabled": true
+      },
+      {
+        "id": "v-fecha-nacimiento",
+        "prompt": "Verifica que {{fecha_nacimiento}} tenga formato DD/MM/AAAA y sea una fecha valida.",
+        "enabled": true
+      },
+      {
+        "id": "v-numero-cedula",
+        "prompt": "Verifica que {{numero_cedula}} contenga entre 7 y 9 digitos numericos.",
+        "enabled": true
+      }
+    ]
+  }
+]
