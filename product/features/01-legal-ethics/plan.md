@@ -13,7 +13,7 @@ sources: spec.md §1–§5; 02-attack-levels §4–§5; 04-scanning-engine §; 0
 > La spec de esta feature es un **invariante transversal**, no un módulo con
 > endpoints propios. Su implementación se reparte entre 04 (worker), 08
 > (scheduler/ranking), 12 (API) y 13 (frontend). Este plan hace dos cosas:
-> (1) **centraliza** la fuente de verdad legal en un paquete `common/legal` que
+> (1) **centraliza** la fuente de verdad legal en un paquete `common/domain/legal` que
 > todos los caminos importan —para que el invariante no quede esparcido ni se
 > pueda divergir—, y (2) define la **suite de tests de invariante** que es lo que
 > convierte "pasivo/atestado/privado" en algo *aplicado en código*, no en prosa.
@@ -53,7 +53,7 @@ cumplir; el test de invariante (§5) es transversal y vive aquí.
 | 3 | "Pasivo" = whitelist tools+flags + robots | `resolve_tools(is_gov, level)` + robots policy en el worker | 04 + 02 | `test_gov_passive_tool_whitelist`, `test_robots_disallow_excluded` |
 | 2.5/4 | Rate-limit (API + worker) + UA | dependency en `POST /scans` + flags `-rl`/delay en `run_tool()` | 12 + 04 | `test_api_scan_rate_limit_429`, `test_scanner_user_agent` |
 
-## 2. Código net-new que ESTA feature posee — `backend/src/common/legal/`
+## 2. Código net-new que ESTA feature posee — `backend/src/common/domain/legal/`
 
 Fuente de verdad única, sin dependencias de capa (importable por use case, worker
 y scheduler sin ciclos). Todo **puro** (sin I/O) salvo donde se indica.
@@ -105,8 +105,8 @@ Congela, en código, la definición de §3 de la spec para `(is_gov=True, basico
 intermedio/avanzado. Allow-list, no deny-list.
 ```python
 GOV_PASSIVE_PROFILE = PassiveProfile(
-    tools=frozenset({"testssl", "security-headers", "whatweb", "nuclei"}),
-    nuclei_tags_allow=("ssl", "tech", "http-misconfig"),
+    tools=frozenset({"testssl", "security_headers", "whatweb", "nuclei"}),
+    nuclei_tags_allow=("exposures", "misconfiguration", "ssl", "tech", "dns"),
     nuclei_tags_exclude=("intrusive", "dos", "fuzzing", "network"),
     spider=False, katana=False, zap_spider=False,    # deshabilitados para gov
     root_only=True, honor_robots=True,
@@ -186,7 +186,7 @@ mínimo que ninguna refactor puede romper.
 
 1. **06-data-model**: tabla `scans` con `level`, `visibility`, `authorized`,
    `authorized_at`, `requested_by`; `sites.is_gov`. (Bloquea todo.)
-2. **`common/legal`** (esta feature): constantes, `host`, `levels`,
+2. **`common/domain/legal`** (esta feature): constantes, `host`, `levels`,
    `passive_profile`, `attestation_gate`, excepciones. Tests unitarios puros.
 3. **12-api**: `enqueue_scan` + `POST /scans` con gate + rate-limit; filtro de
    visibilidad en lectura. → `test_attestation`, `test_rate_limit`.

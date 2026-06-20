@@ -30,7 +30,6 @@ reúne su `spec.md` (QUÉ) y su `plan.md` (CÓMO).
 | 08 | [ranking-watchlists](08-ranking-watchlists/spec.md) ([plan](08-ranking-watchlists/plan.md)) | Leaderboard gov (solo pasivo), watchlists, monitoreo/alertas (SAQ cron + Resend/Slack). |
 | 09 | [reporting](09-reporting/spec.md) ([plan](09-reporting/plan.md)) | Reporte "Owliver te explica" (2 capas), export PDF, `/r/[token]` con exploits redactados. |
 | 10 | [realtime-live-view](10-realtime-live-view/spec.md) ([plan](10-realtime-live-view/plan.md)) | Live view por SSE: `scan_events` en Postgres, replay-then-tail, auth por cookie. |
-| 11 | [auth-magic-link](11-auth-magic-link/spec.md) ([plan](11-auth-magic-link/plan.md)) | Magic-link sin contraseña: 4 pantallas, `magic_tokens`, cookie HttpOnly. |
 | 12 | [api](12-api/spec.md) ([plan](12-api/plan.md)) | Superficie HTTP FastAPI: scans idempotentes, AuthZ anti-IDOR, SSE, watchlist, paginación. |
 | 13 | [frontend](13-frontend/spec.md) ([plan](13-frontend/plan.md)) | Frontend Next.js completo: Hall of Shame, gate, Live Pentest Theater, reporte, auth. |
 

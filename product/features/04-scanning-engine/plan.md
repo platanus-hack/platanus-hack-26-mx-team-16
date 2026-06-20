@@ -202,13 +202,16 @@ async def run_tool(
 ```
 
 Reglas internas:
-- **Antes** de lanzar: `if cancel.is_set(): return ToolResult(ok=False, coverage_note="cancelado")`.
+- **Antes** de lanzar: `if await cancel.is_set(): return ToolResult(ok=False, coverage_note="cancelado")`.
 - **`subprocess`**: `await asyncio.to_thread(subprocess.run, cmd, capture_output=True, timeout=spec.timeout, text=True)`.
 - **DooD**: construye `["docker","run","--rm","--network","owliver_egress",
-  "--memory",spec.memory, "-v", f"{host_shared_dir}:/zap/wrk", spec.image, *spec.cmd]`
-  con `timeout=spec.timeout + DOCKER_OVERHEAD`. Centraliza aquí `--network`,
-  `--memory`/`--cpus`, tag pineado, `-v` host, y el bloqueo de egress lateral
-  (§5) — uniforme para **toda** invocación pesada.
+  "--memory",spec.memory, "-v", f"{host_shared_dir}:{spec.mount}", spec.image, *spec.cmd]`
+  con `timeout=spec.timeout + DOCKER_OVERHEAD`. `ToolSpec.mount` (campo per-tool,
+  default `"/zap/wrk"` para ZAP; hexstrike usa otro) define el path interno del
+  contenedor, así cada herramienta pesada deja su evidencia en el dir compartido
+  del scan. Centraliza aquí `--network`, `--memory`/`--cpus`, tag pineado, `-v`
+  host, y el bloqueo de egress lateral (§5) — uniforme para **toda** invocación
+  pesada.
 - **`try/except` total**: `TimeoutExpired` → `timed_out=True`; cualquier otra
   excepción → `ok=False, coverage_note`. **Nunca** propaga (§4.3).
 - Inyecta `SCANNER_USER_AGENT` (de `common.legal.constants`), `-rl
@@ -260,7 +263,7 @@ def resolve_tools(*, is_gov: bool, level: ScanLevel) -> list[ToolInvocation]:
 
 - Para `(gov, básico)` el resultado **debe** validar
   `assert_within_passive_profile()` del paquete legal (testssl /
-  security-headers / whatweb / nuclei `-tags ssl,tech,http-misconfig` excluyendo
+  security-headers / whatweb / nuclei `-tags exposures,misconfiguration,ssl,tech,dns` excluyendo
   `intrusive,dos,fuzzing,network`, sin spider; ZAP-spider y katana **ausentes**).
 - 04 **posee** los perfiles intermedio/avanzado; 01 sólo aporta el predicado del
   pasivo gov.
@@ -363,10 +366,11 @@ VPS, no en el path de un scan.
 - Screenshots/artefactos se escriben como **archivos** en
   `/data/scans/{scan_id}/{n}.png` (volumen compartido, §3.1).
 - El campo `evidence` (jsonb del `Finding`, forma de 06) guarda la **URL
-  relativa** (`/static/scans/{id}/{n}.png`), **no** el binario. **NO** base64,
-  **NO** MinIO.
-- La API expone una **ruta estática FastAPI** (`app.mount("/static/scans",
-  StaticFiles(directory="/data/scans"))` en `config/main.py`) que sirve el
+  relativa** (`/data/scans/{id}/{n}.png`), **no** el binario. **NO** base64,
+  **NO** MinIO. La URL persistida y el prefijo del mount estático deben ser
+  **byte-idénticos** (ver [09-reporting](../09-reporting/spec.md)).
+- La API expone una **ruta estática FastAPI** (`app.mount("/data",
+  StaticFiles(directory=settings.DATA_DIR))` en `config/main.py`) que sirve el
   volumen; el export PDF (feature de reportes) embebe desde esa misma ruta.
 
 ## 8. hexstrike — opt-out desde el inicio — `src/scanning/health.py`
@@ -425,7 +429,7 @@ tests prueban la **lógica del motor**, no las herramientas.
 | `test_rate_limit_ua.py` | runs nuclei llevan `-rl WORKER_NUCLEI_RATE` y `-duc`; ffuf/katana llevan delay; todo request saliente usa `SCANNER_USER_AGENT` |
 | `test_robots_policy.py` | paths `Disallow` excluidos antes de cualquier request; UA usado = `SCANNER_USER_AGENT` (impl del contrato 01) |
 | `test_hexstrike_flag.py` | `ENABLE_HEXSTRIKE=False` ⇒ `hexstrike_mcp` ausente de `resolve_tools`; con flag pero healthcheck KO ⇒ tampoco se entrega; fallback documentado |
-| `test_evidence_relative_url.py` | `evidence` guarda URL relativa (`/static/scans/...`), nunca base64; archivo escrito en `/data/scans/{id}/` |
+| `test_evidence_relative_url.py` | `evidence` guarda URL relativa (`/data/scans/...`), nunca base64; archivo escrito en `/data/scans/{id}/` |
 
 ## 11. Decisiones / riesgos
 

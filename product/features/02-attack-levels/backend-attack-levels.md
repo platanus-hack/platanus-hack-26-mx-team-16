@@ -127,7 +127,7 @@ from enum import StrEnum
 class ToolId(StrEnum):
     TESTSSL = "testssl"
     SECURITY_HEADERS = "security_headers"   # security-headers / Observatory
-    WHATWEB = "whatweb"
+    WHATWEB = "whatweb"   # WhatWeb conservado sobre Wappalyzer (spec §3.1 "WhatWeb / Wappalyzer")
     NUCLEI = "nuclei"
     ZAP_BASELINE = "zap_baseline"
     ZAP_FULL_ACTIVE = "zap_full_active"
@@ -135,7 +135,7 @@ class ToolId(StrEnum):
     KATANA = "katana"
     FFUF = "ffuf"
     SQLMAP = "sqlmap"
-    SUBFINDER = "subfinder"
+    SUBFINDER = "subfinder"   # recon; spec §3.1 "robots/sitemap": robots vía RobotsPolicy (no ToolId), sitemap sin ToolId (dropped)
     DNSX = "dnsx"
     HEXSTRIKE = "hexstrike"
 ```
@@ -253,12 +253,12 @@ _ADVANCED_GOV = _INTERMEDIATE_GOV + _ADVANCED_DELTA
 
 TOOLSET_WHITELIST: "MappingProxyType[tuple[bool, ScanLevel], tuple[ToolInvocation, ...]]" = (
     MappingProxyType({
-        (False, ScanLevel.BASICO): _BASIC_NON_GOV,
-        (False, ScanLevel.INTERMEDIO): _INTERMEDIATE_NON_GOV,
-        (False, ScanLevel.AVANZADO): _ADVANCED_NON_GOV,
-        (True, ScanLevel.BASICO): _BASIC_GOV,
-        (True, ScanLevel.INTERMEDIO): _INTERMEDIATE_GOV,
-        (True, ScanLevel.AVANZADO): _ADVANCED_GOV,
+        (False, ScanLevel.basico): _BASIC_NON_GOV,
+        (False, ScanLevel.intermedio): _INTERMEDIATE_NON_GOV,
+        (False, ScanLevel.avanzado): _ADVANCED_NON_GOV,
+        (True, ScanLevel.basico): _BASIC_GOV,
+        (True, ScanLevel.intermedio): _INTERMEDIATE_GOV,
+        (True, ScanLevel.avanzado): _ADVANCED_GOV,
     })
 )
 
@@ -320,7 +320,7 @@ def resolve_toolset(
 
     toolset = TOOLSET_WHITELIST[(is_gov, level)]
 
-    if level is ScanLevel.AVANZADO and hexstrike_ok:
+    if level is ScanLevel.avanzado and hexstrike_ok:
         toolset = toolset + (HEXSTRIKE_INVOCATION,)
 
     return toolset
@@ -363,7 +363,7 @@ imposible**, sin que el LLM sea nunca el punto de enforcement:
 
 1. **Scheduler (01, upstream):** el seed/cron gov registrado en
    `worker_settings["cron_jobs"]` (`backend/config/tasks.py`, hoy `[]`) **hard-codea**
-   `level=ScanLevel.BASICO` al encolar el `ScanCommand`. No puede emitir otro nivel.
+   `level=ScanLevel.basico` al encolar el `ScanCommand`. No puede emitir otro nivel.
    (Propiedad de [01](../01-legal-ethics/spec.md) §2.2; aquí solo se cross-refiere el seam.)
 
 2. **Construcción del agente (este feature, seam de 05):** dentro del `ScanHandler`,
@@ -560,7 +560,7 @@ y solo contra **targets localhost** (OWASP Juice Shop / DVWA / bot propio), **nu
      §5). Archivo: `src/scans/application/commands/scan.py` (cross-module import
      permitido: `tasks_mapping` ya importa commands de varios módulos). Campos:
      `site_id`, `level: ScanLevel`, `demo: bool = False`.
-   - (b) **`ScanHandler`** — en `src/scans/application/command/scan_handler.py`
+   - (b) **`ScanHandler`** — en `src/scans/application/commands/scan_handler.py`
      (application, **no** infrastructure — convención del repo). Recibe por
      constructor `site_repository`, `robots_policy` y el healthcheck cacheado.
    - (c) Registrar en `backend/src/common/application/data/tasks_mapping.py`
@@ -570,9 +570,13 @@ y solo contra **targets localhost** (OWASP Juice Shop / DVWA / bot propio), **nu
      `bus.command_bus.subscribe(command=ScanCommand, handler=ScanHandler(...))`.
    - (e) **bus_wiring NO se auto-descubre:** importar y **llamar** `scans_wiring` en
      `backend/src/common/infrastructure/bus_builder.py` (junto a `auth_wiring`,
-     `messaging_wiring`, `tenants_wiring`, `users_wiring`) **y** en
-     `backend/src/common/infrastructure/event_bus.py` (mismo patrón). Sin (e) el
-     handler nunca queda suscrito y el worker lanza `NotRegisteredCommand`.
+     `messaging_wiring`, `tenants_wiring`, `users_wiring`) con la firma `(domain, bus)`
+     — ese es el **único** camino vivo del bus. **No** tocar
+     `common/infrastructure/event_bus.py`: su `init_bus_event()` invoca los wirings sin
+     args (incompatible con la firma `(domain, bus)`) y no tiene callers (código muerto);
+     el wiring real pasa por `bus_builder.py` (lo usan `config/tasks.py` y
+     `dependencies/common.py`). Sin (e) el handler nunca queda suscrito y el worker
+     lanza `NotRegisteredCommand`.
 8. **Seam de 05:** llamar `resolve_toolset` en el `ScanHandler` y poblar `tools=` de
    `owasp_agent` (la construcción del Team es de 05; aquí solo el call site).
 9. **Healthcheck hexstrike (mecánica 04 §10):** la definición del healthcheck y su
@@ -580,7 +584,7 @@ y solo contra **targets localhost** (OWASP Juice Shop / DVWA / bot propio), **nu
    consume el booleano: el valor cacheado se **inyecta por constructor** en el
    `ScanHandler` vía `scans_wiring` (NO se lee de `ctx`, que el handler no recibe).
 10. **Cron gov (01):** registrar el seed/cron en `worker_settings["cron_jobs"]` con
-    `level=ScanLevel.BASICO` hard-coded (propiedad de 01/08; aquí solo se confirma el seam).
+    `level=ScanLevel.basico` hard-coded (propiedad de 01/08; aquí solo se confirma el seam).
 
 **Migraciones:** ninguna propia de este feature (todo lo persistido es de 06).
 

@@ -93,7 +93,7 @@ Por eso el leaderboard **no ordena por `overall_score`**, sino por:
 
 — peores primero, con desempate por penalización cruda. La fila muestra `penalty_raw` (o el conteo ponderado) para que el contraste entre dos sitios ambos en F sea visible. La columna de grado **autoritativa** (datos, orden y grade badge principal de la UI) se llama **`overall_grade`** en todas partes; úsese ese nombre exacto. Los grados por dimensión que la UI dibuja junto a los gauges son **derivados display-only** (ver §5.1), nunca `overall_grade`.
 
-> §9.4 de spec.md es la **autoridad de orden**: cualquier otra referencia al orden del leaderboard (overview, ranking) debe citar `(overall_grade ASC, penalty_raw DESC)`.
+> §6 de esta spec es la **autoridad de orden**: cualquier otra referencia al orden del leaderboard (overview, ranking) debe citar `(overall_grade ASC, penalty_raw DESC)`.
 
 La construcción de la consulta del ranking gov, los filtros (país MX) y la UI del leaderboard pertenecen a [08-ranking-watchlists](../08-ranking-watchlists/spec.md) y a [13-frontend](../13-frontend/spec.md); aquí solo se fija el criterio de orden y desempate que esas vistas consumen.
 

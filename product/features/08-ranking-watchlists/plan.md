@@ -5,7 +5,7 @@ status: pending
 coverage: 0
 audited: 2026-06-20
 spec: ./spec.md
-sources: spec.md §2–§7; 06-data-model §2/§3/§5; 07-scoring §9.2–§9.4; 01-legal-ethics §2.2/§2.3/§3.2; 12-api (POST /scans, /ranking, /watchlist, /me/alerts); 04-scanning-engine §; 13-frontend §
+sources: spec.md §2–§7; 06-data-model §2/§3/§5; 07-scoring §2–§4; 01-legal-ethics §2.2/§2.3/§3.2; 12-api (POST /scans, /ranking, /watchlist, /me/alerts); 04-scanning-engine §; 13-frontend §
 ---
 
 # Owliver — Ranking público gov + watchlists + monitoreo/alertas — plan de implementación (CÓMO)
@@ -85,7 +85,7 @@ infraestructura compartida. La separación sigue la dirección de dependencia
 
 | Pieza | Vive en | Razón |
 |---|---|---|
-| Query de leaderboard, seed gov, CRUD watchlist | `src/sites/` | Son lectores/escritores de `sites`/`watchlist`/`notification_prefs`; el ranking es la cara pública del catálogo de dominios. Los endpoints `/ranking`, `/watchlist`, `/me/alerts` ya están asignados a `sites`/`scans` en [12-api](../12-api/plan.md) §1. |
+| Query de leaderboard, seed gov, CRUD watchlist | `src/sites/` | Son lectores/escritores de `sites`/`watchlist`/`notification_prefs`; el ranking es la cara pública del catálogo de dominios. Los endpoints `/ranking`, `/watchlist`, `/me/alerts` viven en `src/sites/` (`notification_prefs` es propiedad de `sites`, [06-data-model](../06-data-model/plan.md) §2.3; [12-api](../12-api/plan.md) §1 enruta `/me/alerts` a `sites`). |
 | Comparación de grado/`first_seen` + decisión de alerta | `src/scans/` | Lee el histórico de `scans`/`findings` de un site; la lógica de "bajó el grado / apareció critical nuevo" es de dominio `scans`. |
 | Cron de monitoreo + clientes Resend/Slack | `config/tasks.py` (registro) + `src/scans/application/commands/` (handler) + `src/messaging/infrastructure/services/` (Resend) + `src/common/.../webhooks` (Slack: helper net-new `post_unsigned_webhook`, **no** `deliver_webhook`) | El cron es infraestructura de cola; el handler es lógica de aplicación; los canales son servicios de mensajería. **Ningún módulo de feature nuevo.** |
 | Seed gov (`fixtures/gob_mx.txt`) + carga de fixtures | `backend/fixtures/` (data) + `backend/command.py` (`load`, extendido por 06) | El contenido del leaderboard pre-horneado es data, no código. La carga la hace el CLI typer existente. **Va bajo `fixtures/`** (no un `seed/` nuevo): `command.load` ya lee de `fixtures_dir="fixtures"` y `backend/seed/` no existe; se reusa la convención en vez de introducir un directorio paralelo. |
@@ -171,7 +171,7 @@ UI; solo se garantiza que `/ranking` sea **RSC-friendly** (§3.4).
 
 ## 3. Ranking — query, orden y cap de cobertura parcial
 
-Autoridad del orden: [07-scoring](../07-scoring/spec.md) §9.4. El leaderboard
+Autoridad del orden: [07-scoring](../07-scoring/spec.md) §6. El leaderboard
 **no** ordena por `overall_score`.
 
 ### 3.1 Query (`SQLRankingRepository.list_gov_ranking`)
@@ -206,7 +206,7 @@ LIMIT $limit OFFSET …                 -- cursor por (grade, penalty_raw, uuid)
 
 ### 3.2 Cap de cobertura parcial (en `GetRanking`, no en SQL)
 
-Cuando `scans.status='partial'`, [07-scoring](../07-scoring/spec.md) §9.2–§9.3
+Cuando `scans.status='partial'`, [07-scoring](../07-scoring/spec.md) §2–§3
 exige capar el grado mostrado a **C** y etiquetar "cobertura parcial". El cap **ya
 viene escrito en `overall_grade`** por scoring (07 nunca persiste A con cobertura
 parcial); `GetRanking` **no recalcula**, solo **propaga la bandera** `partial` al
@@ -312,13 +312,13 @@ Compara contra el histórico del site (no del scan), usando lo que 06 ya escribi
 
 `EvaluateSiteAlerts` **solo** se encadena para scans de origen cron
 (`scan.requested_by IS NULL`, contrato de §4.2); un scan manual no dispara
-alertas de monitoreo. La base de comparación es el último scan **completado** del
+alertas de monitoreo. La base de comparación es el último scan **terminal con grado** del
 mismo site (sea manual o de cron — lo que importa es que tenga grado escrito):
 
 ```
 EvaluateSiteAlerts.execute(scan):
   assert scan.requested_by is None            # gate: solo scans de cron/monitoreo (§4.2)
-  prev = ScanRepository.previous_completed_scan(site_id, before=scan)   # último scan COMPLETED previo del mismo site
+  prev = ScanRepository.previous_graded_scan(site_id, before=scan)   # último scan TERMINAL con grado del mismo site (status IN ('done','partial') AND overall_grade IS NOT NULL)
   bajo_grado   = compare_grade(prev.overall_grade, scan.overall_grade)  # grade_delta.py
   nuevos_crit  = FindingRepository.criticals_first_seen_in(scan)        # dedupe_key con first_seen == este scan
   if bajo_grado or nuevos_crit:
@@ -501,7 +501,7 @@ pasa.
    pueblan el board; los scans reales gob.mx lo **sobrescriben solo si terminan a
    tiempo** y se pre-ejecutan en el VPS antes del demo (spec §2.4). Riesgo nulo para
    la narrativa: el fallback siempre es el fixture.
-8. **`previous_completed_scan` y el primer scan de un site.** El primer scan de un
+8. **`previous_graded_scan` y el primer scan de un site.** El primer scan de un
    site (sin previo) **no** dispara alerta de "bajó el grado" (no hay base de
    comparación); sí puede disparar por `critical` nuevo (todo `first_seen` es de ese
    scan). Documentado para que no se confunda con un bug.

@@ -8,13 +8,13 @@ import type * as React from "react";
 import { cn } from "@/src/application/lib/utils";
 
 const inputVariants = cva(
-  "dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border bg-white px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] file:text-sm file:font-medium focus-visible:ring-[3px] aria-invalid:ring-[3px] md:text-sm file:text-foreground placeholder:text-muted-foreground w-full min-w-0 outline-none file:inline-flex file:border-0 file:bg-transparent disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+  "dark:bg-input/30 border-input focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-lg border bg-surface-container-low px-3 py-1 text-base shadow-none transition-[color,box-shadow] file:text-sm file:font-medium focus-visible:ring-[3px] aria-invalid:ring-[3px] md:text-sm file:text-foreground placeholder:text-muted-foreground w-full min-w-0 outline-none file:inline-flex file:border-0 file:bg-transparent disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       size: {
-        default: "h-9 file:h-7",
-        lg: "h-10 file:h-8",
-        xl: "h-11 file:h-9",
+        default: "h-10 file:h-8",
+        lg: "h-11 file:h-9",
+        xl: "h-12 file:h-10",
       },
     },
     defaultVariants: {

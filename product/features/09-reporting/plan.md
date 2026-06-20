@@ -171,8 +171,7 @@ src/common/settings.py   # + DATA_DIR, STATIC_BASE_URL, PDF_ENGINE, SHARE_TTL_DA
   LLM:
   - `"IA detectada, sin auditar"` ⇐ `scan.agentic_status == "detected_not_tested"`.
   - `"cobertura parcial"` ⇐ grado capado en C por cobertura (señal de 07; el
-    presenter la lee de `scan` — p. ej. `scan.status == "partial"` o un flag
-    `coverage_capped` que 07 persista). Decisión abierta D4.
+    presenter la lee de `scan.status == "partial"`; ver D4, cerrado en Opción A).
 - **`PublicReportPresenter`** = `ReportPresenter(public=True)`: idéntica capa
   ejecutiva, capa técnica con `redact_finding(..., public=True)`. **No** incluye
   `meta.scanId` crudo enumerable más allá de lo necesario para el render.
@@ -227,8 +226,8 @@ llamar al LLM ni recalcula score.
 - **Resumen ejecutivo Opus** → `scans.summary` (JSONB) = el `ExecutiveSummary`
   serializado (`narrative` + `top_risks`) que produjo `synthesize_summary`
   ([05-agent-team](../05-agent-team/plan.md) §6). **Net-new columna** `summary
-  JSONB nullable` en `ScanORM` — la añade 06 o la migración de 05; aquí se
-  documenta que el reporte la consume (decisión D1). Se persiste para que el
+  JSONB nullable` en `ScanORM` — **la define y crea 06** (owner del esquema); 05
+  la persiste y 09 la consume (decisión D1). Se persiste para que el
   reporte sea **idempotente y barato**: Opus corre 1 vez, el reporte se renderiza N
   veces (in-app + PDF + público) sin re-llamar a la API.
 - **Findings** (`findings`) con `evidence` **completa** (incl. screenshots como
@@ -382,7 +381,7 @@ al backend. Toda la mecánica del reporte cumple cliente → `/api/...` → BFF 
   {method:"POST"})` → BFF `app/api/scans/[id]/share/route.ts` (server) →
   `serverHttp.post('/scans/{id}/share', {ttlDays})` → devuelve `{token, url}`. El
   BFF inyecta cookie/`X-Api-Key`; el cliente muestra **toast `sonner`** "enlace
-  generado" / errores 403/410 (spec §5.2).
+  generado" / errores 404/410 (spec §5.2).
 - **PDF** (botón "Exportar PDF"): client → `fetch("/api/scans/{id}/report-pdf")` →
   BFF stream de bytes → `Blob` → descarga. Toast "PDF listo".
 - **Reporte público** (`(public)/r/[token]/page.tsx`): **server component sin
@@ -428,7 +427,7 @@ cubre **composición y redacción**.
 3. **`report.py`** (`ReportPresenter`/`PublicReportPresenter`) componiendo las dos
    capas desde `scan`+`findings`+`agentic_surface`+`scan.summary`; tests de
    composición y de público-vs-autenticado (§6). Requiere la columna
-   `scans.summary` (D1, coordinar con 05/06).
+   `scans.summary` (D1; la define 06, la persiste 05).
 4. **`pdf/render.py`** + `template.html`: HTML→PDF server-side (Plan A Playwright,
    Plan B WeasyPrint vía `PDF_ENGINE`); test con motor mockeado.
 5. **Frontend in-app**: `ReportView`/`ExecutiveLayer`/`TechnicalLayer`/
@@ -450,8 +449,8 @@ server-side.
 
 1. **D1 — `scans.summary` (JSONB) persiste el `ExecutiveSummary` de Opus.**
    Resuelto: el reporte **lee** el resumen ya generado, no re-llama a Opus al
-   render. La columna la añade 06 o la migración de 05; aquí se documenta su
-   consumo. Riesgo: si 05 no la persiste, el reporte tendría que llamar a Opus por
+   render. La columna la **define 06** (owner del esquema) y **la persiste 05**;
+   aquí se documenta su consumo. Riesgo: si 05 no la persiste, el reporte tendría que llamar a Opus por
    request (caro/no idempotente) — **bloquea**, hay que cerrarlo con 05.
 2. **D2 — PDF server-side, no browser.** Resuelto: `react-pdf`/`pdfjs-dist` fueron
    eliminados del frontend (confirmado en git) y **no se reintroducen**. Motor por
@@ -464,11 +463,11 @@ server-side.
    público es `evidence` (payload/req-resp/system-prompt/screenshots del ataque).
    Tipo/categoría/severidad/impacto/remediación/refs siempre visibles (spec §5).
    Esto **no es recortable** aunque el link público sí lo sea (spec §4.1).
-4. **D4 — Señal de "cobertura parcial" (cap a C).** Abierto: el presenter necesita
-   un predicado claro para el badge. Opción A: `scan.status == "partial"`. Opción
-   B: una columna/flag explícita `coverage_capped` que [07-scoring](../07-scoring/plan.md)
-   persista. Preferible B (status `partial` y "grado capado a C" no son lo mismo).
-   A cerrar con 07.
+4. **D4 — Señal de "cobertura parcial" (cap a C).** **Cerrado (Opción A):** el
+   presenter deriva el badge de `scan.status == "partial"` (06 persiste `status`
+   como enum de primera clase; 07 ya capa el grado a C y `meta.coveragePartial` se
+   computa de `scan.status`). **No** se añade `coverage_capped`: sería redundante
+   con `status` y divergiría de 08/13, que ya usan `status=='partial'`.
 5. **D5 — Screenshots privados.** Abierto: `/data` como `StaticFiles` es público;
    para scans `private` los screenshots de evidence no deben ser servibles sin
    auth. Opción: servir `/data/scans/{id}/...` solo a través de un endpoint con

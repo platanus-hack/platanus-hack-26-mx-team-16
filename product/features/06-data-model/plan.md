@@ -113,7 +113,7 @@ class AlertChannel(BaseEnum):     email | slack                            # §3
 | Archivo | Contenido | Congelado en hora |
 |---|---|---|
 | `finding.py` | `Finding`, `AgenticResult` (shapes verbatim de spec §5.1/§5.2) | 0–2 |
-| `events.py` | `ScanEvent` Pydantic (`seq`, `ts`, `type` discriminante, `payload`) | 0–2 |
+| `events.py` | `ScanEvent` Pydantic (`seq`, `ts`, `type` discriminante, `payload`, `progress int|None`) | 0–2 |
 | `__init__.py` | re-exporta `Finding`, `AgenticResult`, `ScanEvent` para imports cortos | — |
 
 `finding.py` se escribe **verbatim** según spec §5; los `Literal[...]` usan los
@@ -182,10 +182,10 @@ ORM (cada uno hereda `UUIDTimestampMixin` salvo donde se note; registrados en
 
 | Archivo / ORM | Tabla | Notas de columnas y tipos |
 |---|---|---|
-| `scan.py → ScanORM` | `scans` | `uuid` PK UUID (≠ serial, §3.2); `site_id` FK→`sites.uuid`; `level/status/visibility/agentic_status` = `String` (enum); `requested_by` FK→`users.uuid` **nullable** (gov anónimo); `authorized bool`, `authorized_at`; `progress int default 0`; `current_phase text`; `tools_status/coverage` = `JSONB`; `web_score int`, `agentic_score int nullable`, `overall_score int`, `overall_grade char(1)`, `penalty_raw int`; `started_at/finished_at/error` nullable. |
+| `scan.py → ScanORM` | `scans` | `uuid` PK UUID (≠ serial, §3.2); `site_id` FK→`sites.uuid`; `level/status/visibility/agentic_status` = `String` (enum); `requested_by` FK→`users.uuid` **nullable** (gov anónimo); `authorized bool`, `authorized_at`; `progress int default 0`; `current_phase text`; `tools_status/coverage` = `JSONB`; `web_score int`, `agentic_score int nullable`, `overall_score int`, `overall_grade char(1)`, `penalty_raw int`; `summary JSONB nullable` (ExecutiveSummary de Opus, §3.2 — 05 lo persiste, 09 lo lee); `started_at/finished_at/error` nullable. |
 | `finding.py → FindingORM` | `findings` | `scan_id` FK→`scans.uuid`, `site_id` FK→`sites.uuid`; `source/severity/confidence/status` enum-`String`; `category String`; `cvss Float nullable`; `evidence/references` = `JSONB`; `affected_url/endpoint/param/impact/remediation/title/description`; `dedupe_key char(64)`; `first_seen/last_seen` (a nivel SITE, §3.3). |
 | `agentic_surface.py → AgenticSurfaceORM` | `agentic_surface` | `scan_id`, `site_id` FK; `type` enum; `vendor nullable`; `location_url`; `inferred_model nullable`; `detected_at`. |
-| `scan_event.py → ScanEventORM` | `scan_events` | `scan_id` FK; `seq int`; `ts`; `type` enum; `agent`, `tool nullable`, `severity nullable`, `message`, `payload JSONB`. **`UNIQUE (scan_id, seq)`** (§4). |
+| `scan_event.py → ScanEventORM` | `scan_events` | `scan_id` FK; `seq int`; `ts`; `type` enum; `agent`, `tool nullable`, `severity nullable`, `message`, `payload JSONB`, `progress int nullable` (eventos `phase`/`score`, §3.5). **`UNIQUE (scan_id, seq)`** (§4). |
 | `alert.py → AlertORM` | `alerts` | log de notificaciones: `user_id`, `site_id`, `scan_id` FK; `type`, `message`, `channel` enum, `sent_at`. |
 | `public_report.py → PublicReportORM` | `public_reports` | `token` (`secrets.token_urlsafe(32)`, **UNIQUE** index, §4); `scan_id` FK; `created_at`, `expires_at`, `revoked_at nullable`. |
 

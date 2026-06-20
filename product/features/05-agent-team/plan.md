@@ -80,8 +80,8 @@ Infra **ya existente** que se reutiliza tal cual (verificada en el repo):
   `command.__class__.__name__` como `command_name`. El `POST /scans` (12) hace
   `command_bus.dispatch(RunScanCommand(...), run_async=True)`.
 - **Settings**: `src/common/settings.py` — aquí se añaden las claves de modelos
-  (`ANTHROPIC_API_KEY`, `OPUS_MODEL_ID`, `SONNET_MODEL_ID`), `SCAN_BUDGET_S`,
-  `OPUS_SUMMARY_MAX_TOKENS`.
+  (`OPUS_MODEL_ID`, `SONNET_MODEL_ID`, `SCAN_BUDGET_S`, `OPUS_SUMMARY_MAX_TOKENS`).
+  `ANTHROPIC_API_KEY` **ya existe** en settings (sección LLM/OCR); se reutiliza tal cual.
 
 > **Prerequisito de dependencias (paso 0, antes de cualquier código).** El Team
 > se monta sobre `agno` + el SDK de Anthropic, pero **ni `agno` ni `anthropic`
@@ -107,7 +107,7 @@ backend/src/scans/
     members.py               # build_owasp_agent(...), build_agentic_agent(...)
     tools/
       owasp.py               # run_nuclei/run_zap/run_testssl/... wrappers → list[Finding]
-      agentic.py             # crawl_site/classify_dom_llm/fingerprint_vendors/run_promptfoo/run_garak
+      agentic.py             # make_detect_surface / make_probe_agentic (closures; runner Playwright-native, 03 §2)
       _accumulate.py         # helper: empuja Finding[] a run_context.session_state["findings"]
     parsers/
       nuclei.py              # parse_nuclei(stdout) -> list[Finding]   (P prioritario)
@@ -182,7 +182,9 @@ def make_run_nuclei(*, target, host_shared_dir, cancel, emit):
 | `generic` (nikto/sqlmap) | texto best-effort → 1 Finding sev media | best-effort o se corta |
 
 `garak`/`promptfoo` los parsea la familia agéntica ([03](../03-agentic-surface/spec.md));
-aquí se exponen como tools del `agentic_agent` con el mismo patrón wrapper.
+se exponen como tools del `agentic_agent` **sólo en CAMINO B** (fallback opt-in, nunca
+sobre `.gob.mx`). El runner primario es el puente Playwright-native de 03; `classify_dom_llm`/
+`fingerprint_vendors` viven en `agentic/detector.py` (03), no en `tools/agentic.py`.
 
 ## 3. Enganche en SAQ — `RunScanCommand` + `RunScanHandler`
 
@@ -227,7 +229,7 @@ WorkerFlow.run(scan_id, url, level, is_gov):
      web, agentic_sc, overall, grade, penalty, ag_status = score(deduped, session_state["agentic"])  # 07
   5. summary = await synthesize_summary(compact(deduped, top_n=...))  # Opus, output_schema, <2k tok
   6. persist: ScanRepository.update(scan_id, status=..., scores, grade,
-                                    coverage, tools_status);
+                                    coverage, tools_status, summary=summary);
               FindingRepository.upsert_many(deduped);     # UPSERT (site_id, dedupe_key)
               AgenticSurfaceRepository.save(session_state["agentic"]);
               ScanEventRepository ya recibió cada evento vía emit (append seq)

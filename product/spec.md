@@ -109,12 +109,11 @@ implementación del análisis de huecos, y lleva frontmatter (`status: pending`,
 | 03 | [agentic-surface](features/03-agentic-surface/spec.md) | §4 | Sondeo de chatbots/widgets LLM embebidos: detección por fingerprints + LLM, puente Playwright y LLM-juez con evidencia tipada. **El diferenciador.** |
 | 04 | [scanning-engine](features/04-scanning-engine/spec.md) | §5, §13 | Cómo el worker lanza los scanners: imagen fat vs. DooD por socket, redes aisladas, timeouts + watchdog, cold-start y stack de herramientas. |
 | 05 | [agent-team](features/05-agent-team/spec.md) | §6 | El Agno Team (Opus orquestador + 2 Sonnet) donde las tool-functions parsean a `Finding[]` en Python y el LLM queda fuera del camino de datos. |
-| 06 | [data-model](features/06-data-model/spec.md) | §7, §8 | El esquema Postgres del motor de pentest (sites, scans, findings, agentic_surface, scan_events, watchlist, magic_tokens) y los contratos Pydantic `Finding`/`AgenticResult`. |
+| 06 | [data-model](features/06-data-model/spec.md) | §7, §8 | El esquema Postgres del motor de pentest (sites, scans, findings, agentic_surface, scan_events, watchlist, alerts, notification_prefs, public_reports) y los contratos Pydantic `Finding`/`AgenticResult`. |
 | 07 | [scoring](features/07-scoring/spec.md) | §9 | Doble sub-score web/agéntico → overall + grado A–F, con `penalty_raw` sin cap, cap por cobertura parcial y `agentic_status` de tres estados. |
 | 08 | [ranking-watchlists](features/08-ranking-watchlists/spec.md) | §10, §12 | Leaderboard público `.gob.mx` (solo pasivo, sembrado y pre-horneado), watchlists privadas y monitoreo/alertas vía cron de SAQ + Resend/Slack. |
 | 09 | [reporting](features/09-reporting/spec.md) | §11 | Reporte de dos capas (ejecutiva con doble gauge A–F + párrafo de Opus, técnica en acordeón), export PDF y link público `/r/[token]` con exploits redactados. |
 | 10 | [realtime-live-view](features/10-realtime-live-view/spec.md) | §12.1 | Live view del pentest por SSE: Postgres es la verdad (`scan_events`), Redis solo el tail, con replay-then-tail y auth por cookie. |
-| 11 | [auth-magic-link](features/11-auth-magic-link/spec.md) | §12.2, §14.1 | Flujo magic-link sin contraseña: 4 pantallas en `(public)`, canje de `magic_tokens` y cookie HttpOnly que autentica la live-view SSE. |
 | 12 | [api](features/12-api/spec.md) | §14 | Superficie HTTP: encolado idempotente de scans, AuthZ anti-IDOR, cancelación/health, contrato SSE, CRUD watchlist, paginación y formato de error único. |
 | 13 | [frontend](features/13-frontend/spec.md) | `owliver-frontend.md` | Todo el frontend Next.js: Hall of Shame, gate de atestación, el Live Pentest Theater en modo SOC, reporte "Owliver te explica" y superficies públicas/privadas. |
 
@@ -157,9 +156,7 @@ in-scope, con orden de recorte documentado en §15:
    [`04-scanning-engine`](features/04-scanning-engine/spec.md)); fallback = ZAP
    full active + Nuclei fuzzing.
 
-**Auth (default):** JWT + magic-link por email. Multi-tenant vía `owner_user_id` /
-`watchlist.user_id`. Las 4 pantallas del flujo en
-[`11-auth-magic-link`](features/11-auth-magic-link/spec.md).
+**Auth (default):** login por **Google** (OAuth del boilerplate SaaS, ya implementado; setea la cookie HttpOnly `SameSite=Lax` con el JWT que autentica la live-view SSE y los endpoints privados). Multi-tenant vía `owner_user_id` / `watchlist.user_id`.
 
 ---
 
@@ -196,7 +193,7 @@ En el mismo bloque se fija **SAQ** (asyncio-native, no RQ síncrono: el worker h
 | **2–5** | **P1/P2:** helper `run_tool()` + imagen `scanners` + **3 parsers de alta densidad** (Nuclei JSONL, testssl `-oJ`, security-headers/Observatory) → `Finding[]` en Python (NO vía `response_model`). `POST /scans` + cola SAQ + pickup. **Nivel básico end-to-end con findings reales en la UI** |
 | **5–8** | **P1/P2:** Agno Team (orquestador + 2 miembros; tools devuelven `Finding[]` ya parseado, el LLM solo elige qué tools correr). Scoring + dedup en Python (`penalty_raw`, `coverage`, grado E, cap-C si parcial). Whitelist tools+flags por `(is_gov, level)` + robots.txt + gate de atestación en `POST /scans` (activo sin `authorized` → 422; **no** bloqueo por dominio). ZAP baseline como 4º parser |
 | **8–11** | **P3:** subagente agéntico — bot propio plantado + **detección por fingerprints deterministas (1ª pasada)** + lazy-load + **puente Playwright-maneja-conversación** + juez con canary/rúbrica → findings + `agentic_status` (3 estados). **P4** ya avanza contra fixtures |
-| **11–14** | **P4:** route-group `(public)`, leaderboard RSC, form de scan (validación URL + gate condicional + redirect), **reporte** (doble gauge + resumen ejecutivo Opus + accordion), `/r/[token]` con redacción de exploits. **P1:** magic-link callback `GET /auth/callback` + tabla `magic_tokens` |
+| **11–14** | **P4:** route-group `(public)`, leaderboard RSC, form de scan (validación URL + gate condicional + redirect), **reporte** (doble gauge + resumen ejecutivo Opus + accordion), `/r/[token]` con redacción de exploits. **P1:** login Google (ya existente) cableado al gate de sesión de los scans activos |
 | **14–16** | Live view: `scan_events` con `seq`+`type`, **replay-then-tail**, auth por cookie, **demo-level <90s**. Correr seed `.gob.mx` **en el VPS** en pasivo → sobrescribe fixtures si termina a tiempo |
 | **16–18** | Cron monitoreo + alertas (Resend/Slack) vía `dedupe_key` + first/last_seen a nivel site; watchlist; CRUD (`GET /scans`, cancel, `DELETE /watchlist`, `/health`, `/ready`) + rate-limit; export PDF + evidencia en volumen |
 | **18–20** | **Deploy + pitch.** hexstrike YA en cero (ver abajo). Pre-escanear seed en el VPS, **grabar video de respaldo de 90s**, guion, pulido |

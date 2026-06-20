@@ -9,13 +9,11 @@ sources: spec.md §14 (§14.1–§14.5), §11.3, §12.1; spec-gaps.md §6 (6.2�
 
 # Owliver — API (FastAPI) — endpoints
 
-> Superficie HTTP completa de Owliver sobre FastAPI: encolado idempotente de escaneos, autorización por endpoint para no convertir un producto que almacena vulnerabilidades explotables en un índice de cómo hackear los sitios de los usuarios (IDOR), cancelación/listado/health, el contrato del stream SSE, CRUD de watchlist, paginación por cursor y un formato de error único centralizado. La verdad de cada scan vive en Postgres; esta API es la fachada de lectura/mutación sobre ese estado. La autenticación por magic-link se documenta aquí solo como contrato HTTP; su flujo y pantallas viven en [11-auth-magic-link](../11-auth-magic-link/spec.md).
+> Superficie HTTP completa de Owliver sobre FastAPI: encolado idempotente de escaneos, autorización por endpoint para no convertir un producto que almacena vulnerabilidades explotables en un índice de cómo hackear los sitios de los usuarios (IDOR), cancelación/listado/health, el contrato del stream SSE, CRUD de watchlist, paginación por cursor y un formato de error único centralizado. La verdad de cada scan vive en Postgres; esta API es la fachada de lectura/mutación sobre ese estado. La autenticación (login **Google** del boilerplate SaaS, ya implementado) se documenta aquí solo como contrato HTTP; su flujo vive en el módulo `auth` existente.
 
 ## Superficie de endpoints
 
 ```
-POST   /auth/magic-link            envía magic link (email)
-GET    /auth/callback?token=       canjea token de 1 uso → set cookie → redirect
 POST   /auth/logout                limpia sesión
 GET    /auth/me                    usuario actual (auth)
 
@@ -47,30 +45,22 @@ GET    /ready                      readiness (Postgres + Redis)
 
 Todos los endpoints, salvo los explícitamente públicos (`/health`, `/ready`,
 `/ranking`, `/r/{token}`, y los scans `public`), exigen sesión válida y check de
-owner. Las tablas referenciadas (`scans`, `findings`, `magic_tokens`,
+owner. Las tablas referenciadas (`scans`, `findings`,
 `public_reports`, `watchlist`) son propiedad de [06-data-model](../06-data-model/spec.md);
 el cálculo de scores expuesto por estos endpoints es propiedad de
 [07-scoring](../07-scoring/spec.md).
 
 ## Autenticación (`/auth/*`) — contrato HTTP
 
-El **flujo** completo de magic-link (envío, canje, las 4 pantallas, JWT y cookie)
-es propiedad de [11-auth-magic-link](../11-auth-magic-link/spec.md). Aquí se
-fija únicamente el contrato HTTP de los cuatro endpoints:
+Owliver **reusa el login Google del boilerplate SaaS** (ya implementado en el
+módulo `auth`: OAuth → `GoogleSessionBuilder` → JWT + cookie). **No hay flujo
+magic-link.** Esta API expone únicamente:
 
-- `POST /auth/magic-link` **solo envía** el correo con el link; no abre sesión.
-  Recibe `{email}`. Genera un token opaco de **1 uso**, TTL **10 min**, y persiste
-  el **SHA256 del token** (nunca el token plano) en
-  `magic_tokens(token_hash PK, email, expires_at, consumed_at NULL, created_at)`.
-- `GET /auth/callback?token=` **canjea** el token: verifica que esté
-  no-consumido y no-expirado, marca `consumed_at`, hace upsert en `users`, setea
-  una cookie **HttpOnly SameSite=Lax** con el JWT y **redirige**. Un token ya
-  consumido o expirado no abre sesión.
 - `POST /auth/logout` limpia la cookie de sesión.
 - `GET /auth/me` (auth) devuelve el usuario actual.
 
-La cookie HttpOnly emitida por el callback es la misma que autentica el stream
-SSE (`EventSource` no admite headers custom; ver [10-realtime-live-view](../10-realtime-live-view/spec.md)).
+La cookie HttpOnly `SameSite=Lax` emitida por el BFF de login Google es la misma
+que autentica el stream SSE (ver [10-realtime-live-view](../10-realtime-live-view/spec.md)).
 
 ## `POST /scans` — encolado idempotente
 
@@ -278,19 +268,29 @@ revocación (`revoked_at NULL`). Requiere owner.
 Aplica a `findings`, `scans` y `ranking`:
 
 ```
-?limit=50&cursor=<id>   →   { items, next_cursor }
+?limit=50&cursor=<id>   →   reutiliza Page[T] de common: { data, pagination: { nextCursor, limit }, timestamp }
 ```
 
 Los findings se ordenan por **severidad desc**.
 
 ### Formato de error único
 
-Centralizado en un `exception_handler` de FastAPI **desde la hora 0**. Toda
-respuesta de error tiene la forma:
+Centralizado en los `exception_handler` de FastAPI **desde la hora 0** (reutilizados
+del fundamento SaaS, no se crean nuevos). La forma canónica del
+`domain_error_handler` (y de la validación Pydantic) es:
 
 ```json
-{ "error": { "code": "", "message": "", "details": null } }
+{ "errors": [ { "code": "", "message": "" } ], "validation": null, "timestamp": "..." }
 ```
+
+- `errors` es un **arreglo** (no un objeto `error` singular); el cliente lee
+  `errors[0].code` / `errors[0].message`. **No** existe la clave `details`.
+- `validation` lleva el detalle de errores de campo (Pydantic 422), `null` en el
+  resto; `timestamp` lo añade `ApiJSONResponse`.
+- **Excepción**: el handler de rate-limit (`rate_limit_exception_handler`) emite una
+  forma divergente (`{ "error": "rate_limit_exceeded", ... }`); el "formato único" es
+  aspiracional entre handlers del fundamento y se documenta así para que el frontend
+  ([13-frontend](../13-frontend/spec.md)) no asuma un único shape literal.
 
 Códigos relevantes en toda la superficie:
 

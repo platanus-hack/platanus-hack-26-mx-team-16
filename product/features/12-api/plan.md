@@ -5,7 +5,7 @@ status: pending
 coverage: 0
 audited: 2026-06-20
 spec: ./spec.md
-sources: 12-api/spec.md (toda la superficie); 06-data-model/plan.md (módulos sites/scans, contratos); 01-legal-ethics/plan.md (gate, rate-limit, common/legal); 10-realtime-live-view/spec.md (SSE); 11-auth-magic-link/spec.md (auth); 09-reporting/spec.md (/r/{token})
+sources: 12-api/spec.md (toda la superficie); 06-data-model/plan.md (módulos sites/scans, contratos); 01-legal-ethics/plan.md (gate, rate-limit, common/legal); 10-realtime-live-view/spec.md (SSE); 09-reporting/spec.md (/r/{token})
 ---
 
 # Owliver — API (FastAPI) — plan de implementación (CÓMO)
@@ -31,19 +31,19 @@ sources: 12-api/spec.md (toda la superficie); 06-data-model/plan.md (módulos si
 El codebase hoy es **solo el fundamento SaaS** (módulos `auth, users, profile,
 tenants, common, messaging, assets, admin`). **No existen** `src/scans/` ni
 `src/sites/`. Esta feature se habilita **después** de 06 (tablas + contratos) y en
-paralelo con 10 (SSE) y 11 (auth magic-link).
+paralelo con 10 (SSE) (auth Google ya existente, no bloquea).
 
 **Depende de:**
 - [06-data-model](../06-data-model/plan.md): tablas `sites`, `scans`, `findings`,
   `agentic_surface`, `scan_events`, `public_reports`, `watchlist`,
-  `notification_prefs`, `magic_tokens`; enums (`scan.status` con `cancelled`/`partial`,
+  `notification_prefs`; enums (`scan.status` con `cancelled`/`partial`,
   `scan.visibility`, `scan.level`, `finding.severity`); contratos Pydantic en
   `src/scans/domain/contracts/` (`Finding`, `AgenticResult`, `ScanEvent`). **Crea el
   partial unique index de idempotencia** (`scans(site_id, level) WHERE status IN
   ('queued','running')`).
-- [11-auth-magic-link](../11-auth-magic-link/spec.md): el flujo de `/auth/*`, el
-  JWT y la **cookie HttpOnly SameSite=Lax**. La API solo expone el contrato HTTP
-  de los 4 endpoints y **consume** la dependency `get_authenticated_user` resultante.
+- **Auth Google (boilerplate):** el login Google ya implementado en `auth` emite el
+  JWT y la **cookie HttpOnly SameSite=Lax**. La API **consume** la dependency
+  `get_authenticated_user` resultante (no hay flujo magic-link).
 - [10-realtime-live-view](../10-realtime-live-view/spec.md): la semántica
   replay-then-tail y el esquema de eventos del `GET /scans/{id}/stream`. La API
   solo declara el endpoint y delega su cuerpo a 10.
@@ -79,8 +79,8 @@ paralelo con 10 (SSE) y 11 (auth magic-link).
 ## 1. Mapa de endpoints → use case → repositorio → presenter → router
 
 Cada endpoint vive en el `presentation/` del **módulo dueño** (06): `/scans/*`,
-`/findings`, `/scans/*/stream|cancel|share`, `/r/{token}`, `/me/alerts` en
-`src/scans/`; `/sites/*`, `/watchlist/*`, `/ranking` en `src/sites/`. `/auth/*`
+`/findings`, `/scans/*/stream|cancel|share`, `/r/{token}` en
+`src/scans/`; `/sites/*`, `/watchlist/*`, `/ranking`, `/me/alerts` en `src/sites/`. `/auth/*`
 los posee 11 (aquí solo se referencian). `/health`/`/ready` en `src/common/`.
 
 | Método + ruta | Use case (`application/use_cases/`) | Repositorio (06) | Presenter | Router (módulo) | AuthZ |
@@ -94,8 +94,8 @@ los posee 11 (aquí solo se referencian). `/health`/`/ready` en `src/common/`.
 | `POST /scans/{id}/share` | `CreatePublicShare` | `PublicReportRepository` | `ShareTokenPresenter` | `scans` | owner (404) |
 | `POST /scans/{id}/cancel` | `CancelScan` | `ScanRepository` | `TaskResult` | `scans` | owner (404) |
 | `GET /r/{token}` | `GetPublicReport` | `PublicReportRepository` | `PublicReportPresenter` (redacta, 09) | `scans` | público (token) |
-| `GET /me/alerts` | `GetAlertPrefs` | `NotificationPrefsRepository` | `AlertPrefsPresenter` | `scans` | auth |
-| `PUT /me/alerts` | `UpdateAlertPrefs` | `NotificationPrefsRepository` | `AlertPrefsPresenter` | `scans` | auth |
+| `GET /me/alerts` | `GetAlertPrefs` | `NotificationPrefsRepository` | `AlertPrefsPresenter` | `sites` | auth |
+| `PUT /me/alerts` | `UpdateAlertPrefs` | `NotificationPrefsRepository` | `AlertPrefsPresenter` | `sites` | auth |
 | `GET /sites/{id}` | `GetSiteHistory` | `SiteRepository`, `ScanRepository` | `SiteHistoryPresenter` | `sites` | público/owner |
 | `GET /ranking?country=mx` | `GetRanking` | `SiteRepository` | `RankingItemPresenter` | `sites` | público (`visibility='public'`) |
 | `GET /watchlist` | `ListWatchlist` | `WatchlistRepository` | `WatchlistItemPresenter` | `sites` | auth |
@@ -110,7 +110,7 @@ los posee 11 (aquí solo se referencian). `/health`/`/ready` en `src/common/`.
 **`src/scans/presentation/`**
 ```
 router.py                         # scans_router = APIRouter(prefix="/scans", ...) + add_api_route(...)
-                                  # + me_router (prefix="/me") + report_router (prefix="/r")
+                                  # + report_router (prefix="/r")
 endpoints/
   enqueue_scan.py                 # POST /scans  → EnqueueScan
   list_scans.py                   # GET  /scans
@@ -121,34 +121,31 @@ endpoints/
   share_scan.py                   # POST /scans/{id}/share
   cancel_scan.py                  # POST /scans/{id}/cancel
   public_report.py                # GET  /r/{token}
-  alerts_get.py                   # GET  /me/alerts
-  alerts_put.py                   # PUT  /me/alerts
 requests/
   enqueue_scan.py                 # EnqueueScanRequest(CamelCaseRequest): url, level, authorized
   share_scan.py                   # ShareScanRequest: ttl_days (opt)
-  alert_prefs.py                  # AlertPrefsRequest: emailEnabled, slackWebhookUrl?
 presenters/
   scan.py                         # ScanCreatedPresenter, ScanListItemPresenter, ScanDetailPresenter
   finding.py                      # FindingPresenter
   share.py                        # ShareTokenPresenter
   public_report.py               # PublicReportPresenter  (redacción la posee 09)
-  alert_prefs.py                  # AlertPrefsPresenter
 exceptions.py                     # ScanNotFoundError(404), PublicReportNotFoundError(404),
                                   # PublicReportGoneError(410)  (subclases de DomainError)
 ```
 
 **`src/scans/application/use_cases/`**: `enqueue_scan.py`, `list_user_scans.py`,
 `get_scan.py`, `list_scan_findings.py`, `cancel_scan.py`, `create_public_share.py`,
-`get_public_report.py`, `get_alert_prefs.py`, `update_alert_prefs.py`,
-`get_scan_report_pdf.py`.
+`get_public_report.py`, `get_scan_report_pdf.py`.
 
 **`src/sites/presentation/`**: `router.py` (`sites_router`, `watchlist_router`,
-`ranking_router`) + `endpoints/{get_site,get_ranking,list_watchlist,add_watchlist,toggle_watchlist,remove_watchlist}.py`
-+ `requests/{add_watchlist,toggle_watchlist}.py` + `presenters/{site_history,ranking_item,watchlist_item}.py`.
+`ranking_router`, `me_router` prefix="/me") +
+`endpoints/{get_site,get_ranking,list_watchlist,add_watchlist,toggle_watchlist,remove_watchlist,alerts_get,alerts_put}.py`
++ `requests/{add_watchlist,toggle_watchlist,alert_prefs}.py` +
+`presenters/{site_history,ranking_item,watchlist_item,alert_prefs}.py`.
 
 **`src/sites/application/use_cases/`**: `get_site_history.py`, `get_ranking.py`,
 `list_watchlist.py`, `add_to_watchlist.py`, `toggle_watchlist_monitor.py`,
-`remove_from_watchlist.py`.
+`remove_from_watchlist.py`, `get_alert_prefs.py`, `update_alert_prefs.py`.
 
 **`src/common/` (transversal net-new):**
 ```
@@ -275,31 +272,38 @@ async def require_scan_access(
 ### 5.1 Formato de error
 **Ya resuelto por el fundamento** — no se crea nada nuevo: el
 `domain_error_handler` registrado en `config/main.py` serializa cualquier
-`DomainError` a la forma `{ "error": { "code", "message", "details" } }`. Esta
-feature solo **añade subclases** de `DomainError` (`ScanNotFoundError` 404,
+`DomainError` a la forma real del fundamento `{ "errors": [ { "code", "message" } ], "validation": null, "timestamp": "..." }` (`errors` es un **arreglo**; el cliente
+lee `errors[0]`; no existe `details`; `ApiJSONResponse` añade `timestamp`). El
+handler de validación Pydantic reusa la misma forma con `validation` poblado (422).
+Esta feature solo **añade subclases** de `DomainError` (`ScanNotFoundError` 404,
 `PublicReportNotFoundError` 404, `PublicReportGoneError` 410) en `exceptions.py`;
-`AttestationRequiredError` (422) lo aporta 01. Validación Pydantic →
-`validation_error_handler` (422). Rate-limit → `rate_limit_exception_handler` (429).
-**Mapa completo de códigos**: 200 (hit idempotente), 201 (scan nuevo), 422
-(`attestation_required`/validación), 404 (ausente o sin permiso), 410 (token
+`AttestationRequiredError` (422) lo aporta 01. Rate-limit →
+`rate_limit_exception_handler` (429), que emite su propia forma divergente (`error`
+como string). **Mapa completo de códigos**: 200 (hit idempotente), 201 (scan nuevo),
+422 (`attestation_required`/validación), 404 (ausente o sin permiso), 410 (token
 expirado/revocado), 429 (rate-limit).
 
 ### 5.2 Paginación por cursor
-Helper net-new `common/presentation/pagination.py` (no existe hoy un helper de
-cursor en `common` — confirmado), reutilizado por `findings`, `scans` y `ranking`:
+**Reutiliza la infra de cursor ya existente en `common`** (no se reinventa): el
+helper `encode_cursor`/`decode_cursor` (`src/common/application/helpers/pagination.py`,
+base64 Fernet de `datetime|uuid`) y el genérico `Page[T]`
+(`src/common/domain/entities/common/pagination.py`: `next_cursor`, `items`,
+`apply_presenter()`), que `ApiJSONResponse` ya serializa como
+`{ data, pagination: { nextCursor, limit }, timestamp }`. El patrón `limit+1` →
+`encode_cursor` → keyset-WHERE ya lo usan los repos de `tenants`.
 
-```python
-@dataclass
-class CursorPage(Generic[T]):
-    items: list[T]
-    next_cursor: str | None       # presenter → camelCase {items, nextCursor}
-```
-
-- Contrato HTTP: `?limit=50&cursor=<id>` → `{ items, next_cursor }`.
-- **`findings` ordena por severidad desc** (cursor compuesto severity+id para ser
-  estable); `scans`/`ranking` por `created_at`/score desc.
-- El repo (06) recibe `(limit, cursor)` y devuelve `limit+1` filas para calcular
-  `next_cursor`; el use case arma `CursorPage`.
+- Contrato HTTP (el **real**, no uno nuevo): `?limit=50&cursor=<id>` →
+  `{ data: [...], pagination: { nextCursor, limit }, timestamp }`. `findings`,
+  `scans` y `ranking` devuelven este mismo envoltorio.
+- Lo **único net-new** es el cursor compuesto `(severity, id)` que `findings`
+  necesita para ordenar por severidad desc de forma estable: una **extensión** del
+codec existente, no un `CursorPage` paralelo. `PageIndex` cubre `datetime|uuid`;
+  el cursor de severidad añade un discriminante `{sev}:{id}` al mismo `encode_cursor`.
+- El repo (06) recibe `(limit, cursor)`, aplica el keyset-WHERE y devuelve `limit+1`
+  filas para calcular `next_cursor`; el use case arma un `Page[T]`.
+- El archivo `common/presentation/pagination.py` puede agrupar el helper de
+  findings/presenters, pero **construye sobre `Page[T]`/`encode_cursor`**, no define
+  un `CursorPage` nuevo.
 - Respuestas camelCase: presenters convierten snake_case → camelCase (regla CLAUDE.md).
 
 ## 6. Health / readiness

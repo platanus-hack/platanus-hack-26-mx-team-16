@@ -15,7 +15,7 @@ const tabsListVariants = cva(
   {
     variants: {
       variant: {
-        default: "h-10 rounded-md bg-muted p-1 gap-1",
+        default: "h-11 rounded-full bg-surface-container p-1 gap-1",
         line: "h-auto bg-transparent gap-2 border-b-0",
       },
     },
@@ -44,8 +44,8 @@ const tabsTriggerVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-sm px-3 py-1.5 data-[active]:bg-background data-[active]:text-foreground data-[active]:shadow-sm",
-        line: "rounded-none px-4 py-3 relative data-[active]:text-foreground data-[active]:shadow-none data-[active]:after:absolute data-[active]:after:bottom-0 data-[active]:after:left-0 data-[active]:after:right-0 data-[active]:after:h-0.5 data-[active]:after:bg-current data-[active]:after:transition-all",
+          "rounded-full px-4 py-2 data-[active]:bg-secondary data-[active]:text-secondary-foreground data-[active]:shadow-sm",
+        line: "rounded-none px-4 py-3 relative data-[active]:text-primary data-[active]:shadow-none data-[active]:after:absolute data-[active]:after:bottom-0 data-[active]:after:left-0 data-[active]:after:right-0 data-[active]:after:h-[3px] data-[active]:after:rounded-full data-[active]:after:bg-current data-[active]:after:transition-all",
       },
     },
     defaultVariants: {

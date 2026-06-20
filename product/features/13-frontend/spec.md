@@ -26,10 +26,10 @@ sources: spec.md §10, §11, §12, §14, §15, §17; owliver-frontend.md §F1–
 
 ## §F1 · Stack y reglas de arquitectura frontend
 
-- **Next.js 15 (App Router) + React 19 + TypeScript**, Tailwind CSS v4 (oklch, `@theme inline`), **shadcn + Base UI**. Charts con **recharts** (^3.6.0, ya presente). Toasts con **sonner** (hay que añadirlo). **Accordion** se añade con `npx shadcn add accordion` (el repo solo trae `collapsible`).
+- **Next.js 15 (App Router) + React 19 + TypeScript**, Tailwind CSS v4 (oklch, `@theme inline`), **shadcn + Base UI**. Charts con **recharts** (^3.6.0, a instalar). Toasts con **sonner** (hay que añadirlo). **Accordion** se añade con `npx shadcn add accordion` (el repo solo trae `collapsible`).
 - **Cliente → backend SIEMPRE vía BFF** (regla del repo): los componentes `"use client"` hacen `fetch("/api/…")` same-origin; las `route.ts` server-side reenvían con `serverHttp` y manejan cookies HttpOnly + `X-Api-Key`. Nunca `fetch` directo a `Settings.apiBaseUrl` desde el browser.
 - **Route-groups:** `(public)` para todo lo anónimo (leaderboard, scan básico, reporte, `/r/[token]`, magic-link) y `(protected)` para watchlist/monitoreo y scans activos. Decisión de superficie en §F10 / [11-auth-magic-link](../11-auth-magic-link/spec.md). El `(public)` lleva **layout propio** (logo Owliver + CTA "Escanear mi sitio", sin sidebar).
-- **SSE (live-view):** `EventSource` con `withCredentials: true` (no permite headers custom → auth por cookie). **Replay-then-tail** sobre `Last-Event-ID` / `?since_seq=`. Compresión desactivada en la ruta. El contrato completo del stream vive en [10-realtime-live-view](../10-realtime-live-view/spec.md).
+- **SSE (live-view):** helper fetch-based `subscribeSSE` / hook `useScanStream` con `credentials: "same-origin"` (auth por cookie; **no** se usa `EventSource` nativo). **Replay-then-tail** sobre `?since_seq=` (`Last-Event-ID` solo como compat). Compresión desactivada en la ruta. El contrato completo del stream vive en [10-realtime-live-view](../10-realtime-live-view/spec.md).
 - **Server Components por defecto**, Client Components solo donde hay estado/SSE (theater, form, filtros, gauges animados). `/r/[token]` es **server component** sin login.
 
 ---
@@ -151,7 +151,7 @@ Acciones transversales: `POST /scans/{id}/share` (genera `/r/{token}`), `GET /sc
 
 **Datos.**
 - Estado inicial: `GET /scans/{id}` (status, progress, current_phase, tools_status, scores parciales).
-- Stream: `GET /scans/{id}/stream` (SSE) con **replay-then-tail** — `EventSource(url, {withCredentials:true})`, cursor `Last-Event-ID`/`since_seq`.
+- Stream: `GET /scans/{id}/stream` (SSE) con **replay-then-tail** — `subscribeSSE(url)` / `useScanStream` (`credentials: "same-origin"`), cursor `?since_seq=lastSeq` (`Last-Event-ID` solo como compat).
 - Eventos tipados: `agent_status | tool_start | tool_end | finding | phase | score | done | error`. `seq` monótono = orden + idempotencia de cliente (descartar `seq <= lastSeq`). El contrato del stream y el detalle de cada evento están en [10-realtime-live-view](../10-realtime-live-view/spec.md).
 
 **Layout (war room).**
@@ -251,7 +251,7 @@ El repo trae auth por **password**; Owliver necesita **magic-link**, que no exis
 
 - **Loading:** skeletons (no spinners) en leaderboard, reporte, histórico.
 - **Empty:** leaderboard (teórico), watchlist vacía ("agrega tu primer dominio"), sitio sin scans.
-- **Error / códigos:** formato único `{error:{code,message,details}}` (ver [12-api](../12-api/spec.md)). Mapeo UI: **422** (atestación/validación → inline en el form), **404** (recurso/sin permiso → página "no encontrado", no confirmar existencia), **410** (token expirado → copy de enlace caducado), **403** (toast). Scan `partial` → banner "cobertura parcial". Scan colgado → estado con `tools_status`.
+- **Error / códigos:** formato `{errors:[{code,message}], validation, timestamp}` (el cliente lee `errors[0]`; ver [12-api](../12-api/spec.md)). Mapeo UI: **422** (atestación/validación → inline en el form), **404** (recurso/sin permiso → página "no encontrado", no confirmar existencia), **410** (token expirado → copy de enlace caducado), **403** (toast). Scan `partial` → banner "cobertura parcial". Scan colgado → estado con `tools_status`.
 - **Toasts (sonner):** share generado, PDF listo, errores 403/410, copia de link.
 - **Accesibilidad:** contraste AA en ambos modos (claro/SOC); foco visible; `prefers-reduced-motion` desactiva count-up/pulse; el theater no debe depender solo de color (íconos + texto en chips de severidad).
 - **Responsive:** un solo breakpoint `md`. Leaderboard y reporte mobile-first; tabla→cards y 2-columnas→stack vertical; el theater colapsa los 2 carriles a stack vertical en móvil (el feed de findings manda). Variante móvil obligatoria para las 3 principales: Hall of Shame, Theater, Reporte.

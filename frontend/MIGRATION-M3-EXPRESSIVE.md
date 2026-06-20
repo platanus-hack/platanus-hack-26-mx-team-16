@@ -155,8 +155,8 @@ Hall of Shame `/`, Auditar URL `/scan` (+ gate de atestación), **Live Pentest T
 
 ## 7. Orden de ejecución (checklist)
 
-- [ ] **F0** `globals.css`: roles M3 + shape + fuentes + easing + `.dark`/`.soc`; `layout.tsx` fuentes.
-- [ ] **F1** `ui/button, input, field, card, badge, dialog, sheet, tabs, toggle-group, switch, checkbox, table, select, dropdown-menu, popover, tooltip, sidebar, skeleton, progress`.
+- [x] **F0 — hecho.** `globals.css`: roles M3 pastel (`:root`), `.dark` M3, **nuevo `.soc`**, `--radius:1rem` + `--radius-full`, roles nuevos expuestos en `@theme inline`, easing/duración M3; `layout.tsx` carga **Roboto Flex/Mono** vía `next/font`. → todas las pantallas existentes ya renderizan en M3 pastel.
+- [x] **F1 — hecho.** `button` (pill + state-layer `before:bg-current` + familia Filled/Tonal/Elevated/Outlined/Text/`tertiary` + press), `card` (`rounded-2xl` tonal, sin hairline ring), `badge` (pill), `input`/`textarea` (`rounded-lg` tonal, alturas +1), `switch` (track pill + thumb que crece), `checkbox` (18px, `border-2 border-outline`), `skeleton` (tonal), `tooltip` (`rounded-lg`), `dialog` (`rounded-3xl` + scrim `black/32`), `sheet` (`bg-card` `rounded-2xl`), `tabs` (segmented pill + indicador `primary`), `toggle-group` (pill segmentado tonal), `table` (hover tonal, filas más altas), `popover`/`select`/`dropdown-menu` (superficies `rounded-xl` tonales, items `rounded-lg`, sin ring). **Pendiente menor:** `sidebar` (item activo pill tonal — el `.pen` ya tiene `SettingsSidebar` de referencia), `field` (wrapper, hereda), y `progress` wavy (componente nuevo → F4).
 - [ ] **F2** capa de movimiento (lib spring + tokens + reduced-motion).
 - [ ] **F3** paso por pantalla existente (dashboard/members/roles/profile/settings/api-keys/auth).
 - [ ] **F4** pantallas Owliver nuevas desde el `.pen`.

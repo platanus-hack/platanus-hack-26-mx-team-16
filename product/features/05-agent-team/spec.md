@@ -41,7 +41,7 @@ class Finding(BaseModel):           # salida estructurada estándar (sección 8)
     references: list[str]
 
 class AgenticResult(BaseModel):     # salida del subagente agéntico (§4) — congelado en finding.py (§15)
-    type: str                       # chatbot | prompt-input | search-ai
+    type: str                       # chatbot | prompt_input | search_ai
     vendor: str | None              # Intercom, Drift… o None (superficie genérica)
     location_url: str
     inferred_model: str | None      # best-effort; NULL si "modelo no expuesto" (§4)
@@ -73,6 +73,9 @@ agentic_agent = Agent(
                  "Mapea a OWASP-LLM Top 10. Las tools devuelven Finding[] + "
                  "inventario ya parseados; no los reconstruyas.")
     # ⚠️ Tampoco usa response_model para sintetizar findings.
+    # ⚠️ El runner agéntico lo POSEE 03-agentic-surface: CAMINO A = puente
+    #    Playwright-native (make_detect_surface / make_probe_agentic), siempre.
+    #    run_garak/run_promptfoo son fallback opt-in CAMINO B, NUNCA sobre .gob.mx.
 
 orchestrator = Team(
     mode="coordinate", model=Claude("opus"),

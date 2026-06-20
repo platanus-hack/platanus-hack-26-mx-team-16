@@ -56,8 +56,8 @@ El finding agéntico es el diferenciador del producto y el clímax del pitch: cu
 El reporte es núcleo (ver spec.md §15) y clímax del pitch, así que los componentes base **no son opcionales**. La provisión/instalación de estos componentes en el frontend es ownership de [13-frontend](../13-frontend/spec.md); aquí se fija el contrato de qué renderiza cada uno.
 
 - **Accordion** (`npx shadcn add accordion`): un panel colapsable por finding en la Capa 2; **header** = chip de severidad + categoría + título; **body** = evidencia, impacto, remediación, referencias. (El repo trae `collapsible` pero no `accordion`; hay que instalarlo.)
-- **Gauge** semicircular para los dos sub-scores: `chart.tsx` con `RadialBarChart` de recharts (`^3.6.0`, ya presente), `endAngle=180`, `Label` central con el **score numérico + grado**. Uno 🛡️ Web y uno 🤖 Agéntico.
-- **Toasts** (`sonner`): feedback de acciones — compartir generado, PDF listo, errores 403/410. (El repo no trae `sonner`; hay que añadirlo.)
+- **Gauge** semicircular para los dos sub-scores: `chart.tsx` con `RadialBarChart` de recharts (`^3.6.0`, a instalar — ownership 13), `endAngle=180`, `Label` central con el **score numérico + grado**. Uno 🛡️ Web y uno 🤖 Agéntico.
+- **Toasts** (`sonner`): feedback de acciones — compartir generado, PDF listo, errores 404/410. (El repo no trae `sonner`; hay que añadirlo.)
 - El **grado global** se renderiza grande arriba; las filas de finding usan el **chip de grado/severidad** con color A–F del design system (ver [13-frontend](../13-frontend/spec.md) para los tokens de color A–F).
 
 ## 4. Entrega y export
@@ -100,4 +100,4 @@ La forma del endpoint vive en [12-api](../12-api/spec.md); la semántica del tok
 - `revoked_at NULL` por defecto, para permitir **revocación** posterior.
 - Índice **UNIQUE** sobre `public_reports(token)`.
 
-Los errores 403/410 que surjan al consumir un link (expirado/revocado) se reportan al usuario vía **toast** (`sonner`), igual que el feedback de "compartir generado" y "PDF listo" (§3).
+Los errores 404/410 que surjan al consumir un link (expirado/revocado) se reportan al usuario vía **toast** (`sonner`), igual que el feedback de "compartir generado" y "PDF listo" (§3).

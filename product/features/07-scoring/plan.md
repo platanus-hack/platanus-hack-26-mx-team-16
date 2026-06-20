@@ -15,7 +15,7 @@ sources: spec.md §9.1–§9.5; 06-data-model §2/§5/§3.3; 02-attack-levels §
 > (`scoring_weights.py`)— que toma `list[Finding]` ya deduplicados + `coverage`
 > + `agentic_status` y devuelve un `ScoreResult` congelado (`web_score`,
 > `agentic_score`, `overall_score`, `overall_grade`, `penalty_raw`). Nada de I/O,
-> nada de DB, **nada de LLM**: es la fórmula determinista de [spec §9](./spec.md)
+> nada de DB, **nada de LLM**: es la fórmula determinista de [spec](./spec.md)
 > traducida a Python table-driven, y su **suite de tests table-driven es el
 > corazón de la feature**.
 >
@@ -115,7 +115,7 @@ backend/tests/scans/domain/
 ```python
 SCORING_VERSION = "1"   # bump deliberado al ajustar la curva (rompe tests de frontera)
 
-# Peso por severidad (spec §9.2). info=0: NO mueve el score (§3).
+# Peso por severidad (spec §2). info=0: NO mueve el score (§3).
 SEVERITY_PENALTY: dict[FindingSeverity, int] = {
     FindingSeverity.CRITICAL: 40,
     FindingSeverity.HIGH:     20,
@@ -124,14 +124,14 @@ SEVERITY_PENALTY: dict[FindingSeverity, int] = {
     FindingSeverity.INFO:      0,
 }
 
-# Factor por confianza (spec §9.2).
+# Factor por confianza (spec §2).
 CONFIDENCE_FACTOR: dict[FindingConfidence, float] = {
     FindingConfidence.ALTA:  1.0,
     FindingConfidence.MEDIA: 0.7,
     FindingConfidence.BAJA:  0.4,
 }
 
-# Bandas de grado sobre overall_score (spec §9.5.1). Orden DESC; primera que cumple gana.
+# Bandas de grado sobre overall_score (spec §5.1). Orden DESC; primera que cumple gana.
 GRADE_BANDS: tuple[tuple[int, str], ...] = (
     (90, "A"), (80, "B"), (70, "C"), (60, "D"), (40, "E"), (0, "F"),
 )
@@ -144,15 +144,18 @@ PARTIAL_COVERAGE_CAP = "C"     # grado máximo con scans.status='partial' (§4)
 | Símbolo | Tipo | Notas |
 |---|---|---|
 | `ScoreInput` | `@dataclass(frozen=True)` | `findings: list[Finding]`, `agentic_status: AgenticStatus`, `partial_coverage: bool`. **No** recibe DB ni el `coverage` jsonb crudo: quien invoca deriva `partial_coverage = any(t.status != 'ok')` (§4). |
-| `ScoreResult` | `@dataclass(frozen=True)` | `web_score: int`, `agentic_score: int \| None`, `overall_score: int`, `overall_grade: str` (1 char), `penalty_raw: int`, `coverage_partial: bool`, `version: str`. Es el shape que el worker escribe a `scans.*`. |
+| `ScoreResult` | `@dataclass(frozen=True)` | `web_score: int`, `agentic_score: int \| None`, `overall_score: int`, `overall_grade: str` (1 char), `penalty_raw: int`, `coverage_partial: bool`, `agentic_detected_untested: bool`, `version: str`. Es el shape que el worker escribe a `scans.*`. |
 | `compute_score(inp) -> ScoreResult` | función pura | Orquesta los helpers de abajo. **Única** entrada pública. |
 
 Helpers puros (privados, todos table-driven sobre §2.1):
 
 ```python
 def _penalty_raw(findings: list[Finding]) -> int:
-    # Σ SEVERITY_PENALTY[f.severity] * CONFIDENCE_FACTOR[f.confidence]  → round() final
+    # Σ SEVERITY_PENALTY[FindingSeverity(f.severity)] * CONFIDENCE_FACTOR[FindingConfidence(f.confidence)]  → round() final
     # SIN cap. info=0 contribuye 0. (§3)
+    # NOTA: Finding.severity/.confidence son Literal[str] planos (06 §5.1); las tablas
+    # de §2.1 están key-adas por enum (BaseEnum hashea por .value), así que se coerciona
+    # al enum en el lookup para evitar KeyError.
 
 def _sub_score(penalty_raw: int) -> int:
     return max(0, 100 - min(100, penalty_raw))     # cap solo para mostrar 0–100
@@ -170,7 +173,7 @@ def _apply_caps(grade: str, *, partial: bool) -> str:
 
 ## 3. Fórmula base: `penalty_raw` y sub-score
 
-Implementa [spec §9.2](./spec.md) **literal**, separando lo que se clampa de lo que no:
+Implementa [spec §2](./spec.md) **literal**, separando lo que se clampa de lo que no:
 
 1. **Particionar** por `source`: `web = [f for f in findings if f.source == owasp]`,
    `agentic = [... == agentic]`.
@@ -199,7 +202,7 @@ con 5 criticals reporta `penalty_raw ≈ 200` (no 100) aunque `web_score == 0`.
 
 ## 4. Cobertura parcial — cap del grado en C
 
-Cierra el incentivo invertido de [spec §9.4](./spec.md): un sitio que tira
+Cierra el incentivo invertido de [spec §4](./spec.md): un sitio que tira
 ZAP/Nuclei/testssl produce 0 findings de esa tool y **no** puede salir con A.
 
 - Quien invoca `compute_score` deriva `partial_coverage` del `coverage` jsonb que
@@ -225,7 +228,7 @@ recalcular.
 
 ## 5. Grados A–F (con E) y grados por dimensión
 
-Implementa [spec §9.5](./spec.md):
+Implementa [spec §5](./spec.md):
 
 ```
 overall_grade:  A ≥90 · B ≥80 · C ≥70 · D ≥60 · E ≥40 · F <40   (sobre overall_score)
@@ -251,7 +254,7 @@ overall_grade:  A ≥90 · B ≥80 · C ≥70 · D ≥60 · E ≥40 · F <40   (
 
 ### 6.1 Combinación ponderada según `agentic_status`
 
-Implementa [spec §9.3](./spec.md). El estado lo trae `ScoreInput.agentic_status`
+Implementa [spec §3](./spec.md). El estado lo trae `ScoreInput.agentic_status`
 (de `AgenticResult`, [03-agentic-surface](../03-agentic-surface/spec.md)):
 
 ```
@@ -271,7 +274,7 @@ agentic_status = detected_not_tested → overall = web_score
 | `detected_not_tested` | `None` | `web_score` | badge "IA detectada, sin auditar" |
 | `tested` | `int` 0–100 | `round(0.6·web + 0.4·agentic)` | entra al promedio |
 
-> La diferencia crítica (spec §9.7): `detected_not_tested` **no** es lo mismo que
+> La diferencia crítica (spec §7): `detected_not_tested` **no** es lo mismo que
 > `no_surface`. Ambos dejan `overall = web_score`, pero el primero **declara riesgo
 > sin auditar** (badge), nunca premia con 100 ni se reporta como sitio limpio. El
 > `ScoreResult` lleva un flag `agentic_detected_untested: bool` para que el reporte
@@ -283,7 +286,7 @@ agentic_status = detected_not_tested → overall = web_score
 El scoring **fija el criterio**; la consulta, los filtros (país MX, `is_gov`) y la
 UI los posee [08-ranking-watchlists §2/§4](../08-ranking-watchlists/spec.md) y
 [13-frontend](../13-frontend/spec.md). El criterio autoritativo
-([spec §9.4](./spec.md), autoridad de orden) es:
+([spec §6](./spec.md), autoridad de orden) es:
 
 ```
 ORDER BY overall_grade ASC, penalty_raw DESC      -- peores primero, desempate por penalización cruda

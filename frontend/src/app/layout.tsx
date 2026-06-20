@@ -4,7 +4,20 @@ import { getLocale, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { SessionProvider } from "@/src/application/contexts/session";
 import { QueryProvider } from "@/src/application/providers/query-provider";
+import { Roboto_Flex, Roboto_Mono } from "next/font/google";
+
 import { ThemeProvider } from "@/src/presentation/common/theme-provider";
+
+const robotoFlex = Roboto_Flex({
+  subsets: ["latin"],
+  variable: "--font-roboto-flex",
+  display: "swap",
+});
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  variable: "--font-roboto-mono",
+  display: "swap",
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Metadata");
@@ -77,8 +90,12 @@ export default async function RootLayout({
   const locale = await getLocale();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className="antialiased">
+    <html
+      lang={locale}
+      className={`${robotoFlex.variable} ${robotoMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="antialiased font-sans">
         <NextIntlClientProvider>
           <ThemeProvider
             attribute="class"
