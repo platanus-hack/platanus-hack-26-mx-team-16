@@ -35,9 +35,16 @@ def scan_dir(scan_id: object) -> Path:
 
 
 def ensure_scan_dir(scan_id: object) -> Path:
-    """Create (if needed) and return the scan's evidence directory."""
+    """Create (if needed) and return the scan's evidence directory.
+
+    DooD scanners (ZAP baseline/full-active) bind-mount this host dir at
+    ``/zap/wrk`` and run as a NON-root user (uid 1000); make it world-writable so
+    they can write their report/yaml there (otherwise ZAP exits with
+    ``Permission denied`` and the scan flips to partial coverage).
+    """
     path = scan_dir(scan_id)
     path.mkdir(parents=True, exist_ok=True)
+    path.chmod(0o777)
     return path
 
 

@@ -60,7 +60,7 @@ export function LeaderboardBoard({
   const isFiltering = filtersActive && query.isFetching && !query.data;
 
   return (
-    <section aria-label="Ranking de sitios del Estado">
+    <section aria-label="Ranking de seguridad de sitios">
       {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <span className="mr-1 font-mono text-xs font-semibold uppercase tracking-wide text-on-surface-variant">

@@ -20,7 +20,7 @@ import { ScanForm } from "@/src/presentation/owliver/scan/scan-form";
 
 export type ScanFormDialogProps = {
   /**
-   * Trigger element (e.g. the amber "Audita cualquier URL →" span styled with
+   * Trigger element (e.g. the violet "Audita cualquier URL →" span styled with
    * buttonVariants). Passed straight to Base UI's `render` so the trigger IS
    * this element — no nested interactive wrapper.
    */

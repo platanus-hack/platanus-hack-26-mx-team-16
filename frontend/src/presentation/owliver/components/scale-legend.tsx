@@ -41,7 +41,7 @@ export function ScaleLegend({
         <li key={g} className="inline-flex items-center gap-1.5">
           <span
             aria-hidden
-            className="inline-flex size-5 items-center justify-center rounded-md font-mono text-[11px] font-bold text-on-surface"
+            className="inline-flex size-5 items-center justify-center rounded-md font-mono text-[11px] font-bold text-[color:#171105]"
             style={{ backgroundColor: gradeColorVar(g) }}
           >
             {g}

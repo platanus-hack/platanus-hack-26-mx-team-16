@@ -12,7 +12,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, ArrowDownRight, ArrowUpRight, Landmark, Minus } from "lucide-react";
+import { ArrowRight, ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 
 import { siteFixture } from "@/src/application/owliver/fixtures";
 import { backendGet } from "@/src/application/owliver/lib/bff";
@@ -115,12 +115,6 @@ export default async function SiteHistoryPage({
               <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
                 {site.departmentName ?? site.host}
               </h1>
-              {site.isGov && (
-                <span className="inline-flex h-6 items-center gap-1 rounded-full border border-outline-variant bg-surface-container px-2 text-[11px] font-medium text-on-surface-variant">
-                  <Landmark className="size-3" aria-hidden />
-                  Sitio del Estado
-                </span>
-              )}
             </div>
             <p className="mt-1 font-mono text-sm text-on-surface-variant">
               {site.host}

@@ -1,7 +1,7 @@
 /**
  * DimensionMeter — the leaderboard's double "🛡️ Web vs 🤖 Agéntico" mini-gauge
  * (§F4). The contrast between the two sub-scores IS the differentiator (the star
- * SAT row reads "C web / F agéntico"), so each dimension renders a compact bar
+ * hero row reads "C web / F agéntico"), so each dimension renders a compact bar
  * tinted by its own per-dimension grade off the A–F ramp — never a hardcoded hex.
  *
  * When a dimension has no score (e.g. agentic `detected_not_tested` /

@@ -24,7 +24,7 @@ export interface StatusRingProps {
   /**
    * Cuando ``isLive`` es false y se proporciona ``bg``, el círculo se
    * rellena por completo con esa clase (típicamente algo como
-   * "bg-emerald-500/15"). Si se omite, en modo terminal se dibuja el
+   * "bg-success/15"). Si se omite, en modo terminal se dibuja el
    * arco completo como anillo decorativo.
    */
   bg?: string;

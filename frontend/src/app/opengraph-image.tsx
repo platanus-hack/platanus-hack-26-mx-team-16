@@ -17,7 +17,7 @@ export default async function Image() {
           flexDirection: "column",
           alignItems: "flex-start",
           justifyContent: "center",
-          background: "#0B0905",
+          background: "#090704",
           fontFamily: "system-ui, -apple-system, sans-serif",
           padding: "96px",
         }}
@@ -31,7 +31,7 @@ export default async function Image() {
             height="104"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#DDAB46"
+            stroke="#D1CBFF"
             strokeWidth={1.5}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -68,7 +68,7 @@ export default async function Image() {
             lineHeight: 1.3,
           }}
         >
-          ¿Qué tan segura es la IA del gobierno?
+          ¿Qué tan segura es la IA de tu sitio?
         </div>
 
         {/* Sub-line */}
@@ -77,7 +77,7 @@ export default async function Image() {
             display: "flex",
             marginTop: "28px",
             fontSize: 30,
-            color: "#E6C77A",
+            color: "#D1CBFF",
             letterSpacing: "0.01em",
           }}
         >

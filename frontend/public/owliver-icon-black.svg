@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none" role="img" aria-label="Owliver">
+  <rect width="128" height="128" rx="32" fill="#16161C"/>
+  <circle cx="45" cy="66" r="21" fill="#FBF7EA"/>
+  <circle cx="83" cy="66" r="21" fill="#FBF7EA"/>
+  <circle cx="45" cy="66" r="8" fill="#16161C"/>
+  <circle cx="83" cy="66" r="8" fill="#16161C"/>
+  <circle cx="42" cy="63" r="3" fill="#FFFFFF"/>
+  <circle cx="80" cy="63" r="3" fill="#FFFFFF"/>
+  <path transform="translate(55 80)" d="M2 1l14 0c-1 6-4 10-7 12 0-2-1-3-2-3-2-3-4-6-5-9z" fill="#FFC24B"/>
+</svg>

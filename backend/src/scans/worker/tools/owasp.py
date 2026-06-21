@@ -22,6 +22,9 @@ CONTINUES, the exception is never propagated (the partial-failure policy, §4).
 
 from __future__ import annotations
 
+import dataclasses
+import json
+import os
 from collections.abc import Awaitable, Callable
 from typing import Any
 
@@ -51,9 +54,37 @@ _PARSERS: dict[ToolId, Parser] = {
     ToolId.TESTSSL: parse_testssl,
     ToolId.SECURITY_HEADERS: parse_security_headers,
     ToolId.ZAP_BASELINE: parse_zap_baseline,
+    # ZAP full-active emits the SAME JSON report shape as baseline (`-J report.json`).
+    ToolId.ZAP_FULL_ACTIVE: parse_zap_baseline,
     ToolId.NIKTO: parse_nikto,
     ToolId.SQLMAP: parse_sqlmap,
 }
+
+#: ZAP tools write their JSON report to a FILE in the mounted wrk dir (not stdout)
+#: and exit non-zero when they find alerts — handled specially in the wrapper.
+_ZAP_TOOLS: frozenset[ToolId] = frozenset(
+    {ToolId.ZAP_BASELINE, ToolId.ZAP_FULL_ACTIVE}
+)
+#: Filename ZAP writes via ``-J`` (relative to ``/zap/wrk`` = the host shared dir).
+_ZAP_REPORT_NAME = "report.json"
+
+
+def _zap_result_from_report(result: ToolResult, host_shared_dir: str) -> ToolResult:
+    """Rebuild a ZAP ``ToolResult`` from its on-disk JSON report (plan §4).
+
+    ``zap-baseline.py``/``zap-full-scan.py`` write the report to ``-J report.json``
+    in the mounted wrk dir — NOT stdout — and exit **non-zero when they find
+    alerts** (the count is the exit code), which is success, not failure. So load
+    that report and mark the run ``ok`` whenever it is present + valid JSON; a
+    missing/unparseable report is a genuine failure (kept as-is → coverage meta)."""
+    report_path = os.path.join(host_shared_dir, _ZAP_REPORT_NAME)
+    try:
+        with open(report_path, encoding="utf-8") as handle:
+            content = handle.read()
+        json.loads(content)  # validate it is the ZAP JSON report
+    except (OSError, ValueError):
+        return result
+    return dataclasses.replace(result, ok=True, stdout=content, coverage_note=None)
 
 #: Human-readable tool descriptions used as the docstring the LLM reads. The
 #: actual selection is bounded by ``resolve_tools`` (02 whitelist) regardless.
@@ -127,6 +158,10 @@ def make_owasp_tool(
             cancel=cancel,
             flags=flags,
         )
+        # ZAP reports to a file (not stdout) and exits non-zero on findings — load
+        # the report and treat "report produced" as success before parsing.
+        if tool in _ZAP_TOOLS:
+            result = _zap_result_from_report(result, host_shared_dir)
         findings = _findings_from_result(tool, result, target=target)
         if run_context is not None:
             accumulate(run_context, findings)

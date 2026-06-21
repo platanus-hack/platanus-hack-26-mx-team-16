@@ -2,7 +2,7 @@
  * ToolChip (SOC theater, §F6) — a scanner tool's live status pill with a status
  * dot. Maps `ToolRunState` (from the theater store) to a color + motion:
  *   - idle    → dim, dot quiet.
- *   - running → amber (`--tertiary`/owl-tool), dot pulses.
+ *   - running → violet (`--tertiary`/owl-tool), dot pulses.
  *   - ok      → green (`--success`), dot solid.
  *   - failed  → red (`--destructive`), dot solid (also covers timeout).
  *

@@ -4,7 +4,7 @@
  * NESTED group inside `(public)` so it does NOT wrap the auth pages (login,
  * register, reset) which keep their own centered `AuthContainer`.
  *
- * Chrome: a sticky `TopNav` (BrandLockup + nav + amber "Escanear mi sitio" CTA,
+ * Chrome: a sticky `TopNav` (BrandLockup + nav + violet "Escanear mi sitio" CTA,
  * NO sidebar) and a `Footer`. The SOC theater renders its own dark `.soc`
  * container INSIDE this shell, so it deliberately hides this nav (its page owns
  * the war-room frame). Everything else reads on the light app shell.

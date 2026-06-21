@@ -8,8 +8,6 @@
  *  - Prominent warning naming the target host.
  *  - Mandatory checkbox: "Declaro tener autorización…" — without it the form
  *    keeps submit disabled.
- *  - If the host is `.gob.mx`, an extra RED reinforcement — non-blocking: the
- *    user CAN proceed under attestation (the active gov result stays private).
  *  - "Ver términos" opens a Dialog.
  */
 "use client";
@@ -17,7 +15,6 @@
 import { ShieldAlert } from "lucide-react";
 
 import { cn } from "@/src/application/lib/utils";
-import { isGovHost } from "@/src/application/owliver/lib/url";
 import { Checkbox } from "@/src/presentation/components/ui/checkbox";
 import {
   Dialog,
@@ -29,7 +26,7 @@ import {
 } from "@/src/presentation/components/ui/dialog";
 
 export type AttestationGateProps = {
-  /** Detected target host (drives the warning copy + gov reinforcement). */
+  /** Detected target host (drives the warning copy). */
   host: string | null;
   /** Attestation checkbox state (owned by the form). */
   checked: boolean;
@@ -46,7 +43,6 @@ export function AttestationGate({
   error,
   className,
 }: AttestationGateProps) {
-  const gov = host ? isGovHost(host) : false;
   const target = host ?? "este dominio";
 
   return (
@@ -65,17 +61,6 @@ export function AttestationGate({
           autorización es ilegal.
         </p>
       </div>
-
-      {gov && (
-        <p
-          data-slot="gov-reinforcement"
-          className="rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive-deep"
-        >
-          Sitio del Estado: el escaneo activo es de tu entera responsabilidad
-          legal; los escaneos automáticos del ranking público solo corren en modo
-          pasivo.
-        </p>
-      )}
 
       <label className="flex cursor-pointer items-start gap-2.5">
         <Checkbox

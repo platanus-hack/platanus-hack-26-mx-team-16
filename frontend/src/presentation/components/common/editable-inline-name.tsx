@@ -116,7 +116,7 @@ export function EditableInlineName({
           className={cn(
             "truncate border-b border-dashed transition-colors",
             "border-foreground/25 group-hover/edit:border-foreground/60",
-            status === "saved" && "border-emerald-500/70",
+            status === "saved" && "border-success/70",
             status === "error" && "border-destructive/70",
           )}
         >
@@ -127,7 +127,7 @@ export function EditableInlineName({
           className={cn(
             "inline-flex h-[1em] w-[1em] shrink-0 items-center justify-center self-center",
             "text-muted-foreground/70 group-hover/edit:text-foreground transition-colors",
-            status === "saved" && "text-emerald-500",
+            status === "saved" && "text-success-deep dark:text-success",
           )}
         >
           {status === "saved" ? (

@@ -46,7 +46,7 @@ export function SuperuserActionsMenu() {
               size="icon-lg"
               aria-label="Acciones de superusuario"
             >
-              <Crown className="h-[1.2rem] w-[1.2rem] text-amber-500" />
+              <Crown className="h-[1.2rem] w-[1.2rem] text-tertiary" />
             </Button>
           }
         />

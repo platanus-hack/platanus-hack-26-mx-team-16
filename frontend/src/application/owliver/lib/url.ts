@@ -2,7 +2,7 @@
  * Client-side URL normalization + host extraction for the scan form (§F5).
  *
  * IMPORTANT: this is UX/preview only — it shapes what the user sees ("Vas a
- * escanear: sat.gob.mx") and disables obviously-bad submits. The REAL SSRF
+ * escanear: example.com") and disables obviously-bad submits. The REAL SSRF
  * defense (private-range resolution, rebinding) is the backend's job
  * (01-legal-ethics §4). Never treat these as a security boundary.
  */
@@ -24,7 +24,7 @@ export function normalizeUrl(input: string): URL | null {
   }
 }
 
-/** Extract the lowercased hostname (e.g. "sat.gob.mx"), or `null`. */
+/** Extract the lowercased hostname (e.g. "example.com"), or `null`. */
 export function extractHost(input: string): string | null {
   const url = normalizeUrl(input);
   if (!url) return null;
@@ -62,11 +62,4 @@ export function isLikelyPublicHost(input: string): boolean {
   if (!host.includes(".")) return false; // bare label, no TLD
   if (host.endsWith(".local")) return false;
   return true;
-}
-
-/** True if the host belongs to the Mexican government zone (`.gob.mx`). */
-export function isGovHost(input: string): boolean {
-  const host = extractHost(input);
-  if (!host) return false;
-  return host === "gob.mx" || host.endsWith(".gob.mx");
 }

@@ -1,7 +1,7 @@
 /**
  * BFF: GET /api/owliver/sites/{id} → backend GET /v1/sites/{id} (§F9).
  * Site history (latest scan + grade timeline). Anonymous. Fixture fallback
- * returns the SAT site so `/sites/[id]` renders without a backend.
+ * returns the demo site so `/sites/[id]` renders without a backend.
  */
 import { type NextRequest, NextResponse } from "next/server";
 

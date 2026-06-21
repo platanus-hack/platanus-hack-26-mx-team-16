@@ -56,7 +56,7 @@ const LEVEL_LABEL: Record<string, string> = {
 /**
  * Telemetry event-type → SOC functional-neon color (same token vocabulary as
  * ToolChip): each hue reports a real state, never decoration. coral = a hit,
- * amber = a tool firing, green = done/ok, cyan = activity, muted = a phase note.
+ * violet = a tool firing, green = done/ok, cyan = activity, muted = a phase note.
  */
 const LOG_TYPE_COLOR: Record<string, string> = {
   finding: "var(--destructive)",

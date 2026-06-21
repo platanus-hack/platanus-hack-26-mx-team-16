@@ -6,14 +6,14 @@
  * replay it on a timer.
  */
 import type { ScanEvent } from "../schemas/sse";
-import { SAT_SCAN_ID } from "./scan";
+import { HERO_SCAN_ID } from "./scan";
 
 let seq = 0;
 const t0 = Date.now();
 function ev(e: Omit<ScanEvent, "scan_id" | "seq" | "ts">): ScanEvent {
   seq += 1;
   return {
-    scan_id: SAT_SCAN_ID,
+    scan_id: HERO_SCAN_ID,
     seq,
     ts: new Date(t0 + seq * 900).toISOString(),
     ...e,
@@ -25,7 +25,7 @@ function ev(e: Omit<ScanEvent, "scan_id" | "seq" | "ts">): ScanEvent {
  * (incl. the critical star finding), score updates, and a terminal `done`.
  */
 export const scanEventsFixture: ScanEvent[] = [
-  ev({ type: "phase", message: "Iniciando escaneo de sat.gob.mx", progress: 2, payload: {} }),
+  ev({ type: "phase", message: "Iniciando escaneo de fabrikam.com", progress: 2, payload: {} }),
   ev({ type: "agent_status", agent: "owasp", message: "OWASP Scanner en línea", payload: {} }),
   ev({ type: "agent_status", agent: "agentic", message: "Agentic Surface Auditor en línea", payload: {} }),
   ev({ type: "phase", message: "Detectando tecnologías…", progress: 10, payload: {} }),
@@ -48,7 +48,7 @@ export const scanEventsFixture: ScanEvent[] = [
   ev({ type: "finding", agent: "owasp", severity: "low", message: "Cookie de sesión sin Secure", payload: { id: "f-cookie", source: "owasp", category: "A05", title: "Cookie de sesión sin atributo Secure" } }),
   ev({ type: "phase", message: "Verificando canario sembrado…", progress: 72, payload: {} }),
   ev({ type: "tool_end", agent: "agentic", tool: "promptfoo", message: "promptfoo: ¡canario filtrado!", severity: "critical", payload: { status: "ok" } }),
-  ev({ type: "finding", agent: "agentic", severity: "critical", message: "Fuga de system-prompt del asistente (canary filtrado)", payload: { id: "f-agentic-leak", source: "agentic", category: "LLM01", title: "Fuga de system-prompt del asistente fiscal" } }),
+  ev({ type: "finding", agent: "agentic", severity: "critical", message: "Fuga de system-prompt del asistente (canary filtrado)", payload: { id: "f-agentic-leak", source: "agentic", category: "LLM01", title: "Fuga de system-prompt del asistente de compras" } }),
   ev({ type: "score", agent: "agentic", message: "Score agéntico parcial", payload: { agentic_score: 24 } }),
   ev({ type: "tool_end", agent: "agentic", tool: "garak", message: "garak: jailbreak parcial", severity: "high", payload: { status: "ok" } }),
   ev({ type: "phase", message: "Consolidando resultados…", progress: 90, payload: {} }),

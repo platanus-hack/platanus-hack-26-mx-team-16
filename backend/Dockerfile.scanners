@@ -32,10 +32,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         whatweb \
         perl \
         libnet-ssleay-perl \
+        libjson-perl \
+        libxml-writer-perl \
+        dirb \
         git \
         curl \
         wget \
         unzip \
+        bsdextrautils \
+        procps \
+        gawk \
+        xxd \
     && rm -rf /var/lib/apt/lists/*
 
 # nuclei, testssl.sh, katana, ffuf, subfinder, dnsx, sqlmap, nikto,

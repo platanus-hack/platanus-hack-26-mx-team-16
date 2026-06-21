@@ -1,7 +1,7 @@
 /**
  * CtaBand — the closing call-to-action below the methodology (§F4). RSC. A
- * primary-container panel that pushes the universal entry point: audit ANY URL,
- * not just gov. Amber "owl-eyes" tertiary button → the scan form (§F5). Uses
+ * primary-container panel that pushes the universal entry point: audit ANY URL.
+ * Amber "owl-eyes" tertiary button → the scan form (§F5). Uses
  * `buttonVariants` on a `next/link` (Base UI Button has no asChild — chrome
  * pattern).
  */
@@ -19,8 +19,8 @@ export function CtaBand() {
           ¿Tu sitio está en la lista? Averígualo.
         </h2>
         <p className="max-w-md text-sm text-on-surface-variant">
-          Audita cualquier URL — gobierno o no — en modo pasivo, anónimo y sin
-          permisos. El búho hace el resto.
+          Audita cualquier URL en modo pasivo, anónimo y sin permisos. El búho
+          hace el resto.
         </p>
         <Link
           href="/scan"

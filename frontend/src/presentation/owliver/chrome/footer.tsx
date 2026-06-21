@@ -16,8 +16,8 @@ export type FooterProps = {
 };
 
 const FOOTER_LINKS = [
-  { href: "/", label: "Hall of Shame" },
-  { href: "/como-funciona", label: "Cómo funciona" },
+  { href: "/", label: "Cómo funciona" },
+  { href: "/watch", label: "Hall of Shame" },
   { href: "/scan", label: "Auditar URL" },
   { href: "/login", label: "Entrar a cuenta" },
 ];

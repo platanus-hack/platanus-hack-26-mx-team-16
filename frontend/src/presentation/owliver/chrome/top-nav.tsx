@@ -17,8 +17,8 @@ export type TopNavProps = {
 };
 
 const NAV_LINKS = [
-  { href: "/", label: "Hall of Shame" },
-  { href: "/como-funciona", label: "Cómo funciona" },
+  { href: "/", label: "Cómo funciona" },
+  { href: "/watch", label: "Hall of Shame" },
 ];
 
 const navLinkClass =

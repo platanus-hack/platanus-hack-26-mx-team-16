@@ -29,7 +29,7 @@ const gradeBadgeVariants = cva(
       },
       tone: {
         /** Solid pastel fill with dark ink — the default hero look. */
-        solid: "text-[color:var(--on-surface,#16161c)]",
+        solid: "text-[color:#171105]",
         /** Tinted (10% fill) — quieter, for dense rows. */
         soft: "",
       },

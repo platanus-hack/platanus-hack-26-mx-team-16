@@ -12,7 +12,7 @@ import {
 import { Settings } from "@/src/settings";
 
 const PUBLIC_EXACT_ROUTES = [
-  "/", // Hall of Shame leaderboard (Owliver)
+  "/", // public landing — "Cómo funciona" (the Hall of Shame moved to /watch, gated)
   "/register",
   "/reset-password",
   "/login",
@@ -37,7 +37,7 @@ const LOGIN_PATH = "/login";
 
 // Auth-entry routes: a signed-in user landing here is bounced to the app
 // (they don't need to log in again). Owliver's anonymous content surfaces
-// (leaderboard `/`, `/scan`, reports, sites) are public but NOT auth-entry —
+// (landing `/`, `/scan`, reports, sites) are public but NOT auth-entry —
 // a signed-in user can browse them freely without being redirected away.
 const AUTH_ENTRY_ROUTES = ["/login", "/register", "/reset-password"];
 
@@ -104,8 +104,8 @@ export async function proxy(req: NextRequest) {
   const isPublic = isPublicPath(url.pathname);
 
   // Authenticated user on an AUTH-ENTRY route (login/register/reset) -> redirect
-  // to the app. Owliver's anonymous content routes (`/`, `/scan`, reports…) are
-  // public but NOT auth-entry, so a signed-in user browses them without a bounce.
+  // to the app. Owliver's anonymous content routes (landing `/`, `/scan`, reports…)
+  // are public but NOT auth-entry, so a signed-in user browses them without a bounce.
   // If the user keeps bouncing back, the RT is broken (revoked / secret rotated):
   // count attempts and bail after MAX_REFRESH_ATTEMPTS.
   if (refreshToken && isAuthEntryPath(url.pathname)) {

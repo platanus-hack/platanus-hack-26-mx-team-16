@@ -189,4 +189,7 @@ async def test_delay_tools_carry_request_delay(monkeypatch) -> None:
         cancel=NeverCancel(),
     )
 
-    expect(captured["cmd"]).to(contain("-delay"))
+    # ffuf takes its inter-request delay via ``-p`` (not ``-delay``) and REQUIRES a
+    # wordlist via ``-w`` — both injected as operational flags.
+    expect(captured["cmd"]).to(contain("-p"))
+    expect(captured["cmd"]).to(contain("-w"))

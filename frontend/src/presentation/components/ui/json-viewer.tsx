@@ -96,8 +96,8 @@ export function JsonViewer({
           aria-label={`Descargar ${downloadFileName}`}
           className={cn(
             "absolute top-2 right-2 z-10 inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-md",
-            "border border-white/10 bg-white/5 text-zinc-300 backdrop-blur-sm",
-            "transition-colors hover:bg-white/10 hover:text-white",
+            "border border-outline-variant/30 bg-surface-container-high/70 text-on-surface-variant backdrop-blur-sm",
+            "transition-colors hover:bg-surface-container-highest hover:text-foreground",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
           )}
         >
@@ -113,7 +113,7 @@ export function JsonViewer({
         lineNumberStyle={{
           minWidth: "2.5em",
           paddingRight: "1em",
-          color: "rgba(148, 163, 184, 0.5)",
+          color: "color-mix(in oklab, var(--muted-foreground) 50%, transparent)",
           userSelect: "none",
           textAlign: "right",
         }}

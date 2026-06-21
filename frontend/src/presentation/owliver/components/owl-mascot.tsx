@@ -3,10 +3,10 @@
  * inline SVG owl with three motion states:
  *   - idle    — eyes closed (sleeping / queued).
  *   - running — eyes open + slow blink/tilt (watching).
- *   - alert   — amber "owl-eyes" ignite + glow pulse (found something).
+ *   - alert   — Mercury-violet "owl-eyes" ignite + glow pulse (found something).
  *
- * Eye color is driven by the state, not hardcoded brand color: running → cyan
- * (activity), alert → amber (tertiary "owl-eyes"). Honors reduced-motion (the
+ * Eye color is driven by the state, not hardcoded brand color: running → primary
+ * (activity), alert → tertiary violet ("owl-eyes"). Honors reduced-motion (the
  * pulse/blink collapse to a static state). Works on light + SOC backgrounds
  * (uses `currentColor` for the body so it inherits the surface ink).
  */
@@ -30,10 +30,10 @@ const STATE_LABEL: Record<OwlState, string> = {
   alert: "Owliver detectó algo",
 };
 
-/** Eye color per state — cyan = activity, amber = alert (the "owl-eyes"). */
+/** Eye color per state — primary = activity, tertiary violet = alert. */
 function eyeColor(state: OwlState): string {
-  if (state === "alert") return "var(--tertiary, #6c5cf5)";
-  if (state === "running") return "var(--primary, #5648e8)";
+  if (state === "alert") return "var(--tertiary, #8f7cff)";
+  if (state === "running") return "var(--primary, #6858f2)";
   return "var(--outline, #8a8a95)";
 }
 
@@ -111,7 +111,7 @@ export function OwlMascot({
         {/* Beak */}
         <path
           d="M24 23.5l-2 3.5h4l-2-3.5Z"
-          fill="var(--tertiary, #6c5cf5)"
+          fill="var(--tertiary, #8f7cff)"
         />
       </svg>
     </span>

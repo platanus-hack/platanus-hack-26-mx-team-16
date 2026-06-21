@@ -179,7 +179,7 @@ export function ApiKeysView() {
         <DialogPopup className="w-full max-w-md p-6">
           <DialogHeader>
             <DialogTitle>Guarda tu clave ahora</DialogTitle>
-            <DialogDescription className="flex items-start gap-2 text-amber-600 dark:text-amber-500">
+            <DialogDescription className="flex items-start gap-2 text-warning-deep dark:text-warning">
               <TriangleAlert className="mt-0.5 size-4 shrink-0" />
               No volverás a verla. Cópiala y guárdala en un lugar seguro.
             </DialogDescription>

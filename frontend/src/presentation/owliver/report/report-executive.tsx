@@ -28,7 +28,7 @@ export type ReportExecutiveProps = {
   explanation: string;
   topRisks: { title: string; impact: string }[];
   surfaces: AgenticSurface[];
-  /** Department / site display name (public report card framing). */
+  /** Organization / site display name (public report card framing). */
   departmentName?: string | null;
 };
 
@@ -165,7 +165,7 @@ export function ReportExecutive({
         )}
       </div>
 
-      {/* Department name (used by the public report card framing) */}
+      {/* Organization name (used by the public report card framing) */}
       {departmentName ? (
         <p className="sr-only">{departmentName}</p>
       ) : null}

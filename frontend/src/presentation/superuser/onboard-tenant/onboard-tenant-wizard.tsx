@@ -122,7 +122,7 @@ export function OnboardTenantWizard() {
       <DialogPopup className="max-w-xl p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Crown className="h-4 w-4 text-amber-500" />
+            <Crown className="h-4 w-4 text-tertiary" />
             Registrar Tenant
           </DialogTitle>
           <DialogDescription>

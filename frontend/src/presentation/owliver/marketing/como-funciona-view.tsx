@@ -61,7 +61,7 @@ const LEVELS = [
     name: "Básico",
     tag: "pasivo · anónimo",
     tagClass: "bg-primary-container text-on-primary-container",
-    body: "Sondas no intrusivas sobre datos públicos: cabeceras, TLS, tecnologías e inventario de IA. No requiere permisos y es lo único permitido para sitios gob.mx.",
+    body: "Sondas no intrusivas sobre datos públicos: cabeceras, TLS, tecnologías e inventario de IA. No requiere permisos ni autorización del dominio.",
     recommended: true,
   },
   {
@@ -75,7 +75,7 @@ const LEVELS = [
     name: "Avanzado",
     tag: "explotación",
     tagClass: "bg-destructive/15 text-destructive-deep",
-    body: "Explotación controlada para confirmar hallazgos. Solo con autorización explícita; nunca disponible para sitios del Estado.",
+    body: "Explotación controlada para confirmar hallazgos. Solo con autorización explícita del propietario del dominio.",
     recommended: false,
   },
 ];
@@ -83,7 +83,7 @@ const LEVELS = [
 const FAQ = [
   {
     q: "¿Es legal escanear cualquier sitio?",
-    a: "El nivel básico es 100% pasivo y público —equivalente a Mozilla Observatory o SSL Labs—. Para niveles activos exigimos que declares autorización sobre el dominio; los sitios gob.mx solo admiten escaneo pasivo.",
+    a: "El nivel básico es 100% pasivo y público —equivalente a Mozilla Observatory o SSL Labs—. Para niveles activos exigimos que declares autorización sobre el dominio.",
   },
   {
     q: "¿Cuánto tarda un escaneo?",

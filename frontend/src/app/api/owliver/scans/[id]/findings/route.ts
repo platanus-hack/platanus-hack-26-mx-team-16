@@ -1,6 +1,6 @@
 /**
  * BFF: GET /api/owliver/scans/{id}/findings → backend GET /v1/scans/{id}/findings
- * (§F7, cursor-paginated). Fixture fallback returns the SAT demo findings.
+ * (§F7, cursor-paginated). Fixture fallback returns the demo findings.
  */
 import { type NextRequest, NextResponse } from "next/server";
 

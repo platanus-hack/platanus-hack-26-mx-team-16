@@ -87,7 +87,7 @@ HEXSTRIKE_IMAGE = "hexstrike/hexstrike-ai:stable"
 # are layered on by ``run_tool``.
 _SPECS: tuple[ToolSpec, ...] = (
     _spec(ToolId.NUCLEI, _SUB, 90, rate_limited=True, disable_update_check=True, base_argv=("nuclei", "-u")),
-    _spec(ToolId.TESTSSL, _SUB, 60, base_argv=("testssl.sh", "--quiet")),
+    _spec(ToolId.TESTSSL, _SUB, 60, base_argv=("testssl.sh", "--quiet", "--warnings", "batch")),
     _spec(ToolId.SECURITY_HEADERS, _SUB, 30, base_argv=("security-headers",)),
     _spec(ToolId.WHATWEB, _SUB, 30, base_argv=("whatweb",)),
     _spec(ToolId.NIKTO, _SUB, 90, base_argv=("nikto", "-h")),
@@ -103,7 +103,9 @@ _SPECS: tuple[ToolSpec, ...] = (
         memory="2g",
         image=ZAP_IMAGE,
         mount="/zap/wrk",
-        base_argv=("zap-baseline.py", "-t"),
+        # -J writes the JSON report into the mounted wrk dir (= the host shared
+        # dir the worker reads back); ZAP prints only a summary to stdout.
+        base_argv=("zap-baseline.py", "-J", "report.json", "-t"),
     ),
     _spec(
         ToolId.ZAP_FULL_ACTIVE,
@@ -112,7 +114,8 @@ _SPECS: tuple[ToolSpec, ...] = (
         memory="2g",
         image=ZAP_IMAGE,
         mount="/zap/wrk",
-        base_argv=("zap-full-scan.py", "-t"),
+        # -J writes the JSON report into the mounted wrk dir (read back by the worker).
+        base_argv=("zap-full-scan.py", "-J", "report.json", "-t"),
     ),
     # hexstrike: feature-flagged / time-boxed (spec §10). Timeout bounded to the
     # global budget headroom; only ever appended by resolve_tools when enabled+OK.

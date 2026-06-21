@@ -1,12 +1,14 @@
 /**
- * BrandLockup — Owliver's wordmark: the owl mark (reusing `OwlMascot`) + the
- * "Owliver" name + the 🦉 register. No external asset — the mark is inline SVG so
- * it themes correctly on light + SOC. Renders as a link to `/` by default
- * (the Hall of Shame is home).
+ * BrandLockup — Owliver's wordmark: the owl mark + the "Owliver" name. The mark is
+ * the real brand logo (`BrandMark`, theme-aware PNG) for the resting brand state.
+ * When an active `owlState` ("running"/"alert") is requested the animated `OwlMascot`
+ * is used instead, since there the motion conveys live status rather than branding.
+ * Renders as a link to `/` by default (the public landing is home).
  */
 import Link from "next/link";
 
 import { cn } from "@/src/application/lib/utils";
+import { BrandMark } from "@/src/presentation/owliver/chrome/brand-mark";
 import {
   OwlMascot,
   type OwlState,
@@ -46,7 +48,11 @@ export function BrandLockup({
       data-slot="brand-lockup"
       className={cn("inline-flex items-center gap-2 select-none", className)}
     >
-      <OwlMascot state={owlState} size={MARK_SIZE[size]} />
+      {owlState === "idle" ? (
+        <BrandMark size={MARK_SIZE[size]} priority />
+      ) : (
+        <OwlMascot state={owlState} size={MARK_SIZE[size]} />
+      )}
       {!markOnly && (
         <span
           className={cn(

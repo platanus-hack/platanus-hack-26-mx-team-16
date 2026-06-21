@@ -12,6 +12,7 @@ from fastapi import APIRouter
 
 from src.scans.presentation.endpoints.cancel_scan import cancel_scan
 from src.scans.presentation.endpoints.enqueue_scan import enqueue_scan
+from src.scans.presentation.endpoints.get_report import get_report
 from src.scans.presentation.endpoints.get_scan import get_scan
 from src.scans.presentation.endpoints.list_findings import list_findings
 from src.scans.presentation.endpoints.list_scans import list_scans
@@ -51,6 +52,12 @@ scans_router.add_api_route(
     stream_scan,
     methods=["GET"],
     summary="SSE live view (declaration; body filled by 10-realtime-live-view)",
+)
+scans_router.add_api_route(
+    "/{scan_id}/report",
+    get_report,
+    methods=["GET"],
+    summary="In-app JSON report (owner-or-public, 404 on private) — exec + findings",
 )
 scans_router.add_api_route(
     "/{scan_id}/report.pdf",

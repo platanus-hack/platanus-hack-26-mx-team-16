@@ -4,7 +4,7 @@
  * These mirror the FROZEN backend contracts (06-data-model `finding.py`,
  * `events.py`; 07-scoring; 12-api). The backend presenters convert snake_case →
  * camelCase, so every field here is camelCase. The frontend NEVER computes a
- * score, grade, `dedupeKey` or `isGov` — it renders the server values as-is.
+ * score, grade or `dedupeKey` — it renders the server values as-is.
  *
  * Used to validate fixtures (and, when wired, real BFF responses) and to derive
  * the TypeScript types every screen imports.
@@ -222,10 +222,9 @@ export const rankingRowSchema = z.object({
   siteId: z.string(),
   rank: z.number(),
   host: z.string(),
-  /** Dependency / department display name. */
+  /** Organization / site display name. */
   departmentName: z.string(),
   faviconUrl: z.string().nullable().optional(),
-  isGov: z.boolean().default(true),
   country: z.string().default("mx"),
   overallGrade: gradeSchema,
   webScore: z.number().nullable().optional(),
@@ -259,7 +258,6 @@ export const siteSchema = z.object({
   id: z.string(),
   host: z.string(),
   departmentName: z.string().nullable().optional(),
-  isGov: z.boolean().default(false),
   faviconUrl: z.string().nullable().optional(),
   /** Most recent scan summary. */
   latestScan: scanSchema,

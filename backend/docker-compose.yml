@@ -68,6 +68,11 @@ services:
       - PYTHONPATH=/app
       - PROCESS_LABEL=workflow-worker
       - MAILPIT_API_URL=http://mailpit:8025
+      # DooD scanners (ZAP) are launched by the HOST daemon and mount the scan dir
+      # by HOST path — so the scan dir must be a host bind-mount, and the worker
+      # must know its host path to build the sibling `-v`. Keep this byte-identical
+      # to the bind-mount source below.
+      - SCAN_DATA_HOST_DIR=${SCAN_DATA_HOST_DIR:-/tmp/owliver-scans}
     depends_on:
       postgres:
         condition: service_started
@@ -77,7 +82,9 @@ services:
       - .:/app
       # DooD (NEVER DinD): launch heavy sibling scanners via the host daemon.
       - /var/run/docker.sock:/var/run/docker.sock
-      - scan_data:/data/scans
+      # Host bind-mount (NOT a named volume): ZAP siblings `-v ${SCAN_DATA_HOST_DIR}/{id}`
+      # must resolve to this same host dir so they can write their report there.
+      - ${SCAN_DATA_HOST_DIR:-/tmp/owliver-scans}:/data/scans
       - nuclei_templates:/root/nuclei-templates
     networks:
       - default

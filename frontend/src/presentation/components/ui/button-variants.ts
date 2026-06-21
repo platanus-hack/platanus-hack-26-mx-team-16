@@ -17,7 +17,7 @@ const buttonVariantStyles = cva(
       variant: {
         // Filled
         default: "bg-primary text-primary-foreground shadow-xs",
-        // Filled tertiary ("owl-eyes" gold CTA)
+        // Filled tertiary ("owl-eyes" violet CTA)
         tertiary: "bg-tertiary text-on-tertiary shadow-xs",
         // Tonal
         secondary: "bg-secondary-container text-on-secondary-container",

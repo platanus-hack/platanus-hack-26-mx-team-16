@@ -21,15 +21,15 @@ export function StepVerify({ inviteBaseUrl }: { inviteBaseUrl: string }) {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4">
-        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
-          <PartyPopper className="h-5 w-5 text-emerald-700 dark:text-emerald-400" aria-hidden />
+      <div className="flex items-start gap-3 rounded-lg border border-success/25 bg-success/10 p-4">
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success/20">
+          <PartyPopper className="h-5 w-5 text-success-deep dark:text-success" aria-hidden />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-semibold text-emerald-900 dark:text-emerald-100">
+          <h3 className="text-base font-semibold text-success-deep dark:text-success">
             ¡Tenant registrado exitosamente!
           </h3>
-          <p className="text-sm text-emerald-800/80 dark:text-emerald-200/80">
+          <p className="text-sm text-success-deep/85 dark:text-success/85">
             <span className="font-medium">{result.tenantName}</span> ya está
             listo para operar. Revisa los detalles abajo.
           </p>
@@ -96,7 +96,7 @@ export function StepVerify({ inviteBaseUrl }: { inviteBaseUrl: string }) {
 function Check({ label }: { label: string }) {
   return (
     <li className="flex items-center gap-2 text-sm">
-      <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+      <CheckCircle2 className="h-4 w-4 text-success-deep dark:text-success shrink-0" />
       <span>{label}</span>
     </li>
   );

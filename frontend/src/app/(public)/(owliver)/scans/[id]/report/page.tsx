@@ -6,7 +6,7 @@
  * default; the gauges, filters, accordion and share action are client islands.
  *
  * Data: `fetchReport` (server) → backend `GET /v1/scans/{id}/report`, with the
- * SAT demo fixture as offline fallback. 404 (private / missing) → notFound (the
+ * demo fixture as offline fallback. 404 (private / missing) → notFound (the
  * backend never confirms existence).
  */
 import { notFound } from "next/navigation";

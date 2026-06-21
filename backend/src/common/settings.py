@@ -260,6 +260,12 @@ class Settings(BaseSettings):
     # -> SCANNING ENGINE (04-scanning-engine §8, §10)
     # Shared evidence-volume root the worker writes screenshots/artefacts into.
     SCAN_DATA_DIR: str = "/data/scans"
+    # HOST path of SCAN_DATA_DIR, for DooD sibling `-v` mounts (ZAP). The sibling
+    # is launched by the HOST daemon over the socket, which only understands host
+    # paths — so the worker's in-container scan dir must be a HOST bind-mount whose
+    # host path is this value (compose sets it). Defaults equal to SCAN_DATA_DIR so
+    # the translation is a no-op when the scan dir is already a matching host path.
+    SCAN_DATA_HOST_DIR: str = "/data/scans"
     # FastAPI static-mount prefix for evidence URLs; MUST stay byte-identical
     # between the StaticFiles mount and the persisted Finding.evidence URL (09).
     STATIC_SCANS_PREFIX: str = "/static/scans"

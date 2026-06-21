@@ -146,7 +146,7 @@ export function SettingsView() {
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
               {settings.avatar && <AvatarImage src={settings.avatar} />}
-              <AvatarFallback className="bg-[#D4A574] text-white font-semibold">
+              <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                 {settings.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>

@@ -1,6 +1,6 @@
 /**
  * LeaderboardRow — a single Hall of Shame row (§F4). Renders WORST-FIRST as the
- * server ordered it (NEVER re-sorts): rank · big A–F grade · dependency +
+ * server ordered it (NEVER re-sorts): rank · big A–F grade · organización +
  * hostname · the 🛡️/🤖 double meter · penaltyRaw tiebreak · trend · coverage
  * badges. The whole row links to `/sites/{id}`.
  *
