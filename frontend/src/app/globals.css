@@ -156,6 +156,8 @@
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
+  --color-primary-action-foreground: var(--primary-action-foreground);
+  --color-primary-action: var(--primary-action);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-popover-foreground: var(--popover-foreground);
@@ -233,6 +235,61 @@
       transform: translateX(-32px);
     }
   }
+
+  /* Landing / marketing motion — product demonstration, not decoration. Each
+     reports a real product state (scanning, detection, the violet signal trace).
+     All freeze gracefully under the reduced-motion guard below; client demos
+     additionally branch on useReducedMotion() to settle on their final frame. */
+  --animate-scan-beam: scan-beam 2.8s var(--ease-emphasized) infinite;
+  --animate-sonar-ping: sonar-ping 2.8s var(--ease-emphasized-decelerate) infinite;
+  --animate-signal-trace: signal-trace 2.4s linear infinite;
+  --animate-soft-float: soft-float 6s ease-in-out infinite;
+
+  /* Beam is sized as a fraction of its container (h-1/3), so the % translate is
+     resolution-independent: it travels from just above to just below the box. */
+  @keyframes scan-beam {
+    0% {
+      transform: translateY(-110%);
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    88% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(310%);
+      opacity: 0;
+    }
+  }
+  @keyframes sonar-ping {
+    0% {
+      transform: scale(0.4);
+      opacity: 0.7;
+    }
+    80% {
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1.7);
+      opacity: 0;
+    }
+  }
+  @keyframes signal-trace {
+    to {
+      stroke-dashoffset: -64;
+    }
+  }
+  @keyframes soft-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
 }
 
 :root {
@@ -261,6 +318,8 @@
   /* Core color roles — Mercury violet + patina teal */
   --primary: #6858f2;
   --primary-foreground: #ffffff;
+  --primary-action: #6858f2;
+  --primary-action-foreground: #ffffff;
   --primary-container: #ece9ff;
   --on-primary-container: #1b116b;
   --secondary: #146f69;
@@ -463,6 +522,169 @@
   color: inherit;
   border-radius: 1px;
   padding: 0 1px;
+}
+
+.landing-pattern-hero,
+.landing-pattern-steps,
+.landing-pattern-dimensions,
+.landing-pattern-live,
+.landing-pattern-grades,
+.landing-pattern-levels,
+.landing-pattern-pricing,
+.landing-pattern-faq,
+.landing-pattern-cta {
+  position: relative;
+  isolation: isolate;
+}
+
+.landing-pattern-hero > :not([aria-hidden]),
+.landing-pattern-steps > :not([aria-hidden]),
+.landing-pattern-dimensions > :not([aria-hidden]),
+.landing-pattern-live > :not([aria-hidden]),
+.landing-pattern-grades > :not([aria-hidden]),
+.landing-pattern-levels > :not([aria-hidden]),
+.landing-pattern-pricing > :not([aria-hidden]),
+.landing-pattern-faq > :not([aria-hidden]),
+.landing-pattern-cta > :not([aria-hidden]) {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-pattern-hero::before,
+.landing-pattern-steps::before,
+.landing-pattern-dimensions::before,
+.landing-pattern-live::before,
+.landing-pattern-grades::before,
+.landing-pattern-levels::before,
+.landing-pattern-pricing::before,
+.landing-pattern-faq::before,
+.landing-pattern-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.landing-pattern-hero::before {
+  background-image:
+    radial-gradient(
+      circle at 18% 22%,
+      color-mix(in oklab, var(--tertiary) 16%, transparent),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 88% 18%,
+      color-mix(in oklab, var(--primary) 18%, transparent),
+      transparent 34%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 0 31px,
+      color-mix(in oklab, var(--outline-variant) 38%, transparent) 32px,
+      transparent 33px 64px
+    );
+  opacity: 0.8;
+  mask-image: linear-gradient(180deg, #000 0%, transparent 94%);
+}
+
+.landing-pattern-steps::before {
+  background-image:
+    radial-gradient(
+      circle at 15% 50%,
+      color-mix(in oklab, var(--primary-container) 72%, transparent),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 85% 48%,
+      color-mix(in oklab, var(--secondary-container) 52%, transparent),
+      transparent 26%
+    );
+  opacity: 0.55;
+}
+
+.landing-pattern-dimensions::before {
+  background-image:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in oklab, var(--tertiary-container) 44%, transparent) 46%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle at 50% 20%,
+      color-mix(in oklab, var(--secondary) 8%, transparent),
+      transparent 42%
+    );
+}
+
+.landing-pattern-live::before {
+  background-image:
+    radial-gradient(
+      circle at 18% 12%,
+      color-mix(in oklab, var(--secondary) 12%, transparent),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 78% 82%,
+      color-mix(in oklab, var(--primary) 10%, transparent),
+      transparent 30%
+    );
+}
+
+.landing-pattern-grades::before {
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--grade-a) 10%, transparent),
+    color-mix(in oklab, var(--grade-c) 10%, transparent),
+    color-mix(in oklab, var(--grade-f) 10%, transparent)
+  );
+  mask-image: radial-gradient(ellipse at center, #000 0%, transparent 66%);
+}
+
+.landing-pattern-levels::before,
+.landing-pattern-pricing::before {
+  background-image:
+    radial-gradient(
+      circle at 22% 16%,
+      color-mix(in oklab, var(--primary) 10%, transparent),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 82% 70%,
+      color-mix(in oklab, var(--tertiary) 12%, transparent),
+      transparent 30%
+    );
+}
+
+.landing-pattern-faq::before {
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent 0 23px,
+      color-mix(in oklab, var(--outline-variant) 30%, transparent) 24px,
+      transparent 25px 48px
+    ),
+    radial-gradient(
+      circle at 50% 0%,
+      color-mix(in oklab, var(--surface-container-highest) 62%, transparent),
+      transparent 34%
+    );
+  opacity: 0.45;
+}
+
+.landing-pattern-cta::before {
+  background-image:
+    radial-gradient(
+      circle at 50% 0%,
+      color-mix(in oklab, var(--tertiary) 18%, transparent),
+      transparent 30%
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--primary) 8%, transparent),
+      color-mix(in oklab, var(--secondary) 10%, transparent)
+    );
 }
 
 /* Scrollbar `scrollbar-subtle`:

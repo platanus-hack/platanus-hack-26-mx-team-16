@@ -17,7 +17,7 @@ import { PENDING_DEST_COOKIE } from "../google/start/route";
 
 const authRepository = new HttpAuthRepository(serverHttp);
 
-const DEFAULT_DEST = "/watchlist";
+const DEFAULT_DEST = "/watcher";
 
 /** Only allow same-site relative paths as the post-login destination. */
 function safeNext(raw: string | null | undefined): string | null {

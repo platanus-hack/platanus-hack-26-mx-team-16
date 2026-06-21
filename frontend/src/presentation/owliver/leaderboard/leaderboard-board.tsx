@@ -196,7 +196,7 @@ function FilterChip({
       className={cn(
         "inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium outline-none transition-[background-color,color,border-color,transform] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98]",
         active
-          ? "border-transparent bg-primary text-primary-foreground"
+          ? "border-transparent bg-primary-action text-primary-action-foreground"
           : "border-outline-variant bg-card text-on-surface-variant hover:bg-surface-container-low"
       )}
     >

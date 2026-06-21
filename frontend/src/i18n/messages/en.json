@@ -93,6 +93,14 @@
     "connecting": "Connecting…",
     "verifying": "Verifying your session…",
     "redirecting": "Done, redirecting…",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Forgot your password?",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "orContinueWith": "or continue with",
     "legal": "Owliver watches the security of your site and your AI — what no one else is measuring.",
     "back": "Back to home",
     "errors": {
@@ -100,6 +108,9 @@
       "oauth": "Google cancelled or denied access. Please try again.",
       "config": "Google sign-in isn't configured in this environment.",
       "exchange": "We couldn't validate your Google access. Please try again.",
+      "credentials": "Incorrect email or password. Please try again.",
+      "fields": "Enter your email and password.",
+      "generic": "Something went wrong. Please try again.",
       "retry": "Retry"
     }
   },

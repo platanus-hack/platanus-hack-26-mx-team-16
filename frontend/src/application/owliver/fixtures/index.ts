@@ -15,6 +15,7 @@ export {
   reportFixture,
   publicReportFixture,
 } from "./scan";
+export { scanHistoryFixture, type ScanHistoryItem } from "./scan-history";
 export { scanEventsFixture, scanEventsAsSSEWire } from "./scan-events";
 export { siteFixture } from "./site";
 export { watchlistFixture, alertPrefsFixture } from "./watchlist";

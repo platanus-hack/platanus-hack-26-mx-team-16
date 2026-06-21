@@ -1,21 +1,15 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-
-import { AppShell } from "@/src/presentation/common/app-shell";
 import { PermissionGuard } from "@/src/presentation/common/permission-guard";
 import { DashboardView } from "@/src/presentation/dashboard/dashboard-view";
+import { SettingsShell } from "@/src/presentation/owliver/settings/settings-shell";
 
 export default function DashboardPage() {
-  const t = useTranslations("Nav");
   return (
     <PermissionGuard permission="dashboard.view">
-      <AppShell
-        activePath="/dashboard"
-        breadcrumbItems={[{ label: t("dashboard") }]}
-      >
+      <SettingsShell activePath="/dashboard">
         <DashboardView />
-      </AppShell>
+      </SettingsShell>
     </PermissionGuard>
   );
 }

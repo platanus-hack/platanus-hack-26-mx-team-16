@@ -15,7 +15,7 @@ export default function OwliverProtectedLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <TopNav showWatchlist />
+      <TopNav showWatchlist hasSession />
       <main className="flex-1">{children}</main>
       <Footer />
     </div>

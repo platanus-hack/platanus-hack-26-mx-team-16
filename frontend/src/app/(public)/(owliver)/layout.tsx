@@ -9,17 +9,23 @@
  * container INSIDE this shell, so it deliberately hides this nav (its page owns
  * the war-room frame). Everything else reads on the light app shell.
  */
+import { refreshServerSession } from "@/src/infrastructure/auth/server-session";
 import { TopNav } from "@/src/presentation/owliver/chrome/top-nav";
 import { Footer } from "@/src/presentation/owliver/chrome/footer";
 
-export default function OwliverPublicLayout({
+export default async function OwliverPublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // A logged-in user can browse these public surfaces — surface "Mi Cuenta"
+  // (and the Watchlist link) instead of "Entrar" when a session exists.
+  const session = await refreshServerSession();
+  const hasSession = session !== null;
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <TopNav />
+      <TopNav showWatchlist={hasSession} hasSession={hasSession} />
       <main className="flex-1">{children}</main>
       <Footer />
     </div>

@@ -61,7 +61,7 @@ export default function GoogleCallbackPage() {
         setSession(user, tenant, tenantRole, "");
 
         setPhase("redirecting");
-        router.replace(typeof redirect === "string" ? redirect : "/watchlist");
+        router.replace(typeof redirect === "string" ? redirect : "/watcher");
       } catch {
         setPhase("error");
       }

@@ -3,7 +3,7 @@
  * and the primary audit action. Server-component friendly.
  */
 
-import { LogIn, Radar } from "lucide-react";
+import { LogIn, Radar, UserRound } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/src/application/lib/utils";
@@ -13,15 +13,27 @@ import { BrandLockup } from "@/src/presentation/owliver/chrome/brand-lockup";
 export type TopNavProps = {
   /** Render the Watchlist link (e.g. when a session exists). */
   showWatchlist?: boolean;
+  /** When a session exists, the "Entrar" CTA becomes "Mi Cuenta" → /dashboard. */
+  hasSession?: boolean;
   className?: string;
 };
 
-const NAV_LINKS = [{ href: "/watch", label: "Hall of Shame" }];
+const NAV_LINKS: { href: string; label: string }[] = [];
 
 const navLinkClass =
   "rounded-full px-3.5 py-2 text-sm font-medium text-on-surface-variant outline-none transition-colors hover:bg-background hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring";
 
-export function TopNav({ showWatchlist = false, className }: TopNavProps) {
+export function TopNav({
+  showWatchlist = false,
+  hasSession = false,
+  className,
+}: TopNavProps) {
+  // Logged-in viewers on public surfaces (report, leaderboard…) get "Mi Cuenta"
+  // → /dashboard instead of the "Entrar" → /login CTA.
+  const AccountIcon = hasSession ? UserRound : LogIn;
+  const account = hasSession
+    ? { href: "/dashboard", label: "Mi Cuenta", ariaLabel: "Mi Cuenta" }
+    : { href: "/login", label: "Entrar", ariaLabel: "Entrar a cuenta" };
   return (
     <header
       data-slot="top-nav"
@@ -33,48 +45,50 @@ export function TopNav({ showWatchlist = false, className }: TopNavProps) {
       <div className="mx-auto flex h-[80px] max-w-6xl items-center justify-between gap-3 px-4 md:px-6">
         <div className="flex min-w-0 items-center gap-5">
           <BrandLockup size="md" />
-          <nav
-            className="hidden items-center gap-1 rounded-full bg-surface-container-low px-1.5 py-1 md:flex"
-            aria-label="Principal"
-          >
-            {NAV_LINKS.map((l) => (
-              <Link key={l.href} href={l.href} className={navLinkClass}>
-                {l.label}
-              </Link>
-            ))}
-            {showWatchlist && (
-              <>
-                <Link href="/watchlist" className={navLinkClass}>
-                  Watchlist
+          {(NAV_LINKS.length > 0 || showWatchlist) && (
+            <nav
+              className="hidden items-center gap-1 rounded-full bg-surface-container-low px-1.5 py-1 md:flex"
+              aria-label="Principal"
+            >
+              {NAV_LINKS.map((l) => (
+                <Link key={l.href} href={l.href} className={navLinkClass}>
+                  {l.label}
                 </Link>
-                <Link href="/onboarding" className={navLinkClass}>
-                  Primeros pasos
-                </Link>
-              </>
-            )}
-          </nav>
+              ))}
+              {showWatchlist && (
+                <>
+                  <Link href="/scans" className={navLinkClass}>
+                    Mis escaneos
+                  </Link>
+                  <Link href="/watcher" className={navLinkClass}>
+                    Monitoreo
+                  </Link>
+                </>
+              )}
+            </nav>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
           <Link
-            href="/login"
-            aria-label="Entrar a cuenta"
+            href={account.href}
+            aria-label={account.ariaLabel}
             className={cn(
               buttonVariants({ variant: "outline", size: "icon" }),
               "sm:hidden"
             )}
           >
-            <LogIn className="size-4" />
+            <AccountIcon className="size-4" />
           </Link>
           <Link
-            href="/login"
+            href={account.href}
             className={cn(
               buttonVariants({ variant: "outline", size: "default" }),
               "hidden sm:inline-flex"
             )}
           >
-            <LogIn className="size-4" />
-            Entrar
+            <AccountIcon className="size-4" />
+            {account.label}
           </Link>
           <Link
             href="/scan"

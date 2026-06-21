@@ -10,7 +10,9 @@ import {
   Bell,
   Building2,
   KeyRound,
+  LayoutDashboard,
   type LucideIcon,
+  ShieldCheck,
   User,
   Users,
 } from "lucide-react";
@@ -25,8 +27,10 @@ type SettingsNavItem = {
 };
 
 export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
+  { href: "/dashboard", label: "Panel", icon: LayoutDashboard },
   { href: "/profile", label: "Perfil", icon: User },
   { href: "/members", label: "Equipo", icon: Users },
+  { href: "/roles", label: "Roles", icon: ShieldCheck },
   { href: "/settings", label: "Organización", icon: Building2 },
   { href: "/api-keys", label: "API", icon: KeyRound },
   { href: "/settings/notifications", label: "Notificaciones", icon: Bell },

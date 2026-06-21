@@ -70,13 +70,19 @@ export function Gauge({
 
   const effectiveGrade: Grade | null =
     grade ?? (hasScore ? gradeFromScore(target) : null);
-  const color = effectiveGrade ? gradeColorVar(effectiveGrade) : "var(--outline)";
+  const color = effectiveGrade
+    ? gradeColorVar(effectiveGrade)
+    : "var(--outline)";
 
-  // Geometry: a half-gauge anchored at the bottom of the chart box.
-  const stroke = Math.max(8, Math.round(size * 0.092));
-  const chartHeight = Math.round(size / 2 + stroke / 2 + 8);
-  const outer = size / 2 - 2;
+  // Geometry: a half-gauge anchored at the bottom of the chart box. The readout
+  // sits in the optical center of the dome, not on the chart baseline.
+  const stroke = Math.max(7, Math.round(size * 0.078));
+  const chartHeight = Math.round(size * 0.6);
+  const outer = Math.round(size * 0.47);
   const inner = outer - stroke;
+  const readoutTop = Math.round(size * 0.19);
+  const scoreFontSize = Math.round(size * 0.17);
+  const gradeFontSize = Math.round(size * 0.105);
 
   const display = Math.round(animated);
 
@@ -123,20 +129,21 @@ export function Gauge({
         </RadialBarChart>
 
         {/* Center readout — score + grade stacked in the clear dome interior. */}
-        <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
+        <div
+          className="absolute inset-x-0 flex flex-col items-center text-center"
+          style={{ top: readoutTop }}
+        >
           <span
-            className="font-mono font-semibold tabular-nums leading-none text-foreground"
-            style={{ fontSize: size * 0.2 }}
+            className="font-mono font-bold tabular-nums leading-none text-foreground"
+            style={{ fontSize: scoreFontSize }}
           >
             {hasScore ? display : "—"}
           </span>
           {effectiveGrade && (
             <span
-              className="font-mono font-bold leading-none"
+              className="mt-1 font-mono font-bold leading-none"
               style={{
-                fontSize: size * 0.135,
-                marginTop: size * 0.03,
-                marginBottom: size * 0.04,
+                fontSize: gradeFontSize,
                 color,
               }}
             >
@@ -147,7 +154,7 @@ export function Gauge({
       </div>
 
       {label && (
-        <div className="mt-1 flex items-center gap-1.5 text-sm font-medium text-on-surface-variant">
+        <div className="mt-2 flex min-h-4 items-center gap-1.5 font-mono text-[11px] font-semibold uppercase leading-none tracking-[0.08em] text-on-surface-variant">
           {icon}
           <span>{label}</span>
         </div>

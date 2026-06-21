@@ -53,7 +53,7 @@ function FilterPill({
       className={cn(
         "h-8 rounded-full border px-3 text-xs font-medium transition-colors",
         active
-          ? "border-primary bg-primary text-primary-foreground"
+          ? "border-primary-action bg-primary-action text-primary-action-foreground"
           : "border-outline-variant bg-card text-on-surface-variant hover:bg-surface-container-low"
       )}
     >

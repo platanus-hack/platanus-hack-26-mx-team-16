@@ -64,7 +64,7 @@ export default async function HallOfShamePage() {
               Audita cualquier URL →
             </Link>
             <Link
-              href="/watchlist"
+              href="/watcher"
               className={buttonVariants({ variant: "outline", size: "xl" })}
             >
               Ir a mi watchlist

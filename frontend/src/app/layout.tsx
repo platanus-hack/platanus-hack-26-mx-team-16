@@ -74,11 +74,8 @@ export async function generateMetadata(): Promise<Metadata> {
         "max-snippet": -1,
       },
     },
-    icons: {
-      icon: "/favicon.ico",
-      shortcut: "/favicon.ico",
-      apple: "/favicon.png",
-    },
+    // Icons are provided by the App Router file conventions:
+    // src/app/favicon.ico, src/app/icon.png, src/app/apple-icon.png
     manifest: "/manifest.json",
     appleWebApp: {
       capable: true,

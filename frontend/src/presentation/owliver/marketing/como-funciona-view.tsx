@@ -1,34 +1,31 @@
 /**
- * ComoFuncionaView — the public "Cómo funciona" page (design `g3h4Yo`): hero,
- * 3-step flow, the two scored dimensions (web OWASP + agentic surface), the A–F
- * grade scale, the three scan levels, an FAQ accordion and a closing CTA band.
- * Server component (static); lives inside `(public)/(owliver)`, so the TopNav +
- * Footer chrome comes from that layout.
+ * ComoFuncionaView — the public landing (`/`, design `g3h4Yo` evolved into a
+ * conversion surface): an interactive hero (live URL form + self-running audit
+ * demo), the 3-step flow wired by the violet signal, the two scored dimensions,
+ * a live-theater teaser, the A–F scale, scan depths, **credits pricing**, an FAQ
+ * and a closing CTA. Server component; interactive/animated pieces are isolated
+ * client islands. Chrome (TopNav + Footer) comes from `(public)/(owliver)`.
  */
-import { Award, Check, Link as LinkIcon, Radar } from "lucide-react";
+import { Check, Radar } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import type { Grade } from "@/src/application/owliver/schemas/api";
+import { Reveal } from "@/src/presentation/components/common/reveal";
 import { buttonVariants } from "@/src/presentation/components/ui/button-variants";
 import { GradeBadge } from "@/src/presentation/owliver/components/grade-badge";
 import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
+import { HeroScanDemo } from "@/src/presentation/owliver/marketing/hero-scan-demo";
+import { HeroUrlForm } from "@/src/presentation/owliver/marketing/hero-url-form";
+import { LandingSteps } from "@/src/presentation/owliver/marketing/landing-steps";
+import { LiveFeedTeaser } from "@/src/presentation/owliver/marketing/live-feed-teaser";
+import { PricingCredits } from "@/src/presentation/owliver/marketing/pricing-credits";
 
-const STEPS = [
-  {
-    icon: LinkIcon,
-    title: "Ingresa una URL y un nivel",
-    body: "Pega cualquier dominio y elige qué tan a fondo escanear: básico pasivo, intermedio o avanzado (con autorización).",
-  },
-  {
-    icon: Radar,
-    title: "El equipo de agentes audita",
-    body: "Un orquestador (Opus) coordina dos agentes (Sonnet) que corren Nuclei, ZAP, testssl y más, mientras sondean la IA embebida. Lo ves en vivo.",
-  },
-  {
-    icon: Award,
-    title: "Recibe tu grado A–F",
-    body: "Un reporte de dos capas: ejecutiva (qué pasa y por qué importa) y técnica (evidencia, impacto y remediación paso a paso).",
-  },
+const TRUST = [
+  "OWASP Top 10",
+  "OWASP LLM Top 10",
+  "Nuclei · ZAP · testssl",
+  "garak · promptfoo",
 ];
 
 const WEB_CHECKS = [
@@ -62,6 +59,7 @@ const LEVELS = [
     tag: "pasivo · anónimo",
     tagClass: "bg-primary-container text-on-primary-container",
     body: "Sondas no intrusivas sobre datos públicos: cabeceras, TLS, tecnologías e inventario de IA. No requiere permisos ni autorización del dominio.",
+    cost: "1 crédito",
     recommended: true,
   },
   {
@@ -69,6 +67,7 @@ const LEVELS = [
     tag: "activo suave",
     tagClass: "bg-tertiary-container text-on-tertiary-container",
     body: "Pruebas activas con rate-limiting: fuzzing ligero y sondas de inyección al chatbot. Requiere declarar autorización sobre el dominio.",
+    cost: "4 créditos",
     recommended: false,
   },
   {
@@ -76,6 +75,7 @@ const LEVELS = [
     tag: "explotación",
     tagClass: "bg-destructive/15 text-destructive-deep",
     body: "Explotación controlada para confirmar hallazgos. Solo con autorización explícita del propietario del dominio.",
+    cost: "12 créditos",
     recommended: false,
   },
 ];
@@ -84,6 +84,10 @@ const FAQ = [
   {
     q: "¿Es legal escanear cualquier sitio?",
     a: "El nivel básico es 100% pasivo y público —equivalente a Mozilla Observatory o SSL Labs—. Para niveles activos exigimos que declares autorización sobre el dominio.",
+  },
+  {
+    q: "¿Cómo funcionan los créditos?",
+    a: "Cada escaneo descuenta créditos según su profundidad: básico 1, intermedio 4, avanzado 12. Tu plan renueva un pool de créditos cada mes y puedes comprar más cuando los necesites.",
   },
   {
     q: "¿Cuánto tarda un escaneo?",
@@ -106,54 +110,71 @@ const FAQ = [
 export function ComoFuncionaView() {
   return (
     <div className="flex flex-col">
-      {/* Hero */}
-      <section className="flex flex-col items-center gap-5 bg-card px-6 py-20 text-center">
-        <span className="rounded-full bg-primary-container px-3.5 py-1.5 font-mono text-xs font-semibold tracking-wide text-on-primary-container">
-          CÓMO FUNCIONA
-        </span>
-        <h1 className="max-w-3xl text-balance text-5xl font-extrabold leading-[1.05] tracking-tight text-foreground">
-          Tú das una URL. Owliver hace el resto.
-        </h1>
-        <p className="max-w-2xl text-pretty text-[17px] leading-relaxed text-muted-foreground">
-          Un equipo de agentes de IA audita tu sitio —OWASP clásico y la
-          superficie agéntica— y te entrega un grado A–F fácil de entender pero
-          técnicamente valioso.
-        </p>
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      <section className="landing-pattern-hero relative overflow-hidden border-b border-outline-variant/60 bg-card">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-32 -top-32 size-[28rem] rounded-full bg-primary/12 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute bottom-8 left-[48%] hidden h-40 w-40 rounded-[1.75rem] bg-secondary-container/35 blur-3xl lg:block"
+        />
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-6 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
+          <Reveal className="flex flex-col items-start gap-6">
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary-container px-3.5 py-1.5 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-on-primary-container">
+              <span className="size-1.5 rounded-full bg-primary" />
+              Auditoría automatizada · OWASP + IA
+            </span>
+            <h1 className="text-balance font-display text-[2.75rem] font-bold leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-[4.25rem]">
+              Audita tu web y tu IA. Recibe un grado A–F.
+            </h1>
+            <p className="max-w-xl text-pretty text-lg leading-relaxed text-on-surface-variant">
+              Un equipo de agentes corre OWASP clásico y prueba la superficie
+              agéntica —chatbots y widgets de IA— y te entrega un reporte claro
+              pero técnicamente valioso, en menos de 90 segundos.
+            </p>
+            <HeroUrlForm className="max-w-md" />
+            <ul className="flex flex-wrap gap-x-5 gap-y-2 pt-1">
+              {TRUST.map((t) => (
+                <li
+                  key={t}
+                  className="flex items-center gap-1.5 text-sm text-on-surface-variant"
+                >
+                  <Check className="size-4 text-secondary" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+
+          <Reveal delay={140} className="lg:pl-4">
+            <HeroScanDemo />
+          </Reveal>
+        </div>
       </section>
 
-      {/* Steps */}
-      <section className="mx-auto grid w-full max-w-6xl gap-5 px-6 pt-16 pb-10 md:grid-cols-3">
-        {STEPS.map((step, i) => {
-          const Icon = step.icon;
-          return (
-            <div
-              key={step.title}
-              className="flex flex-col gap-4 rounded-3xl bg-surface-container-low p-7"
-            >
-              <div className="flex items-center gap-3.5">
-                <span className="flex size-11 items-center justify-center rounded-full bg-tertiary-container font-mono text-lg font-bold text-on-tertiary-container">
-                  {i + 1}
-                </span>
-                <Icon className="size-6 text-primary" />
-              </div>
-              <h2 className="text-xl font-bold text-foreground">
-                {step.title}
-              </h2>
-              <p className="text-[15px] leading-relaxed text-muted-foreground">
-                {step.body}
-              </p>
-            </div>
-          );
-        })}
+      {/* ── Steps ────────────────────────────────────────────────────── */}
+      <section className="landing-pattern-steps mx-auto w-full max-w-6xl px-6 py-16 lg:py-20">
+        <div className="mb-10 flex flex-col items-center gap-2 text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            De una URL a un grado, en 3 pasos
+          </h2>
+          <p className="max-w-xl text-[15px] text-on-surface-variant">
+            Tú das el objetivo; el equipo de agentes hace la inspección y te
+            deja la evidencia.
+          </p>
+        </div>
+        <LandingSteps />
       </section>
 
-      {/* Dimensions */}
-      <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 pt-10 pb-16">
+      {/* ── Dimensions ───────────────────────────────────────────────── */}
+      <section className="landing-pattern-dimensions mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 pb-16 lg:pb-20">
         <div className="flex flex-col items-center gap-2 text-center">
-          <h2 className="text-3xl font-bold text-foreground">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
             Dos dimensiones, un solo grado
           </h2>
-          <p className="max-w-xl text-[15px] text-muted-foreground">
+          <p className="max-w-xl text-[15px] text-on-surface-variant">
             La peor de las dos dimensiones arrastra tu calificación global.
           </p>
         </div>
@@ -175,56 +196,98 @@ export function ComoFuncionaView() {
         </div>
       </section>
 
-      {/* Grade scale */}
-      <section className="flex flex-col items-center gap-6 bg-surface-container px-6 py-14">
-        <h2 className="text-center text-[28px] font-bold text-foreground">
-          Tu calificación, de un vistazo
-        </h2>
-        <div className="flex flex-wrap justify-center gap-3.5">
-          {GRADES.map(({ grade, range }) => (
-            <div key={grade} className="flex flex-col items-center gap-2">
-              <GradeBadge grade={grade} size="lg" />
-              <span className="font-mono text-xs text-outline">{range}</span>
+      {/* ── Live theater teaser ──────────────────────────────────────── */}
+      <section className="landing-pattern-live border-y border-outline-variant/60 bg-surface-container">
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-6 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:py-20">
+          <div className="flex flex-col items-start gap-5">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/owliver-icon-1000.png"
+                alt=""
+                width={44}
+                height={44}
+                className="size-11 rounded-2xl bg-surface-container-lowest p-2 shadow-sm"
+                aria-hidden
+              />
+              <span className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-secondary">
+                En vivo
+              </span>
             </div>
-          ))}
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">
+              No es una caja negra. Míralo trabajar.
+            </h2>
+            <p className="max-w-md text-pretty text-[15px] leading-relaxed text-on-surface-variant">
+              Cada hallazgo aparece en el feed conforme el equipo lo confirma,
+              con su severidad, categoría OWASP y evidencia. Nada de “magia de
+              IA”: trabajo inspeccionable.
+            </p>
+            <Link
+              href="/scan"
+              className={buttonVariants({ variant: "outline", size: "lg" })}
+            >
+              <Radar className="size-4" />
+              Lanza una auditoría
+            </Link>
+          </div>
+          <Reveal delay={80}>
+            <LiveFeedTeaser />
+          </Reveal>
         </div>
-        <p className="max-w-lg text-center text-sm text-muted-foreground">
-          Una sola letra, estilo Mozilla Observatory: el grado salta a la vista
-          y los detalles técnicos están a un clic.
-        </p>
       </section>
 
-      {/* Levels */}
-      <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-16">
-        <h2 className="text-center text-3xl font-bold text-foreground">
-          Tú eliges qué tan a fondo
-        </h2>
+      {/* ── Grade scale ──────────────────────────────────────────────── */}
+      <section className="landing-pattern-grades mx-auto flex w-full max-w-5xl flex-col items-center gap-8 px-6 py-16 lg:py-20">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            Tu calificación, de un vistazo
+          </h2>
+          <p className="max-w-lg text-[15px] text-on-surface-variant">
+            Una sola letra, estilo Mozilla Observatory: el grado salta a la
+            vista y los detalles técnicos están a un clic.
+          </p>
+        </div>
+        <GradeRail />
+      </section>
+
+      {/* ── Scan depths ──────────────────────────────────────────────── */}
+      <section className="landing-pattern-levels mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 pb-16 lg:pb-24">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            Tú eliges qué tan a fondo
+          </h2>
+          <p className="max-w-xl text-[15px] text-on-surface-variant">
+            Cada profundidad descuenta créditos distintos; empieza pasivo y sube
+            cuando tengas autorización.
+          </p>
+        </div>
         <div className="grid gap-5 lg:grid-cols-3">
           {LEVELS.map((level) => (
             <div
               key={level.name}
-              className={`flex flex-col gap-3.5 rounded-3xl bg-card p-7 ${
+              className={`relative flex flex-col gap-3.5 overflow-hidden rounded-[1.75rem] bg-card p-7 ${
                 level.recommended
                   ? "ring-2 ring-primary"
                   : "border border-outline-variant"
               }`}
             >
+              <div
+                aria-hidden
+                className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,var(--primary),var(--secondary),var(--tertiary))]"
+              />
               <div className="flex items-center justify-between gap-2.5">
                 <h3 className="text-xl font-bold text-foreground">
                   {level.name}
                 </h3>
-                {level.recommended && (
-                  <span className="rounded-full bg-primary-container px-2.5 py-1 font-mono text-[11px] font-semibold text-on-primary-container">
-                    Recomendado
-                  </span>
-                )}
+                <span className="font-mono text-xs font-semibold text-primary">
+                  {level.cost}
+                </span>
               </div>
               <span
                 className={`w-fit rounded-full px-3 py-1 font-mono text-xs font-semibold ${level.tagClass}`}
               >
                 {level.tag}
               </span>
-              <p className="text-[15px] leading-relaxed text-muted-foreground">
+              <p className="text-[15px] leading-relaxed text-on-surface-variant">
                 {level.body}
               </p>
             </div>
@@ -232,26 +295,31 @@ export function ComoFuncionaView() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="bg-surface-container-low px-6 py-16">
+      {/* ── Pricing ──────────────────────────────────────────────────── */}
+      <section className="landing-pattern-pricing border-y border-outline-variant/60 bg-card py-16 lg:py-24">
+        <PricingCredits />
+      </section>
+
+      {/* ── FAQ ──────────────────────────────────────────────────────── */}
+      <section className="landing-pattern-faq bg-surface-container-low px-6 py-16 lg:py-20">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-3.5">
-          <h2 className="text-3xl font-bold text-foreground">
+          <h2 className="mb-2 text-center text-3xl font-bold tracking-tight text-foreground">
             Preguntas frecuentes
           </h2>
           {FAQ.map((item) => (
             <details
               key={item.q}
-              className="group rounded-xl border border-outline-variant bg-card p-6"
+              className="group rounded-2xl border border-outline-variant bg-card p-6 transition-colors open:bg-surface-container-lowest"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
                 <span className="text-[17px] font-semibold text-foreground">
                   {item.q}
                 </span>
-                <span className="text-outline transition-transform group-open:rotate-45">
+                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-container text-on-surface-variant transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] group-open:rotate-45">
                   +
                 </span>
               </summary>
-              <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
+              <p className="mt-3 text-[15px] leading-relaxed text-on-surface-variant">
                 {item.a}
               </p>
             </details>
@@ -259,18 +327,51 @@ export function ComoFuncionaView() {
         </div>
       </section>
 
-      {/* CTA band */}
-      <section className="flex flex-col items-center gap-5 bg-primary-container px-6 py-16 text-center">
-        <h2 className="max-w-2xl text-balance text-[34px] font-extrabold leading-tight text-on-primary-container">
-          Audita tu primer sitio en 90 segundos.
-        </h2>
-        <Link
-          href="/scan"
-          className={buttonVariants({ variant: "tertiary", size: "xl" })}
-        >
-          Audita cualquier URL →
-        </Link>
+      {/* ── Closing CTA ──────────────────────────────────────────────── */}
+      <section className="landing-pattern-cta bg-primary-container px-6 py-20 text-center">
+        <div className="mx-auto flex max-w-2xl flex-col items-center gap-6">
+          <Image
+            src="/owliver-icon-1000.png"
+            alt=""
+            width={76}
+            height={76}
+            className="size-[76px] rounded-[1.35rem] object-contain shadow-sm"
+            aria-hidden
+          />
+          <h2 className="text-balance font-display text-4xl font-bold leading-tight tracking-tight text-on-primary-container sm:text-5xl">
+            Audita tu primer sitio en 90 segundos.
+          </h2>
+          <p className="max-w-lg text-pretty text-[15px] text-on-primary-container/80">
+            Gratis, pasivo y sin registro. Pega tu URL y mira al equipo
+            trabajar.
+          </p>
+          <HeroUrlForm className="max-w-md" />
+        </div>
       </section>
+    </div>
+  );
+}
+
+function GradeRail() {
+  return (
+    <div className="w-full rounded-[1.75rem] bg-surface-container-low p-3 shadow-[0_1px_3px_rgba(40,30,8,0.10)]">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-6">
+        {GRADES.map(({ grade, range }, i) => (
+          <Reveal
+            key={grade}
+            delay={i * 60}
+            className="relative flex min-h-34 flex-col items-center justify-between overflow-hidden rounded-2xl bg-card px-3 py-4 text-center"
+          >
+            <span
+              aria-hidden
+              className="absolute inset-x-3 top-0 h-1 rounded-b-full"
+              style={{ backgroundColor: `var(--grade-${grade.toLowerCase()})` }}
+            />
+            <GradeBadge grade={grade} size="lg" />
+            <span className="font-mono text-xs text-outline">{range}</span>
+          </Reveal>
+        ))}
+      </div>
     </div>
   );
 }
@@ -298,7 +399,7 @@ function DimensionCard({
         </span>
         <h3 className="text-xl font-bold text-foreground">{title}</h3>
       </div>
-      <p className="text-[15px] leading-relaxed text-muted-foreground">
+      <p className="text-[15px] leading-relaxed text-on-surface-variant">
         {description}
       </p>
       <ul className="flex flex-col gap-2.5 pt-1.5">
@@ -307,7 +408,7 @@ function DimensionCard({
             key={check}
             className="flex items-center gap-2.5 text-[15px] text-foreground"
           >
-            <Check className="size-4 shrink-0 text-primary" />
+            <Check className="size-4 shrink-0 text-secondary" />
             {check}
           </li>
         ))}

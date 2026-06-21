@@ -17,6 +17,12 @@ approval_mode = "approve"
 [mcp_servers.codegraph.tools.codegraph_explore]
 approval_mode = "approve"
 
+[mcp_servers.codegraph.tools.codegraph_callers]
+approval_mode = "approve"
+
+[mcp_servers.codegraph.tools.codegraph_node]
+approval_mode = "approve"
+
 [mcp_servers.pencil]
 command = "/Applications/Pencil.app/Contents/Resources/app.asar.unpacked/out/mcp-server-darwin-arm64"
 args = ["--app", "desktop"]
@@ -37,6 +43,9 @@ args = ["-y", "@playwright/mcp"]
 approval_mode = "approve"
 
 [mcp_servers.playwright.tools.browser_resize]
+approval_mode = "approve"
+
+[mcp_servers.playwright.tools.browser_navigate]
 approval_mode = "approve"
 
 [mcp_servers.context7]

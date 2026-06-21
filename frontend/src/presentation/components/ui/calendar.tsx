@@ -161,7 +161,7 @@ export function Calendar({
                   isDisabled
                     ? "text-muted-foreground/40 cursor-not-allowed"
                     : isSelected
-                    ? "bg-primary text-primary-foreground font-semibold"
+                    ? "bg-primary-action text-primary-action-foreground font-semibold"
                     : isToday
                     ? "border border-primary text-foreground font-semibold hover:bg-accent"
                     : "text-foreground hover:bg-accent",

@@ -29,7 +29,8 @@ interface ConfirmDeleteDialogProps {
 const VARIANT_CLASS: Record<ConfirmVariant, string> = {
   destructive:
     "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-  primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+  primary:
+    "bg-primary-action text-primary-action-foreground hover:bg-primary-action/90",
 };
 
 export function ConfirmDeleteDialog({

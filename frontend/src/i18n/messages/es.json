@@ -93,6 +93,14 @@
     "connecting": "Conectando…",
     "verifying": "Verificando tu sesión…",
     "redirecting": "Listo, redirigiendo…",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@ejemplo.com",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "signIn": "Iniciar sesión",
+    "signingIn": "Iniciando sesión…",
+    "orContinueWith": "o continúa con",
     "legal": "Owliver vigila la seguridad de tu sitio y de tu IA — lo que nadie más está midiendo.",
     "back": "Volver al inicio",
     "errors": {
@@ -100,6 +108,9 @@
       "oauth": "Google canceló o rechazó el acceso. Inténtalo de nuevo.",
       "config": "El acceso con Google no está configurado en este entorno.",
       "exchange": "No pudimos validar tu acceso con Google. Inténtalo de nuevo.",
+      "credentials": "Correo o contraseña incorrectos. Inténtalo de nuevo.",
+      "fields": "Ingresa tu correo y contraseña.",
+      "generic": "Algo salió mal. Inténtalo de nuevo.",
       "retry": "Reintentar"
     }
   },
