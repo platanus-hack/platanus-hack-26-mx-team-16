@@ -206,7 +206,7 @@ export function ScanHistoryView({ items }: { items: ScanHistoryItem[] }) {
           className={buttonVariants({ variant: "default", size: "lg" })}
         >
           <Radar className="size-4" />
-          Auditar URL
+          Auditar Página
         </Link>
       </header>
 

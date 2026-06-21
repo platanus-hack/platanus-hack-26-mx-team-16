@@ -1,9 +1,0 @@
-{
-  "matchers": [
-    {
-      "pattern": ".*",
-      "command": "echo 'Pre-tool-use hook triggered'",
-      "description": "Log all tool usage"
-    }
-  ]
-}

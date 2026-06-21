@@ -3,11 +3,12 @@
  * and the primary audit action. Server-component friendly.
  */
 
-import { LogIn, Radar, UserRound } from "lucide-react";
+import { LogIn, Radar } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/src/application/lib/utils";
 import { buttonVariants } from "@/src/presentation/components/ui/button-variants";
+import { AccountMenu } from "@/src/presentation/owliver/chrome/account-menu";
 import { BrandLockup } from "@/src/presentation/owliver/chrome/brand-lockup";
 
 export type TopNavProps = {
@@ -28,12 +29,6 @@ export function TopNav({
   hasSession = false,
   className,
 }: TopNavProps) {
-  // Logged-in viewers on public surfaces (report, leaderboard…) get "Mi Cuenta"
-  // → /dashboard instead of the "Entrar" → /login CTA.
-  const AccountIcon = hasSession ? UserRound : LogIn;
-  const account = hasSession
-    ? { href: "/dashboard", label: "Mi Cuenta", ariaLabel: "Mi Cuenta" }
-    : { href: "/login", label: "Entrar", ariaLabel: "Entrar a cuenta" };
   return (
     <header
       data-slot="top-nav"
@@ -70,32 +65,38 @@ export function TopNav({
         </div>
 
         <div className="flex items-center gap-2">
-          <Link
-            href={account.href}
-            aria-label={account.ariaLabel}
-            className={cn(
-              buttonVariants({ variant: "outline", size: "icon" }),
-              "sm:hidden"
-            )}
-          >
-            <AccountIcon className="size-4" />
-          </Link>
-          <Link
-            href={account.href}
-            className={cn(
-              buttonVariants({ variant: "outline", size: "default" }),
-              "hidden sm:inline-flex"
-            )}
-          >
-            <AccountIcon className="size-4" />
-            {account.label}
-          </Link>
+          {hasSession ? (
+            <AccountMenu />
+          ) : (
+            <>
+              <Link
+                href="/login"
+                aria-label="Entrar a cuenta"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "icon" }),
+                  "sm:hidden"
+                )}
+              >
+                <LogIn className="size-4" />
+              </Link>
+              <Link
+                href="/login"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "default" }),
+                  "hidden sm:inline-flex"
+                )}
+              >
+                <LogIn className="size-4" />
+                Entrar
+              </Link>
+            </>
+          )}
           <Link
             href="/scan"
             className={buttonVariants({ variant: "default", size: "default" })}
           >
             <Radar className="size-4" />
-            Auditar URL
+            Auditar Página
           </Link>
         </div>
       </div>

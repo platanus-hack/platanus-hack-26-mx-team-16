@@ -21,7 +21,7 @@ const STEPS = [
   {
     icon: Radar,
     title: "El equipo de agentes audita",
-    body: "Un orquestador (Opus) coordina dos agentes (Sonnet) que corren Nuclei, ZAP, testssl y más, mientras sondean la IA embebida. Lo ves en vivo.",
+    body: "Un orquestador (Opus) coordina dos agentes (Sonnet) que corren Nuclei, ZAP, testssl y más, mientras sondean la IA embebida. Todo en vivo, paso a paso.",
   },
   {
     icon: Award,

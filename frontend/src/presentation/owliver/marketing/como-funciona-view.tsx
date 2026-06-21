@@ -158,11 +158,12 @@ export function ComoFuncionaView() {
       <section className="landing-pattern-steps mx-auto w-full max-w-6xl px-6 py-16 lg:py-20">
         <div className="mb-10 flex flex-col items-center gap-2 text-center">
           <h2 className="text-3xl font-bold tracking-tight text-foreground">
-            De una URL a un grado, en 3 pasos
+            Auditoría de seguridad rápida y barata
           </h2>
           <p className="max-w-xl text-[15px] text-on-surface-variant">
-            Tú das el objetivo; el equipo de agentes hace la inspección y te
-            deja la evidencia.
+            De una URL a un grado A–F en tres pasos: tú das el objetivo, el
+            equipo de agentes hace la inspección y te deja la evidencia —en
+            menos de 90 segundos y desde 1 crédito.
           </p>
         </div>
         <LandingSteps />

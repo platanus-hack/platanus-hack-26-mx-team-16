@@ -1,7 +1,7 @@
 /**
  * SettingsSidebar — the secondary nav for Owliver's account/settings cluster
  * (design `e3EBfA`). A hairline-ringed card with pill nav items: active item is a
- * `secondary-container` pill with a `primary` icon; idle items are quiet
+ * `primary-container` pill (violet-aligned) with a `primary` icon; idle items are quiet
  * (`muted-foreground` text + `outline` icon) and tint on hover. Pure presentation;
  * the caller passes `activePath` so this stays a server component.
  */
@@ -69,7 +69,7 @@ export function SettingsSidebar({
             className={cn(
               "flex items-center gap-3 rounded-full px-4 py-2.5 text-[15px] transition-colors",
               active
-                ? "bg-secondary-container font-semibold text-on-secondary-container"
+                ? "bg-primary-container font-semibold text-on-primary-container"
                 : "font-medium text-muted-foreground hover:bg-surface-container hover:text-foreground"
             )}
           >

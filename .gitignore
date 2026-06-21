@@ -63,6 +63,19 @@ node-compile-cache/
 .recon/
 
 # Demo recording artifacts
-xiberty-avanzado-scan.webm
-xiberty-avanzado-timelapse.gif
-xiberty-avanzado-timelapse.mp4
+tmp/xiberty-avanzado-scan.webm
+tmp/xiberty-avanzado-timelapse.gif
+tmp/xiberty-avanzado-timelapse.mp4
+
+# Agent / AI tooling dirs (local, not versioned)
+.claude/
+.codex/
+.agents/
+.opencode/
+
+# Skill output (impeccable screenshots)
+frontend/.impeccable-shots/
+
+# Doxiq base-product leftovers (dead in Owliver — unreferenced sample docs)
+frontend/public/docs/
+frontend/design/doxiq.pen

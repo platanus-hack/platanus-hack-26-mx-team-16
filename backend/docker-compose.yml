@@ -11,15 +11,18 @@ services:
       - ./admin/uploads:/directus/uploads
       - ./admin/extensions:/directus/extensions
     environment:
-      SECRET: "7VxOs9fa4HKAy4IkzDpZSNst0QE9ynryoZG7MA11sAc="
+      # Dev defaults via ${VAR:-default}: local `docker compose up` still works,
+      # and real values are injected from the environment (Infisical) — no fixed
+      # secret literals committed to the repo.
+      SECRET: "${DIRECTUS_SECRET:-dev-only-change-me}"
       ADMIN_EMAIL: "team@owliver.com"
-      ADMIN_PASSWORD: "12345678x"
+      ADMIN_PASSWORD: "${DIRECTUS_ADMIN_PASSWORD:-12345678x}"
       DB_CLIENT: "postgres"
       DB_HOST: "postgres"
       DB_PORT: "5432"
       DB_DATABASE: "postgres"
       DB_USER: "postgres"
-      DB_PASSWORD: "postgres"
+      DB_PASSWORD: "${DB_PASSWORD:-postgres}"
       PUBLIC_URL: "http://localhost:8000"
       WEBSOCKETS_ENABLED: "true"
     develop:
