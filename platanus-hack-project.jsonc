@@ -1,6 +1,6 @@
 {
   "project-name": "Owliver 🦉",
-  "project-oneliner-spanish": "Owliver revisa la seguridad de tu sitio web con IA —incluidos sus chatbots— y le pone una calificación de la A a la F.",
-  "project-description-spanish": "Owliver es un equipo de agentes de IA que audita la seguridad de tu sitio web. Le das una URL y, en minutos, busca fallas: las de siempre y también las de los chatbots de IA, un punto ciego que las herramientas tradicionales ignoran por completo. No solo encuentra los problemas, los demuestra: rompe el chatbot en vivo y lo prueba con evidencia —por ejemplo, logrando que revele sus instrucciones secretas—, así no hay falsas alarmas. Al final entrega un reporte claro, sin tecnicismos, con una calificación de la A a la F. Además mantiene un ranking público de la seguridad de los sitios del gobierno mexicano (.gob.mx) y vigila tus sitios de forma continua, avisándote por correo o Slack apenas algo cambia.",
+  "project-oneliner-spanish": "Owliver audita la seguridad de tu sitio con IA —incluidos sus chatbots— y lo califica de la A a la F.",
+  "project-description-spanish": "Owliver es un equipo de agentes de IA que audita la seguridad de tu sitio web. Le das una URL y, en minutos, encuentra las fallas de siempre y también las de los chatbots de IA, un punto ciego que las herramientas tradicionales ignoran. No solo las detecta: las demuestra rompiendo el chatbot en vivo —por ejemplo, logrando que revele sus instrucciones secretas—, así no hay falsas alarmas. Entrega un reporte claro, sin tecnicismos, con una calificación de la A a la F, y vigila tus sitios de forma continua avisándote por correo o Slack apenas algo cambia.",
   "deploy-url": "https://owliver.chuspita.com"
 }
