@@ -13,7 +13,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.common.database.models.scans.finding import FindingORM
-from src.common.domain.enums.scans import FindingStatus
+from src.common.domain.enums.scans import FindingSeverity, FindingStatus
 from src.common.infrastructure.helpers.database import atomic_transaction
 from src.scans.domain.models.finding import FindingRecord
 from src.scans.domain.repositories.finding import FindingRepository
@@ -88,6 +88,20 @@ class SQLFindingRepository(FindingRepository):
         result = await self.session.execute(
             select(FindingORM).where(FindingORM.site_id == site_id)
         )
+        return [build_finding(orm) for orm in result.scalars().all()]
+
+    async def criticals_first_seen_in(self, scan_id: UUID) -> list[FindingRecord]:
+        # A finding's UPSERT sets first_seen and last_seen to ``now`` on insert
+        # and only refreshes last_seen on conflict (§4). So a finding that is new
+        # at the site level has ``first_seen == last_seen``; a re-seen one has
+        # ``first_seen < last_seen``. We scope to this scan's critical rows.
+        stmt = (
+            select(FindingORM)
+            .where(FindingORM.scan_id == scan_id)
+            .where(FindingORM.severity == str(FindingSeverity.CRITICAL))
+            .where(FindingORM.first_seen == FindingORM.last_seen)
+        )
+        result = await self.session.execute(stmt)
         return [build_finding(orm) for orm in result.scalars().all()]
 
     async def mark_fixed_absent(self, site_id: UUID, present_keys: list[str]) -> int:

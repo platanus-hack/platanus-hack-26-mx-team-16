@@ -200,6 +200,35 @@ class Settings(BaseSettings):
     # web requests. Rate-limit + UA policy detail lives in 01-legal-ethics.
     SCANNER_USER_AGENT: str = "Owliver-Scanner/1.0 (+contacto)"
 
+    # -> SCANNING ENGINE (04-scanning-engine §8, §10)
+    # Shared evidence-volume root the worker writes screenshots/artefacts into.
+    SCAN_DATA_DIR: str = "/data/scans"
+    # FastAPI static-mount prefix for evidence URLs; MUST stay byte-identical
+    # between the StaticFiles mount and the persisted Finding.evidence URL (09).
+    STATIC_SCANS_PREFIX: str = "/static/scans"
+    # hexstrike MCP sibling host/port for the worker healthcheck (check_hexstrike).
+    HEXSTRIKE_HOST: str = "hexstrike"
+    HEXSTRIKE_PORT: int = 8888
+
+    # -> RANKING / WATCHLISTS / ALERTS (08-ranking-watchlists §4, §5)
+    # Resend transactional email API key for the alert engine (§5.4).
+    RESEND_API_KEY: str | None = None
+    # SAQ CronJob schedule for the monitoring re-scan cron (§4.1).
+    MONITOR_CRON: str = "0 */6 * * *"
+    # Default level for non-gov watchlist monitoring scans (gov hard-guarded to
+    # basico). (§4.2)
+    MONITOR_LEVEL_DEFAULT: str = "basico"
+
+    # -> REPORTING (09-reporting)
+    # HTML->PDF engine: "weasyprint" | "playwright" (render lazy-imports it).
+    PDF_ENGINE: str = "weasyprint"
+    # Base URL the PDF embeds evidence screenshots from (/data/scans/{id}/{n}.png).
+    STATIC_BASE_URL: str = "http://localhost:8200"
+    # Directory FastAPI mounts as StaticFiles at /data for evidence screenshots.
+    DATA_DIR: str = "/data"
+    # Default public-share token TTL in days (token lifecycle owned by 12-api).
+    SHARE_TTL_DAYS: int = 7
+
     @computed_field
     @property
     def all_cors_origins(self) -> list[str]:

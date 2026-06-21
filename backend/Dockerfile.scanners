@@ -1,0 +1,66 @@
+# Dockerfile.scanners — the fat "scanners" image (spec §2, plan §2.2).
+#
+# This image is the BASE of the `worker` service: the SAQ worker process runs
+# INSIDE it (it is NOT a separate image). It ships the LIGHT pentest CLIs
+# preinstalled (run by subprocess) + the docker CLI (only the client, to talk to
+# the host socket for DooD siblings) + the Python app/deps.
+#
+# Heavy containers (ZAP, hexstrike) are NOT baked here — they are siblings launched
+# via `docker run` over the mounted socket (DooD, NEVER DinD). All scanner versions
+# are PINNED (never :latest, spec §7).
+
+# ---------------------------------------------------------------------------
+# scanners-base — OS + light CLI tools (preinstalled, run by subprocess)
+# ---------------------------------------------------------------------------
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS scanners-base
+
+ENV UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PYTHON_DOWNLOADS=never \
+    UV_PROJECT_ENVIRONMENT=/venv \
+    PATH="/venv/bin:/opt/scanners/bin:${PATH}"
+
+# OS packages: docker CLI (client only, for DooD), CA certs, DNS utils, and the
+# apt-available scanners (nmap, nikto, whatweb). Go/Node-based binaries are
+# installed by the pinned-version script below.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        docker.io \
+        ca-certificates \
+        dnsutils \
+        nmap \
+        nikto \
+        whatweb \
+        git \
+        curl \
+        wget \
+        unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# nuclei, testssl.sh, katana, ffuf, subfinder, dnsx, sqlmap, security-headers —
+# installed at PINNED versions (NEVER :latest, spec §7) by the script.
+COPY scripts/install_scanners.sh /tmp/install_scanners.sh
+RUN chmod +x /tmp/install_scanners.sh && /tmp/install_scanners.sh
+
+# ---------------------------------------------------------------------------
+# worker — = the SAQ worker process; Python app + deps on top of scanners-base
+# ---------------------------------------------------------------------------
+FROM scanners-base AS worker
+
+WORKDIR /app
+
+# Install Python deps exactly like the main Dockerfile (uv, locked).
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project --no-dev
+
+COPY . /app
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-dev
+
+ENV PYTHONPATH=/app \
+    PROCESS_LABEL=worker
+
+# The worker is launched by the compose `command:` (saq config.tasks.worker_settings).
+CMD ["saq", "config.tasks.worker_settings"]

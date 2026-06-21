@@ -10,8 +10,8 @@ parsing + dedupe and persists the ``ScoreResult`` via ``SQLScanRepository`` (06)
 The LLM never computes the score — it only narrates from the numbered summary.
 
 Leaderboard order is owned here: ``LEADERBOARD_ORDER`` documents the authoritative
-``(overall_grade ASC, penalty_raw DESC)`` contract, and ``leaderboard_sort_key``
-is the drop-in Python sort key for it (consumed by 08/12/13).
+worst-first ``(overall_grade DESC, penalty_raw DESC)`` contract, and
+``leaderboard_sort_key`` is the drop-in Python sort key for it (consumed by 08/12/13).
 """
 
 from __future__ import annotations
@@ -49,12 +49,15 @@ __all__ = [
 ]
 
 # Authoritative leaderboard order contract (07-scoring §6). The SINGLE source of
-# truth for "worst first": grade ascending (A < B < ... < F lexicographically),
-# then raw penalty descending to break ties when dozens of ``.gob.mx`` collapse
-# to F. 08-ranking-watchlists / 12-api / 13-frontend MUST cite this exact tuple.
-# The physical index ``scans (overall_grade ASC, penalty_raw DESC)`` mirrors it.
+# truth for "worst first" (the gov "Hall of Shame"): grade DESCENDING so the worst
+# letter leads (F before ... before A), then raw penalty descending to break ties
+# when dozens of ``.gob.mx`` collapse to F (penalty 300 before 120).
+# 08-ranking-watchlists / 12-api / 13-frontend MUST cite this exact tuple; the SQL
+# ``leaderboard()`` mirrors it as ``ORDER BY overall_grade DESC, penalty_raw DESC``.
+# NOTE: the 07 spec prose's "(... ASC ...)" notation was a slip — the product
+# intent and these tests are worst-first; this DESC tuple is authoritative.
 LEADERBOARD_ORDER: tuple[tuple[str, str], ...] = (
-    ("overall_grade", "ASC"),
+    ("overall_grade", "DESC"),
     ("penalty_raw", "DESC"),
 )
 
@@ -248,12 +251,14 @@ def compute_score(inp: ScoreInput) -> ScoreResult:
     )
 
 
-def leaderboard_sort_key(result: ScoreResult) -> tuple[str, int]:
+def leaderboard_sort_key(result: ScoreResult) -> tuple[list[int], int]:
     """Python sort key implementing ``LEADERBOARD_ORDER`` (spec §6).
 
     Use as ``sorted(results, key=leaderboard_sort_key)`` for "worst first":
-    grade ascending then ``penalty_raw`` descending (negated for ascending sort).
+    grade DESCENDING (F before ... before A) then ``penalty_raw`` descending.
+    Both fields are negated so a plain ascending ``sorted`` yields worst-first —
+    the grade key negates each letter's ordinal so 'F' sorts ahead of 'A'.
     The authoritative order for any in-memory leaderboard; the SQL ``ORDER BY``
-    in 08 mirrors the same tuple.
+    in 08 mirrors the same tuple (``overall_grade DESC, penalty_raw DESC``).
     """
-    return (result.overall_grade, -result.penalty_raw)
+    return ([-ord(c) for c in result.overall_grade], -result.penalty_raw)

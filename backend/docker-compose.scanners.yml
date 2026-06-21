@@ -1,0 +1,117 @@
+# docker-compose.scanners.yml — scanning-engine override (spec §2, plan §2.1).
+#
+# Applied ON TOP of the base compose:
+#   docker compose -f docker-compose.yml -f docker-compose.scanners.yml up
+#
+# Adds the engine services (worker / scanners build target / hexstrike / scheduler)
+# and the egress-isolation networks WITHOUT touching api/postgres/redis/mailpit.
+#
+# Isolation model (spec §5):
+#   - owliver_internal (internal: true, NO egress): postgres + redis live here.
+#   - owliver_egress   (bridge, internet egress): every scanner sibling runs here.
+#   - Only `worker` touches BOTH (talks to redis/pg internally, launches siblings
+#     on egress). No sibling ever joins owliver_internal.
+#
+# DooD (NEVER DinD): the worker mounts the HOST docker socket and the HOST
+# /data/scans dir; sibling `docker run` -v flags point at HOST paths (spec §3.1).
+
+services:
+  # The fat image is only a BUILD TARGET (base of worker); not run as its own
+  # service. `docker compose build scanners` builds it for the worker to reuse.
+  scanners:
+    build:
+      context: .
+      dockerfile: Dockerfile.scanners
+      target: scanners-base
+    image: owliver/scanners:local
+    profiles: ["build-only"]
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.scanners
+      target: worker
+    image: owliver/worker:local
+    command: saq config.tasks.worker_settings
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - PROCESS_LABEL=worker
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    volumes:
+      # DooD/sibling socket mount — NOT DinD (spec §3, §11).
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Shared scans dir: the -v of sibling `docker run` points at the HOST path
+      # /data/scans (spec §3.1), so the same host dir is mounted here too.
+      - /data/scans:/data/scans
+      # Pre-downloaded nuclei templates (warm, spec §7).
+      - nuclei_templates:/root/nuclei-templates
+    networks:
+      - owliver_internal
+      - owliver_egress
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+
+  scheduler:
+    # Cron of gov re-scans. Reuses the SAME scanners image with a different
+    # command. The AUTOMATIC_ALLOWED_LEVELS guard is owned by 08-ranking.
+    build:
+      context: .
+      dockerfile: Dockerfile.scanners
+      target: worker
+    image: owliver/worker:local
+    command: saq config.tasks.worker_settings
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - PROCESS_LABEL=scheduler
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /data/scans:/data/scans
+      - nuclei_templates:/root/nuclei-templates
+    networks:
+      - owliver_internal
+      - owliver_egress
+    profiles: ["scheduler"]
+
+  hexstrike:
+    # Heavy Kali-based MCP container. OFF by default (spec §10): only starts with
+    # `--profile hexstrike`. Joins egress only; never the internal network.
+    image: hexstrike/hexstrike-ai:stable
+    profiles: ["hexstrike"]
+    environment:
+      - HEXSTRIKE_PORT=8888
+    networks:
+      - owliver_egress
+
+  # postgres / redis are moved onto the internal (egress-less) network so no
+  # scanner sibling can reach them (spec §5). They keep their base config.
+  postgres:
+    networks:
+      - owliver_internal
+
+  redis:
+    networks:
+      - owliver_internal
+
+networks:
+  owliver_internal:
+    internal: true # NO egress — postgres/redis only
+  owliver_egress:
+    driver: bridge # internet egress — scanners only
+
+volumes:
+  nuclei_templates:

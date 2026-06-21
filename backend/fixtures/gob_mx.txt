@@ -1,0 +1,44 @@
+# Seed list of Mexican government (.gob.mx) domains for the public ranking
+# (08-ranking-watchlists §2.3). One hostname per line; blank lines and lines
+# starting with '#' are ignored. The seed job inserts each as sites(is_gov=true)
+# and enqueues a basic/passive scan (ScanLevel.BASICO) — never an active level.
+www.gob.mx
+www.sat.gob.mx
+www.imss.gob.mx
+www.issste.gob.mx
+www.ine.mx
+www.impi.gob.mx
+www.salud.gob.mx
+www.banxico.org.mx
+www.gob.mx/sct
+www.gob.mx/sep
+www.gob.mx/profeco
+www.gob.mx/sre
+www.gob.mx/conagua
+www.gob.mx/cofepris
+www.gob.mx/sedena
+www.gob.mx/semar
+www.gob.mx/segob
+www.gob.mx/hacienda
+www.gob.mx/economia
+www.gob.mx/conacyt
+www.gob.mx/inai
+www.gob.mx/cfe
+www.pemex.com
+www.cdmx.gob.mx
+www.jalisco.gob.mx
+www.nl.gob.mx
+www.guanajuato.gob.mx
+www.puebla.gob.mx
+www.veracruz.gob.mx
+www.edomex.gob.mx
+www.queretaro.gob.mx
+www.yucatan.gob.mx
+www.sonora.gob.mx
+www.chihuahua.gob.mx
+www.michoacan.gob.mx
+www.oaxaca.gob.mx
+www.tabasco.gob.mx
+www.bcs.gob.mx
+www.coahuila.gob.mx
+www.sinaloa.gob.mx

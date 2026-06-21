@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.common.application.helpers.pagination import decode_cursor
 from src.common.database.models.scans.scan import ScanORM
 from src.common.database.models.sites.site import SiteORM
-from src.common.domain.enums.scans import ScanStatus
+from src.common.domain.enums.scans import ScanStatus, ScanVisibility
 from src.common.infrastructure.helpers.database import atomic_transaction
 from src.scans.domain.models.scan import Scan
 from src.scans.domain.repositories.scan import ScanRepository
@@ -127,13 +127,19 @@ class SQLScanRepository(ScanRepository):
     async def leaderboard(
         self, *, limit: int = 50, cursor: str | None = None
     ) -> list[Scan]:
-        # Worst-first over gov sites: grade ASC, penalty_raw DESC (§4).
+        # Worst-first over gov sites (the "Hall of Shame"): grade DESC so the
+        # worst letter leads (F before B), penalty_raw DESC as tiebreak within a
+        # grade (§4). The 07 spec prose's "ASC" notation was a slip — product
+        # intent + tests are worst-first; LEADERBOARD_ORDER mirrors this DESC tuple.
         stmt = (
             select(ScanORM)
             .join(SiteORM, SiteORM.uuid == ScanORM.site_id)
             .where(SiteORM.is_gov.is_(True))
             .where(SiteORM.latest_scan_id == ScanORM.uuid)
-            .order_by(ScanORM.overall_grade.asc(), ScanORM.penalty_raw.desc())
+            # Public ranking only: a gov site whose latest scan is private never
+            # appears on the leaderboard (§3.1).
+            .where(ScanORM.visibility == str(ScanVisibility.PUBLIC))
+            .order_by(ScanORM.overall_grade.desc(), ScanORM.penalty_raw.desc())
             .limit(limit)
         )
         result = await self.session.execute(stmt)
@@ -173,6 +179,46 @@ class SQLScanRepository(ScanRepository):
             )
         result = await self.session.execute(stmt)
         return [build_scan(orm) for orm in result.scalars().all()]
+
+    async def previous_graded_scan(
+        self, site_id: UUID, *, before: UUID
+    ) -> Scan | None:
+        # The "before" anchor: we want the most recent terminal+graded scan of
+        # the same site ordered strictly before the anchor scan. We keyset on
+        # ``(created_at, uuid)`` — NOT ``created_at`` alone — because scans seeded
+        # in the same DB transaction share an identical ``created_at`` (Postgres
+        # ``now()`` is the transaction start time). A plain ``created_at <`` would
+        # then drop a same-instant earlier scan; the uuid tie-break keeps the
+        # ordering total and deterministic.
+        anchor = await self.session.execute(
+            select(ScanORM.created_at, ScanORM.uuid).where(ScanORM.uuid == before)
+        )
+        anchor_row = anchor.one_or_none()
+        if anchor_row is None:
+            return None
+        anchor_created, anchor_uuid = anchor_row
+        terminal = (str(ScanStatus.DONE), str(ScanStatus.PARTIAL))
+        stmt = (
+            select(ScanORM)
+            .where(ScanORM.site_id == site_id)
+            .where(ScanORM.uuid != before)
+            .where(ScanORM.status.in_(terminal))
+            .where(ScanORM.overall_grade.isnot(None))
+            .where(
+                or_(
+                    ScanORM.created_at < anchor_created,
+                    and_(
+                        ScanORM.created_at == anchor_created,
+                        ScanORM.uuid < anchor_uuid,
+                    ),
+                )
+            )
+            .order_by(ScanORM.created_at.desc(), ScanORM.uuid.desc())
+            .limit(1)
+        )
+        result = await self.session.execute(stmt)
+        orm = result.scalar_one_or_none()
+        return build_scan(orm) if orm else None
 
     async def _find_active_orm(self, site_id: UUID, level: str) -> ScanORM | None:
         result = await self.session.execute(

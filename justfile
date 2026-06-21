@@ -30,6 +30,18 @@ dev-backend-d:
 build-backend:
     cd backend && docker compose build
 
+# Build the fat scanners image + worker (04-scanning-engine)
+build-scanners:
+    cd backend && docker compose -f docker-compose.yml -f docker-compose.scanners.yml build scanners worker
+
+# Start the engine worker (scanners image, DooD) over the base stack
+dev-worker:
+    cd backend && docker compose -f docker-compose.yml -f docker-compose.scanners.yml up worker
+
+# Warm cold-start: pre-pull pinned heavy images + nuclei templates to volume (spec §7)
+warm-scanners:
+    cd backend && bash scripts/warm_scanners.sh
+
 # Run backend API locally (without docker, requires postgres/redis running)
 dev-backend-local:
     cd backend && uvicorn config.main:app --host 0.0.0.0 --port 8200 --reload

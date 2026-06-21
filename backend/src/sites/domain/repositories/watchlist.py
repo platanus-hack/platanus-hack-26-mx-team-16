@@ -26,3 +26,10 @@ class WatchlistRepository(ABC):
     @abstractmethod
     async def find(self, user_id: UUID, site_id: UUID) -> WatchlistEntry | None:
         raise NotImplementedError
+
+    @abstractmethod
+    async def sites_with_monitor_true(self) -> list[WatchlistEntry]:
+        """All watchlist rows with ``monitor=true`` across every user — the
+        single signal that gates a site into the re-scan cron
+        (08-ranking-watchlists §4.1)."""
+        raise NotImplementedError

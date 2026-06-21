@@ -10,7 +10,6 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import (
-    CHAR,
     DateTime,
     Float,
     ForeignKey,
@@ -70,8 +69,10 @@ class FindingORM(Base, UUIDTimestampMixin):
         String(20), nullable=False, default=str(FindingStatus.OPEN)
     )
 
-    # Stable identity across scans (§3.3).
-    dedupe_key: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    # Stable identity across scans (§3.3). VARCHAR (not CHAR) so short/legacy keys
+    # are NOT space-padded to 64 on read — padding would break equality, ``notin_``
+    # and the change-detection round-trip. A sha256 hex is exactly 64 chars anyway.
+    dedupe_key: Mapped[str] = mapped_column(String(64), nullable=False)
     # Site-level temporal monitoring (§3.3) — survive between scans.
     first_seen: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()

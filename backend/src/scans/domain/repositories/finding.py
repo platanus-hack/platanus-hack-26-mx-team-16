@@ -30,3 +30,12 @@ class FindingRepository(ABC):
         ``status='fixed'`` (a finding that stops reappearing is resolved, §3.3).
         Returns the number of rows updated."""
         raise NotImplementedError
+
+    @abstractmethod
+    async def criticals_first_seen_in(self, scan_id: UUID) -> list[FindingRecord]:
+        """Return the ``critical`` findings of ``scan_id`` that are **new at the
+        site level** — i.e. whose ``first_seen`` equals this scan's findings'
+        ``first_seen`` (no earlier occurrence). Used by the monitoring alert
+        engine to fire only on genuinely new criticals (08-ranking-watchlists
+        §4.3); a pre-existing critical (older ``first_seen``) is excluded."""
+        raise NotImplementedError

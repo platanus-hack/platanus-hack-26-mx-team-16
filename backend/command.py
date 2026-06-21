@@ -38,7 +38,12 @@ def load(fixtures_dir: str = "fixtures"):
         objs: list[object] = []
         email_to_user_id: dict[str, uuid.UUID] = {}
 
-        for file in sorted(pathlib.Path(fixtures_dir).glob("*.*")):
+        fixture_files = [
+            f
+            for f in sorted(pathlib.Path(fixtures_dir).glob("*.*"))
+            if f.suffix in {".json", ".yml", ".yaml"}
+        ]
+        for file in fixture_files:
             for entry in _read_fixture(file):
                 model_name = entry["model"]
                 fields = entry.get("fields", {})
@@ -48,6 +53,22 @@ def load(fixtures_dir: str = "fixtures"):
                     user_id = uuid.UUID(pk_raw) if pk_raw else uuid.uuid4()
                     user = models.UserORM(uuid=user_id, **fields)
                     objs.append(user)
+
+                # Pre-baked leaderboard fixtures (08-ranking-watchlists §2.4):
+                # Site / Scan / Finding rows with grades already computed, so the
+                # public board is never empty at demo time. Real gov scans only
+                # overwrite these rows if they finish in time.
+                elif model_name == "Site":
+                    site_id = uuid.UUID(pk_raw) if pk_raw else uuid.uuid4()
+                    objs.append(models.SiteORM(uuid=site_id, **fields))
+
+                elif model_name == "Scan":
+                    scan_id = uuid.UUID(pk_raw) if pk_raw else uuid.uuid4()
+                    objs.append(models.ScanORM(uuid=scan_id, **fields))
+
+                elif model_name == "Finding":
+                    finding_id = uuid.UUID(pk_raw) if pk_raw else uuid.uuid4()
+                    objs.append(models.FindingORM(uuid=finding_id, **fields))
 
                 else:
                     typer.echo(f"⚠️  Modelo desconocido: {model_name}", err=True)
@@ -128,6 +149,51 @@ def dump(
             path.write_text(json.dumps(objects, ensure_ascii=False, indent=2))
 
         typer.echo(f"✅  Exportados {len(objects)} registros a {path}")
+
+    asyncio.run(_inner())
+
+
+@app.command()
+def seed_gov(seed_path: str = "fixtures/gob_mx.txt"):
+    """Insert the .gob.mx seed domains as sites(is_gov=true) and enqueue a
+    basic/passive scan for each (08-ranking-watchlists §2.3). Idempotent: re-runs
+    reuse existing sites and live scans. Requires Redis (SAQ) to be reachable for
+    the enqueued ``RunScanCommand`` dispatch."""
+
+    async def _inner():
+        from redis.asyncio import Redis
+
+        from src.common.infrastructure.bus_builder import build_async_bus
+        from src.common.infrastructure.domain_builder import build_async_domain
+        from src.sites.application.commands.seed_gov import (
+            SeedGovHandler,
+            read_gov_seed,
+        )
+        from src.common.settings import settings
+
+        try:
+            from saq import Queue
+
+            task_queue = Queue.from_url(settings.redis_url)
+        except Exception:  # pragma: no cover - redis optional in some envs
+            task_queue = None
+
+        hosts = read_gov_seed(seed_path)
+        typer.echo(f"Seeding {len(hosts)} .gob.mx domains from {seed_path}")
+        async with database_config.get_session() as session:
+            domain = build_async_domain(session=session)
+            bus = build_async_bus(
+                session=session, domain=domain, task_queue=task_queue
+            )
+            redis = Redis.from_url(settings.redis_url) if task_queue else None
+            await SeedGovHandler(
+                site_repository=domain.site_repository,
+                scan_repository=domain.scan_repository,
+                command_bus=bus.command_bus,
+            ).execute(type("Cmd", (), {"seed_path": seed_path})())
+            if redis is not None:
+                await redis.aclose()
+        typer.echo("✅  Gov seed completado")
 
     asyncio.run(_inner())
 

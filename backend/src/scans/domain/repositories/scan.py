@@ -74,3 +74,14 @@ class ScanRepository(ABC):
         first, optionally filtered by ``status``/``site_id``. Returns ``limit + 1``
         rows so the API can derive ``next_cursor`` (keyset on ``created_at, uuid``)."""
         raise NotImplementedError
+
+    @abstractmethod
+    async def previous_graded_scan(
+        self, site_id: UUID, *, before: UUID
+    ) -> Scan | None:
+        """Most recent **terminal, graded** scan of ``site_id`` strictly older
+        than the scan ``before`` (08-ranking-watchlists §4.3): ``status IN
+        ('done','partial') AND overall_grade IS NOT NULL``, ordered newest-first.
+        This is the comparison base for the grade-drop alert; ``None`` for the
+        first scan of a site (no base ⇒ no drop alert)."""
+        raise NotImplementedError

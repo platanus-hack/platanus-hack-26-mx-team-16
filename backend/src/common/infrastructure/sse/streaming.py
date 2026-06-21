@@ -27,6 +27,19 @@ ReplayFn = Callable[[], AsyncIterator[dict[str, Any]]]
 FilterFn = Callable[[dict[str, Any]], bool]
 
 
+def _seq_id(ev: dict[str, Any]) -> str | None:
+    """SSE ``id:`` for an event = its ``seq`` (the per-scan cursor), or ``None``.
+
+    Returns ``None`` when the event has no ``seq`` (e.g. other callers whose
+    events are namespaced differently), so this never breaks them: the ``id:``
+    line is only emitted when a ``seq`` is present. A native ``EventSource``
+    tracks this ``id`` and re-sends it as ``Last-Event-ID`` on reconnect,
+    closing the replay loop without loss.
+    """
+    seq = ev.get("seq")
+    return str(seq) if seq is not None else None
+
+
 async def _frames(
     pubsub: PubSub,
     request: Request,
@@ -42,6 +55,7 @@ async def _frames(
         async for ev in replay():
             yield ServerSentEvent(
                 event=str(ev.get("type", "message")),
+                id=_seq_id(ev),
                 data=json.dumps(ev),
             )
 
@@ -73,7 +87,7 @@ async def _frames(
         if filter_fn is not None and not filter_fn(ev):
             continue
         event_type = str(ev.get("type", "message"))
-        yield ServerSentEvent(event=event_type, data=raw)
+        yield ServerSentEvent(event=event_type, id=_seq_id(ev), data=raw)
         if close_after is not None and event_type in close_after:
             return
 

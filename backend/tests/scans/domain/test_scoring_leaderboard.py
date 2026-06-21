@@ -29,9 +29,10 @@ def _result(grade: str, penalty: int, score: int = 0) -> ScoreResult:
     )
 
 
-def test_leaderboard_order_contract_is_grade_asc_penalty_desc() -> None:
+def test_leaderboard_order_contract_is_grade_desc_penalty_desc() -> None:
+    # Hall of Shame: worst-first -> grade DESC (F before A), penalty DESC tiebreak.
     expect(LEADERBOARD_ORDER).to(
-        equal((("overall_grade", "ASC"), ("penalty_raw", "DESC")))
+        equal((("overall_grade", "DESC"), ("penalty_raw", "DESC")))
     )
 
 
@@ -53,8 +54,8 @@ def test_grade_dominates_penalty_in_order() -> None:
 
     ordered = sorted([f_site, a_site, c_site], key=leaderboard_sort_key)
 
-    # worst first means A is LAST (grade ASC): F, then C, then A
-    expect([r.overall_grade for r in ordered]).to(equal(["A", "C", "F"]))
+    # worst first means F is FIRST (grade DESC): F, then C, then A
+    expect([r.overall_grade for r in ordered]).to(equal(["F", "C", "A"]))
 
 
 def test_majority_gob_mx_collapse_to_f_at_zero() -> None:

@@ -63,6 +63,12 @@ class SQLWatchlistRepository(WatchlistRepository):
         orm = await self._find_orm(user_id, site_id)
         return build_watchlist_entry(orm) if orm else None
 
+    async def sites_with_monitor_true(self) -> list[WatchlistEntry]:
+        result = await self.session.execute(
+            select(WatchlistORM).where(WatchlistORM.monitor.is_(True))
+        )
+        return [build_watchlist_entry(orm) for orm in result.scalars().all()]
+
     async def _find_orm(self, user_id: UUID, site_id: UUID) -> WatchlistORM | None:
         result = await self.session.execute(
             select(WatchlistORM).where(

@@ -159,7 +159,7 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("status", sa.String(length=20), nullable=False),
-        sa.Column("dedupe_key", sa.CHAR(length=64), nullable=False),
+        sa.Column("dedupe_key", sa.String(length=64), nullable=False),
         sa.Column(
             "first_seen",
             sa.DateTime(timezone=True),

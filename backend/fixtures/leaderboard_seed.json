@@ -1,0 +1,1374 @@
+[
+  {
+    "model": "Site",
+    "pk": "8e2b6a5d-17b6-5e7f-8a8f-8d8b69e82ffc",
+    "fields": {
+      "url": "https://www.gob.mx",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "b9ba1304-4057-5f9e-8f93-ef95ead97a46"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "b9ba1304-4057-5f9e-8f93-ef95ead97a46",
+    "fields": {
+      "site_id": "8e2b6a5d-17b6-5e7f-8a8f-8d8b69e82ffc",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 8,
+      "web_score": 8,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 137,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "66a48551-6afb-5a2f-b18a-6a82c6b0ea1f",
+    "fields": {
+      "scan_id": "b9ba1304-4057-5f9e-8f93-ef95ead97a46",
+      "site_id": "8e2b6a5d-17b6-5e7f-8a8f-8d8b69e82ffc",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "7620dd410c5036db5b3d725bb55a83281cc835b9c2519fadc59e3ed589714bc1",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "b6cea0e4-51d5-5360-a187-4f3bac4260c7",
+    "fields": {
+      "url": "https://www.sat.gob.mx",
+      "hostname": "www.sat.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "f4241b16-b532-5160-939d-6e775722fbad"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "f4241b16-b532-5160-939d-6e775722fbad",
+    "fields": {
+      "site_id": "b6cea0e4-51d5-5360-a187-4f3bac4260c7",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 37,
+      "web_score": 37,
+      "agentic_score": 30,
+      "agentic_status": "tested",
+      "penalty_raw": 132,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "6e0f3f2c-16da-5837-b9ca-80725c7d375f",
+    "fields": {
+      "scan_id": "f4241b16-b532-5160-939d-6e775722fbad",
+      "site_id": "b6cea0e4-51d5-5360-a187-4f3bac4260c7",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "696bb3704a43641b611c08ed94a19ccd277c5ca8f0a08efbb610c511a1b3a0ac",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "8a59e2ac-599f-5472-ba6c-06821c7f708b",
+    "fields": {
+      "url": "https://www.imss.gob.mx",
+      "hostname": "www.imss.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "f1f5537b-04c2-51f6-b921-089d6a2d3751"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "f1f5537b-04c2-51f6-b921-089d6a2d3751",
+    "fields": {
+      "site_id": "8a59e2ac-599f-5472-ba6c-06821c7f708b",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 32,
+      "web_score": 32,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 296,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "51df60eb-c7c0-56a5-8f8a-0a1c91f6afe5",
+    "fields": {
+      "scan_id": "f1f5537b-04c2-51f6-b921-089d6a2d3751",
+      "site_id": "8a59e2ac-599f-5472-ba6c-06821c7f708b",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "62e507cc3065334335ba771f6695b8bd0160b9c78ddb786e5a29fd4b1b4245f7",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "727e9b1e-3d38-5a26-8f5c-f0feb07f27d0",
+    "fields": {
+      "url": "https://www.issste.gob.mx",
+      "hostname": "www.issste.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "01ea28c5-9d9d-5e82-9fb3-6ca766913fa6"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "01ea28c5-9d9d-5e82-9fb3-6ca766913fa6",
+    "fields": {
+      "site_id": "727e9b1e-3d38-5a26-8f5c-f0feb07f27d0",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 14,
+      "web_score": 14,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 388,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "902d40fe-3527-5fe1-a46d-3f60d0d1ea80",
+    "fields": {
+      "scan_id": "01ea28c5-9d9d-5e82-9fb3-6ca766913fa6",
+      "site_id": "727e9b1e-3d38-5a26-8f5c-f0feb07f27d0",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "f94d0c565ee8c30942ccf6c4d1a30a8eb9441e892884987f6fe8b6dab5551655",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "c92772af-d799-5d9d-9fd9-d8dc5f18c720",
+    "fields": {
+      "url": "https://www.ine.mx",
+      "hostname": "www.ine.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "675d45b9-d4a3-5af1-8865-02de98a18d7e"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "675d45b9-d4a3-5af1-8865-02de98a18d7e",
+    "fields": {
+      "site_id": "c92772af-d799-5d9d-9fd9-d8dc5f18c720",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "E",
+      "overall_score": 45,
+      "web_score": 45,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 68,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "845fc192-b7e6-5218-a7f2-284829e26f65",
+    "fields": {
+      "scan_id": "675d45b9-d4a3-5af1-8865-02de98a18d7e",
+      "site_id": "c92772af-d799-5d9d-9fd9-d8dc5f18c720",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "2df956cd3db8acda168365ebbd6f72d5e6eba24af2cd3df1ea542dbe9e7f61e4",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "341c58fa-5407-5812-ae11-27d4574a2142",
+    "fields": {
+      "url": "https://www.impi.gob.mx",
+      "hostname": "www.impi.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "e8f4cbb8-f897-5fec-a42f-1f1af142f2d9"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "e8f4cbb8-f897-5fec-a42f-1f1af142f2d9",
+    "fields": {
+      "site_id": "341c58fa-5407-5812-ae11-27d4574a2142",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "E",
+      "overall_score": 45,
+      "web_score": 45,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 58,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "f805032c-9fe3-596a-946d-2d8768c7e853",
+    "fields": {
+      "scan_id": "e8f4cbb8-f897-5fec-a42f-1f1af142f2d9",
+      "site_id": "341c58fa-5407-5812-ae11-27d4574a2142",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "8ada3825e958efda7f96db8c9f3b2aedd439c1692d66d8a7d1cba6805a716966",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "738a51b6-8e28-56de-8822-90455e476bee",
+    "fields": {
+      "url": "https://www.salud.gob.mx",
+      "hostname": "www.salud.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "49af6fad-29e9-51bc-9508-43957e3ede51"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "49af6fad-29e9-51bc-9508-43957e3ede51",
+    "fields": {
+      "site_id": "738a51b6-8e28-56de-8822-90455e476bee",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "D",
+      "overall_score": 55,
+      "web_score": 55,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 40,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "9351ff4b-1c25-577a-a4ae-51a83c460088",
+    "fields": {
+      "url": "https://www.banxico.org.mx",
+      "hostname": "www.banxico.org.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "374c70e3-8f27-5fb3-98c0-52ea65c086cd"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "374c70e3-8f27-5fb3-98c0-52ea65c086cd",
+    "fields": {
+      "site_id": "9351ff4b-1c25-577a-a4ae-51a83c460088",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "D",
+      "overall_score": 55,
+      "web_score": 55,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 36,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "d6b0191f-2a4c-5843-92a1-06d9722784d2",
+    "fields": {
+      "url": "https://www.gob.mx/sct",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "ded4c0d3-e696-59e5-9d97-e33965d1b5d4"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "ded4c0d3-e696-59e5-9d97-e33965d1b5d4",
+    "fields": {
+      "site_id": "d6b0191f-2a4c-5843-92a1-06d9722784d2",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "D",
+      "overall_score": 55,
+      "web_score": 55,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 45,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "f485e07b-2049-55b2-a074-ba0fa944b49d",
+    "fields": {
+      "url": "https://www.gob.mx/sep",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "c7f85fa1-8eac-5417-8768-1ab1f4bf6b25"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "c7f85fa1-8eac-5417-8768-1ab1f4bf6b25",
+    "fields": {
+      "site_id": "f485e07b-2049-55b2-a074-ba0fa944b49d",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "C",
+      "overall_score": 65,
+      "web_score": 65,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 32,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "32746afa-69dd-56a0-bf25-d6f303d8094e",
+    "fields": {
+      "url": "https://www.gob.mx/profeco",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "d83e3124-e05c-54bc-99b4-36273f878729"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "d83e3124-e05c-54bc-99b4-36273f878729",
+    "fields": {
+      "site_id": "32746afa-69dd-56a0-bf25-d6f303d8094e",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "C",
+      "overall_score": 65,
+      "web_score": 65,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 27,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "285ca350-2db8-50c4-af17-4ef2351d4fe4",
+    "fields": {
+      "url": "https://www.gob.mx/sre",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "c12c0045-8c16-593d-9f1e-4c894c0ff04d"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "c12c0045-8c16-593d-9f1e-4c894c0ff04d",
+    "fields": {
+      "site_id": "285ca350-2db8-50c4-af17-4ef2351d4fe4",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "C",
+      "overall_score": 65,
+      "web_score": 65,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 30,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "7eb1a30a-1cfb-5b97-b979-6f1e09787d91",
+    "fields": {
+      "url": "https://www.gob.mx/conagua",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "601c83ad-b5c9-58a6-b6b0-3cf5e8ca8ed6"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "601c83ad-b5c9-58a6-b6b0-3cf5e8ca8ed6",
+    "fields": {
+      "site_id": "7eb1a30a-1cfb-5b97-b979-6f1e09787d91",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "B",
+      "overall_score": 78,
+      "web_score": 78,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 10,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "20789067-7d94-5e12-b9bb-bbc4131bdf35",
+    "fields": {
+      "url": "https://www.gob.mx/cofepris",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "424adb2f-d742-5162-99ae-e354b999cee8"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "424adb2f-d742-5162-99ae-e354b999cee8",
+    "fields": {
+      "site_id": "20789067-7d94-5e12-b9bb-bbc4131bdf35",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "B",
+      "overall_score": 78,
+      "web_score": 78,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 16,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "f45a5e95-53fd-538d-9832-2830953fbd32",
+    "fields": {
+      "url": "https://www.gob.mx/sedena",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "026fb1ff-e988-55d6-86d6-5d54a245a215"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "026fb1ff-e988-55d6-86d6-5d54a245a215",
+    "fields": {
+      "site_id": "f45a5e95-53fd-538d-9832-2830953fbd32",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "A",
+      "overall_score": 92,
+      "web_score": 92,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 6,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "6ca13ab3-58e5-5b01-a960-b7f285495312",
+    "fields": {
+      "url": "https://www.gob.mx/semar",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "316d0d44-5220-5c70-b72d-a04069258dd7"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "316d0d44-5220-5c70-b72d-a04069258dd7",
+    "fields": {
+      "site_id": "6ca13ab3-58e5-5b01-a960-b7f285495312",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 13,
+      "web_score": 13,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 113,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "acb15c0a-9aaa-50f9-aa5e-4e892200edf6",
+    "fields": {
+      "scan_id": "316d0d44-5220-5c70-b72d-a04069258dd7",
+      "site_id": "6ca13ab3-58e5-5b01-a960-b7f285495312",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "ff7f8359dfd33ced3890cfb60ca2bdea5d7be0d269b24586cb5a42ca6547d84c",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "40bb967a-244c-5b39-be92-524680531ab8",
+    "fields": {
+      "url": "https://www.gob.mx/segob",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "e230dfab-883e-59b8-b1ba-e5e6ef1b8eb6"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "e230dfab-883e-59b8-b1ba-e5e6ef1b8eb6",
+    "fields": {
+      "site_id": "40bb967a-244c-5b39-be92-524680531ab8",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 9,
+      "web_score": 9,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 335,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "34b0d167-a6f3-5c1f-8d55-cbcb45aec6c2",
+    "fields": {
+      "scan_id": "e230dfab-883e-59b8-b1ba-e5e6ef1b8eb6",
+      "site_id": "40bb967a-244c-5b39-be92-524680531ab8",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "6d1a0366a26c7bf43d17d030596bb741a8e4b3e42219318ed4aaf4002b49f23e",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "e8f7e15b-31d9-5840-a815-7f41b9403ac6",
+    "fields": {
+      "url": "https://www.gob.mx/hacienda",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "ebe0deca-b2df-524c-8621-fef7fa903669"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "ebe0deca-b2df-524c-8621-fef7fa903669",
+    "fields": {
+      "site_id": "e8f7e15b-31d9-5840-a815-7f41b9403ac6",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 37,
+      "web_score": 37,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 215,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "3f0e30af-490d-57d0-9083-8ea3a133f9ba",
+    "fields": {
+      "scan_id": "ebe0deca-b2df-524c-8621-fef7fa903669",
+      "site_id": "e8f7e15b-31d9-5840-a815-7f41b9403ac6",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "17ff43ce82833eb18aba9fe2546d0e9cf2465766ca6b858389b9d5a155fbd5c8",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "04602336-8aa7-58d8-a6c0-82a065cd5a63",
+    "fields": {
+      "url": "https://www.gob.mx/economia",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "998afe67-c256-535e-8eb4-aba810ab5ec4"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "998afe67-c256-535e-8eb4-aba810ab5ec4",
+    "fields": {
+      "site_id": "04602336-8aa7-58d8-a6c0-82a065cd5a63",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 8,
+      "web_score": 8,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 299,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "55bcbc5b-90b6-547a-a048-4665f73c8352",
+    "fields": {
+      "scan_id": "998afe67-c256-535e-8eb4-aba810ab5ec4",
+      "site_id": "04602336-8aa7-58d8-a6c0-82a065cd5a63",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "46f8dfd38488662460570e3d38202eed2fb95d879e5fb037740636cc7998006f",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "4cab5e7f-d99d-5238-96c2-c0710fab3145",
+    "fields": {
+      "url": "https://www.gob.mx/conacyt",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "a0aeb2f9-f2df-580c-aeb9-83197f3165bc"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "a0aeb2f9-f2df-580c-aeb9-83197f3165bc",
+    "fields": {
+      "site_id": "4cab5e7f-d99d-5238-96c2-c0710fab3145",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "E",
+      "overall_score": 45,
+      "web_score": 45,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 65,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "6f57e471-2db8-534b-bf47-13b9118d9a62",
+    "fields": {
+      "scan_id": "a0aeb2f9-f2df-580c-aeb9-83197f3165bc",
+      "site_id": "4cab5e7f-d99d-5238-96c2-c0710fab3145",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "5c34369d325a47304f0a2c197b62ea1b2e518d513066222b350a4cd707814ab1",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "18cc7601-cb32-51a9-aac9-c224d2f18d26",
+    "fields": {
+      "url": "https://www.gob.mx/inai",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "6e8fd085-55dc-5f8c-8e00-839c15d01cdb"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "6e8fd085-55dc-5f8c-8e00-839c15d01cdb",
+    "fields": {
+      "site_id": "18cc7601-cb32-51a9-aac9-c224d2f18d26",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "E",
+      "overall_score": 45,
+      "web_score": 45,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 75,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "ea12704c-ce9d-5793-a910-498389d840d7",
+    "fields": {
+      "scan_id": "6e8fd085-55dc-5f8c-8e00-839c15d01cdb",
+      "site_id": "18cc7601-cb32-51a9-aac9-c224d2f18d26",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "28be40d204f5dc42229bef4ca847147a484e4c198366faa9bb379190ad489d18",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "409b1828-8a24-508a-94d8-853288d2920d",
+    "fields": {
+      "url": "https://www.gob.mx/cfe",
+      "hostname": "www.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "f2314815-ddd3-51b9-aac8-6c47cf679e0a"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "f2314815-ddd3-51b9-aac8-6c47cf679e0a",
+    "fields": {
+      "site_id": "409b1828-8a24-508a-94d8-853288d2920d",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "D",
+      "overall_score": 55,
+      "web_score": 55,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 42,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "aa97d765-e690-5c1e-9410-732e6971c896",
+    "fields": {
+      "url": "https://www.pemex.com",
+      "hostname": "www.pemex.com",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "f7cc29bb-78d0-5756-ab39-fb8a529f75bc"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "f7cc29bb-78d0-5756-ab39-fb8a529f75bc",
+    "fields": {
+      "site_id": "aa97d765-e690-5c1e-9410-732e6971c896",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "D",
+      "overall_score": 55,
+      "web_score": 55,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 39,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "57104301-4aee-5bdf-be04-7a13ac344db9",
+    "fields": {
+      "url": "https://www.cdmx.gob.mx",
+      "hostname": "www.cdmx.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "0da7edeb-663e-5138-93c3-7ced171eaffc"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "0da7edeb-663e-5138-93c3-7ced171eaffc",
+    "fields": {
+      "site_id": "57104301-4aee-5bdf-be04-7a13ac344db9",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "D",
+      "overall_score": 55,
+      "web_score": 55,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 37,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "d1762256-dbcb-54db-b47d-d65a7d5c6bc4",
+    "fields": {
+      "url": "https://www.jalisco.gob.mx",
+      "hostname": "www.jalisco.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "a66e26f5-73f6-5405-87e1-50cfa4e582b7"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "a66e26f5-73f6-5405-87e1-50cfa4e582b7",
+    "fields": {
+      "site_id": "d1762256-dbcb-54db-b47d-d65a7d5c6bc4",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "C",
+      "overall_score": 65,
+      "web_score": 65,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 21,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "75e1f7ec-480c-5b70-9998-e75f2ea95194",
+    "fields": {
+      "url": "https://www.nl.gob.mx",
+      "hostname": "www.nl.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "0d9444a3-a0cb-5015-b7da-ccc3c7f1d760"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "0d9444a3-a0cb-5015-b7da-ccc3c7f1d760",
+    "fields": {
+      "site_id": "75e1f7ec-480c-5b70-9998-e75f2ea95194",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "C",
+      "overall_score": 65,
+      "web_score": 65,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 22,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "8da1a809-98e3-53e1-8627-132548f9f31f",
+    "fields": {
+      "url": "https://www.guanajuato.gob.mx",
+      "hostname": "www.guanajuato.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "c48cf155-a432-5be4-9db8-c6bc6f46a931"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "c48cf155-a432-5be4-9db8-c6bc6f46a931",
+    "fields": {
+      "site_id": "8da1a809-98e3-53e1-8627-132548f9f31f",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "C",
+      "overall_score": 65,
+      "web_score": 65,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 29,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "f04583b2-2ef6-55a8-93df-52d8365bf416",
+    "fields": {
+      "url": "https://www.puebla.gob.mx",
+      "hostname": "www.puebla.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "1f143f40-42ef-585c-9233-d993b69aea3d"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "1f143f40-42ef-585c-9233-d993b69aea3d",
+    "fields": {
+      "site_id": "f04583b2-2ef6-55a8-93df-52d8365bf416",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "B",
+      "overall_score": 78,
+      "web_score": 78,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 12,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "2313b211-8588-5b74-ba6c-6f1ddc96e23f",
+    "fields": {
+      "url": "https://www.veracruz.gob.mx",
+      "hostname": "www.veracruz.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "b1bf658d-abad-52a3-907b-d6a4ca99c23c"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "b1bf658d-abad-52a3-907b-d6a4ca99c23c",
+    "fields": {
+      "site_id": "2313b211-8588-5b74-ba6c-6f1ddc96e23f",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "B",
+      "overall_score": 78,
+      "web_score": 78,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 9,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "8fbcce07-2d47-5253-8c1d-6d3222f725f9",
+    "fields": {
+      "url": "https://www.edomex.gob.mx",
+      "hostname": "www.edomex.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "85b74fd5-b642-5cef-be31-b4f37949765a"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "85b74fd5-b642-5cef-be31-b4f37949765a",
+    "fields": {
+      "site_id": "8fbcce07-2d47-5253-8c1d-6d3222f725f9",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "A",
+      "overall_score": 92,
+      "web_score": 92,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 7,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "86ae54f7-a9a7-54f6-9310-4691e474db8c",
+    "fields": {
+      "url": "https://www.queretaro.gob.mx",
+      "hostname": "www.queretaro.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "60598285-e9a9-5b07-83dc-46da0af56509"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "60598285-e9a9-5b07-83dc-46da0af56509",
+    "fields": {
+      "site_id": "86ae54f7-a9a7-54f6-9310-4691e474db8c",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 13,
+      "web_score": 13,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 164,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "61227104-3292-5dd3-ae80-dbccfe878df7",
+    "fields": {
+      "scan_id": "60598285-e9a9-5b07-83dc-46da0af56509",
+      "site_id": "86ae54f7-a9a7-54f6-9310-4691e474db8c",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "e7be9289be1bec208c58862ec97598506f3ebe4809b4f95fc84671008b41cfbe",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "ec3ce547-77d7-5217-b8c2-6690fdcd5d5c",
+    "fields": {
+      "url": "https://www.yucatan.gob.mx",
+      "hostname": "www.yucatan.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "4479cd9a-b1fc-5519-9d45-56c5a03d6a40"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "4479cd9a-b1fc-5519-9d45-56c5a03d6a40",
+    "fields": {
+      "site_id": "ec3ce547-77d7-5217-b8c2-6690fdcd5d5c",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 25,
+      "web_score": 25,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 356,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "7a352f11-f2d4-52ea-a892-0fd102c001b9",
+    "fields": {
+      "scan_id": "4479cd9a-b1fc-5519-9d45-56c5a03d6a40",
+      "site_id": "ec3ce547-77d7-5217-b8c2-6690fdcd5d5c",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "f30babf01f9dcdbe0741570bc01faf5b46b3b133080aa31d9cd19abcf10ab722",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "fed233d3-f8d8-56e0-84bc-507e3c7bb47c",
+    "fields": {
+      "url": "https://www.sonora.gob.mx",
+      "hostname": "www.sonora.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "97ad2dee-190b-5eae-b235-92ef05934c6f"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "97ad2dee-190b-5eae-b235-92ef05934c6f",
+    "fields": {
+      "site_id": "fed233d3-f8d8-56e0-84bc-507e3c7bb47c",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 15,
+      "web_score": 15,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 271,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "5ae07a08-329a-57e2-b346-ebf74abe609a",
+    "fields": {
+      "scan_id": "97ad2dee-190b-5eae-b235-92ef05934c6f",
+      "site_id": "fed233d3-f8d8-56e0-84bc-507e3c7bb47c",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "142877b6c5ca7ae44f6c0f44eaabed33f836ac0ea7e997a77b1ca4a5f2c1755e",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "88f68d79-7da6-5cfd-be6c-b439bd072578",
+    "fields": {
+      "url": "https://www.chihuahua.gob.mx",
+      "hostname": "www.chihuahua.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "01482860-4478-5fa5-bebf-7093a7a44d62"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "01482860-4478-5fa5-bebf-7093a7a44d62",
+    "fields": {
+      "site_id": "88f68d79-7da6-5cfd-be6c-b439bd072578",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "F",
+      "overall_score": 37,
+      "web_score": 37,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 195,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "b1ef5db9-ce67-595a-82c9-6beb72882609",
+    "fields": {
+      "scan_id": "01482860-4478-5fa5-bebf-7093a7a44d62",
+      "site_id": "88f68d79-7da6-5cfd-be6c-b439bd072578",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "5593dd901e8df71d819549762a8852b5aa0da14c7890505490a3dae2b4a99b8f",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Site",
+    "pk": "ff7392ca-b8e4-50ba-814e-4299cc7d4c36",
+    "fields": {
+      "url": "https://www.michoacan.gob.mx",
+      "hostname": "www.michoacan.gob.mx",
+      "is_gov": true,
+      "country": "MX",
+      "latest_scan_id": "a1e603ea-fb54-55d3-83cc-49a673bb389b"
+    }
+  },
+  {
+    "model": "Scan",
+    "pk": "a1e603ea-fb54-55d3-83cc-49a673bb389b",
+    "fields": {
+      "site_id": "ff7392ca-b8e4-50ba-814e-4299cc7d4c36",
+      "level": "basico",
+      "status": "done",
+      "visibility": "public",
+      "overall_grade": "E",
+      "overall_score": 45,
+      "web_score": 45,
+      "agentic_score": null,
+      "agentic_status": "no_surface",
+      "penalty_raw": 50,
+      "authorized": false,
+      "finished_at": "2026-06-21T01:13:10.407947+00:00"
+    }
+  },
+  {
+    "model": "Finding",
+    "pk": "7d95be9a-3ef5-5f69-b92e-868dea819ddb",
+    "fields": {
+      "scan_id": "a1e603ea-fb54-55d3-83cc-49a673bb389b",
+      "site_id": "ff7392ca-b8e4-50ba-814e-4299cc7d4c36",
+      "source": "owasp",
+      "tool": "nuclei",
+      "category": "A05",
+      "title": "Security misconfiguration",
+      "severity": "critical",
+      "confidence": "alta",
+      "description": "Exposed admin panel.",
+      "impact": "Full takeover risk.",
+      "remediation": "Restrict access.",
+      "status": "open",
+      "dedupe_key": "d524388b0a6ae399ca8f2369874ba0d6d4fa533c89ec45be3161fc006dad96db",
+      "first_seen": "2026-06-21T01:13:10.407947+00:00",
+      "last_seen": "2026-06-21T01:13:10.407947+00:00"
+    }
+  }
+]

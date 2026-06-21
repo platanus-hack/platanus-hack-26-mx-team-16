@@ -38,6 +38,17 @@ app = FastAPI(
 )
 app.include_router(api_router)
 
+# Static evidence mount (04-scanning-engine §8): serves /data/scans/{id}/{n}.png
+# under /static/scans. Finding.evidence stores the relative URL; 09's PDF export
+# embeds from this same path. Failing softly keeps the API up if the volume is
+# absent in a non-scanning deployment.
+try:
+    from src.scanning.evidence import mount_static_scans
+
+    mount_static_scans(app)
+except Exception:  # noqa: BLE001 - evidence mount is optional for non-scan deploys
+    pass
+
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(CamelCaseToSnakeCaseMiddleware)
 app.add_middleware(RequestTrackingMiddleware)

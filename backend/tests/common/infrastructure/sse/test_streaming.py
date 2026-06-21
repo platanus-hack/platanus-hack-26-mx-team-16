@@ -230,6 +230,47 @@ async def test_frames__invalid_json_is_skipped_not_crashed(request_mock):
     expect([f.event for f in frames]).to(equal(["ready", "AFTER_BAD"]))
 
 
+async def test_frames__emits_seq_as_sse_id_on_replay(request_mock):
+    """An event carrying ``seq`` is emitted with ``id == str(seq)`` (10 §4.3)."""
+    async def replay():
+        yield {"seq": 7, "type": "REPLAYED", "payload": {}}
+
+    pubsub = _make_pubsub([None])
+    request_mock.is_disconnected = AsyncMock(side_effect=[False, True])
+
+    agen = _frames(pubsub, request_mock, replay=replay, filter_fn=None, close_after=None, heartbeat_s=0.01)
+    frames = await _drain(agen, max_frames=3)
+
+    replayed = next(f for f in frames if f.event == "REPLAYED")
+    expect(replayed.id).to(equal("7"))
+
+
+async def test_frames__emits_seq_as_sse_id_on_live(request_mock):
+    pubsub = _make_pubsub([_live_message({"seq": 12, "type": "LIVE", "payload": {}})])
+    request_mock.is_disconnected = AsyncMock(side_effect=[False, True])
+
+    agen = _frames(pubsub, request_mock, replay=None, filter_fn=None, close_after=None, heartbeat_s=0.01)
+    frames = await _drain(agen, max_frames=2)
+
+    live = next(f for f in frames if f.event == "LIVE")
+    expect(live.id).to(equal("12"))
+
+
+async def test_frames__no_seq_means_no_sse_id(request_mock):
+    """Events without ``seq`` (other callers) produce ``id is None`` — no break."""
+    async def replay():
+        yield {"type": "NO_SEQ", "payload": {}}
+
+    pubsub = _make_pubsub([None])
+    request_mock.is_disconnected = AsyncMock(side_effect=[False, True])
+
+    agen = _frames(pubsub, request_mock, replay=replay, filter_fn=None, close_after=None, heartbeat_s=0.01)
+    frames = await _drain(agen, max_frames=3)
+
+    no_seq = next(f for f in frames if f.event == "NO_SEQ")
+    expect(no_seq.id).to(equal(None))
+
+
 async def test_frames__bytes_payload_is_decoded(request_mock):
     pubsub = _make_pubsub(
         [
