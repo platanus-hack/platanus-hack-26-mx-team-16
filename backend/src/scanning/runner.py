@@ -205,6 +205,30 @@ async def run_tool(
 
     duration = time.monotonic() - started
     ok = completed.returncode == 0
+    if not ok:
+        # A non-zero exit is the most common partial-coverage cause (missing nuclei
+        # templates, a missing system dep like hexdump for testssl, the target
+        # refusing the probe…). The partial-failure policy (§4.3) NEVER raises and
+        # the ToolResult.stderr is otherwise swallowed, so log the return code + a
+        # stderr snippet here — this is the single place the real reason is visible.
+        # Some CLIs (nuclei, subfinder) print usage / argument errors to STDOUT,
+        # not stderr — fall back to a stdout tail so an exit-2 isn't an opaque
+        # "código 2" with no reason.
+        detail = (completed.stderr or "").strip() or (completed.stdout or "").strip()[-500:]
+        logger.warning(
+            "run_tool.nonzero_exit",
+            extra={
+                "tool": tool_name,
+                "returncode": completed.returncode,
+                "duration_s": round(duration, 2),
+                "detail": detail[:500],
+            },
+        )
+    else:
+        logger.debug(
+            "run_tool.ok",
+            extra={"tool": tool_name, "duration_s": round(duration, 2)},
+        )
     return ToolResult(
         tool=tool_name,
         ok=ok,

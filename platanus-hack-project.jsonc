@@ -1,0 +1,6 @@
+{
+  "project-name": "Owliver 🦉",
+  "project-oneliner-spanish": "Pentesting automatizado con IA que audita y rompe los chatbots de tu sitio, y lo califica de la A a la F.",
+  "project-description-spanish": "Owliver es una plataforma de pentesting automatizado orquestada por un equipo de agentes de IA (un orquestador Opus + 2 subagentes Sonnet). Le das una URL y, en minutos, audita tanto las vulnerabilidades clásicas (OWASP) como la nueva 'superficie agéntica': los chatbots y LLMs que las empresas exponen y que son vulnerables a prompt-injection y jailbreaks, algo a lo que los escáneres tradicionales son completamente ciegos. Owliver no solo detecta fallas: rompe la IA y lo prueba con evidencia irrefutable. Para eliminar falsos positivos, usa un juez LLM junto a un canary token: si logramos que el chatbot revele su system-prompt oculto, documentamos el ataque como éxito total. Entrega un reporte claro para perfiles no técnicos con una calificación de la A a la F. Los resultados alimentan un ranking público de sitios del gobierno mexicano (.gob.mx) y watchlists privadas para monitoreo continuo con alertas automáticas por correo o Slack.",
+  "deploy-url": "https://owliver.chuspita.com"
+}

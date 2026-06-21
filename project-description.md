@@ -1,21 +1,30 @@
-Owliver 🦉: Corporate AI Under the Microscope
+# Owliver 🦉: Corporate AI Under the Microscope
 
-Executive Summary
+**Automated AI-orchestrated pentesting that breaks your AI live and grades it from A to F.**
 
-Owliver is an automated tool that audits and breaks Artificial Intelligence live, evaluating systems with a grade ranging from A to F.
+🔗 Live demo: https://owliver.chuspita.com
 
-The Problem
+## The Hook
 
-Currently, traditional cybersecurity pentesting is a manual, slow, and expensive process that ends in static reports nobody reads. Furthermore, there is a critical vulnerability being ignored: the new "agentic surface". Companies are implementing chatbots and LLMs that are highly susceptible to prompt-injection and jailbreak attacks. Traditional security scanners (like OWASP) are completely blind to these threats.
+Every company is racing to bolt a chatbot onto their website. Almost none of them tested whether that chatbot can be tricked into leaking its instructions, its data, or its keys. Owliver does — automatically, in minutes, with proof.
 
-The Solution
+## The Problem
 
-The user simply enters a target URL Behind the scenes, Owliver uses a team of orchestrated AI agents (an Opus orchestrator and two Sonnet sub-agents) that execute a real pentest on this new agentic surface. As a result, the system delivers a report in minutes that is easy to understand for non-technical profiles.
+Traditional pentesting is manual, slow, and expensive, and it ends in static reports nobody reads. Worse, there's a brand-new attack surface everyone is ignoring: the **agentic surface**. Companies are shipping chatbots and LLMs that are wide open to prompt-injection and jailbreaks — and traditional scanners (OWASP-style tools) are completely blind to them.
 
-Our Differentiator
+## The Solution
 
-Owliver doesn't just scan for vulnerabilities; it breaks the AI and proves it with irrefutable evidence. To eliminate the possibility of false positives, the system uses an LLM-based judge alongside a canary token. If we manage to make the chatbot reveal its hidden system-prompt, we document the attack as a total success.
+The user just enters a target URL and an attack level. Behind the scenes, a team of orchestrated AI agents (an **Opus orchestrator** + **two Sonnet sub-agents**) runs a real pentest across both the classic OWASP surface **and** the agentic surface. Minutes later, Owliver delivers a report that a non-technical person can actually read, with a clear **A–F grade**.
 
-Go-To-Market
+## Our Differentiator
 
-Our model combines public pressure with a B2B product. We create a public "Hall of Shame" evaluating the security of major industries (banks, e-commerce) using graphic cards designed to go viral on social media. This exposure drives the adoption of our core SaaS model: a Private Watchlist that offers companies continuous security monitoring and automated alerts via email or Slack if their grade drops
+Owliver doesn't just scan for vulnerabilities — it **breaks the AI and proves it with irrefutable evidence**. To kill false positives, it pairs an **LLM-based judge** with a **canary token**: if we get the chatbot to reveal its hidden system-prompt, we document the attack as a total success. No guesswork, no noise — only confirmed, reproducible findings.
+
+## Go-To-Market
+
+We combine **public pressure** with a **B2B product**:
+
+- **Public "Hall of Shame":** viral-ready grade cards ranking the security of high-profile targets — starting with Mexican government sites (`.gob.mx`) and extending to banks and e-commerce.
+- **Private Watchlist (SaaS):** continuous security monitoring with automated alerts via email or Slack the moment a target's grade drops.
+
+The public exposure drives adoption of the core SaaS — turning attention into a continuous-monitoring revenue engine.

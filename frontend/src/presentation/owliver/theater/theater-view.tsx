@@ -117,6 +117,16 @@ export function TheaterView({
   const liveProgress = progress || initialScan.progress || 0;
   const liveWeb = webScore ?? initialScan.webScore ?? null;
   const liveAgentic = agenticScore ?? initialScan.agenticScore ?? null;
+  // Agentic gauge empty-state: while running it's still "midiendo…"; once the run
+  // is terminal with no score, reflect the surface verdict (a basic/passive scan
+  // detects an AI surface but does not actively test it → "sin auditar").
+  const agenticHint = !terminal
+    ? "midiendo…"
+    : initialScan.agenticStatus === "detected_not_tested"
+      ? "IA detectada, sin auditar"
+      : initialScan.agenticStatus === "no_surface"
+        ? "sin superficie"
+        : "midiendo…";
 
   // Auto-scroll the telemetry log to the newest line.
   const logRef = React.useRef<HTMLDivElement>(null);
@@ -322,7 +332,7 @@ export function TheaterView({
                 label="Agéntico"
                 icon={<AgenticChip className="size-4 text-on-surface-variant" />}
                 size={132}
-                emptyHint="midiendo…"
+                emptyHint={agenticHint}
               />
             </section>
 
