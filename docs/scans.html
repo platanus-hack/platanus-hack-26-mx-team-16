@@ -797,43 +797,65 @@
     <div class="glossary-group reveal">
       <h3><svg class="ic"><use href="#ic-shield"/></svg> Herramientas de seguridad web</h3>
       <div class="glossary-grid">
-        <div class="term"><div class="th"><span class="t">Nuclei</span><span class="ttag">Escáner</span></div><p>Prueba miles de "plantillas" (recetas de fallos conocidos) contra el sitio y reporta cuáles coinciden. Es rápido y la base del nivel básico.</p></div>
-        <div class="term"><div class="th"><span class="t">OWASP ZAP</span><span class="ttag">Auditor web</span></div><p>Recorre el sitio como un usuario y prueba vulnerabilidades web (inyección, XSS…). Modo "baseline" (suave) o "active" (a fondo).</p></div>
-        <div class="term"><div class="th"><span class="t">testssl.sh</span><span class="ttag">TLS / HTTPS</span></div><p>Revisa la calidad del candado: versiones de cifrado, certificados y configuraciones inseguras de la conexión segura.</p></div>
-        <div class="term"><div class="th"><span class="t">Nikto</span><span class="ttag">Escáner</span></div><p>Escáner clásico de servidores web: busca archivos peligrosos, versiones viejas y configuraciones por defecto que no deberían estar expuestas.</p></div>
-        <div class="term"><div class="th"><span class="t">sqlmap</span><span class="ttag">Inyección SQL</span></div><p>Especialista en inyección SQL: comprueba si un parámetro permite manipular o leer la base de datos del sitio.</p></div>
-        <div class="term"><div class="th"><span class="t">ffuf / gobuster</span><span class="ttag">Fuzzer</span></div><p>Prueban miles de nombres para descubrir rutas y archivos ocultos (paneles de admin, copias de seguridad, endpoints olvidados…).</p></div>
-        <div class="term"><div class="th"><span class="t">WhatWeb / Wappalyzer</span><span class="ttag">Fingerprint</span></div><p>Identifican qué tecnologías usa el sitio (gestor de contenido, framework, servidor) sin tocarlo, solo mirando sus respuestas.</p></div>
-        <div class="term"><div class="th"><span class="t">Security Headers / Observatory</span><span class="ttag">Cabeceras</span></div><p>Revisan las "cabeceras" de protección que el navegador usa para blindar la página y le ponen una nota.</p></div>
-        <div class="term"><div class="th"><span class="t">subfinder / dnsx</span><span class="ttag">Recon</span></div><p>Descubren subdominios y resuelven los nombres de dominio del objetivo. Owliver los usa en modo pasivo (sin atacar).</p></div>
-        <div class="term"><div class="th"><span class="t">katana</span><span class="ttag">Crawler</span></div><p>Rastreador que recorre los enlaces del sitio para mapear todas sus páginas y formularios antes de revisarlos.</p></div>
+        <div class="term"><div class="th"><span class="t">Nuclei</span><span class="ttag">Escáner</span></div><p>Escáner ultrarrápido que lanza miles de "plantillas" —recetas de fallos conocidos mantenidas por la comunidad— y reporta cuáles coinciden. Owliver lo limita a plantillas pasivas en el nivel básico y añade plantillas de fuzzing en el avanzado.</p></div>
+        <div class="term"><div class="th"><span class="t">OWASP ZAP</span><span class="ttag">Auditor web</span></div><p>El proxy de auditoría web abierto de referencia. Recorre el sitio como un usuario y prueba vulnerabilidades (inyección, XSS…). Modo "baseline" (recorre y observa, suave) o "full active" (inyecta payloads, a fondo). Corre en su propio contenedor.</p></div>
+        <div class="term"><div class="th"><span class="t">testssl.sh</span><span class="ttag">TLS / HTTPS</span></div><p>Audita la calidad del candado: detecta protocolos obsoletos (TLS 1.0, SSLv3), cifrados débiles y certificados caducados o mal emitidos. Sus hallazgos se mapean a las categorías A02/A05 de OWASP.</p></div>
+        <div class="term"><div class="th"><span class="t">Nikto</span><span class="ttag">Escáner web</span></div><p>Escáner clásico de servidores: hace miles de chequeos buscando archivos peligrosos, scripts de prueba, versiones viejas y configuraciones por defecto que no deberían estar expuestas.</p></div>
+        <div class="term"><div class="th"><span class="t">sqlmap</span><span class="ttag">Inyección SQL</span></div><p>Especialista que detecta y explota inyección SQL —cuando un parámetro permite leer o manipular la base de datos—. En el nivel avanzado Owliver lo acota a un solo parámetro detectado.</p></div>
+        <div class="term"><div class="th"><span class="t">ffuf / gobuster</span><span class="ttag">Fuzzer</span></div><p>"Fuzzers" de directorios: prueban diccionarios de miles de nombres contra el sitio para descubrir rutas y archivos ocultos (paneles de admin, backups, endpoints olvidados…).</p></div>
+        <div class="term"><div class="th"><span class="t">WhatWeb / Wappalyzer</span><span class="ttag">Fingerprint</span></div><p>Identifican qué tecnologías usa el sitio (WordPress, React, nginx…) solo mirando sus respuestas, sin tocarlo. Saber la tecnología ayuda a saber qué CVEs podrían aplicar.</p></div>
+        <div class="term"><div class="th"><span class="t">Security Headers / Observatory</span><span class="ttag">Cabeceras</span></div><p>Revisan las "cabeceras" de protección que blindan la página (CSP, HSTS, X-Frame-Options…). Observatory, de Mozilla, además asigna una nota tipo A–F.</p></div>
+        <div class="term"><div class="th"><span class="t">subfinder / dnsx</span><span class="ttag">Recon</span></div><p>Descubren subdominios y resuelven nombres de dominio para ampliar la superficie conocida. Owliver los usa en modo pasivo: consultan fuentes públicas, sin forzar el DNS del objetivo.</p></div>
+        <div class="term"><div class="th"><span class="t">katana</span><span class="ttag">Crawler</span></div><p>Rastreador moderno que entiende JavaScript y recorre los enlaces para mapear todas las páginas y formularios. Queda deshabilitado en escaneos de gobierno porque no respeta <span class="mono">robots.txt</span>.</p></div>
       </div>
     </div>
 
     <!-- AI tools -->
     <div class="glossary-group reveal">
-      <h3><svg class="ic"><use href="#ic-robot"/></svg> Herramientas para chatbots de IA</h3>
+      <h3><svg class="ic"><use href="#ic-robot"/></svg> Herramientas y técnicas para chatbots de IA</h3>
       <div class="glossary-grid">
-        <div class="term"><div class="th"><span class="t">Playwright</span><span class="ttag">Navegador</span></div><p>Navegador automatizado: abre el sitio como una persona real, hace clics y escribe en el chat manteniendo la sesión (cookies, estado).</p></div>
-        <div class="term"><div class="th"><span class="t">garak</span><span class="ttag">Red-team IA</span></div><p>"Escáner de vulnerabilidades" para modelos de lenguaje: lanza baterías de ataques (jailbreaks, fugas) contra un chatbot.</p></div>
-        <div class="term"><div class="th"><span class="t">promptfoo</span><span class="ttag">Pruebas IA</span></div><p>Herramienta para probar y evaluar respuestas de chatbots con casos de ataque definidos. Owliver la usa solo como apoyo opcional.</p></div>
-        <div class="term"><div class="th"><span class="t">LLM-juez (juez-IA)</span><span class="ttag">Evaluador</span></div><p>Un modelo de IA que evalúa, con criterio fijo por técnica, si el chatbot "cayó": si filtró datos o se salió de su rol declarado.</p></div>
-        <div class="term"><div class="th"><span class="t">canary</span><span class="ttag">Evidencia</span></div><p>Un secreto único plantado en una prueba. Si aparece en la respuesta del chatbot, es prueba irrefutable de que hubo una fuga.</p></div>
+        <div class="term"><div class="th"><span class="t">Playwright</span><span class="ttag">Navegador</span></div><p>Navegador automatizado (de Microsoft) que controla un Chromium real: abre el sitio como una persona, hace clics, escribe en el chat y mantiene sesión, cookies y CSRF. También toma las capturas de evidencia y genera el PDF.</p></div>
+        <div class="term"><div class="th"><span class="t">garak</span><span class="ttag">Red-team IA</span></div><p>"Escáner de vulnerabilidades" para modelos de lenguaje (de NVIDIA): lanza baterías de ataques (jailbreaks, fugas). Owliver lo usa solo como apoyo opcional y acotado, nunca sobre sitios <span class="mono">.gob.mx</span>.</p></div>
+        <div class="term"><div class="th"><span class="t">promptfoo</span><span class="ttag">Pruebas IA</span></div><p>Framework para probar y evaluar respuestas de chatbots con casos de ataque definidos. Owliver fuerza su evaluador a Claude y lo usa solo como fallback.</p></div>
+        <div class="term"><div class="th"><span class="t">LLM-juez (juez-IA)</span><span class="ttag">Evaluador</span></div><p>Un modelo Claude con una rúbrica fija por técnica que decide si el chatbot "cayó": devuelve si fue comprometido, la severidad y el motivo. Saca el juicio de la mano del azar.</p></div>
+        <div class="term"><div class="th"><span class="t">canary</span><span class="ttag">Evidencia</span></div><p>Un token secreto único que se planta en una prueba. Si aparece en la respuesta del chatbot, hay fuga: se detecta por regex y da confianza "alta" — la evidencia incontestable del demo.</p></div>
+        <div class="term"><div class="th"><span class="t">Crescendo / multi-turno</span><span class="ttag">Técnica</span></div><p>Ataque que no va de frente, sino que escala poco a poco en varios turnos de conversación hasta que el chatbot se sale de su rol. Es la batería del nivel avanzado.</p></div>
+        <div class="term"><div class="th"><span class="t">Fingerprint de chatbot</span><span class="ttag">Detección</span></div><p>Reconocer un asistente de IA por su "huella" en el HTML —los scripts y dominios de su proveedor (Intercom, Drift, Zendesk…)— antes de probarlo.</p></div>
+        <div class="term"><div class="th"><span class="t">Vendor (proveedor)</span><span class="ttag">Detección</span></div><p>La empresa del widget de chat embebido (Intercom, Drift, Zendesk, Tidio, Crisp…). Owliver mantiene una tabla de huellas de los más comunes.</p></div>
       </div>
     </div>
 
-    <!-- Concepts -->
+    <!-- AI risks -->
     <div class="glossary-group reveal">
-      <h3><svg class="ic"><use href="#ic-book"/></svg> Conceptos clave</h3>
+      <h3><svg class="ic"><use href="#ic-warn"/></svg> Riesgos de IA (OWASP-LLM)</h3>
+      <div class="glossary-grid">
+        <div class="term"><div class="th"><span class="t">Prompt injection</span><span class="ttag">LLM01</span></div><p>Engañar a un chatbot con instrucciones ocultas para que ignore sus reglas. Puede ser directa (en el mensaje) o indirecta (escondida en una web o documento que el bot lee). Es el riesgo número uno de IA.</p></div>
+        <div class="term"><div class="th"><span class="t">Inyección indirecta</span><span class="ttag">Riesgo IA</span></div><p>Variante donde el payload no lo escribe el atacante de frente, sino que se esconde en contenido que el bot procesará (una página, un correo, un archivo).</p></div>
+        <div class="term"><div class="th"><span class="t">Jailbreak</span><span class="ttag">Riesgo IA</span></div><p>Lograr que la IA haga algo que tiene prohibido, saliéndose de su dominio o de sus restricciones declaradas.</p></div>
+        <div class="term"><div class="th"><span class="t">System prompt</span><span class="ttag">LLM06</span></div><p>Las instrucciones secretas que definen cómo se comporta un chatbot (su rol y reglas). No deberían poder leerse; si se filtran, es una vulnerabilidad.</p></div>
+        <div class="term"><div class="th"><span class="t">Exfiltración / PII</span><span class="ttag">Riesgo IA</span></div><p>Lograr que el asistente revele datos sensibles —información personal, configuración interna o datos de otros usuarios— que no debería exponer.</p></div>
+        <div class="term"><div class="th"><span class="t">OWASP Top 10 for LLM</span><span class="ttag">Catálogo</span></div><p>El catálogo de referencia de riesgos de aplicaciones con IA (LLM01–LLM10). Owliver clasifica cada hallazgo agéntico con estos códigos, igual que el Top 10 web.</p></div>
+      </div>
+    </div>
+
+    <!-- Security & result concepts -->
+    <div class="glossary-group reveal">
+      <h3><svg class="ic"><use href="#ic-book"/></svg> Conceptos de seguridad y resultado</h3>
       <div class="glossary-grid">
         <div class="term"><div class="th"><span class="t">Pentesting</span><span class="ttag">Concepto</span></div><p>"Prueba de penetración": simular un ataque controlado y autorizado para encontrar fallos antes que un atacante real.</p></div>
-        <div class="term"><div class="th"><span class="t">OWASP</span><span class="ttag">Concepto</span></div><p>Organización de referencia en seguridad web. Publica el "Top 10" de los riesgos más comunes, que Owliver usa para clasificar.</p></div>
-        <div class="term"><div class="th"><span class="t">CVE</span><span class="ttag">Concepto</span></div><p>Identificador estándar de una vulnerabilidad pública y conocida (por ejemplo, CVE-2024-1234). Permite saber si el sitio usa software con fallos.</p></div>
-        <div class="term"><div class="th"><span class="t">Prompt injection</span><span class="ttag">Riesgo IA</span></div><p>Engañar a un chatbot con instrucciones ocultas para que ignore sus reglas y haga lo que el atacante quiere.</p></div>
-        <div class="term"><div class="th"><span class="t">Jailbreak</span><span class="ttag">Riesgo IA</span></div><p>Lograr que la IA haga algo que tiene prohibido, saliéndose de su dominio o de sus restricciones declaradas.</p></div>
-        <div class="term"><div class="th"><span class="t">System prompt</span><span class="ttag">Riesgo IA</span></div><p>Las instrucciones secretas que definen cómo se comporta un chatbot. No deberían poder leerse; si se filtran, es una vulnerabilidad.</p></div>
+        <div class="term"><div class="th"><span class="t">OWASP</span><span class="ttag">Concepto</span></div><p>Organización de referencia en seguridad de aplicaciones. Su "Top 10" web (A01–A10) es el catálogo de los riesgos más comunes que Owliver usa para clasificar.</p></div>
+        <div class="term"><div class="th"><span class="t">Categoría OWASP (A01–A10)</span><span class="ttag">Clasificación</span></div><p>El código que dice de qué tipo es un hallazgo web (p. ej. A03 inyección, A05 mala configuración). Owliver lo asigna con una tabla curada, no con la IA.</p></div>
+        <div class="term"><div class="th"><span class="t">CVE</span><span class="ttag">Concepto</span></div><p>Identificador estándar de una vulnerabilidad pública y conocida (p. ej. CVE-2024-1234). Permite saber si el software del sitio tiene fallos documentados.</p></div>
+        <div class="term"><div class="th"><span class="t">CVSS</span><span class="ttag">Puntaje</span></div><p>La escala estándar de 0 a 10 que mide qué tan grave es una vulnerabilidad. Alimenta la severidad del hallazgo.</p></div>
+        <div class="term"><div class="th"><span class="t">Severidad</span><span class="ttag">Clasificación</span></div><p>Qué tan grave es un hallazgo: critical, high, medium, low o info. Pondera la nota; los "info" no restan puntos.</p></div>
+        <div class="term"><div class="th"><span class="t">Confianza / falso positivo</span><span class="ttag">Calidad</span></div><p>Qué tan seguro es un hallazgo (alta/media/baja). Reduce los "falsos positivos" —alarmas que no son un problema real—; los dudosos pesan menos en la nota.</p></div>
+        <div class="term"><div class="th"><span class="t">XSS</span><span class="ttag">Vulnerabilidad</span></div><p>"Cross-site scripting": inyectar código que se ejecuta en el navegador de otros visitantes del sitio.</p></div>
+        <div class="term"><div class="th"><span class="t">CORS</span><span class="ttag">Configuración</span></div><p>Las reglas que deciden qué otros sitios pueden pedir datos a una web. Mal configurado, filtra información a terceros.</p></div>
+        <div class="term"><div class="th"><span class="t">Clickjacking</span><span class="ttag">Vulnerabilidad</span></div><p>Engañar al usuario para que haga clic en algo distinto de lo que ve, superponiendo páginas invisibles.</p></div>
+        <div class="term"><div class="th"><span class="t">robots.txt</span><span class="ttag">Estándar</span></div><p>Archivo donde un sitio declara qué rutas no deben rastrearse. Owliver lo respeta antes de cualquier petición en modo pasivo.</p></div>
         <div class="term"><div class="th"><span class="t">Docker</span><span class="ttag">Concepto</span></div><p>"Cajas" aisladas donde corre cada herramienta, para que no interfieran entre sí ni con el sistema, y todo sea reproducible.</p></div>
         <div class="term"><div class="th"><span class="t">Pasivo vs. activo</span><span class="ttag">Concepto</span></div><p>Pasivo = solo observa sin tocar el sitio. Activo = envía tráfico y pruebas reales (requiere permiso explícito de quien lo pide).</p></div>
+        <div class="term"><div class="th"><span class="t">Grado A–F / doble score</span><span class="ttag">Resultado</span></div><p>La nota final estilo boletín. Owliver da dos sub-notas (Web e IA) de 0 a 100 y las combina en un grado de A (mejor) a F (peor).</p></div>
       </div>
     </div>
   </div>
