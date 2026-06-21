@@ -93,7 +93,7 @@
     "connecting": "Connecting…",
     "verifying": "Verifying your session…",
     "redirecting": "Done, redirecting…",
-    "legal": "Owliver watches the security of the State and your AI — what no one else is measuring.",
+    "legal": "Owliver watches the security of your site and your AI — what no one else is measuring.",
     "back": "Back to home",
     "errors": {
       "title": "We couldn't sign you in",
@@ -176,7 +176,7 @@
     "title": "Create your organization",
     "description": "You're not part of any organization yet. Create one to get started — you'll be its owner.",
     "nameLabel": "Organization name",
-    "namePlaceholder": "e.g. Secretaría de Economía",
+    "namePlaceholder": "e.g. Acme Inc.",
     "countryLabel": "Country",
     "countryPlaceholder": "Select…",
     "submit": "Create organization",

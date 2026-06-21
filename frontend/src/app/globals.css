@@ -130,6 +130,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-owliver-sans);
   --font-display: var(--font-owliver-display);
+  --font-brand: var(--font-owliver-brand);
   --font-mono: var(--font-owliver-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -241,6 +242,9 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   --font-owliver-display: var(--font-alumni-sans), "Alumni Sans",
     "Albert Sans", ui-sans-serif, system-ui, sans-serif;
+  /* Brand wordmark ("Owliver" lockup) — Poppins, rounded geometric. */
+  --font-owliver-brand: var(--font-poppins), "Poppins", var(--font-owliver-sans),
+    ui-sans-serif, system-ui, sans-serif;
   --font-owliver-mono: var(--font-roboto-mono), "Roboto Mono", SFMono-Regular,
     Menlo, Monaco, ui-monospace, monospace;
   --font-geist-sans: var(--font-owliver-sans);

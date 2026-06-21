@@ -1,3 +1,4 @@
+import base64
 import secrets
 from typing import Annotated, Any
 
@@ -50,7 +51,11 @@ class Settings(BaseSettings):
     JWT_ISSUER: str = "vnext"
 
     # Common
-    SECRET_KEY: str = secrets.token_urlsafe(32)
+    # Used as the Fernet key (get_fernet). Fernet requires *padded* 32-byte
+    # url-safe base64 — token_urlsafe(32) is unpadded and Fernet rejects it
+    # ("Incorrect padding"), so encode the bytes explicitly. Prod overrides
+    # this via env with a stable key (cursors don't survive key rotation).
+    SECRET_KEY: str = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode()
 
     # Database Configuration
     POSTGRES_HOST: str = "postgres"

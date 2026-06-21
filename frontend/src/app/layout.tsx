@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import "./globals.css";
-import { Albert_Sans, Alumni_Sans, Roboto_Mono } from "next/font/google";
+import { Albert_Sans, Alumni_Sans, Poppins, Roboto_Mono } from "next/font/google";
 import { SessionProvider } from "@/src/application/contexts/session";
 import { QueryProvider } from "@/src/application/providers/query-provider";
 
@@ -21,6 +21,13 @@ const alumniSans = Alumni_Sans({
 const robotoMono = Roboto_Mono({
   subsets: ["latin"],
   variable: "--font-roboto-mono",
+  display: "swap",
+});
+// Brand wordmark only (the "Owliver" lockup) — Poppins, rounded geometric, bold.
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  variable: "--font-poppins",
   display: "swap",
 });
 
@@ -97,7 +104,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${albertSans.variable} ${alumniSans.variable} ${robotoMono.variable}`}
+      className={`${albertSans.variable} ${alumniSans.variable} ${robotoMono.variable} ${poppins.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased font-sans">

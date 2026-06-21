@@ -93,7 +93,7 @@
     "connecting": "Conectando…",
     "verifying": "Verificando tu sesión…",
     "redirecting": "Listo, redirigiendo…",
-    "legal": "Owliver vigila la seguridad del Estado y de tu IA — lo que nadie más está midiendo.",
+    "legal": "Owliver vigila la seguridad de tu sitio y de tu IA — lo que nadie más está midiendo.",
     "back": "Volver al inicio",
     "errors": {
       "title": "No pudimos iniciar tu sesión",
@@ -176,7 +176,7 @@
     "title": "Crea tu organización",
     "description": "Todavía no perteneces a ninguna organización. Crea una para empezar — serás su propietario.",
     "nameLabel": "Nombre de la organización",
-    "namePlaceholder": "p. ej. Secretaría de Economía",
+    "namePlaceholder": "p. ej. Acme, S.A.",
     "countryLabel": "País",
     "countryPlaceholder": "Elegir…",
     "submit": "Crear organización",

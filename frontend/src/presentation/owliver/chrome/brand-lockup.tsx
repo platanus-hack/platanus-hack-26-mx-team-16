@@ -27,12 +27,12 @@ export type BrandLockupProps = {
 
 const MARK_SIZE: Record<NonNullable<BrandLockupProps["size"]>, number> = {
   sm: 28,
-  md: 34,
+  md: 40,
   lg: 44,
 };
 const TEXT_SIZE: Record<NonNullable<BrandLockupProps["size"]>, string> = {
   sm: "text-base",
-  md: "text-lg",
+  md: "text-xl",
   lg: "text-2xl",
 };
 
@@ -56,11 +56,12 @@ export function BrandLockup({
       {!markOnly && (
         <span
           className={cn(
-            "font-display font-semibold uppercase tracking-[0.15em] text-primary",
+            "font-brand font-bold tracking-tight",
             TEXT_SIZE[size]
           )}
         >
-          Owliver
+          <span className="text-primary">Owl</span>
+          <span className="text-foreground">iver</span>
         </span>
       )}
     </span>

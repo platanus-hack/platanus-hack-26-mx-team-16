@@ -58,6 +58,9 @@ jobs:
         working-directory: backend
     env:
       ENVIRONMENT: testing
+      # Throwaway Fernet key for tests only (must be 32 url-safe base64 bytes).
+      # NOT a real secret — prod injects SECRET_KEY from the deploy environment.
+      SECRET_KEY: b3dsaXZlci1jaS10ZXN0aW5nLXNlY3JldC1rZXkhISE=
       POSTGRES_HOST: localhost
       POSTGRES_PORT: "5432"
       POSTGRES_USER: postgres
@@ -115,6 +118,9 @@ jobs:
         working-directory: backend
     env:
       ENVIRONMENT: testing
+      # Throwaway Fernet key — alembic imports modules that build the Fernet at
+      # import time. NOT a real secret; prod injects SECRET_KEY at deploy.
+      SECRET_KEY: b3dsaXZlci1jaS10ZXN0aW5nLXNlY3JldC1rZXkhISE=
       POSTGRES_HOST: localhost
       POSTGRES_PORT: "5432"
       POSTGRES_USER: postgres
