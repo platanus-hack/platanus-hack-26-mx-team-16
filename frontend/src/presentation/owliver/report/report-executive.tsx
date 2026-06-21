@@ -87,7 +87,7 @@ export function ReportExecutive({
 
       {/* Status badges */}
       <CoverageBadges
-        agenticStatus={scan.agenticStatus}
+        agenticStatus={scan.agenticStatus ?? "no_surface"}
         partialCoverage={scan.partialCoverage}
       />
 

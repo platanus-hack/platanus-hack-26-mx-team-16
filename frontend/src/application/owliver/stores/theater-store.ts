@@ -221,9 +221,9 @@ export const useTheaterStore = create<TheaterState>((set, get) => ({
 
         case "score": {
           const p = event.payload as ScoreEventPayload;
-          if (typeof p.webScore === "number") next.webScore = p.webScore;
-          if (typeof p.agenticScore === "number")
-            next.agenticScore = p.agenticScore;
+          if (typeof p.web_score === "number") next.webScore = p.web_score;
+          if (typeof p.agentic_score === "number")
+            next.agenticScore = p.agentic_score;
           break;
         }
 

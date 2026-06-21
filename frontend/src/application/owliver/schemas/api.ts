@@ -165,13 +165,18 @@ export const scanSchema = z.object({
   agenticGrade: gradeSchema.nullable().optional(),
   /** Raw web penalty (unclamped — leaderboard tiebreak). */
   penaltyRaw: z.number().nullable().optional(),
-  agenticStatus: agenticStatusSchema,
-  /** `{ nuclei: 'done', zap: 'running' }`. */
-  toolsStatus: z.record(z.string(), toolStatusSchema).default({}),
-  /** Per-tool coverage `[{ tool, status }]` (the backend emits a list). */
+  /** Null on a freshly-queued scan (the agentic phase hasn't run yet). */
+  agenticStatus: agenticStatusSchema.nullable().optional(),
+  /** `{ nuclei: 'done', zap: 'running' }`. `null` on a freshly-queued scan. */
+  toolsStatus: z
+    .record(z.string(), toolStatusSchema)
+    .nullish()
+    .transform((v) => v ?? {}),
+  /** Per-tool coverage `[{ tool, status }]` (list; `null` until tools run). */
   coverage: z
     .array(z.object({ tool: z.string(), status: toolStatusSchema }))
-    .default([]),
+    .nullish()
+    .transform((v) => v ?? []),
   /** True when status=partial → grade capped at C. */
   partialCoverage: z.boolean().default(false),
   error: z.string().nullable().optional(),

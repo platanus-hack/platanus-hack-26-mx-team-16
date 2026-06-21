@@ -35,7 +35,10 @@ export const agentLaneSchema = z.enum(["owasp", "agentic"]);
 export type AgentLaneId = z.infer<typeof agentLaneSchema>;
 
 export const scanEventSchema = z.object({
-  scanId: z.string(),
+  // The SSE wire mirrors the FROZEN backend `events.py` model verbatim (no
+  // presenter on this path), so this field is snake_case `scan_id` — unlike the
+  // camelCased REST DTOs. Consumers key off `seq`, never this id.
+  scan_id: z.string(),
   /** monotonic per scan — single source of order. */
   seq: z.number(),
   ts: z.string(),
@@ -49,7 +52,7 @@ export const scanEventSchema = z.object({
   /**
    * Type-dependent extras:
    * - finding   → the embedded Finding fields (category, title, source, …).
-   * - score     → `{ webScore, agenticScore }`.
+   * - score     → `{ web_score, agentic_score }` (snake — raw wire, no presenter).
    * - tool_end  → `{ status: 'ok'|'failed'|'timeout' }`.
    * - done      → `{ outcome: 'success'|'cancelled' }`.
    */
@@ -60,7 +63,7 @@ export const scanEventSchema = z.object({
 export type ScanEvent = z.infer<typeof scanEventSchema>;
 
 /** Narrowed payload accessors (the payload is intentionally loose). */
-export type ScoreEventPayload = { webScore?: number; agenticScore?: number };
+export type ScoreEventPayload = { web_score?: number; agentic_score?: number };
 export type ToolEndPayload = { status?: "ok" | "failed" | "timeout" };
 export type DoneEventPayload = { outcome?: "success" | "cancelled" };
 export type FindingEventPayload = {

@@ -104,7 +104,7 @@ export function Footer({ className }: FooterProps) {
 
         <div className="mt-10 flex flex-col gap-3 border-t border-outline-variant pt-5 text-xs text-on-surface-variant sm:flex-row sm:items-center sm:justify-between">
           <p className="inline-flex items-center gap-1.5">
-            <OwlMark className="size-4 text-primary" /> Owliver por Llamitai ·{" "}
+            <OwlMark className="size-4 text-primary" /> Owliver ·{" "}
             {new Date().getFullYear()}
           </p>
           <p>Equivalente pasivo a Observatory / SSL Labs / Shodan.</p>

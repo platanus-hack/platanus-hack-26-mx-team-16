@@ -91,12 +91,15 @@ def _build_prompt(compact_summary: dict[str, Any], score: ScoreResult) -> str:
     return (
         "Eres Owliver, un asistente de ciberseguridad que explica en español "
         "llano. Con base en este resumen de un pentest (ya deduplicado y "
-        "puntuado en Python), redacta:\n"
-        "1) 'narrative': un párrafo claro para una persona no técnica que "
-        "explique el estado de seguridad del sitio.\n"
-        "2) 'top_risks': los 3 riesgos más importantes (title, severity, "
-        "why_it_matters en lenguaje de negocio).\n"
-        "NO inventes hallazgos ni cambies la calificación.\n\n"
+        "puntuado en Python), responde ÚNICAMENTE con un objeto JSON válido (sin "
+        "texto fuera del JSON y sin bloques de código markdown) con esta forma "
+        "exacta:\n"
+        '{"narrative": "<un párrafo claro para una persona no técnica que '
+        'explique el estado de seguridad del sitio>", "top_risks": [{"title": '
+        '"...", "severity": "...", "why_it_matters": "<impacto en lenguaje de '
+        'negocio>"}]}\n'
+        "Incluye como máximo 3 elementos en top_risks. NO inventes hallazgos ni "
+        "cambies la calificación.\n\n"
         f"Calificación: {score.overall_grade} (score {score.overall_score}/100).\n"
         f"Resumen de hallazgos:\n{json.dumps(compact_summary, ensure_ascii=False)}"
     )
@@ -158,18 +161,66 @@ async def synthesize_summary(
         prompt = _build_prompt(compact_summary, score)
         result = await agent.arun(prompt)
         content = getattr(result, "content", result)
-        if isinstance(content, ExecutiveSummary):
-            return content
-        if isinstance(content, dict):
-            return ExecutiveSummary.model_validate(content)
-        if isinstance(content, str):
-            import json
-
-            return ExecutiveSummary.model_validate(json.loads(content))
-    except Exception:  # noqa: BLE001 - the report must never fail on the LLM (plan §10)
-        logger.warning("synthesize_summary.llm_error_falling_back")
+        return _coerce_summary(content, compact_summary, score)
+    except Exception as exc:  # noqa: BLE001 - the report must never fail on the LLM (plan §10)
+        logger.warning(f"synthesize_summary.llm_error_falling_back: {exc!r}")
 
     return _fallback_summary(compact_summary, score)
+
+
+def _coerce_summary(
+    content: Any, compact_summary: dict[str, Any], score: ScoreResult
+) -> ExecutiveSummary:
+    """Turn whatever the model returned into an :class:`ExecutiveSummary`.
+
+    Agno coerces to the schema only when the provider honors structured output.
+    Several OpenAI-compatible providers (e.g. MiniMax) ignore ``output_schema`` and
+    return prose or fenced JSON, so we parse leniently and, as a last resort, keep
+    the model's prose as the narrative with the risks grounded in the real findings
+    — never discarding a successful LLM response.
+    """
+    if isinstance(content, ExecutiveSummary):
+        return content
+    if isinstance(content, dict):
+        return ExecutiveSummary.model_validate(content)
+    if isinstance(content, str):
+        obj = _extract_json_object(content)
+        if obj is not None:
+            try:
+                return ExecutiveSummary.model_validate(obj)
+            except Exception:  # noqa: BLE001 - fall through to prose-as-narrative
+                pass
+        prose = content.strip()
+        if prose:
+            return ExecutiveSummary(
+                narrative=prose,
+                top_risks=_fallback_summary(compact_summary, score).top_risks,
+            )
+    return _fallback_summary(compact_summary, score)
+
+
+def _extract_json_object(text: str) -> dict[str, Any] | None:
+    """Best-effort: pull the first JSON object out of a model response that may be
+    wrapped in ```json fences or surrounded by prose. ``None`` if nothing parses."""
+    import json
+    import re
+
+    cleaned = text.strip()
+    fenced = re.match(r"^```(?:json)?\s*(.*?)\s*```$", cleaned, re.DOTALL)
+    if fenced:
+        cleaned = fenced.group(1).strip()
+    candidates = [cleaned]
+    start, end = cleaned.find("{"), cleaned.rfind("}")
+    if start != -1 and end > start:
+        candidates.append(cleaned[start : end + 1])
+    for candidate in candidates:
+        try:
+            obj = json.loads(candidate)
+        except (ValueError, TypeError):
+            continue
+        if isinstance(obj, dict):
+            return obj
+    return None
 
 
 def _build_agent(model: Any | None) -> Any:

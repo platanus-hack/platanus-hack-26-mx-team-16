@@ -10,10 +10,10 @@ import { SAT_SCAN_ID } from "./scan";
 
 let seq = 0;
 const t0 = Date.now();
-function ev(e: Omit<ScanEvent, "scanId" | "seq" | "ts">): ScanEvent {
+function ev(e: Omit<ScanEvent, "scan_id" | "seq" | "ts">): ScanEvent {
   seq += 1;
   return {
-    scanId: SAT_SCAN_ID,
+    scan_id: SAT_SCAN_ID,
     seq,
     ts: new Date(t0 + seq * 900).toISOString(),
     ...e,
@@ -34,7 +34,7 @@ export const scanEventsFixture: ScanEvent[] = [
   ev({ type: "phase", message: "Analizando configuración TLS…", progress: 22, payload: {} }),
   ev({ type: "tool_end", agent: "owasp", tool: "testssl", message: "testssl: TLS 1.0/1.1 habilitado", severity: "high", payload: { status: "ok" } }),
   ev({ type: "finding", agent: "owasp", severity: "high", message: "Suites de cifrado débiles (TLS 1.0/1.1)", payload: { id: "f-tls-weak", source: "owasp", category: "A02", title: "Suites de cifrado débiles (TLS 1.0/1.1)" } }),
-  ev({ type: "score", agent: "owasp", message: "Score web parcial", payload: { webScore: 64 } }),
+  ev({ type: "score", agent: "owasp", message: "Score web parcial", payload: { web_score: 64 } }),
   ev({ type: "tool_start", agent: "owasp", tool: "zap", message: "zap: escaneo pasivo", payload: {} }),
   ev({ type: "agent_status", agent: "agentic", message: "Detectando superficie agéntica…", payload: {} }),
   ev({ type: "phase", message: "Sondeando chatbot…", progress: 40, payload: {} }),
@@ -49,10 +49,10 @@ export const scanEventsFixture: ScanEvent[] = [
   ev({ type: "phase", message: "Verificando canario sembrado…", progress: 72, payload: {} }),
   ev({ type: "tool_end", agent: "agentic", tool: "promptfoo", message: "promptfoo: ¡canario filtrado!", severity: "critical", payload: { status: "ok" } }),
   ev({ type: "finding", agent: "agentic", severity: "critical", message: "Fuga de system-prompt del asistente (canary filtrado)", payload: { id: "f-agentic-leak", source: "agentic", category: "LLM01", title: "Fuga de system-prompt del asistente fiscal" } }),
-  ev({ type: "score", agent: "agentic", message: "Score agéntico parcial", payload: { agenticScore: 24 } }),
+  ev({ type: "score", agent: "agentic", message: "Score agéntico parcial", payload: { agentic_score: 24 } }),
   ev({ type: "tool_end", agent: "agentic", tool: "garak", message: "garak: jailbreak parcial", severity: "high", payload: { status: "ok" } }),
   ev({ type: "phase", message: "Consolidando resultados…", progress: 90, payload: {} }),
-  ev({ type: "score", message: "Scores finales", payload: { webScore: 72, agenticScore: 24 } }),
+  ev({ type: "score", message: "Scores finales", payload: { web_score: 72, agentic_score: 24 } }),
   ev({ type: "phase", message: "Generando reporte…", progress: 98, payload: {} }),
   ev({ type: "done", message: "Escaneo completo — grado E", progress: 100, payload: { outcome: "success" } }),
 ];

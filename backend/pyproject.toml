@@ -67,6 +67,16 @@ worker = [
     # Dockerfile.scanners); the API never launches a browser, so it is kept out of
     # the API image. Lazy-imported in src/scans/worker/agentic/bridge.py.
     "playwright>=1.49.0",
+    # LLM agent framework + provider SDK for the Agno Team (05-agent-team), the
+    # executive-summary synthesis (09) and the agentic LLM judge (03). Lazy-imported
+    # across src/scans/worker/{team,members,summary,models,agentic}. MiniMax / GLM /
+    # OpenAI / OpenRouter all speak the OpenAI-compatible API via agno's OpenAILike,
+    # so the `openai` SDK covers the providers configured in .env (MODEL_PROVIDER).
+    # Without these the worker silently falls back to the deterministic summary.
+    # Pinned to the latest stable as of 2026-06 (agno v2 API: Team/Agent/OpenAILike
+    # import paths verified against the worker's lazy imports).
+    "agno==2.6.18",
+    "openai==2.43.0",
 ]
 
 [tool.anyio]

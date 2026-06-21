@@ -74,7 +74,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev --group worker
 
 ENV PYTHONPATH=/app \
-    PROCESS_LABEL=worker
+    PROCESS_LABEL=workflow-worker
 
 # Prod/dev entrypoint: infisical-login then `infisical run -- saq …`. The remote
 # compose sets `command: /start`; local dev overrides `command:` to run saq.

@@ -148,7 +148,7 @@ export default async function SiteHistoryPage({
 
       <div className="mt-3">
         <CoverageBadges
-          agenticStatus={scan.agenticStatus}
+          agenticStatus={scan.agenticStatus ?? "no_surface"}
           partialCoverage={scan.partialCoverage}
         />
       </div>
