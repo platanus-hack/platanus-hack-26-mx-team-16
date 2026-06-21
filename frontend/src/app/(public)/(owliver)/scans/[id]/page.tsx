@@ -35,14 +35,15 @@ async function loadScan(
       return { scan: parseData(scanSchema, result.data) };
     } catch {
       // Contract drift → fall back to the demo scan so the theater still plays.
-      return { scan: scanFixture };
+      return { scan: findScanFixtureById(id) ?? scanFixture };
     }
   }
   // 404 = private scan / no permission → do not confirm existence.
   if (result.status === 404) return { notFound: true };
 
-  // Backend unreachable (no live worker in the demo) → fixture replay.
-  return { scan: scanFixture };
+  // Backend unreachable (no live worker in the demo) → seed the theater with the
+  // fixture that matches THIS id, so the row the user clicked is what they see.
+  return { scan: findScanFixtureById(id) ?? scanFixture };
 }
 
 export default async function TheaterPage({

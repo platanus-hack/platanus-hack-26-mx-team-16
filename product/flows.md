@@ -91,7 +91,7 @@ cadencia realista para que el theater corra completo en demo.
 
 | Ruta | Acceso | Pantalla |
 |---|---|---|
-| `/` | público | ranking (ranking `.gob.mx`) |
+| `/` | público | ranking de sitios `.gob.mx` |
 | `/scan` | público | Formulario de escaneo + attestation gate |
 | `/scans/[id]` | público* | Live pentest theater (SSE) |
 | `/scans/[id]/report` | público* | Reporte interactivo (ejecutivo + técnico) |

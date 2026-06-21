@@ -249,7 +249,7 @@ Feature: Landing de marketing "Cómo funciona"
     Then la pista del hero dice "Nivel básico: pasivo, anónimo y sin registro — listo en <90s."
 
   @negative
-  Scenario Outline: Host inválido bloquea la navegación
+  Scenario Outline: Host inválido bloquea la navegación y muestra error
     When escribo "<entrada>" en el campo de URL del hero
     And hago clic en "Auditar" del hero
     Then sigo en "/"
@@ -258,10 +258,19 @@ Feature: Landing de marketing "Cómo funciona"
 
     Examples:
       | entrada     |
-      |             |
       | localhost   |
       | sinpunto    |
       | 192.168.0.1 |
+
+  @negative
+  Scenario: Enviar el hero vacío no navega ni marca error
+    # El error sólo aparece con valor no vacío (value.trim().length > 0); con el campo
+    # vacío la pista conserva el texto por defecto y NO se marca aria-invalid.
+    When dejo el campo de URL del hero vacío
+    And hago clic en "Auditar" del hero
+    Then sigo en "/"
+    And la pista del hero conserva el texto por defecto "Nivel básico: pasivo, anónimo y sin registro — listo en <90s."
+    And el campo de URL NO tiene aria-invalid
 
   Scenario Outline: Otros CTA de la landing llevan a /scan
     When hago clic en "<cta>"
@@ -375,15 +384,18 @@ Feature: Iniciar un escaneo
 
   @negative
   Scenario Outline: Errores del backend mapeados a la UI
-    Given que el backend responde "<status>" al crear el scan
+    Given que el backend responde "<status>" con Retry-After "<retryAfter>" al crear el scan
     When envío un escaneo Básico válido
     Then veo la alerta "<copy>"
 
+    # El 429 depende de Retry-After: con segundos > 0 el copy interpola "<N>s.";
+    # sin cabecera (o 0) usa "…en un momento." Mockea el status para hacerlo determinista.
     Examples:
-      | status | copy                                                                |
-      | 429    | Demasiados escaneos. Intenta de nuevo en un momento.                |
-      | 403    | No tienes permiso para escanear este dominio.                       |
-      | 422    | No pudimos validar la solicitud. Revisa la URL y la autorización.   |
+      | status | retryAfter | copy                                                                |
+      | 429    | (ninguno)  | Demasiados escaneos. Intenta de nuevo en un momento.                |
+      | 429    | 30         | Demasiados escaneos. Intenta de nuevo en 30s.                       |
+      | 403    | —          | No tienes permiso para escanear este dominio.                       |
+      | 422    | —          | No pudimos validar la solicitud. Revisa la URL y la autorización.   |
 ```
 
 **Selectores (Playwright)**
@@ -621,7 +633,11 @@ Feature: Reporte de seguridad
     And veo una línea que termina en "· válido 7 días"
 
   Scenario: Exportar a PDF abre una pestaña nueva
-    Then el enlace "Exportar PDF" tiene como destino "/api/v1/scans/scan-tesoreria-0021/report.pdf"
+    # El href se arma con scan.scanId del PAYLOAD, no con el [id] de la URL. Offline el
+    # fixture del reporte resuelve siempre a "scan-fabrikam-demo-0001", así que NO
+    # aseveres el id literal: valida el patrón. (Igual aplica a "ver escaneo en vivo" y a
+    # "Ver histórico del sitio →", que usan scan.scanId / scan.siteId del payload.)
+    Then el enlace "Exportar PDF" apunta a una URL que coincide con "^/api/v1/scans/.+/report\.pdf$"
     And el enlace abre en una pestaña nueva (target=_blank)
 
   @redaction
@@ -1029,11 +1045,17 @@ Feature: Autenticación y sesión
       | caducada         | Esta invitación caducó          |
       | inexistente      | Enlace no válido                |
 
-  Scenario: Cerrar sesión
-    Given que tengo una sesión válida
-    When abro el menú de usuario
-    And hago clic en "Cerrar sesión"
+  Scenario: Cerrar sesión desde "Sin organización"
+    Given que tengo sesión pero sin tenant
+    And que estoy en "/unassigned"
+    When hago clic en "Usar otra cuenta"
     Then soy redirigido a "/login"
+
+  Scenario: Cerrar sesión desde la pantalla 403
+    Given que tengo una sesión sin el permiso requerido
+    And que estoy en "/forbidden"
+    When hago clic en "Salir"
+    Then la URL es "/"
 ```
 
 **Selectores (Playwright)**
@@ -1052,13 +1074,20 @@ Feature: Autenticación y sesión
 | Reset confirm: submit | `getByRole('button', { name: 'Restablecer contraseña' })` |
 | Reset confirm: éxito | `getByRole('heading', { name: 'Contraseña actualizada' })` |
 | Invitación: aceptar | `getByRole('button', { name: 'Aceptar invitación' })` (o `'Unirme al tenant'`) |
-| Menú usuario / Cerrar sesión | `getByRole('menuitem', { name: 'Cerrar sesión' })` |
+| Logout (/unassigned) | `getByRole('button', { name: 'Usar otra cuenta' })` → `/login` |
+| Logout (/forbidden) | `getByRole('button', { name: 'Salir' })` → `/` |
 
 **Notas:** inputs con `id`+`htmlFor` estables → `getByLabel` funciona. Copy vía
 next-intl (es/en) — fija el locale o asevera por role/estructura si te preocupa la
 flakiness. El éxito del login pasa `accessToken: ""` al store, así que
 `isAuthenticated()` de cliente es brevemente `false` hasta que un layout protegido
 refresca; **no** uses el store de cliente para aseverar sesión, usa el comportamiento.
+
+**Logout:** NO hay un menuitem "Cerrar sesión" alcanzable — `NavUser` / `AppSidebar` /
+`AppShell` existen pero **no se montan** en ningún layout/página de Owliver (código
+muerto), y su handler iría a "/" (no a "/login"). Los únicos controles de logout
+alcanzables son "Usar otra cuenta" en `/unassigned` (→ `/login`) y "Salir" en
+`/forbidden` (→ `/`).
 
 ---
 

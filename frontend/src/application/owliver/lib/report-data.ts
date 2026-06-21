@@ -13,8 +13,8 @@ import {
   type Report,
 } from "@/src/application/owliver/schemas/api";
 import {
+  buildReportFixtureFor,
   publicReportFixture,
-  reportFixture,
 } from "@/src/application/owliver/fixtures";
 import { parseData } from "@/src/application/owliver/lib/envelope";
 import { backendGet } from "@/src/application/owliver/lib/bff";
@@ -28,7 +28,9 @@ export async function fetchReport(scanId: string): Promise<Report | null> {
   if (result.status === 404) {
     return null;
   }
-  return reportFixture;
+  // Backend unreachable → serve the report that matches THIS id (the row the user
+  // clicked), not a single stand-in fixture.
+  return buildReportFixtureFor(scanId);
 }
 
 export type PublicReportResult =

@@ -6,7 +6,7 @@ Owliver 🦉 (by Llamitai) is an **AI-orchestrated automated pentesting platform
 
 **`product/spec.md` is the authoritative product overview + index** — vision, decisiones cerradas, plan de 20h, riesgos y demo. The per-feature detail (agent/worker design with the Agno Team — Opus orchestrator + 2 Sonnet subagents —, scanner engine with Nuclei / ZAP / testssl / garak / promptfoo / hexstrike in Docker, data model, scoring, agentic surface, API and frontend) lives in the **13 numbered feature specs under `product/features/`** (index in `product/spec.md` and `product/features/README.md`). Read the relevant feature's `spec.md` before working on any pentest-engine feature.
 
-The current codebase provides the **SaaS foundation** Owliver is built on: authentication, users, tenants, roles/permissions, invitations and a generic asynchronous background-job mechanism (SAQ). The pentest engine (worker, scanners, scoring, gov ranking) is specified across `product/features/` (overview in `product/spec.md`) and built on top of this base.
+On top of the **SaaS foundation** (auth, users, tenants, roles/permissions, invitations, generic SAQ job queue), the **pentest engine is now implemented**: the Agno worker, scanner execution engine, scoring, gov ranking and watchlist monitoring (backend modules `scans` / `sites` / `scanning` — see Backend Architecture). The `product/features/` specs remain the authoritative per-feature design.
 
 ## Design Context
 
@@ -53,6 +53,7 @@ owliver/
     features/     # Una carpeta por feature: spec.md (QUÉ) + plan.md (CÓMO)
                   #   01-13 = motor de pentest; auth/tenants/... = boilerplate
     _archive/     # Insumos históricos ya fusionados
+  docs/           # Standalone HTML explainers (escaneo, modelo de datos, infra, legal, reporte) — `just serve-docs`
   justfile        # Development commands
 ```
 
@@ -60,9 +61,14 @@ owliver/
 
 Clean Architecture with DDD. Each module follows: `domain/ → application/ → infrastructure/ → presentation/`
 
-**Modules (SaaS foundation):** auth, users, profile, tenants, common, messaging, assets, admin
+**Modules — SaaS foundation:** auth, users, profile, tenants, common, messaging, assets, admin
 
-> Owliver's pentest modules (scans, findings, agentic_surface, watchlist, alerts, public_reports, scan_events) and the Agno worker are specified across `product/features/` (notably `06-data-model`, `05-agent-team`, `03-agentic-surface`, `07-scoring`, `08-ranking-watchlists`, `10-realtime-live-view`) and not yet implemented in this codebase.
+**Modules — Owliver pentest engine (implemented):**
+- `scans` — scans/findings/agentic_surface/scan_events (DDD) + the **Agno worker** in `src/scans/worker/`: Team (`team.py`, `members.py`, `flow.py`), OWASP+agentic `tools/`, deterministic `parsers/` (nuclei, zap, testssl, security_headers, owasp_map), agentic detection/bridge/LLM-judge under `agentic/`. HTTP: `scans_router` + public `report_router` (`/v1/r/{token}`).
+- `sites` — sites (DDD) + the gov **`ranking_router`** and **`watchlist_router`** (monitoring/alerts).
+- `scanning` — scanner **execution engine** (04): `runner`/`registry`/`resolver` (DooD dispatch + level/gov whitelist), `robots`, `egress`, `watchdog` (global budget), `health` (hexstrike flag + healthcheck), `evidence` (static `/static/scans`).
+
+> Per-feature behaviour/design still lives in `product/features/` (esp. `06-data-model`, `05-agent-team`, `03-agentic-surface`, `07-scoring`, `08-ranking-watchlists`, `10-realtime-live-view`) — read it before changing engine code.
 
 ### Key Patterns
 - **Use cases** are dataclasses implementing `UseCase` with an `execute()` method
@@ -88,8 +94,8 @@ just build-prod               # Build production images
 ```
 
 ### Backend Entry Points
-- API: `backend/config/main.py` → port 8200
-- Worker: SAQ worker via `backend/config/tasks.py`
+- API: `backend/config/main.py` → port 8200; routers wired in `config/router.py` (auth/tenants + scans, public-report `/r`, sites, ranking, watchlist). Evidence served at `/static/scans`.
+- Worker: SAQ worker via `backend/config/tasks.py`, incl. the gov/watchlist monitoring cron (`MonitorCronHandler`).
 - CLI: `backend/command.py` (fixtures load/dump)
 
 ### Database
@@ -109,6 +115,7 @@ just build-prod               # Build production images
 - `src/application/` — stores (zustand), hooks, lib
 - `src/domain/` — entities, repositories, responses
 - `src/infrastructure/` — HTTP-backed repositories (`infrastructure/repositories/http-*`)
+- **Owliver UI:** route groups `src/app/(public)/(owliver)/` (ranking `/`, `scan`, `scans/[id]` live theater, `scans/[id]/report`, `sites/[id]`, public `r/[token]`) and `(protected)/(owliver)/watchlist`; BFF under `src/app/api/owliver/**`. Views/components in `src/presentation/owliver/` (leaderboard, scan, theater, report, site, watchlist, settings, chrome).
 
 ### MANDATORY: Client → Backend must go through a Next.js BFF route
 
