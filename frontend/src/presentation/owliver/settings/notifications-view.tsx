@@ -141,7 +141,7 @@ export function NotificationsView() {
                 type="url"
                 inputMode="url"
                 value={slackUrl}
-                onChange={(e) => setSlackUrl(e.target.value)}
+                onValueChange={setSlackUrl}
                 placeholder="https://hooks.slack.com/services/…"
                 className="font-mono text-sm"
               />

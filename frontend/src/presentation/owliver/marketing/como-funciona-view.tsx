@@ -362,11 +362,6 @@ function GradeRail() {
             delay={i * 60}
             className="relative flex min-h-34 flex-col items-center justify-between overflow-hidden rounded-2xl bg-card px-3 py-4 text-center"
           >
-            <span
-              aria-hidden
-              className="absolute inset-x-3 top-0 h-1 rounded-b-full"
-              style={{ backgroundColor: `var(--grade-${grade.toLowerCase()})` }}
-            />
             <GradeBadge grade={grade} size="lg" />
             <span className="font-mono text-xs text-outline">{range}</span>
           </Reveal>

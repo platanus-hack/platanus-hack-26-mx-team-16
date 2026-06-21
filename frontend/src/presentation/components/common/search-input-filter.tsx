@@ -21,7 +21,7 @@ export function SearchInputFilter({
       <Input
         placeholder={placeholder}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onValueChange={onChange}
         className="w-[200px] lg:w-[250px] pl-8 text-xs sm:text-sm"
       />
     </div>

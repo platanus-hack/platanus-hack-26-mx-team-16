@@ -88,7 +88,7 @@ export default function RegisterPage() {
                 type="text"
                 placeholder={t("namePlaceholder")}
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onValueChange={setName}
                 aria-invalid={!!errors.name}
                 className="pl-10"
               />
@@ -109,7 +109,7 @@ export default function RegisterPage() {
                 type="email"
                 placeholder={t("emailPlaceholder")}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onValueChange={setEmail}
                 aria-invalid={!!errors.email}
                 className="pl-10"
               />
@@ -130,7 +130,7 @@ export default function RegisterPage() {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onValueChange={setPassword}
                 aria-invalid={!!errors.password}
                 className="pl-10"
               />
@@ -151,7 +151,7 @@ export default function RegisterPage() {
                 type="password"
                 placeholder="••••••••"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onValueChange={setConfirmPassword}
                 aria-invalid={!!errors.confirmPassword}
                 className="pl-10"
               />

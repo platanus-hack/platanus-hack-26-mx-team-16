@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { PERMISSIONS_CATALOG } from "@/src/domain/constants/permissions-catalog";
 import { Button } from "@/src/presentation/components/ui/button";
 import { Checkbox } from "@/src/presentation/components/ui/checkbox";
@@ -29,11 +29,12 @@ export function PermissionSelector({
   onConfirm,
 }: PermissionSelectorProps) {
   const [search, setSearch] = useState("");
+  const deferredSearch = useDeferredValue(search);
   const [localSelected, setLocalSelected] = useState<string[]>(selected);
 
   const filteredCatalog = useMemo(() => {
-    if (!search.trim()) return PERMISSIONS_CATALOG;
-    const term = search.toLowerCase();
+    if (!deferredSearch.trim()) return PERMISSIONS_CATALOG;
+    const term = deferredSearch.toLowerCase();
     return PERMISSIONS_CATALOG.map((cat) => ({
       ...cat,
       permissions: cat.permissions.filter(
@@ -42,7 +43,7 @@ export function PermissionSelector({
           p.code.toLowerCase().includes(term)
       ),
     })).filter((cat) => cat.permissions.length > 0);
-  }, [search]);
+  }, [deferredSearch]);
 
   const handleTogglePermission = (code: string) => {
     setLocalSelected((prev) =>
@@ -109,7 +110,7 @@ export function PermissionSelector({
           <Input
             placeholder="Buscar permisos..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onValueChange={setSearch}
             className="pl-9"
           />
         </div>

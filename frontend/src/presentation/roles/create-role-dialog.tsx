@@ -92,7 +92,7 @@ export function CreateRoleDialog({
                 id="role-name"
                 placeholder={t("namePlaceholder")}
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onValueChange={setName}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSubmit();
                 }}

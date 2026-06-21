@@ -109,7 +109,7 @@ export default function ResetPasswordTokenPage({
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onValueChange={setPassword}
                 aria-invalid={!!errors.password}
                 minLength={8}
                 className="pl-10"
@@ -131,7 +131,7 @@ export default function ResetPasswordTokenPage({
                 id="confirm"
                 type="password"
                 value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
+                onValueChange={setConfirm}
                 aria-invalid={!!errors.confirm}
                 minLength={8}
                 className="pl-10"

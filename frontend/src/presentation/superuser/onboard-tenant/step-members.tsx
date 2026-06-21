@@ -1,6 +1,8 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
+import { memo } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useOnboardTenantWizardStore } from "@/src/application/stores/onboard-tenant-wizard-store";
 import { Button } from "@/src/presentation/components/ui/button";
 import { Input } from "@/src/presentation/components/ui/input";
@@ -20,11 +22,12 @@ const ROLE_OPTIONS = [
 ] as const;
 
 export function StepMembers() {
-  const members = useOnboardTenantWizardStore((s) => s.members);
+  const memberIds = useOnboardTenantWizardStore(
+    useShallow((s) => s.members.map((m) => m.rowId))
+  );
+  const memberCount = useOnboardTenantWizardStore((s) => s.members.length);
   const skipEmail = useOnboardTenantWizardStore((s) => s.skipEmail);
   const addMember = useOnboardTenantWizardStore((s) => s.addMember);
-  const updateMember = useOnboardTenantWizardStore((s) => s.updateMember);
-  const removeMember = useOnboardTenantWizardStore((s) => s.removeMember);
   const setSkipEmail = useOnboardTenantWizardStore((s) => s.setSkipEmail);
 
   return (
@@ -53,49 +56,8 @@ export function StepMembers() {
       </div>
 
       <div className="space-y-2">
-        {members.map((m) => (
-          <div key={m.rowId} className="flex items-center gap-2">
-            <Input
-              type="email"
-              placeholder="alguien@empresa.com"
-              value={m.email}
-              onValueChange={(value) =>
-                updateMember(m.rowId, { email: value })
-              }
-              className="flex-1"
-            />
-            <Select
-              value={m.roleSlug}
-              onValueChange={(value) => {
-                if (value)
-                  updateMember(m.rowId, {
-                    roleSlug: value as "admin" | "member",
-                  });
-              }}
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ROLE_OPTIONS.map((role) => (
-                  <SelectItem key={role.slug} value={role.slug}>
-                    {role.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => removeMember(m.rowId)}
-              aria-label="Eliminar miembro"
-              disabled={members.length <= 1}
-              className="text-muted-foreground hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+        {memberIds.map((rowId) => (
+          <MemberRow key={rowId} rowId={rowId} memberCount={memberCount} />
         ))}
         <Button
           type="button"
@@ -111,3 +73,63 @@ export function StepMembers() {
     </div>
   );
 }
+
+const MemberRow = memo(function MemberRow({
+  rowId,
+  memberCount,
+}: {
+  rowId: string;
+  memberCount: number;
+}) {
+  const member = useOnboardTenantWizardStore((s) =>
+    s.members.find((m) => m.rowId === rowId)
+  );
+  const updateMember = useOnboardTenantWizardStore((s) => s.updateMember);
+  const removeMember = useOnboardTenantWizardStore((s) => s.removeMember);
+
+  if (!member) return null;
+
+  return (
+    <div className="flex items-center gap-2">
+      <Input
+        type="email"
+        placeholder="alguien@empresa.com"
+        value={member.email}
+        onValueChange={(value) => updateMember(rowId, { email: value })}
+        className="flex-1"
+      />
+      <Select
+        value={member.roleSlug}
+        onValueChange={(value) => {
+          if (value) {
+            updateMember(rowId, {
+              roleSlug: value as "admin" | "member",
+            });
+          }
+        }}
+      >
+        <SelectTrigger className="w-32">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {ROLE_OPTIONS.map((role) => (
+            <SelectItem key={role.slug} value={role.slug}>
+              {role.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        onClick={() => removeMember(rowId)}
+        aria-label="Eliminar miembro"
+        disabled={memberCount <= 1}
+        className="text-muted-foreground hover:text-destructive"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+});

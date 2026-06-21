@@ -76,7 +76,7 @@ export default function ResetPasswordPage() {
                     type="email"
                     placeholder={t("emailPlaceholder")}
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onValueChange={setEmail}
                     aria-invalid={!!errors.email}
                     className="pl-10"
                   />

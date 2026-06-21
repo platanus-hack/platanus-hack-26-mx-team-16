@@ -36,12 +36,16 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function OnboardTenantWizard() {
   const open = useOnboardTenantWizardStore((s) => s.open);
   const step = useOnboardTenantWizardStore((s) => s.step);
-  const name = useOnboardTenantWizardStore((s) => s.name);
-  const countryCode = useOnboardTenantWizardStore((s) => s.countryCode);
-  const currencyCode = useOnboardTenantWizardStore((s) => s.currencyCode);
-  const timeZone = useOnboardTenantWizardStore((s) => s.timeZone);
-  const members = useOnboardTenantWizardStore((s) => s.members);
-  const skipEmail = useOnboardTenantWizardStore((s) => s.skipEmail);
+  const infoValid = useOnboardTenantWizardStore(
+    (s) =>
+      s.name.trim().length > 0 &&
+      s.countryCode.length > 0 &&
+      s.currencyCode.length > 0 &&
+      s.timeZone.length > 0
+  );
+  const membersValid = useOnboardTenantWizardStore((s) =>
+    s.members.every((m) => EMAIL_RE.test(m.email.trim()))
+  );
   const isSubmitting = useOnboardTenantWizardStore((s) => s.isSubmitting);
   const error = useOnboardTenantWizardStore((s) => s.error);
   const setStep = useOnboardTenantWizardStore((s) => s.setStep);
@@ -53,14 +57,6 @@ export function OnboardTenantWizard() {
   const [isPending, startTransition] = useTransition();
 
   const currentIndex = stepIndex(step);
-
-  const infoValid =
-    name.trim().length > 0 &&
-    countryCode.length > 0 &&
-    currencyCode.length > 0 &&
-    timeZone.length > 0;
-  const validEmails = members.filter((m) => EMAIL_RE.test(m.email.trim()));
-  const membersValid = validEmails.length === members.length;
 
   const canProceed =
     step === "info" ? infoValid : step === "members" ? true : false;
@@ -85,6 +81,11 @@ export function OnboardTenantWizard() {
     beginSubmit();
     startTransition(async () => {
       try {
+        const { name, countryCode, members, skipEmail } =
+          useOnboardTenantWizardStore.getState();
+        const validEmails = members.filter((m) =>
+          EMAIL_RE.test(m.email.trim())
+        );
         const data = await onboardTenant({
           name: name.trim(),
           countryCode,

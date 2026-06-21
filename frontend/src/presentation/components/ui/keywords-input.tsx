@@ -71,7 +71,7 @@ export function KeywordsInput({
       )}
       <Input
         value={draft}
-        onChange={(e) => setDraft(e.target.value)}
+        onValueChange={setDraft}
         onKeyDown={handleKeyDown}
         onBlur={commitDraft}
         placeholder={placeholder}

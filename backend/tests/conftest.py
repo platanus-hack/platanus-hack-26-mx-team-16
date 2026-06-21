@@ -1,3 +1,4 @@
+import tempfile
 from uuid import UUID, uuid4
 
 import pytest
@@ -17,6 +18,14 @@ TEST_DB_NAME = "doxiq_test"
 # lazily, so mutating the singleton here is sufficient.
 settings.POSTGRES_DB = TEST_DB_NAME
 settings.ENVIRONMENT = Environment.testing
+
+# Scan evidence must never touch the real `/data/scans` volume during tests: in
+# CI pytest runs OUTSIDE the Docker container, where `/data` doesn't exist and
+# isn't writable (the worker-flow tests fail with PermissionError on mkdir).
+# `src.scanning.evidence` captures `settings.SCAN_DATA_DIR` into its module-level
+# `DATA_DIR` at import time, so this override must happen here — before that
+# module is first imported by any test — to redirect writes to a throwaway dir.
+settings.SCAN_DATA_DIR = tempfile.mkdtemp(prefix="owliver-test-scans-")
 
 from src.common.database.config import get_database_config  # noqa: E402
 from src.common.database.mixins.common import Base  # noqa: E402

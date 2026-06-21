@@ -4,7 +4,7 @@ import { AlertTriangle, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, Suspense, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 
 import { useSessionActions } from "@/src/application/contexts/session";
@@ -39,6 +39,18 @@ function errorKey(raw: string | null): "oauth" | "config" | "exchange" | null {
  * `(public)/login`, with its own centered card, like the boilerplate auth pages.
  */
 export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="grid min-h-screen place-items-center bg-background" />
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
+  );
+}
+
+function LoginPageContent() {
   const t = useTranslations("LoginOwliver");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -48,12 +60,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [connecting, setConnecting] = useState(false);
-  const [formError, setFormError] = useState<"credentials" | "fields" | "generic" | null>(null);
+  const [formError, setFormError] = useState<
+    "credentials" | "fields" | "generic" | null
+  >(null);
 
   // Preserve the intended destination (e.g. the active-scan form that bounced
   // here). Only same-site relative paths are forwarded.
   const rawNext = searchParams.get("next");
-  const next = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
+  const next =
+    rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//")
+      ? rawNext
+      : null;
 
   const startHref = next
     ? `/api/auth/google/start?next=${encodeURIComponent(next)}`
@@ -82,7 +99,9 @@ export default function LoginPage() {
       const result = await res.json().catch(() => null);
 
       if (!res.ok || !result || isErrorFeedback(result)) {
-        setFormError(res.status === 401 || res.status === 400 ? "credentials" : "generic");
+        setFormError(
+          res.status === 401 || res.status === 400 ? "credentials" : "generic"
+        );
         setSubmitting(false);
         return;
       }
@@ -143,7 +162,9 @@ export default function LoginPage() {
                 value={email}
                 onValueChange={(value) => setEmail(value)}
                 disabled={submitting}
-                aria-invalid={formError === "credentials" || formError === "fields"}
+                aria-invalid={
+                  formError === "credentials" || formError === "fields"
+                }
               />
             </div>
 
@@ -167,7 +188,9 @@ export default function LoginPage() {
                 value={password}
                 onValueChange={(value) => setPassword(value)}
                 disabled={submitting}
-                aria-invalid={formError === "credentials" || formError === "fields"}
+                aria-invalid={
+                  formError === "credentials" || formError === "fields"
+                }
               />
             </div>
 
@@ -185,7 +208,9 @@ export default function LoginPage() {
 
           <div className="flex w-full items-center gap-3">
             <span className="h-px flex-1 bg-border" />
-            <span className="text-xs text-muted-foreground">{t("orContinueWith")}</span>
+            <span className="text-xs text-muted-foreground">
+              {t("orContinueWith")}
+            </span>
             <span className="h-px flex-1 bg-border" />
           </div>
 

@@ -35,20 +35,18 @@ function GoogleGlyph({ className }: { className?: string }) {
 
 export function ProfileView() {
   const t = useTranslations("Profile");
-  const {
-    profile,
-    isLoading,
-    isSaving,
-    isChangingPassword,
-    saveError,
-    saveSuccess,
-    passwordError,
-    passwordSuccess,
-    loadProfile,
-    updateProfile,
-    updatePassword,
-    clearFeedback,
-  } = useProfileStore();
+  const profile = useProfileStore((s) => s.profile);
+  const isLoading = useProfileStore((s) => s.isLoading);
+  const isSaving = useProfileStore((s) => s.isSaving);
+  const isChangingPassword = useProfileStore((s) => s.isChangingPassword);
+  const saveError = useProfileStore((s) => s.saveError);
+  const saveSuccess = useProfileStore((s) => s.saveSuccess);
+  const passwordError = useProfileStore((s) => s.passwordError);
+  const passwordSuccess = useProfileStore((s) => s.passwordSuccess);
+  const loadProfile = useProfileStore((s) => s.loadProfile);
+  const updateProfile = useProfileStore((s) => s.updateProfile);
+  const updatePassword = useProfileStore((s) => s.updatePassword);
+  const clearFeedback = useProfileStore((s) => s.clearFeedback);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -59,7 +57,7 @@ export function ProfileView() {
 
   useEffect(() => {
     loadProfile();
-  }, []);
+  }, [loadProfile]);
 
   useEffect(() => {
     if (profile) {
@@ -158,7 +156,7 @@ export function ProfileView() {
             <Input
               id="firstName"
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onValueChange={setFirstName}
               placeholder={t("firstNamePlaceholder")}
             />
           </div>
@@ -167,7 +165,7 @@ export function ProfileView() {
             <Input
               id="lastName"
               value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              onValueChange={setLastName}
               placeholder={t("lastNamePlaceholder")}
             />
           </div>
@@ -219,7 +217,7 @@ export function ProfileView() {
                   id="currentPassword"
                   type="password"
                   value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  onValueChange={setCurrentPassword}
                   placeholder={t("currentPasswordPlaceholder")}
                   required
                 />
@@ -231,7 +229,7 @@ export function ProfileView() {
                   id="newPassword"
                   type="password"
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  onValueChange={setNewPassword}
                   placeholder={t("newPasswordPlaceholder")}
                   required
                 />
@@ -243,7 +241,7 @@ export function ProfileView() {
                   id="confirmPassword"
                   type="password"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onValueChange={setConfirmPassword}
                   placeholder={t("confirmPasswordPlaceholder")}
                   required
                 />

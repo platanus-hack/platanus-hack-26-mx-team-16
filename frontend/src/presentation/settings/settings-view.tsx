@@ -56,9 +56,7 @@ export function SettingsView() {
     }
   };
 
-  const handleAvatarChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) uploadAvatar.mutate(file);
   };
@@ -104,7 +102,7 @@ export function SettingsView() {
           <div className="w-48">
             <Input
               value={localName}
-              onChange={(e) => setLocalName(e.target.value)}
+              onValueChange={setLocalName}
               onBlur={handleNameBlur}
               placeholder={t("orgName.placeholder")}
             />

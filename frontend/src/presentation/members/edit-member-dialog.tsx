@@ -103,9 +103,7 @@ export function EditMemberDialog({
 
   const handlePhotoPick = () => fileInputRef.current?.click();
 
-  const handlePhotoChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
@@ -129,8 +127,7 @@ export function EditMemberDialog({
 
     if (trimmedFirst !== (member.firstName ?? ""))
       payload.firstName = trimmedFirst;
-    if (trimmedLast !== (member.lastName ?? ""))
-      payload.lastName = trimmedLast;
+    if (trimmedLast !== (member.lastName ?? "")) payload.lastName = trimmedLast;
     if (trimmedEmail !== (member.emailAddress?.email ?? ""))
       payload.email = trimmedEmail;
     if (
@@ -220,7 +217,7 @@ export function EditMemberDialog({
               <Input
                 id="edit-first-name"
                 value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                onValueChange={setFirstName}
                 autoFocus
               />
             </div>
@@ -229,7 +226,7 @@ export function EditMemberDialog({
               <Input
                 id="edit-last-name"
                 value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                onValueChange={setLastName}
               />
             </div>
           </div>
@@ -240,7 +237,7 @@ export function EditMemberDialog({
               id="edit-email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onValueChange={setEmail}
             />
           </div>
 

@@ -137,7 +137,7 @@ export function InviteUserDialog({
               type="email"
               placeholder={t("emailPlaceholder")}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onValueChange={setEmail}
               autoFocus
             />
             <p className="text-[11px] text-muted-foreground">

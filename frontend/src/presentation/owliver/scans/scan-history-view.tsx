@@ -13,7 +13,7 @@
 
 import { Radar, Search, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 
 import { cn } from "@/src/application/lib/utils";
 import type { ScanHistoryItem } from "@/src/application/owliver/fixtures";
@@ -58,7 +58,10 @@ function worstGrade(items: ScanHistoryItem[]): Grade | null {
   let worst: Grade | null = null;
   for (const it of items) {
     if (!it.overallGrade) continue;
-    if (!worst || GRADE_RANK.indexOf(it.overallGrade) > GRADE_RANK.indexOf(worst)) {
+    if (
+      !worst ||
+      GRADE_RANK.indexOf(it.overallGrade) > GRADE_RANK.indexOf(worst)
+    ) {
       worst = it.overallGrade;
     }
   }
@@ -119,6 +122,7 @@ function ReadoutStat({
 
 export function ScanHistoryView({ items }: { items: ScanHistoryItem[] }) {
   const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
   const [status, setStatus] = useState<StatusFilter>("all");
   const [sort, setSort] = useState<SortKey>("recent");
 
@@ -142,7 +146,7 @@ export function ScanHistoryView({ items }: { items: ScanHistoryItem[] }) {
   );
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
     const next = items.filter((i) => {
       if (!matchesStatus(i, status)) return false;
       if (!q) return true;
@@ -160,7 +164,7 @@ export function ScanHistoryView({ items }: { items: ScanHistoryItem[] }) {
       });
     }
     return [...next].sort((a, b) => referenceMs(b) - referenceMs(a));
-  }, [items, query, status, sort]);
+  }, [items, deferredQuery, status, sort]);
 
   const groups: Bucket[] =
     sort === "grade"
@@ -242,7 +246,7 @@ export function ScanHistoryView({ items }: { items: ScanHistoryItem[] }) {
               <Input
                 type="search"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onValueChange={setQuery}
                 placeholder="Buscar por dominio u organización…"
                 aria-label="Buscar escaneos"
                 className="pl-9"
@@ -384,7 +388,10 @@ export function ScanHistoryView({ items }: { items: ScanHistoryItem[] }) {
           </p>
           <Link
             href="/scan"
-            className={cn(buttonVariants({ variant: "default", size: "lg" }), "mt-6")}
+            className={cn(
+              buttonVariants({ variant: "default", size: "lg" }),
+              "mt-6"
+            )}
           >
             <Radar className="size-4" />
             Auditar mi primera URL

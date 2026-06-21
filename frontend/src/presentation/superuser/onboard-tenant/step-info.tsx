@@ -30,11 +30,43 @@ function sortPopularFirst<T extends { popular?: boolean; label: string }>(
 }
 
 export function StepInfo() {
+  return (
+    <div className="space-y-5">
+      <TenantNameField />
+      <TenantLocaleFields />
+    </div>
+  );
+}
+
+function TenantNameField() {
   const name = useOnboardTenantWizardStore((s) => s.name);
+  const setName = useOnboardTenantWizardStore((s) => s.setName);
+
+  const slugPreview = slugify(name) || "tenant";
+
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor="tenant-name" className="text-xs font-medium">
+        Nombre del cliente
+      </Label>
+      <Input
+        id="tenant-name"
+        placeholder="Acme Microcréditos"
+        value={name}
+        onValueChange={(v) => setName(v as string)}
+        autoFocus
+      />
+      <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+        slug: {slugPreview}
+      </p>
+    </div>
+  );
+}
+
+function TenantLocaleFields() {
   const countryCode = useOnboardTenantWizardStore((s) => s.countryCode);
   const currencyCode = useOnboardTenantWizardStore((s) => s.currencyCode);
   const timeZone = useOnboardTenantWizardStore((s) => s.timeZone);
-  const setName = useOnboardTenantWizardStore((s) => s.setName);
   const setCountryCode = useOnboardTenantWizardStore((s) => s.setCountryCode);
   const setCurrencyCode = useOnboardTenantWizardStore((s) => s.setCurrencyCode);
   const setTimeZone = useOnboardTenantWizardStore((s) => s.setTimeZone);
@@ -43,26 +75,8 @@ export function StepInfo() {
   const currencies = useMemo(() => sortPopularFirst(CURRENCIES), []);
   const timezones = useMemo(() => sortPopularFirst(TIMEZONES), []);
 
-  const slugPreview = slugify(name) || "tenant";
-
   return (
-    <div className="space-y-5">
-      <div className="space-y-1.5">
-        <Label htmlFor="tenant-name" className="text-xs font-medium">
-          Nombre del cliente
-        </Label>
-        <Input
-          id="tenant-name"
-          placeholder="Acme Microcréditos"
-          value={name}
-          onValueChange={(v) => setName(v as string)}
-          autoFocus
-        />
-        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-          slug: {slugPreview}
-        </p>
-      </div>
-
+    <>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label className="text-xs font-medium">País</Label>
@@ -126,6 +140,6 @@ export function StepInfo() {
           </SelectContent>
         </Select>
       </div>
-    </div>
+    </>
   );
 }

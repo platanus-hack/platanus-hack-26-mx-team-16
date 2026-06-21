@@ -3,7 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 import { useSessionActions } from "@/src/application/contexts/session";
 import { isErrorFeedback } from "@/src/domain/errors/error-feeback";
@@ -21,6 +21,18 @@ type Phase = "verifying" | "redirecting" | "error";
  * failure we bounce back to `/login?error=...` so the user can retry.
  */
 export default function GoogleCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="grid min-h-screen place-items-center bg-background" />
+      }
+    >
+      <GoogleCallbackContent />
+    </Suspense>
+  );
+}
+
+function GoogleCallbackContent() {
   const t = useTranslations("LoginOwliver");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -81,7 +93,9 @@ export default function GoogleCallbackPage() {
               <h1 className="text-xl font-semibold tracking-tight text-foreground">
                 {t("errors.title")}
               </h1>
-              <p className="text-sm text-muted-foreground">{t("errors.exchange")}</p>
+              <p className="text-sm text-muted-foreground">
+                {t("errors.exchange")}
+              </p>
             </div>
             <Button
               variant="default"

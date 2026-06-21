@@ -80,8 +80,11 @@ export function ApiKeysView() {
         <div className="space-y-1">
           <h2 className="text-3xl font-bold tracking-tight">API Keys</h2>
           <p className="text-sm text-muted-foreground">
-            Claves M2M para ingestar archivos y resolver tareas vía la API
-            (<code className="rounded bg-muted px-1 py-0.5 text-xs">X-Api-Key</code>).
+            Claves M2M para ingestar archivos y resolver tareas vía la API (
+            <code className="rounded bg-muted px-1 py-0.5 text-xs">
+              X-Api-Key
+            </code>
+            ).
           </p>
         </div>
         <ActionButton icon={<Plus />} onClick={() => setCreateOpen(true)}>
@@ -101,7 +104,8 @@ export function ApiKeysView() {
             <p className="px-6 py-8 text-sm text-muted-foreground">Cargando…</p>
           ) : !keys?.length ? (
             <p className="px-6 py-8 text-sm text-muted-foreground">
-              Aún no hay claves. Crea la primera para empezar a ingestar por API.
+              Aún no hay claves. Crea la primera para empezar a ingestar por
+              API.
             </p>
           ) : (
             <ul className="divide-y divide-border">
@@ -143,7 +147,8 @@ export function ApiKeysView() {
           <DialogHeader>
             <DialogTitle>Nueva API key</DialogTitle>
             <DialogDescription>
-              Dale un nombre para identificarla (p. ej. el sistema que la usará).
+              Dale un nombre para identificarla (p. ej. el sistema que la
+              usará).
             </DialogDescription>
           </DialogHeader>
           <DialogBody className="space-y-2">
@@ -152,9 +157,11 @@ export function ApiKeysView() {
               id="api-key-name"
               autoFocus
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onValueChange={setName}
               placeholder="Banco · ingesta circulares"
-              onKeyDown={(e) => e.key === "Enter" && name.trim() && handleMint()}
+              onKeyDown={(e) =>
+                e.key === "Enter" && name.trim() && handleMint()
+              }
             />
             {error && <p className="text-sm text-destructive">{error}</p>}
           </DialogBody>
@@ -187,7 +194,7 @@ export function ApiKeysView() {
           <DialogBody>
             <div
               className={cn(
-                "flex items-center gap-2 rounded-md border border-border bg-muted/40 p-3",
+                "flex items-center gap-2 rounded-md border border-border bg-muted/40 p-3"
               )}
             >
               <code className="min-w-0 flex-1 truncate font-mono text-sm">
