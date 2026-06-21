@@ -8,6 +8,7 @@ from src.tenants.presentation.endpoints.tenant_roles import (
 )
 from src.tenants.presentation.endpoints.tenant_roles_bootstrap import bootstrap_tenant_roles
 from src.tenants.presentation.endpoints.tenant_user import (
+    create_tenant_user,
     delete_tenant_user,
     get_tenant_user,
     update_tenant_user,
@@ -132,6 +133,12 @@ tenant_router.add_api_route(
     get_tenant_users,
     methods=["GET"],
     summary="Get Tenant Users",
+)
+tenant_router.add_api_route(
+    "/users",
+    create_tenant_user,
+    methods=["POST"],
+    summary="Create a Tenant User (member). `reuse=true` is idempotent.",
 )
 tenant_router.add_api_route(
     "/invitations",

@@ -1,9 +1,24 @@
 from fastapi import APIRouter, HTTPException
 
 from src.common.infrastructure.responses.api_json import ApiJSONResponse
+from src.common.presentation.endpoints.health import health, ready
 from src.common.settings import settings
 
 common_router = APIRouter()
+
+# Liveness/readiness — public, no auth (12-api §6).
+common_router.add_api_route(
+    "/health",
+    health,
+    methods=["GET"],
+    summary="Process liveness (public)",
+)
+common_router.add_api_route(
+    "/ready",
+    ready,
+    methods=["GET"],
+    summary="Readiness — Postgres + Redis connectivity (public)",
+)
 
 
 @common_router.get("/")

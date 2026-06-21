@@ -7,6 +7,15 @@ from src.common.infrastructure.services.jwt_token_builder import JwtTokenBuilder
 from src.common.infrastructure.services.jwt_token_service import JwtTokenService
 from src.common.infrastructure.services.redis_token_store import RedisTokenStore
 from src.common.settings import settings
+from src.scans.infrastructure.repositories.sql_finding import SQLFindingRepository
+from src.scans.infrastructure.repositories.sql_public_report import SQLPublicReportRepository
+from src.scans.infrastructure.repositories.sql_scan import SQLScanRepository
+from src.scans.infrastructure.repositories.sql_scan_event import SQLScanEventRepository
+from src.sites.infrastructure.repositories.sql_notification_prefs import (
+    SQLNotificationPrefsRepository,
+)
+from src.sites.infrastructure.repositories.sql_site import SQLSiteRepository
+from src.sites.infrastructure.repositories.sql_watchlist import SQLWatchlistRepository
 from src.tenants.infrastructure.repositories.sql_tenant import SQLTenantRepository
 from src.tenants.infrastructure.repositories.sql_tenant_role import SQLTenantRoleRepository
 from src.tenants.infrastructure.repositories.sql_tenant_user import SQLTenantUserRepository
@@ -36,4 +45,13 @@ def build_async_domain(session: AsyncSession) -> DomainContext:
         ),
         # -> ASSETS
         storage_service=S3StorageService(),
+        # -> SITES
+        site_repository=SQLSiteRepository(session=session),
+        watchlist_repository=SQLWatchlistRepository(session=session),
+        notification_prefs_repository=SQLNotificationPrefsRepository(session=session),
+        # -> SCANS
+        scan_repository=SQLScanRepository(session=session),
+        finding_repository=SQLFindingRepository(session=session),
+        public_report_repository=SQLPublicReportRepository(session=session),
+        scan_event_repository=SQLScanEventRepository(session=session),
     )

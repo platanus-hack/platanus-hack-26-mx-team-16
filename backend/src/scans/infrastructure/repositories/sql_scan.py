@@ -6,14 +6,15 @@ import uuid
 from dataclasses import dataclass
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import and_, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.common.application.helpers.pagination import decode_cursor
 from src.common.database.models.scans.scan import ScanORM
 from src.common.database.models.sites.site import SiteORM
-from src.common.infrastructure.helpers.database import atomic_transaction
 from src.common.domain.enums.scans import ScanStatus
+from src.common.infrastructure.helpers.database import atomic_transaction
 from src.scans.domain.models.scan import Scan
 from src.scans.domain.repositories.scan import ScanRepository
 from src.scans.infrastructure.builders.scan import build_scan
@@ -135,6 +136,41 @@ class SQLScanRepository(ScanRepository):
             .order_by(ScanORM.overall_grade.asc(), ScanORM.penalty_raw.desc())
             .limit(limit)
         )
+        result = await self.session.execute(stmt)
+        return [build_scan(orm) for orm in result.scalars().all()]
+
+    async def find_for_user(
+        self,
+        user_id: UUID,
+        *,
+        status: str | None = None,
+        site_id: UUID | None = None,
+        limit: int = 50,
+        cursor: str | None = None,
+    ) -> list[Scan]:
+        stmt = (
+            select(ScanORM)
+            .where(ScanORM.requested_by == user_id)
+            .order_by(ScanORM.created_at.desc(), ScanORM.uuid.desc())
+            .limit(limit + 1)
+        )
+        if status is not None:
+            stmt = stmt.where(ScanORM.status == status)
+        if site_id is not None:
+            stmt = stmt.where(ScanORM.site_id == site_id)
+        if cursor is not None:
+            created_at, last_uuid = decode_cursor(cursor)
+            # Keyset on (created_at, uuid) descending — strictly "older than" the
+            # cursor row so pages never overlap or skip.
+            stmt = stmt.where(
+                or_(
+                    ScanORM.created_at < created_at,
+                    and_(
+                        ScanORM.created_at == created_at,
+                        ScanORM.uuid < last_uuid,
+                    ),
+                )
+            )
         result = await self.session.execute(stmt)
         return [build_scan(orm) for orm in result.scalars().all()]
 

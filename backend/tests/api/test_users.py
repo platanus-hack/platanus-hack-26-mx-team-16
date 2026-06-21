@@ -130,6 +130,8 @@ def test_update_tenant_user(login_user: LoginTestContext):
                 "phoneNumber": None,
                 "emailAddress": ANY,
                 "isOwner": False,
+                "isSupport": False,
+                "photoUrl": None,
                 "status": "INACTIVE",
                 "tenantRole": None,
                 "createdAt": ANY,

@@ -28,6 +28,13 @@ class SQLWatchlistRepository(WatchlistRepository):
             async with atomic_transaction(self.session):
                 existing.monitor = monitor
                 await self.session.flush()
+            # ``atomic_transaction`` commits on exit, which (with the default
+            # ``expire_on_commit=True``) expires every ORM attribute. Building the
+            # domain entity then lazily reloads ``created_at``/``updated_at``,
+            # triggering async IO outside a greenlet context (MissingGreenlet ->
+            # 500). Re-fetch the row inside the greenlet so the timestamps are
+            # populated before we read them.
+            await self.session.refresh(existing)
             return build_watchlist_entry(existing)
         orm = WatchlistORM(
             uuid=uuid.uuid4(), user_id=user_id, site_id=site_id, monitor=monitor
@@ -35,6 +42,7 @@ class SQLWatchlistRepository(WatchlistRepository):
         async with atomic_transaction(self.session):
             self.session.add(orm)
             await self.session.flush()
+        await self.session.refresh(orm)
         return build_watchlist_entry(orm)
 
     async def remove(self, user_id: UUID, site_id: UUID) -> None:

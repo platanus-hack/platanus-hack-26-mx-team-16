@@ -60,21 +60,22 @@ def _extract_hostname(url: str) -> str:
 def is_gov_hostname(hostname: str) -> bool:
     """True only for the ``.gob.mx`` suffix (or the bare apex ``gob.mx``).
 
-    Accepts either an already-normalized hostname or a raw value; normalization
-    (lowercase, port/trailing-dot stripping) is applied defensively.
+    Accepts an already-normalized hostname, a bare hostname or a full URL; the
+    value is routed through the same extraction/normalization used by
+    ``resolve_host_flags`` so a scheme/port/path never defeats the check.
     """
-    host = normalize_hostname(hostname)
+    host = _extract_hostname(hostname)
     return host == "gob.mx" or host.endswith(GOV_SUFFIX)
 
 
 def is_sensitive_hostname(hostname: str) -> bool:
-    """``is_gov`` ∪ other suffixes marked sensitive → reinforced copy (§2.4).
+    """``is_gov`` plus other suffixes marked sensitive -> reinforced copy (§2.4).
 
     Non-blocking: this flag only affects warning copy (13) and default
     visibility (§2.3); it never prevents launching an active scan.
     """
-    host = normalize_hostname(hostname)
-    if is_gov_hostname(host):
+    host = _extract_hostname(hostname)
+    if host == "gob.mx" or host.endswith(GOV_SUFFIX):
         return True
     return any(host.endswith(suffix) for suffix in SENSITIVE_SUFFIXES)
 

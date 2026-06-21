@@ -152,9 +152,15 @@ def test_demo_is_not_a_whitelist_key() -> None:
 
 
 def test_whitelist_mapping_is_immutable() -> None:
-    expect(lambda: TOOLSET_WHITELIST.__setitem__((True, ScanLevel.BASICO), ())).to(
-        raise_error(TypeError)
-    )
+    # ``TOOLSET_WHITELIST`` is a ``MappingProxyType`` (read-only view). Item
+    # assignment via the subscript protocol raises ``TypeError`` ("mappingproxy
+    # object does not support item assignment"). Note: calling ``__setitem__``
+    # directly would instead raise ``AttributeError`` (the proxy does not expose
+    # that dunder at all), so we assert the real, idiomatic mutation path.
+    def _mutate() -> None:
+        TOOLSET_WHITELIST[(True, ScanLevel.BASICO)] = ()
+
+    expect(_mutate).to(raise_error(TypeError))
 
 
 def test_tool_invocation_is_frozen() -> None:

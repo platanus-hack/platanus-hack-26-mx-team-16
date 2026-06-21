@@ -9,6 +9,7 @@ from src.common.infrastructure.buses import MemoryCommandBus, MemoryEventBus, Me
 from src.common.infrastructure.buses.saq_command_enqueuer import SaqCommandEnqueuer
 from src.common.infrastructure.domain_builder import build_async_domain
 from src.messaging.infrastructure.bus_wiring import messaging_wiring
+from src.scans.infrastructure.bus_wiring import scans_wiring
 from src.tenants.infrastructure.bus_wiring import tenants_wiring
 from src.users.infrastructure.bus_wiring import users_wiring
 
@@ -30,6 +31,7 @@ def build_async_bus(
 
     auth_wiring(domain, bus)
     messaging_wiring(domain, bus)
+    scans_wiring(domain, bus)
     tenants_wiring(domain, bus)
     users_wiring(domain, bus)
     return bus

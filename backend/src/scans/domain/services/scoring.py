@@ -35,6 +35,19 @@ from src.scans.domain.services.scoring_weights import (
     SEVERITY_PENALTY,
 )
 
+# Re-exported so consumers (08/12/13, tests) get the frozen curve version from
+# the scoring entry point without reaching into scoring_weights.
+__all__ = [
+    "LEADERBOARD_ORDER",
+    "SCORING_VERSION",
+    "ScoreInput",
+    "ScoreResult",
+    "compute_score",
+    "dedupe",
+    "dimension_grade",
+    "leaderboard_sort_key",
+]
+
 # Authoritative leaderboard order contract (07-scoring §6). The SINGLE source of
 # truth for "worst first": grade ascending (A < B < ... < F lexicographically),
 # then raw penalty descending to break ties when dozens of ``.gob.mx`` collapse

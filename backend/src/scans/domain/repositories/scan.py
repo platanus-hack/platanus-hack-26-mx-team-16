@@ -59,3 +59,18 @@ class ScanRepository(ABC):
         """Gov sites ranked worst-first: ``overall_grade ASC, penalty_raw DESC``,
         filtered to ``sites.is_gov`` (§4, 08-ranking-watchlists)."""
         raise NotImplementedError
+
+    @abstractmethod
+    async def find_for_user(
+        self,
+        user_id: UUID,
+        *,
+        status: str | None = None,
+        site_id: UUID | None = None,
+        limit: int = 50,
+        cursor: str | None = None,
+    ) -> list[Scan]:
+        """List scans requested by ``user_id`` (``GET /scans``, 12-api), newest
+        first, optionally filtered by ``status``/``site_id``. Returns ``limit + 1``
+        rows so the API can derive ``next_cursor`` (keyset on ``created_at, uuid``)."""
+        raise NotImplementedError
