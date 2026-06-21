@@ -10,13 +10,18 @@
  */
 import type {
   AgenticStatus,
+  AgenticSurface,
+  Finding,
   Grade,
+  Report,
   Scan,
   ScanLevel,
   ScanStatus,
+  Severity,
+  Source,
   Trend,
 } from "../schemas/api";
-import { HERO_SCAN_ID, HERO_SITE_ID } from "./scan";
+import { HERO_SCAN_ID, HERO_SITE_ID, reportFixture } from "./scan";
 
 /**
  * A row in the history list: the authoritative `Scan` plus the small,
@@ -301,3 +306,220 @@ export const scanHistoryFixture: ScanHistoryItem[] = [
     trend: "down",
   }),
 ];
+
+// ─── By-id resolvers (offline fixture fallback) ──────────────────────────────
+//
+// The detail surfaces — the live theater (`/scans/{id}`) and the report
+// (`/scans/{id}/report`) — fall back to fixtures when the backend is unreachable.
+// Resolving them BY ID (instead of always returning the single hero fixture)
+// means clicking ANY row in `/scans` opens data that matches that row: the right
+// host, grade, level and links. Each history row already IS a full `Scan`, so the
+// theater seed is a direct lookup; the report is synthesized from the same row.
+
+const HISTORY_BY_ID: ReadonlyMap<string, ScanHistoryItem> = new Map(
+  scanHistoryFixture.map((item) => [item.scanId, item])
+);
+
+/** The demo `Scan` for an id (the theater seed). `undefined` → unknown id. */
+export function findScanFixtureById(id: string): Scan | undefined {
+  return HISTORY_BY_ID.get(id);
+}
+
+function findingsLabel(n: number): string {
+  return `${n} ${n === 1 ? "hallazgo" : "hallazgos"}`;
+}
+
+function explanationFor(item: ScanHistoryItem): string {
+  const name = item.departmentName ?? item.host;
+  const parts = [
+    `Owliver auditó ${item.host} (${name}) en nivel ${item.level}.`,
+  ];
+  if (item.criticalCount > 0) {
+    parts.push(
+      item.criticalCount === 1
+        ? "Se encontró 1 hallazgo crítico que requiere atención inmediata."
+        : `Se encontraron ${item.criticalCount} hallazgos críticos que requieren atención inmediata.`
+    );
+  }
+  parts.push(
+    item.agenticStatus === "tested"
+      ? "Su superficie agéntica (chatbots / cajas de IA) fue auditada."
+      : item.agenticStatus === "detected_not_tested"
+        ? "Se detectó una superficie de IA que no alcanzó a auditarse."
+        : "No se detectó superficie agéntica."
+  );
+  if (item.overallGrade) {
+    parts.push(
+      `Sobre la base de ${findingsLabel(item.findingsCount)}, el sitio obtiene un grado global ${item.overallGrade}.`
+    );
+  }
+  return parts.join(" ");
+}
+
+function surfacesFor(item: ScanHistoryItem): AgenticSurface[] {
+  if (
+    item.agenticStatus !== "tested" &&
+    item.agenticStatus !== "detected_not_tested"
+  ) {
+    return [];
+  }
+  return [
+    {
+      type: "chatbot",
+      vendor: null,
+      locationUrl: `https://${item.host}/asistente`,
+      inferredModel:
+        item.agenticStatus === "tested" ? "modelo no expuesto" : null,
+      agenticStatus: item.agenticStatus,
+    },
+  ];
+}
+
+/** Severity rota used to fill a row's report after its criticals (descending). */
+const FINDING_TEMPLATES: {
+  severity: Severity;
+  source: Source;
+  tool: string;
+  category: string;
+  cvss: number | null;
+  title: string;
+  impact: string;
+  remediation: string;
+  references: string[];
+}[] = [
+  {
+    severity: "high",
+    source: "owasp",
+    tool: "testssl",
+    category: "A02",
+    cvss: 7.3,
+    title: "Protocolos TLS obsoletos habilitados",
+    impact:
+      "El tráfico de los usuarios puede interceptarse mediante un ataque de degradación.",
+    remediation:
+      "Deshabilitar TLS 1.0/1.1 y exigir TLS 1.2+ con cifrados modernos (AEAD).",
+    references: ["OWASP-A02", "CWE-326"],
+  },
+  {
+    severity: "medium",
+    source: "owasp",
+    tool: "nuclei",
+    category: "A05",
+    cvss: 5.3,
+    title: "Cabeceras de seguridad ausentes (CSP, HSTS, X-Frame-Options)",
+    impact: "El sitio queda expuesto a clickjacking e inyección de contenido.",
+    remediation:
+      "Agregar CSP estricta, HSTS con preload y X-Frame-Options DENY.",
+    references: ["OWASP-A05", "CWE-693"],
+  },
+  {
+    severity: "low",
+    source: "owasp",
+    tool: "zap",
+    category: "A05",
+    cvss: 3.1,
+    title: "Cookie de sesión sin atributo Secure",
+    impact: "La cookie podría viajar por una conexión no cifrada.",
+    remediation: "Agregar el atributo Secure (y SameSite=Strict cuando aplique).",
+    references: ["OWASP-A05", "CWE-614"],
+  },
+  {
+    severity: "info",
+    source: "owasp",
+    tool: "zap",
+    category: "INFO",
+    cvss: null,
+    title: "Nota de cobertura del escaneo",
+    impact: "Sin impacto de seguridad; nota informativa de cobertura.",
+    remediation:
+      "Ejecutar un nivel activo (con autorización) para cobertura completa.",
+    references: [],
+  },
+];
+
+function findingsFor(item: ScanHistoryItem): Finding[] {
+  const total = item.findingsCount;
+  if (total <= 0) return [];
+
+  const findings: Finding[] = [];
+
+  // Criticals first — the row's `topFinding` leads the list when present.
+  for (let i = 0; i < item.criticalCount && findings.length < total; i++) {
+    findings.push({
+      id: `${item.scanId}-f-${findings.length}`,
+      source: "owasp",
+      tool: "nuclei",
+      category: "A01",
+      title:
+        i === 0 && item.topFinding
+          ? item.topFinding
+          : "Hallazgo crítico de control de acceso",
+      severity: "critical",
+      cvss: 9.1,
+      confidence: "alta",
+      description: `Owliver confirmó un riesgo crítico en ${item.host} durante la auditoría de nivel ${item.level}.`,
+      evidence: {},
+      affectedUrl: `https://${item.host}`,
+      impact:
+        "Compromete directamente la confidencialidad o la integridad del sitio.",
+      remediation:
+        "Corregir de inmediato y volver a auditar para confirmar la mitigación.",
+      references: ["OWASP-A01", "CWE-284"],
+    });
+  }
+
+  // Fill the rest by cycling the severity rota; `topFinding` leads if no critical.
+  let t = 0;
+  while (findings.length < total) {
+    const tpl = FINDING_TEMPLATES[t % FINDING_TEMPLATES.length];
+    const lead =
+      findings.length === 0 && item.topFinding ? item.topFinding : null;
+    const title =
+      lead ?? (t >= FINDING_TEMPLATES.length ? `${tpl.title} (${t + 1})` : tpl.title);
+    findings.push({
+      id: `${item.scanId}-f-${findings.length}`,
+      source: tpl.source,
+      tool: tpl.tool,
+      category: tpl.category,
+      title,
+      severity: tpl.severity,
+      cvss: tpl.cvss,
+      confidence: "alta",
+      description: `${tpl.title} detectada en ${item.host}.`,
+      evidence: {},
+      affectedUrl: `https://${item.host}`,
+      impact: tpl.impact,
+      remediation: tpl.remediation,
+      references: tpl.references,
+    });
+    t++;
+  }
+
+  return findings;
+}
+
+/**
+ * The demo `Report` for an id (offline fallback). The hand-authored hero report
+ * stays rich; every other row gets a report synthesized from its OWN data so the
+ * page shows the scan the user actually clicked — not a stand-in. Unknown ids
+ * fall back to the hero report.
+ */
+export function buildReportFixtureFor(id: string): Report {
+  if (id === HERO_SCAN_ID) return reportFixture;
+  const item = HISTORY_BY_ID.get(id);
+  if (!item) return reportFixture;
+
+  const findings = findingsFor(item);
+  const topRisks = findings
+    .filter((f) => f.severity !== "info")
+    .slice(0, 3)
+    .map((f) => ({ title: f.title, impact: f.impact }));
+
+  return {
+    scan: item,
+    explanation: explanationFor(item),
+    topRisks,
+    surfaces: surfacesFor(item),
+    findings,
+  };
+}

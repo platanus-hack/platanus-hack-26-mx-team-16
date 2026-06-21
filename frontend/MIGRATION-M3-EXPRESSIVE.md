@@ -138,7 +138,7 @@ Charts: revisar la librería (recharts/visx) y aplicar colores M3 + esquinas red
 ## 5. Fase 4 — Pantallas nuevas de Owliver (pentest)
 
 No existen en código todavía; construirlas **directo en M3** siguiendo el `.pen` y `DESIGN.md`:
-Hall of Shame `/`, Auditar URL `/scan` (+ gate de atestación), **Live Pentest Theater** `/scans/[id]` (tema `.soc`), Reporte `/scans/[id]/report`, Reporte público `/r/[token]`, Historial `/sites/[id]`, Watchlist `/watchlist`, Cómo funciona, magic-link auth. Reusar primitivos ya migrados + componentes Owliver (GradeBadge, SeverityChip, Gauge, ToolChip, OwlMascot, Footer, TopNav).
+Ranking `/`, Auditar URL `/scan` (+ gate de atestación), **Live Pentest Theater** `/scans/[id]` (tema `.soc`), Reporte `/scans/[id]/report`, Reporte público `/r/[token]`, Historial `/sites/[id]`, Watchlist `/watchlist`, Cómo funciona, magic-link auth. Reusar primitivos ya migrados + componentes Owliver (GradeBadge, SeverityChip, Gauge, ToolChip, OwlMascot, Footer, TopNav).
 
 ---
 

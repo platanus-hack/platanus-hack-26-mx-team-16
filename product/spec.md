@@ -115,7 +115,7 @@ implementación del análisis de huecos, y lleva frontmatter (`status: pending`,
 | 09 | [reporting](features/09-reporting/spec.md) | §11 | Reporte de dos capas (ejecutiva con doble gauge A–F + párrafo de Opus, técnica en acordeón), export PDF y link público `/r/[token]` con exploits redactados. |
 | 10 | [realtime-live-view](features/10-realtime-live-view/spec.md) | §12.1 | Live view del pentest por SSE: Postgres es la verdad (`scan_events`), Redis solo el tail, con replay-then-tail y auth por cookie. |
 | 12 | [api](features/12-api/spec.md) | §14 | Superficie HTTP: encolado idempotente de scans, AuthZ anti-IDOR, cancelación/health, contrato SSE, CRUD watchlist, paginación y formato de error único. |
-| 13 | [frontend](features/13-frontend/spec.md) | `owliver-frontend.md` | Todo el frontend Next.js: Hall of Shame, gate de atestación, el Live Pentest Theater en modo SOC, reporte "Owliver te explica" y superficies públicas/privadas. |
+| 13 | [frontend](features/13-frontend/spec.md) | `owliver-frontend.md` | Todo el frontend Next.js: ranking, gate de atestación, el Live Pentest Theater en modo SOC, reporte "Owliver te explica" y superficies públicas/privadas. |
 
 **Features hermanas (boilerplate SaaS, ya implementado — no pentest):**
 [`data-model`](features/data-model/spec.md) y

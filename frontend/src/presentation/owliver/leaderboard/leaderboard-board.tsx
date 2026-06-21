@@ -1,5 +1,5 @@
 /**
- * LeaderboardBoard — the interactive Hall of Shame table (§F4). The page renders
+ * LeaderboardBoard — the interactive leaderboard table (§F4). The page renders
  * the first page as RSC (worst-first, server-authoritative) and hands it here as
  * `initialRows` so there's never a blank flash; this client component then owns
  * the filters (by grade · by worst dimension), the "cargar más" cursor pagination

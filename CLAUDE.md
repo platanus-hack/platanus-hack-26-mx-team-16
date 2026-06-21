@@ -95,7 +95,8 @@ just build-prod               # Build production images
 ### Database
 - PostgreSQL
 - Migrations: `backend/src/common/database/versions/`
-- Seeds: `backend/scripts/seed_test_user.py`
+- Seeds: `backend/scripts/seed_users.py` (run via `just seed-users`, after migrating)
+- Test credentials: login `team@owliver.com` / password `12345678x` (all seeded demo users share this password)
 
 ## Frontend
 

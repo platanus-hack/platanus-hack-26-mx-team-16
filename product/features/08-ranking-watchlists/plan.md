@@ -163,7 +163,7 @@ src/sites/application/commands/seed_gov.py  # (net-new) SeedGovHandler — job d
 ### 2.4 Frontend — referencia, no propiedad aquí
 
 `frontend/src/app/` hoy tiene `(public)` y `(protected)` pero **ningún**
-`ranking`/`watchlist`/`sites` (verificado). La UI (Hall of Shame en `/`, dashboard
+`ranking`/`watchlist`/`sites` (verificado). La UI (ranking en `/`, dashboard
 de watchlist, `/sites/[id]`) la construye [13-frontend](../13-frontend/spec.md)
 consumiendo los endpoints de [12-api](../12-api/plan.md) vía el patrón BFF
 obligatorio (`fetch("/api/...")` → `route.ts` → `serverHttp`). Aquí no se escribe
@@ -453,7 +453,7 @@ pasivo" tiene además su test transversal `test_scheduler_passive.py` en
    `dispatch_alert`. → `test_grade_delta`, `test_evaluate_site_alerts`.
 7. **Cron** (`config/tasks.py` + `MonitorCronHandler` + `SeedGovHandler`): registrar
    `CronJob` con guard legal. → `test_monitor_cron` (+ `test_scheduler_passive` de 01).
-8. **Frontend** ([13-frontend](../13-frontend/spec.md)): Hall of Shame en `/`,
+8. **Frontend** ([13-frontend](../13-frontend/spec.md)): ranking en `/`,
    dashboard watchlist, `/sites/[id]` consumiendo 12 vía BFF. (No bloqueante de
    backend.)
 

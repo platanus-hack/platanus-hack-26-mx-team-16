@@ -1,6 +1,6 @@
 /**
  * Owliver public chrome (§F3) — the layout for every anonymous viral surface:
- * Hall of Shame (`/`), scan form, theater, report, `/r/[token]`, sites. It is a
+ * the leaderboard (`/`), scan form, theater, report, `/r/[token]`, sites. It is a
  * NESTED group inside `(public)` so it does NOT wrap the auth pages (login,
  * register, reset) which keep their own centered `AuthContainer`.
  *

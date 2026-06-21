@@ -27,7 +27,7 @@ cierras con visión + ask. No leas las slides: la slide es el póster, tú eres 
 | 3 | Solución | 0:25 | 1:05 |
 | 4 | **DEMO en vivo (Theater)** | 1:05 | 2:10 |
 | 5 | El diferenciador (superficie agéntica) | 0:20 | 2:30 |
-| 6 | Hall of Shame + viralidad | 0:15 | 2:45 |
+| 6 | ranking + viralidad | 0:15 | 2:45 |
 | 7 | Negocio (watchlist) | 0:08 | 2:53 |
 | 8 | Cierre / ask | 0:07 | 3:00 |
 
@@ -103,7 +103,7 @@ cierras con visión + ask. No leas las slides: la slide es el póster, tú eres 
   > automáticamente la superficie agéntica del gobierno y **probándolo con un
   > canary**. Ese es Owliver."
 
-## Slide 6 — Hall of Shame + viralidad (0:15)
+## Slide 6 — ranking + viralidad (0:15)
 
 - **En pantalla:** screenshot del leaderboard `.gob.mx` (filas F en rojo) + el
   **Report Card** OG-image (la "F" roja grande).

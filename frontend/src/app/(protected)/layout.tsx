@@ -17,7 +17,7 @@ export default async function ProtectedLayout({
   const session = await refreshServerSession();
 
   if (!session) {
-    // Login moved off `/` (now the Hall of Shame) to `/login`.
+    // Login moved off `/` (now the leaderboard) to `/login`.
     redirect("/login");
   }
 

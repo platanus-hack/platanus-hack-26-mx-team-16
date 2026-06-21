@@ -1,5 +1,5 @@
 /**
- * `/watch` — Hall of Shame leaderboard (§F4) 🔴, PROTECTED (requires session).
+ * `/watch` — the leaderboard (§F4) 🔴, PROTECTED (requires session).
  * The portada: "Seguridad bajo la lupa" — a worst-first ranking of audited sites,
  * red and provocative. Server Component: it loads the authoritative worst-first
  * page (`GET /v1/ranking?country=mx`, fixture fallback) and hands it to the
@@ -30,7 +30,7 @@ export const metadata = {
 // Always render fresh server data (the board hydrates from here).
 export const dynamic = "force-dynamic";
 
-export default async function HallOfShamePage() {
+export default async function RankingPage() {
   const { rows } = await loadRankingPage("mx");
   const failing = rows.filter((r) => r.overallGrade === "F").length;
 

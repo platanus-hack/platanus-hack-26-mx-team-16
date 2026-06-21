@@ -53,7 +53,7 @@ export function gradeLabel(grade: Grade): string {
   }
 }
 
-/** True for the "Hall of Shame" failing grades (used for the red pulse). */
+/** True for the failing grades (used for the red pulse). */
 export function isFailingGrade(grade: Grade): boolean {
   return grade === "E" || grade === "F";
 }

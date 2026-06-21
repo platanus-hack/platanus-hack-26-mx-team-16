@@ -1,5 +1,5 @@
 /**
- * Hall of Shame ranking fixture (§F4) — ~40 demo rows, WORST-FIRST
+ * Ranking fixture (§F4) — ~40 demo rows, WORST-FIRST
  * (overall grade F → A, penaltyRaw DESC tiebreak), matching the authoritative
  * order so screens never re-sort. Includes the star "Fabrikam: C web / F agéntico"
  * contrast row and a spread of agenticStatus / partialCoverage states.

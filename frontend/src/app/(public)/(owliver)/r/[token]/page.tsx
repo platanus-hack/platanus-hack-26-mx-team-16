@@ -37,7 +37,7 @@ function ExpiredState() {
         href="/"
         className={`mt-6 ${buttonVariants({ variant: "tertiary", size: "lg" })}`}
       >
-        Ir al Hall of Shame →
+        Ir al inicio →
       </Link>
     </div>
   );

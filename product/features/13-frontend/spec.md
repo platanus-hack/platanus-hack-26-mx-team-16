@@ -9,7 +9,7 @@ sources: spec.md §10, §11, §12, §14, §15, §17; owliver-frontend.md §F1–
 
 # Owliver — Frontend (Next.js) — superficies y sistema
 
-> Esta subspec define **todo el frontend de Owliver** (Next.js 15 / App Router): las reglas de arquitectura (BFF, RSC, SSE), la dirección visual "claro de día, SOC de noche", el mapa de rutas, y cada superficie — el leaderboard gov "Hall of Shame" (`/`), el form de escaneo con gate de atestación, el **Live Pentest Theater** (`/scans/[id]`, el centerpiece cinematográfico en modo SOC), el reporte interactivo "Owliver te explica", el reporte público redactado `/r/[token]`, sitios/histórico, login Google, y watchlist + monitoreo. Incluye estados transversales, a11y, responsive e i18n, el sistema de componentes shadcn+custom, tres features wow opcionales, el mapeo al plan de 20h con su orden de recorte y el checklist de pantallas. Es la **superficie**: los contratos subyacentes viven en las subspecs hermanas (se cruzan, no se duplican). El brief visual de alta fidelidad está en [design-prompt.md](../../design-prompt.md) ("claro de día, SOC de noche").
+> Esta subspec define **todo el frontend de Owliver** (Next.js 15 / App Router): las reglas de arquitectura (BFF, RSC, SSE), la dirección visual "claro de día, SOC de noche", el mapa de rutas, y cada superficie — el leaderboard gov "ranking" (`/`), el form de escaneo con gate de atestación, el **Live Pentest Theater** (`/scans/[id]`, el centerpiece cinematográfico en modo SOC), el reporte interactivo "Owliver te explica", el reporte público redactado `/r/[token]`, sitios/histórico, login Google, y watchlist + monitoreo. Incluye estados transversales, a11y, responsive e i18n, el sistema de componentes shadcn+custom, tres features wow opcionales, el mapeo al plan de 20h con su orden de recorte y el checklist de pantallas. Es la **superficie**: los contratos subyacentes viven en las subspecs hermanas (se cruzan, no se duplican). El brief visual de alta fidelidad está en [design-prompt.md](../../design-prompt.md) ("claro de día, SOC de noche").
 
 ## Decisiones de diseño (cerradas con el equipo)
 
@@ -17,7 +17,7 @@ sources: spec.md §10, §11, §12, §14, §15, §17; owliver-frontend.md §F1–
 |---|----------|----------|
 | FE-1 | **Dirección visual** | **Híbrido claro + SOC**: app clara y confiable (ángulo gov-audit, "The Inspection Bench") **+ live-view en modo oscuro tipo sala de operaciones** (el pentest theater es el momento cinematográfico) |
 | FE-2 | **Centerpiece del wow** | **Live Pentest Theater** (§F6): agentes + herramientas + findings apareciendo en vivo. Es donde se concentra el detalle y la ambición. El reporte es el *payoff* |
-| FE-3 | **Tono del ranking gov** | **Hall of Shame**: peores primero, rojo, provocador, máximo potencial viral. Marco "datos públicos no intrusivos" para defendibilidad legal — ver [01-legal-ethics](../01-legal-ethics/spec.md) |
+| FE-3 | **Tono del ranking gov** | **Ranking**: peores primero, rojo, provocador, máximo potencial viral. Marco "datos públicos no intrusivos" para defendibilidad legal — ver [01-legal-ethics](../01-legal-ethics/spec.md) |
 | FE-4 | **Alcance del doc** | Spec consolidado **+ 3 features wow opcionales** (§F14), marcadas como recortables |
 
 > ⚠️ **Nota de identidad.** `PRODUCT.md` / `DESIGN.md` y el frontend actual del repo (`dashboard`, `members`, `roles`…) son del **boilerplate Doxiq**, no de Owliver. Owliver es un producto nuevo sobre ese boilerplate: reusamos la **infraestructura** (route-groups, BFF `/api/auth/*`, `serverHttp`/`authHttp`, tokens base de Tailwind v4) pero **Owliver tiene su propia piel** (§F2). En particular, `/` (raíz) hoy está ocupado por la app autenticada `(protected)`: casi todo lo público de Owliver se construye desde cero en un nuevo route-group `(public)`.
@@ -69,7 +69,7 @@ El momento estrella entra en modo SOC: near-black, telemetría, **Geist Mono**, 
 | **C** ≥70 | `oklch(0.80 0.14 90)` ámbar | cap de cobertura parcial — ver [07-scoring](../07-scoring/spec.md) |
 | **D** ≥60 | `oklch(0.72 0.16 55)` naranja | |
 | **E** ≥40 | `oklch(0.66 0.19 35)` naranja-rojo | zona poblada del leaderboard gov |
-| **F** <40 | `oklch(0.58 0.22 25)` rojo | "hall of shame" |
+| **F** <40 | `oklch(0.58 0.22 25)` rojo | "reprobado" |
 
 - **Tipografía:** **Figtree** (UI) + **Geist Mono** (telemetría, payloads, evidencia, scores). Grados y scores siempre en mono → lectura "instrumento".
 - **Radio** base 0.75rem (~12px), near-flat (hairline rings + whisper shadows) en claro; glow funcional en SOC.
@@ -82,7 +82,7 @@ El momento estrella entra en modo SOC: near-black, telemetría, **Geist Mono**, 
 
 | Ruta | Group | Auth | Propósito | Consume |
 |---|---|---|---|---|
-| `/` | public | anon | **Hall of Shame** leaderboard gov (§F4) | `GET /ranking?country=mx` |
+| `/` | public | anon | **Ranking** leaderboard gov (§F4) | `GET /ranking?country=mx` |
 | `/scan` (o modal en `/`) | public | anon (básico) | Form de escaneo + gate (§F5) | `POST /scans` |
 | `/scans/[id]` | public/priv | según visibility | **Live Pentest Theater** (§F6) | `GET /scans/{id}` · `GET /scans/{id}/stream` |
 | `/scans/[id]/report` | public/priv | según visibility | Reporte "Owliver te explica" (§F7) | `GET /scans/{id}` · `/findings` |
@@ -97,7 +97,7 @@ Acciones transversales: `POST /scans/{id}/share` (genera `/r/{token}`), `GET /sc
 
 ---
 
-## §F4 · Hall of Shame — leaderboard gov (`/`) 🔴
+## §F4 · Leaderboard gov (`/`) 🔴
 
 **Propósito.** La portada. "El Estado bajo la lupa": ranking de `.gob.mx` **peores primero**, poblado desde el segundo 0 (fixtures — ver [07-scoring](../07-scoring/spec.md) y spec.md §10/§15). Es la primera impresión y el gancho viral. Renderizada como **RSC** (`GET /ranking?country=mx`).
 
@@ -207,7 +207,7 @@ Reporte interactivo in-app de **dos capas**. Vuelve al **modo claro** (confianza
 
 ## §F8 · Reporte público `/r/[token]` (redactado)
 
-**Propósito.** Link compartible sin login — **server component**. El gancho viral del hall of shame, pero seguro: sin definirlo bien, el link puede **filtrar exploits reales**.
+**Propósito.** Link compartible sin login — **server component**. El gancho viral del ranking, pero seguro: sin definirlo bien, el link puede **filtrar exploits reales**.
 
 **Funcionalidad.**
 - Renderiza la **capa ejecutiva completa** + findings técnicos **con los payloads de explotación redactados/ocultos** por defecto: muestra tipo, categoría, severidad, `impact`, `remediation`; **nunca** el exploit crudo (payload de prompt-injection, request de sqlmap, system-prompt filtrado). Diseña el estado "exploit redactado" (candado + *"Oculto en el reporte público"*).
@@ -250,7 +250,7 @@ Owliver **reusa el login Google del boilerplate SaaS** (OAuth ya implementado en
 - **Error / códigos:** formato `{errors:[{code,message}], validation, timestamp}` (el cliente lee `errors[0]`; ver [12-api](../12-api/spec.md)). Mapeo UI: **422** (atestación/validación → inline en el form), **404** (recurso/sin permiso → página "no encontrado", no confirmar existencia), **410** (token expirado → copy de enlace caducado), **403** (toast). Scan `partial` → banner "cobertura parcial". Scan colgado → estado con `tools_status`.
 - **Toasts (sonner):** share generado, PDF listo, errores 403/410, copia de link.
 - **Accesibilidad:** contraste AA en ambos modos (claro/SOC); foco visible; `prefers-reduced-motion` desactiva count-up/pulse; el theater no debe depender solo de color (íconos + texto en chips de severidad).
-- **Responsive:** un solo breakpoint `md`. Leaderboard y reporte mobile-first; tabla→cards y 2-columnas→stack vertical; el theater colapsa los 2 carriles a stack vertical en móvil (el feed de findings manda). Variante móvil obligatoria para las 3 principales: Hall of Shame, Theater, Reporte.
+- **Responsive:** un solo breakpoint `md`. Leaderboard y reporte mobile-first; tabla→cards y 2-columnas→stack vertical; el theater colapsa los 2 carriles a stack vertical en móvil (el feed de findings manda). Variante móvil obligatoria para las 3 principales: ranking, Theater, Reporte.
 - **i18n:** **español** primario (es-MX). Copys del demo en español literal (no lorem ipsum).
 
 ---
@@ -278,7 +278,7 @@ Owliver **reusa el login Google del boilerplate SaaS** (OAuth ya implementado en
 
 Más allá del spec, para usefulness + viralidad. **Marcadas opcionales** — entran solo si el núcleo (§F4–§F7) está verde.
 
-1. **🎴 Report Card compartible (OG image).** Genera una imagen tipo "boletín de calificaciones" del sitio (grado grande A–F + 🛡️/🤖 + nombre de la dependencia + marca Owliver, con la **F roja** bien visible) vía `next/og` (`opengraph-image.tsx` en `/r/[token]` y `/sites/[id]`). **Por qué:** el hall of shame se comparte solo cuando al pegar el link en X/WhatsApp aparece la tarjeta con la **F** roja. Hook viral #1. *Costo:* bajo (Next nativo). *Recorte:* tras §F8.
+1. **🎴 Report Card compartible (OG image).** Genera una imagen tipo "boletín de calificaciones" del sitio (grado grande A–F + 🛡️/🤖 + nombre de la dependencia + marca Owliver, con la **F roja** bien visible) vía `next/og` (`opengraph-image.tsx` en `/r/[token]` y `/sites/[id]`). **Por qué:** el ranking se comparte solo cuando al pegar el link en X/WhatsApp aparece la tarjeta con la **F** roja. Hook viral #1. *Costo:* bajo (Next nativo). *Recorte:* tras §F8.
 
 2. **💬 "Owliver te explica" — chat sobre tu reporte.** Caja de chat en el reporte donde el usuario pregunta en lenguaje llano ("¿qué es prompt injection?", "¿cómo arreglo el header faltante?") y Opus responde acotado a los findings de ESE scan (resumen compacto, sin evidence crudo, <2k tokens, igual que la síntesis — ver [09-reporting](../09-reporting/spec.md)). **Por qué:** materializa el lema "ultra fácil de entender"; convierte el reporte en conversación. *Costo:* medio (1 endpoint + UI). *Recorte:* es lo primero que cae si aprieta el tiempo.
 
@@ -309,7 +309,7 @@ Carril **P4** trabaja contra **fixtures de los stubs** desde la hora 2.
 
 ## §F16 · Checklist de pantallas
 
-- [ ] `/` — Hall of Shame leaderboard (poblado por fixtures) 🔴
+- [ ] `/` — ranking leaderboard (poblado por fixtures) 🔴
 - [ ] Form de escaneo + gate de atestación condicional ⚖️
 - [ ] `/scans/[id]` — ★ Live Pentest Theater (SOC, replay-then-tail) 🌑
 - [ ] `/scans/[id]/report` — "Owliver te explica" (2 capas, doble gauge, accordion)
@@ -322,4 +322,4 @@ Carril **P4** trabaja contra **fixtures de los stubs** desde la hora 2.
 
 ---
 
-> **Guion del demo (spec.md §17) mapeado a pantallas:** `/` (hall of shame poblado) → `/scans/[id]` (theater <90s + recarga muestra replay) → `/scans/[id]/report` (grado + "Owliver te explica" + finding agéntico estrella con canary) → `/r/[token]` (redacción de exploits). Cierre: *"Owliver vigila la seguridad del Estado y de tu IA — lo que nadie más está midiendo."*
+> **Guion del demo (spec.md §17) mapeado a pantallas:** `/` (ranking poblado) → `/scans/[id]` (theater <90s + recarga muestra replay) → `/scans/[id]/report` (grado + "Owliver te explica" + finding agéntico estrella con canary) → `/r/[token]` (redacción de exploits). Cierre: *"Owliver vigila la seguridad del Estado y de tu IA — lo que nadie más está midiendo."*

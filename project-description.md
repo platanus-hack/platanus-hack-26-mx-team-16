@@ -24,7 +24,7 @@ Owliver doesn't just scan for vulnerabilities — it **breaks the AI and proves 
 
 We combine **public pressure** with a **B2B product**:
 
-- **Public "Hall of Shame":** viral-ready grade cards ranking the security of high-profile targets — starting with Mexican government sites (`.gob.mx`) and extending to banks and e-commerce.
+- **Public ranking:** viral-ready grade cards ranking the security of high-profile targets — starting with Mexican government sites (`.gob.mx`) and extending to banks and e-commerce.
 - **Private Watchlist (SaaS):** continuous security monitoring with automated alerts via email or Slack the moment a target's grade drops.
 
 The public exposure drives adoption of the core SaaS — turning attention into a continuous-monitoring revenue engine.

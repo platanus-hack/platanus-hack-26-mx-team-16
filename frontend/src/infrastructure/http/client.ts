@@ -65,7 +65,7 @@ function handleRefreshFailure(): void {
   isRedirecting = true;
   useSessionStore.getState().clearSession();
   if (typeof window !== "undefined") {
-    // Owliver moved login off `/` (now the Hall of Shame) to `/login`.
+    // Owliver moved login off `/` (now the leaderboard) to `/login`.
     window.location.href = "/login";
   }
 }

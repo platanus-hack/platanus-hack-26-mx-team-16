@@ -1,5 +1,5 @@
 /**
- * HeroStats — the provocative subcopy counter on the Hall of Shame hero (§F4):
+ * HeroStats — the provocative subcopy counter on the leaderboard hero (§F4):
  * "{total} sitios auditados · {failing} reprobados (grado F)". The two numbers
  * count up on mount (the grade-reveal motion language), with the failing count
  * in grade-F red. Reduced-motion users get the final values instantly (CountUp

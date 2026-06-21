@@ -1,7 +1,7 @@
 /**
  * ScanForm (§F5) — the universal entry point: URL + level + attestation gate.
  * The legal control expressed as UI. Used by the `/scan` page AND mounted as a
- * modal from `/` (Hall of Shame CTA).
+ * modal from `/` (leaderboard CTA).
  *
  * State lives in a per-instance zustand store (`createScanFormStore`) provided
  * through context. Each field subscribes to ONLY its own slice, so typing in

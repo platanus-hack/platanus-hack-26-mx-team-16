@@ -1,5 +1,5 @@
 /**
- * ScanFormDialog (§F5) — mounts <ScanForm> inside a Dialog so `/` (Hall of Shame)
+ * ScanFormDialog (§F5) — mounts <ScanForm> inside a Dialog so `/` (leaderboard)
  * can open the scan form as a modal without a route change. Controlled by the
  * caller (open / onOpenChange). On a successful create the form already
  * router.push()es to /scans/[id]; we also close the dialog via onSuccess.

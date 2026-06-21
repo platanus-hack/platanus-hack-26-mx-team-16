@@ -138,7 +138,7 @@ class SQLScanRepository(ScanRepository):
     async def leaderboard(
         self, *, limit: int = 50, cursor: str | None = None
     ) -> list[Scan]:
-        # Worst-first over gov sites (the "Hall of Shame"): grade DESC so the
+        # Worst-first over gov sites (the leaderboard): grade DESC so the
         # worst letter leads (F before B), penalty_raw DESC as tiebreak within a
         # grade (§4). The 07 spec prose's "ASC" notation was a slip — product
         # intent + tests are worst-first; LEADERBOARD_ORDER mirrors this DESC tuple.

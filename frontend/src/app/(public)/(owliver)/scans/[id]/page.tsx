@@ -10,7 +10,10 @@
  */
 import type { Metadata } from "next";
 
-import { scanFixture } from "@/src/application/owliver/fixtures";
+import {
+  findScanFixtureById,
+  scanFixture,
+} from "@/src/application/owliver/fixtures";
 import { backendGet } from "@/src/application/owliver/lib/bff";
 import { parseData } from "@/src/application/owliver/lib/envelope";
 import { scanSchema, type Scan } from "@/src/application/owliver/schemas/api";

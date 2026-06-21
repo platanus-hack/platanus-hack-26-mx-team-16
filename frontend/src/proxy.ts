@@ -12,7 +12,7 @@ import {
 import { Settings } from "@/src/settings";
 
 const PUBLIC_EXACT_ROUTES = [
-  "/", // public landing — "Cómo funciona" (the Hall of Shame moved to /watch, gated)
+  "/", // public landing — "Cómo funciona" (the leaderboard moved to /watch, gated)
   "/register",
   "/reset-password",
   "/login",

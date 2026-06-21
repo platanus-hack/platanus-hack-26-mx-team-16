@@ -26,7 +26,7 @@ en los sitios — buscando *prompt injection* y *jailbreaks*. Casi nadie mide es
 hoy.
 
 Los resultados alimentan un **ranking público de sitios del Estado mexicano
-(`.gob.mx`)** — un "Hall of Shame" cívico — y **watchlists privadas** para
+(`.gob.mx`)** — un "ranking" cívico — y **watchlists privadas** para
 monitoreo continuo.
 
 - **Usuarios:** ciudadanos curiosos, periodistas, equipos de seguridad, devs.
@@ -75,7 +75,7 @@ B (≥80) verde-lima  oklch(0.75 0.15 130)
 C (≥70) ámbar       oklch(0.80 0.14 90)
 D (≥60) naranja     oklch(0.72 0.16 55)
 E (≥40) naranja-rojo oklch(0.66 0.19 35)
-F (<40) rojo        oklch(0.58 0.22 25)    — "hall of shame"
+F (<40) rojo        oklch(0.58 0.22 25)    — "reprobado"
 ```
 
 - **Tipografía:** **Figtree** para UI; **Geist Mono** para telemetría, payloads,
@@ -93,7 +93,7 @@ F (<40) rojo        oklch(0.58 0.22 25)    — "hall of shame"
 Diseña estas pantallas. Para cada una respeta el layout, los componentes, los
 estados y el copy indicado.
 
-### 3.1 — Hall of Shame · Leaderboard (`/`) 🔴 — PORTADA
+### 3.1 — Ranking · Leaderboard (`/`) 🔴 — PORTADA
 
 El gancho viral. "El Estado bajo la lupa": ranking encabezado por sitios `.gob.mx`,
 **peores primero**, poblado desde el segundo cero. (El ranking público incluye
@@ -210,7 +210,7 @@ Vuelve al **modo claro** (lectura/confianza). Reporte interactivo de **dos capas
 
 ### 3.5 — Reporte público compartido (`/r/[token]`)
 
-Link sin login, **seguro para difundir** (el gancho viral del Hall of Shame).
+Link sin login, **seguro para difundir** (el gancho viral del ranking).
 
 - Renderiza la **capa ejecutiva completa** + los findings técnicos **con los
   exploits redactados/ocultos** (muestra tipo, severidad, impacto, remediación;
@@ -260,7 +260,7 @@ hook viral #1.
    escaneo.
 3. **Ver el ataque en vivo + recargar:** theater corriendo → el usuario recarga →
    el progreso se repinta completo desde el inicio (replay) → termina → reporte.
-4. **Explorar el Hall of Shame:** `/` → filtra por grado F → entra a una fila
+4. **Explorar el ranking:** `/` → filtra por grado F → entra a una fila
    (SAT) → ve su reporte público → comparte la Report Card.
 5. **Vigilancia:** login → watchlist → agrega dominio → activa monitoreo.
 
@@ -271,13 +271,13 @@ hook viral #1.
    tensión creciente, el búho trabajando.
 2. **El reveal del reporte** (3.4) — los dos gauges animando + el grado grande +
    el finding agéntico estrella con su canary como prueba irrefutable.
-3. **El Hall of Shame** (3.1) — un muro de grados donde el rojo domina; "el Estado
+3. **El ranking** (3.1) — un muro de grados donde el rojo domina; "el Estado
    reprobado", ordenado de peor a mejor, listo para compartir.
 
 ## 6. Entregables
 
 - Pantallas de alta fidelidad para las secciones 3.1–3.8 (3.9 opcional), en
-  **desktop** y una variante **móvil** de las 3 principales (Hall of Shame,
+  **desktop** y una variante **móvil** de las 3 principales (ranking,
   Theater, Reporte).
 - Un **mini design system** visible: tokens de color (claro + SOC + escala A–F),
   tipografía, y los componentes reutilizables: GradeBadge (A–F), SeverityChip,

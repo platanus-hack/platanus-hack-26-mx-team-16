@@ -258,7 +258,7 @@ export function ScanHistoryView({ items }: { items: ScanHistoryItem[] }) {
               <div
                 role="tablist"
                 aria-label="Filtrar por estado"
-                className="inline-flex items-center gap-1 rounded-full bg-surface-container-low p-1"
+                className="inline-flex items-center gap-1 rounded-full border border-outline-variant bg-surface-container-low p-1 shadow-xs"
               >
                 {STATUS_TABS.map((tab) => {
                   const active = status === tab.value;
@@ -270,18 +270,18 @@ export function ScanHistoryView({ items }: { items: ScanHistoryItem[] }) {
                       aria-selected={active}
                       onClick={() => setStatus(tab.value)}
                       className={cn(
-                        "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
+                        "inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium outline-none transition-[background-color,color,box-shadow,transform] focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]",
                         active
-                          ? "bg-card text-foreground shadow-xs"
-                          : "text-on-surface-variant hover:text-foreground"
+                          ? "bg-primary-action text-primary-action-foreground shadow-[0_2px_8px_rgba(104,88,242,0.24)]"
+                          : "text-on-surface-variant hover:bg-primary-container/55 hover:text-foreground"
                       )}
                     >
                       {tab.label}
                       <span
                         className={cn(
-                          "font-mono text-[11px] tabular-nums",
+                          "rounded-full px-1.5 font-mono text-[11px] tabular-nums",
                           active
-                            ? "text-on-surface-variant"
+                            ? "bg-white/20 text-white"
                             : "text-on-surface-variant/60"
                         )}
                       >
@@ -293,7 +293,7 @@ export function ScanHistoryView({ items }: { items: ScanHistoryItem[] }) {
               </div>
 
               {/* Sort */}
-              <div className="inline-flex items-center gap-1 rounded-full bg-surface-container-low p-1">
+              <div className="inline-flex items-center gap-1 rounded-full border border-outline-variant bg-surface-container-low p-1 shadow-xs">
                 <SlidersHorizontal
                   className="ml-2 size-3.5 text-on-surface-variant"
                   aria-hidden
@@ -312,10 +312,10 @@ export function ScanHistoryView({ items }: { items: ScanHistoryItem[] }) {
                       aria-pressed={active}
                       onClick={() => setSort(opt.value)}
                       className={cn(
-                        "rounded-full px-3 py-1.5 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
+                        "min-h-9 cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-medium outline-none transition-[background-color,color,box-shadow,transform] focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]",
                         active
-                          ? "bg-card text-foreground shadow-xs"
-                          : "text-on-surface-variant hover:text-foreground"
+                          ? "bg-primary-action text-primary-action-foreground shadow-[0_2px_8px_rgba(104,88,242,0.24)]"
+                          : "text-on-surface-variant hover:bg-primary-container/55 hover:text-foreground"
                       )}
                     >
                       {opt.label}

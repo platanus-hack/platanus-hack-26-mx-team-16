@@ -145,7 +145,7 @@ boilerplate Doxiq que miró el auditor).
 | 3 | high | gap-in-prompt | 05-agent-team | Brief models the agent team as exactly two lanes side-by-side ("Dos carriles de agente lado a l… |
 | 4 | high | gap-in-spec | 06-data-model | Brief §3.1 (Leaderboard rows) and §3.6 (Histórico del sitio: 'gráfico de tendencia del grado', … |
 | 5 | high | contradiction | 07-scoring | Brief §3.4 Capa 1 specifies 'dos gauges semicirculares: 🛡️ Web y 🤖 Agéntico, con el score num… |
-| 6 | high | gap-in-prompt | 08-ranking-watchlists | The brief frames the Hall of Shame leaderboard exclusively as a ranking of .gob.mx government s… |
+| 6 | high | gap-in-prompt | 08-ranking-watchlists | The brief frames the ranking exclusively as a ranking of .gob.mx government s… |
 | 7 | high | gap-in-prompt | 08-ranking-watchlists | The brief §3.1 lists a 'cobertura parcial' badge but never states that partial-coverage rows ha… |
 | 8 | high | contradiction | 10-realtime-live-view | The Theater defines a 'cancelado' state and a 'Botón Cancelar (mata el escaneo)' that kills the… |
 | 9 | high | gap-in-spec | 10-realtime-live-view | Theater header shows a 'barra de progreso 0–100 con fase legible' — a numeric 0-100 progress ba… |
@@ -164,7 +164,7 @@ boilerplate Doxiq que miró el auditor).
 | 22 | medium | gap-in-spec | 01-legal-ethics | El brief exige que el reporte público (/r/[token]) renderice findings técnicos con los exploits… |
 | 23 | medium | gap-in-spec | 02-attack-levels | Brief §3.2 describes Básico with attributes 'anónimo, sin permisos' ('Básico — pasivo, no intru… |
 | 24 | medium | gap-in-prompt | 02-attack-levels | Brief §3.2 / §4.2 treats the attestation gate as a single boundary triggered by 'nivel activo' … |
-| 25 | medium | gap-in-prompt | 02-attack-levels | Brief never surfaces that automatic/seeded scans (the Hall of Shame ranking in §3.1, populated … |
+| 25 | medium | gap-in-prompt | 02-attack-levels | Brief never surfaces that automatic/seeded scans (the ranking in §3.1, populated … |
 | 26 | medium | drift | 03-agentic-surface | The brief names the Agentic Surface Auditor lane phases as exactly 'detección → inventario → so… |
 | 27 | medium | contradiction | 03-agentic-surface | The brief presents the star finding as a single technique: 'El finding agéntico estrella: syste… |
 | 28 | medium | gap-in-prompt | 03-agentic-surface | The brief surfaces confidence as a generic per-finding attribute only: 'nivel de confianza' lis… |
@@ -289,9 +289,9 @@ boilerplate Doxiq que miró el auditor).
 
 #### ➕ Falta en brief · **medium**
 - **Ubicación:** design-prompt §3.1 (lines 98-117) and §3.2; spec.md §2 line 36, §3.1 line 52, §8.3 line 135
-- **Brief:** Brief never surfaces that automatic/seeded scans (the Hall of Shame ranking in §3.1, populated 'desde el segundo cero') are restricted to passive/Básico only — the leaderboard cards just show grades without indicating the scan was forcibly passive.
+- **Brief:** Brief never surfaces that automatic/seeded scans (the ranking in §3.1, populated 'desde el segundo cero') are restricted to passive/Básico only — the leaderboard cards just show grades without indicating the scan was forcibly passive.
 - **Spec:** Spec §2 (line 36) and §3.1 (line 52) and §8.3 state básico is 'el único camino automático' and that 'los escaneos automáticos (seed/cron del ranking gov) son SOLO pasivos'. The public gov ranking is therefore always a passive/básico result.
-- **Fix:** Extend design-prompt §3.1 to note the Hall of Shame grades come from passive/Básico scans only (e.g. a 'medido en modo pasivo' label or tooltip), so users don't read a gov F-grade as the result of an active/intrusive scan — which the spec explicitly forbids for automatic and gov scans.
+- **Fix:** Extend design-prompt §3.1 to note the ranking grades come from passive/Básico scans only (e.g. a 'medido en modo pasivo' label or tooltip), so users don't read a gov F-grade as the result of an active/intrusive scan — which the spec explicitly forbids for automatic and gov scans.
 
 #### ✅ Alineado · **low**
 - **Ubicación:** design-prompt §3.2 (lines 124-128); spec.md §2 (line 34), §3 table (lines 42-46), §3.1-§3.3 (lines 50-83)
@@ -497,7 +497,7 @@ boilerplate Doxiq que miró el auditor).
 
 #### ❌ Contradicción · **high**
 - **Ubicación:** design-prompt §3.4 (line 174) and §3.1 (line 112) vs 07-scoring/spec.md §2, §5.1, §6
-- **Brief:** Brief §3.4 Capa 1 specifies 'dos gauges semicirculares: 🛡️ Web y 🤖 Agéntico, con el score numérico + grado al centro' (line 174) — i.e. each dimension (Web AND Agéntico) gets its own A-F grade displayed in its gauge. The Hall of Shame row also implies per-dimension grades: 'SAT: "C web / F agéntico"' (line 112).
+- **Brief:** Brief §3.4 Capa 1 specifies 'dos gauges semicirculares: 🛡️ Web y 🤖 Agéntico, con el score numérico + grado al centro' (line 174) — i.e. each dimension (Web AND Agéntico) gets its own A-F grade displayed in its gauge. The ranking row also implies per-dimension grades: 'SAT: "C web / F agéntico"' (line 112).
 - **Spec:** The spec defines grade A-F as derived ONLY from overall_score (§5.1: 'El grado se deriva del overall_score'). There is exactly ONE overall_grade (§6: 'La columna de grado se llama overall_grade en todas partes'). web_score/agentic_score are 0-100 numeric sub-scores (§2) with NO per-dimension grade defined anywhere. A 'C web / F agéntico' pair of grades has no formula in the spec.
 - **Fix:** Resolve in product/features/07-scoring/spec.md: either (a) add a normative rule projecting web_score and agentic_score each to their own A-F grade (reusing the §5.1 scale), making the brief's 'C web / F agéntico' and per-gauge grades valid; or (b) if only overall_grade exists, change product/design-prompt.md §3.4/§3.1 so per-dimension gauges show numeric scores only (no letter grade) and the SAT example reads e.g. 'web 72 / agéntico 0'. This is the central two-dimension visual; the spec must say whether sub-grades exist.
 
@@ -521,7 +521,7 @@ boilerplate Doxiq que miró el auditor).
 
 #### ✅ Alineado · **low**
 - **Ubicación:** design-prompt §2 (lines 70-79) vs 07-scoring/spec.md §5.1 (line 70)
-- **Brief:** Brief §2 grade scale: 'A (≥90) ... B (≥80) ... C (≥70) ... D (≥60) ... E (≥40) ... F (<40)' (lines 73-78), with E as a distinct band and F for the Hall of Shame.
+- **Brief:** Brief §2 grade scale: 'A (≥90) ... B (≥80) ... C (≥70) ... D (≥60) ... E (≥40) ... F (<40)' (lines 73-78), with E as a distinct band and F for the ranking.
 - **Spec:** §5.1: 'Grado: A ≥90 · B ≥80 · C ≥70 · D ≥60 · E ≥40 · F <40' — exact match, including the E (40-59) step explicitly added for the populated gov leaderboard zone.
 - **Fix:** No change needed. Thresholds, band count, and the E step are perfectly aligned. Confirm color tokens stay mapped to these exact six bands.
 
@@ -541,7 +541,7 @@ boilerplate Doxiq que miró el auditor).
 
 #### ➕ Falta en brief · **high**
 - **Ubicación:** design-prompt §3.1 (lines 96-104) vs spec §2.2 (lines 41-43) and §6 table row 'Usuario envía URL en nivel pasivo/básico → Entra al ranking público' (line 141)
-- **Brief:** The brief frames the Hall of Shame leaderboard exclusively as a ranking of .gob.mx government sites ('ranking de sitios .gob.mx, peores primero'; counter '128 sitios auditados · 41 reprobados (grado F)'), with no mention that user-submitted passive scans also populate it.
+- **Brief:** The brief frames the ranking exclusively as a ranking of .gob.mx government sites ('ranking de sitios .gob.mx, peores primero'; counter '128 sitios auditados · 41 reprobados (grado F)'), with no mention that user-submitted passive scans also populate it.
 - **Spec:** spec §2.2 (Invariante de solo-pasivo): 'Cualquier URL que un usuario envíe en nivel pasivo/básico entra también al ranking global'. So the public board includes any passive scan, not only gov sites; only active (intermedio/avanzado) and owner-scoped scans are excluded (visibility=private).
 - **Fix:** Edit product/features/08-ranking-watchlists/spec.md to resolve the internal tension between §2.1 ('leaderboard de sites WHERE is_gov=true') and §2.2 ('cualquier URL pasiva entra al ranking global'): state whether non-gov passive scans appear in the same '/' board or a separate public list. Then update design-prompt.md §3.1 to show whichever is canonical (e.g. a 'gob.mx' filter/tab vs a mixed public list), since the brief currently only designs the gov-only view.
 

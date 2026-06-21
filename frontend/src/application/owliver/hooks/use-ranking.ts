@@ -1,5 +1,5 @@
 /**
- * `useRanking` — the Hall of Shame leaderboard, cursor-paginated (§F4). The
+ * `useRanking` — the leaderboard, cursor-paginated (§F4). The
  * server already returns rows WORST-FIRST (grade F first, penaltyRaw DESC); the
  * client NEVER re-sorts. Filters (grade / worst-dimension / country) are passed
  * through to the BFF as query params.

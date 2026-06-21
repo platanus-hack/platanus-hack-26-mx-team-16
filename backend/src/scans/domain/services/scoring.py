@@ -49,7 +49,7 @@ __all__ = [
 ]
 
 # Authoritative leaderboard order contract (07-scoring §6). The SINGLE source of
-# truth for "worst first" (the gov "Hall of Shame"): grade DESCENDING so the worst
+# truth for "worst first" (the gov leaderboard): grade DESCENDING so the worst
 # letter leads (F before ... before A), then raw penalty descending to break ties
 # when dozens of ``.gob.mx`` collapse to F (penalty 300 before 120).
 # 08-ranking-watchlists / 12-api / 13-frontend MUST cite this exact tuple; the SQL

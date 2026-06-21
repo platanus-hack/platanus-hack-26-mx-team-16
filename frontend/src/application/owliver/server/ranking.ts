@@ -1,5 +1,5 @@
 /**
- * Server-only loader for the Hall of Shame initial page (§F4). RSC anonymous
+ * Server-only loader for the leaderboard initial page (§F4). RSC anonymous
  * surfaces may call `backendGet` directly (see CLAUDE.md BFF note) instead of
  * round-tripping through `/api/owliver/ranking`. We forward `GET /v1/ranking`
  * worst-first, validate the rows with the zod schema, and fall back to the

@@ -30,7 +30,7 @@ def _result(grade: str, penalty: int, score: int = 0) -> ScoreResult:
 
 
 def test_leaderboard_order_contract_is_grade_desc_penalty_desc() -> None:
-    # Hall of Shame: worst-first -> grade DESC (F before A), penalty DESC tiebreak.
+    # Leaderboard: worst-first -> grade DESC (F before A), penalty DESC tiebreak.
     expect(LEADERBOARD_ORDER).to(
         equal((("overall_grade", "DESC"), ("penalty_raw", "DESC")))
     )

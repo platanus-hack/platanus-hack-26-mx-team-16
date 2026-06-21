@@ -60,6 +60,10 @@ just dev-frontend     # Next.js dev server               (port 8080)
 just dev-all
 ```
 
+> **🔑 Credenciales de prueba** — tras `just seed-users`, inicia sesión con
+> **`team@owliver.com`** · contraseña **`12345678x`**. Todos los usuarios demo
+> sembrados comparten esa contraseña.
+
 > `just` sin argumentos lista todas las recetas disponibles.
 
 ---
@@ -89,7 +93,7 @@ just dev-all
 | `just migrate-backend-new "name"` | Crea una migración nueva (autogenerate). |
 | `just migrate-backend-current` | Muestra la revisión actual. |
 | `just migrate-backend-down steps=1` | Revierte las últimas `N` migraciones. |
-| `just seed-users` | Siembra tenants y usuarios demo (correr tras migrar). |
+| `just seed-users` | Siembra tenants y usuarios demo (correr tras migrar). Login: `team@owliver.com` / `12345678x`. |
 
 ### Frontend — `:8080`
 

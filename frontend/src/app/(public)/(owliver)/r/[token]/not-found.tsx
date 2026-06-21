@@ -21,7 +21,7 @@ export default function PublicReportNotFound() {
         href="/"
         className="mt-6 text-sm font-medium text-primary hover:underline"
       >
-        Ir al Hall of Shame
+        Ir al inicio
       </Link>
     </div>
   );

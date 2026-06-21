@@ -91,7 +91,7 @@ cadencia realista para que el theater corra completo en demo.
 
 | Ruta | Acceso | Pantalla |
 |---|---|---|
-| `/` | público | Hall of Shame (ranking `.gob.mx`) |
+| `/` | público | ranking (ranking `.gob.mx`) |
 | `/scan` | público | Formulario de escaneo + attestation gate |
 | `/scans/[id]` | público* | Live pentest theater (SSE) |
 | `/scans/[id]/report` | público* | Reporte interactivo (ejecutivo + técnico) |
@@ -120,7 +120,7 @@ a quien no es dueño (no se confirma su existencia).*
 
 ## 2. Producto Owliver — flujos públicos
 
-### F1 · Hall of Shame / Ranking (`/`)
+### F1 · Ranking (`/`)
 **Actor:** visitante anónimo · **Componente:** `(public)/(owliver)/page.tsx` (RSC)
 · **Datos:** `GET /api/owliver/ranking` → `GET /v1/ranking?country=mx`
 (cursor-paginado, fallback `rankingFixture`).
@@ -273,7 +273,7 @@ filtra exploits.
 
 **Estados:** token inexistente → **404** (`notFound`) · token expirado/revocado
 → **410** (*"Este enlace expiró · Los enlaces caducan a los 7 días"*) · válido →
-reporte redactado. **Acciones:** "Ir al Hall of Shame →" → `/`.
+reporte redactado. **Acciones:** "Ir al inicio →" → `/`.
 
 > Opcional (§F14): **Report Card** OG-image (`next/og`) con grado + 🛡️/🤖 +
 > dependencia + **F** en rojo grande → gancho viral al pegarlo en X/WhatsApp.
@@ -421,7 +421,7 @@ parcial"* cuando un scanner falla (grado **capado a C**).
 | C | ≥70 | ámbar `0.80 0.14 90` (cap-parcial) |
 | D | ≥60 | naranja `0.72 0.16 55` |
 | E | ≥40 | rojo-naranja `0.66 0.19 35` |
-| F | <40 | rojo `0.58 0.22 25` (Hall of Shame) |
+| F | <40 | rojo `0.58 0.22 25` (reprobado) |
 
 Regla: **A nunca se muestra con cobertura parcial** (se capa a C, etiquetado).
 
