@@ -51,18 +51,8 @@ export function FindingFeedItem({
 }: FindingFeedItemProps) {
   const critical = severity === "critical";
 
-  const body = (
-    <div
-      data-slot="finding-feed-item"
-      data-severity={severity}
-      onClick={onClick}
-      className={cn(
-        "flex items-start gap-3 rounded-xl border border-outline-variant bg-card p-3 shadow-xs",
-        onClick && "cursor-pointer hover:bg-surface-container-low",
-        critical && live && "animate-pulse-once",
-        className
-      )}
-    >
+  const content = (
+    <>
       <SeverityChip severity={severity} iconOnly size="sm" className="mt-0.5" />
       <div className="min-w-0 flex-1">
         <div className="mb-0.5 flex flex-wrap items-center gap-2">
@@ -82,8 +72,38 @@ export function FindingFeedItem({
               );
             })()}
         </div>
-        <p className="text-sm font-medium leading-snug text-foreground">{title}</p>
+        <p className="text-sm font-medium leading-snug text-foreground">
+          {title}
+        </p>
       </div>
+    </>
+  );
+
+  const itemClassName = cn(
+    "flex w-full items-start gap-3 rounded-xl border border-outline-variant bg-card p-3 text-left shadow-xs transition-colors duration-150",
+    onClick &&
+      "cursor-pointer hover:bg-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    critical && live && "animate-pulse-once",
+    className
+  );
+
+  const body = onClick ? (
+    <button
+      type="button"
+      data-slot="finding-feed-item"
+      data-severity={severity}
+      onClick={onClick}
+      className={itemClassName}
+    >
+      {content}
+    </button>
+  ) : (
+    <div
+      data-slot="finding-feed-item"
+      data-severity={severity}
+      className={itemClassName}
+    >
+      {content}
     </div>
   );
 

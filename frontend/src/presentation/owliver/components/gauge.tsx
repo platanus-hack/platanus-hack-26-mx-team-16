@@ -80,7 +80,7 @@ export function Gauge({
   const chartHeight = Math.round(size * 0.6);
   const outer = Math.round(size * 0.47);
   const inner = outer - stroke;
-  const readoutTop = Math.round(size * 0.19);
+  const readoutTop = Math.round(size * 0.245);
   const scoreFontSize = Math.round(size * 0.17);
   const gradeFontSize = Math.round(size * 0.105);
 

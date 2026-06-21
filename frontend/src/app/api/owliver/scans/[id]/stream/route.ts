@@ -44,6 +44,13 @@ function fixtureStream(sinceSeq: number): ReadableStream<Uint8Array> {
   const enc = new TextEncoder();
   const events = scanEventsFixture.filter((e) => e.seq > sinceSeq);
   let i = 0;
+  // The replay is driven by a self-rescheduling timer. If the client
+  // disconnects mid-run, the stream is cancelled and the controller closed —
+  // but a pending tick would still fire and call enqueue() on the closed
+  // controller, throwing ERR_INVALID_STATE. Track the timer + a closed flag so
+  // cancel() can stop it and tick() can bail.
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let closed = false;
 
   return new ReadableStream<Uint8Array>({
     start(controller) {
@@ -51,18 +58,32 @@ function fixtureStream(sinceSeq: number): ReadableStream<Uint8Array> {
       controller.enqueue(enc.encode(": owliver-stream-open\n\n"));
 
       const tick = () => {
+        if (closed) return;
         if (i >= events.length) {
+          closed = true;
           controller.close();
           return;
         }
         const e = events[i++];
-        controller.enqueue(enc.encode(frame(e.type, e.seq, e)));
+        try {
+          controller.enqueue(enc.encode(frame(e.type, e.seq, e)));
+        } catch {
+          // Controller closed underneath us (client gone) — stop replaying.
+          closed = true;
+          return;
+        }
         // Cadence: fast enough to feel live, slow enough to read the tension.
         const delay = e.type === "done" ? 400 : 650;
-        setTimeout(tick, delay);
+        timer = setTimeout(tick, delay);
       };
       // Small lead-in before the first event lands.
-      setTimeout(tick, 350);
+      timer = setTimeout(tick, 350);
+    },
+    cancel() {
+      // Client disconnected: kill the timer so tick() never touches the
+      // now-closed controller.
+      closed = true;
+      if (timer) clearTimeout(timer);
     },
   });
 }

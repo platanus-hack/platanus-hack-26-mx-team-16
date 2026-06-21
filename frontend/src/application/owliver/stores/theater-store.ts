@@ -12,7 +12,7 @@
  */
 import { create } from "zustand";
 
-import type { Severity } from "../schemas/api";
+import type { FindingEvidence, Severity } from "../schemas/api";
 import type {
   AgentLaneId,
   DoneEventPayload,
@@ -45,8 +45,19 @@ export type LiveFinding = {
   seq: number;
   severity: Severity;
   source?: "owasp" | "agentic";
+  tool?: string;
   category?: string;
   title: string;
+  confidence?: "alta" | "media" | "baja";
+  cvss?: number | null;
+  description?: string;
+  evidence?: FindingEvidence;
+  affectedUrl?: string | null;
+  endpoint?: string | null;
+  param?: string | null;
+  impact?: string;
+  remediation?: string;
+  references?: string[];
 };
 
 export type TheaterRunStatus =
@@ -91,10 +102,7 @@ function laneFromAgent(agent: string | null | undefined): AgentLaneId {
   return agent === "agentic" ? "agentic" : "owasp";
 }
 
-const INITIAL: Omit<
-  TheaterState,
-  "init" | "apply" | "applyMany" | "reset"
-> = {
+const INITIAL: Omit<TheaterState, "init" | "apply" | "applyMany" | "reset"> = {
   scanId: null,
   lastSeq: 0,
   runStatus: "idle",
@@ -212,8 +220,19 @@ export const useTheaterStore = create<TheaterState>((set, get) => ({
             seq: event.seq,
             severity: (event.severity ?? "info") as Severity,
             source: p.source,
+            tool: p.tool,
             category: p.category,
             title: p.title ?? event.message,
+            confidence: p.confidence,
+            cvss: p.cvss,
+            description: p.description,
+            evidence: p.evidence as FindingEvidence | undefined,
+            affectedUrl: p.affectedUrl ?? p.affected_url,
+            endpoint: p.endpoint,
+            param: p.param,
+            impact: p.impact,
+            remediation: p.remediation,
+            references: p.references,
           };
           next.findings = [...state.findings, finding];
           break;
@@ -244,7 +263,8 @@ export const useTheaterStore = create<TheaterState>((set, get) => ({
       return { ...state, ...next };
     }),
 
-  reset: () => set({ ...INITIAL, lanes: initialLanes(), findings: [], log: [] }),
+  reset: () =>
+    set({ ...INITIAL, lanes: initialLanes(), findings: [], log: [] }),
 }));
 
 /** Selector: is the run in a terminal state (done/cancelled/error)? */

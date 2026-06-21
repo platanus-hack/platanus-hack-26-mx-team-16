@@ -13,30 +13,36 @@
  */
 "use client";
 
-import * as React from "react";
-import Link from "next/link";
 import { Ban, FileText, Loader2, Radio } from "lucide-react";
+import Link from "next/link";
+import * as React from "react";
 
 import { cn } from "@/src/application/lib/utils";
+import {
+  useCancelScan,
+  useScanFindings,
+} from "@/src/application/owliver/hooks/use-scan";
 import { useScanStream } from "@/src/application/owliver/hooks/use-scan-stream";
-import { useCancelScan } from "@/src/application/owliver/hooks/use-scan";
+import type { Finding, Scan } from "@/src/application/owliver/schemas/api";
 import {
   isTerminal,
+  type LiveFinding,
   useTheaterStore,
 } from "@/src/application/owliver/stores/theater-store";
-import type { Scan } from "@/src/application/owliver/schemas/api";
 import {
   Button,
   buttonVariants,
 } from "@/src/presentation/components/ui/button";
 import {
   AgentLane,
+  FindingDetailDialog,
+  FindingFeedItem,
   Gauge,
   GradeBadge,
   OwlMascot,
   ProgressBar,
-  FindingFeedItem,
 } from "@/src/presentation/owliver";
+import { BrandMark } from "@/src/presentation/owliver/chrome/brand-mark";
 import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 
 export type TheaterViewProps = {
@@ -109,8 +115,12 @@ export function TheaterView({
   const cancel = useCancelScan(scanId);
 
   const terminal = isTerminal(runStatus);
+  const findingsQuery = useScanFindings(scanId, true, !terminal);
   const running = !terminal && initialScan.status !== "queued";
   const elapsed = useElapsed(initialScan.startedAt, running);
+  const [selectedFinding, setSelectedFinding] = React.useState<
+    Finding | LiveFinding | null
+  >(null);
 
   // Prefer live store values; fall back to the seeded server state.
   const phase = currentPhase ?? initialScan.currentPhase ?? null;
@@ -130,13 +140,31 @@ export function TheaterView({
 
   // Auto-scroll the telemetry log to the newest line.
   const logRef = React.useRef<HTMLDivElement>(null);
+  const lastLogSeq = log.at(-1)?.seq;
   React.useEffect(() => {
+    if (lastLogSeq === undefined) return;
     const el = logRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [log.length]);
+  }, [lastLogSeq]);
 
-  // Newest finding first in the feed (most recent hit on top).
-  const feed = React.useMemo(() => [...findings].reverse(), [findings]);
+  const persistedFindings = findingsQuery.data ?? [];
+  const persistedById = React.useMemo(
+    () => new Map(persistedFindings.map((finding) => [finding.id, finding])),
+    [persistedFindings]
+  );
+
+  // Newest live finding first, then persisted findings that predate this session.
+  const feed = React.useMemo<(Finding | LiveFinding)[]>(() => {
+    const seen = new Set<string>();
+    const merged = [...findings].reverse().map((finding) => {
+      seen.add(finding.key);
+      return persistedById.get(finding.key) ?? finding;
+    });
+    for (const finding of persistedFindings) {
+      if (!seen.has(finding.id)) merged.push(finding);
+    }
+    return merged;
+  }, [findings, persistedById, persistedFindings]);
 
   const queued = initialScan.status === "queued" && runStatus === "idle";
   const cancelled = runStatus === "cancelled";
@@ -144,14 +172,13 @@ export function TheaterView({
 
   return (
     <div className="soc fixed inset-0 z-50 overflow-y-auto bg-background text-foreground">
-      {/* Subtle scanline / grid backdrop — functional neon, not decoration. */}
-      <div
+      {/* Official white mark for the black SOC surface. */}
+      {/* biome-ignore lint/performance/noImgElement: official SVG mark is a fixed static asset. */}
+      <img
+        src="/owliver-icon-white.svg"
+        alt=""
         aria-hidden
-        className="pointer-events-none fixed inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(0deg, var(--ring) 0, var(--ring) 1px, transparent 1px, transparent 4px)",
-        }}
+        className="pointer-events-none fixed -right-20 -top-24 h-96 w-96 opacity-[0.035] md:-right-28 md:-top-32 md:h-[34rem] md:w-[34rem]"
       />
 
       <div className="relative mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">
@@ -159,7 +186,9 @@ export function TheaterView({
         <header className="mb-6 rounded-2xl border border-outline-variant bg-surface-container-low p-4 md:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <OwlMascot state={terminal ? "idle" : "running"} size={48} />
+              <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-black ring-1 ring-outline-variant">
+                <BrandMark size={42} priority />
+              </span>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <Radio
@@ -195,6 +224,7 @@ export function TheaterView({
               ) : (
                 <div
                   className="flex size-14 items-center justify-center rounded-xl border border-dashed border-outline-variant font-mono text-2xl font-bold text-muted-foreground"
+                  role="img"
                   aria-label="Grado en construcción"
                   title="Grado en construcción"
                 >
@@ -246,8 +276,8 @@ export function TheaterView({
           {/* Terminal banners (partial / cancelled / error). */}
           {initialScan.partialCoverage && terminal && (
             <p className="mt-3 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-warning-deep">
-              Cobertura parcial — algún scanner no completó; el grado queda capado
-              en C.
+              Cobertura parcial — algún scanner no completó; el grado queda
+              capado en C.
             </p>
           )}
           {cancelled && (
@@ -289,11 +319,16 @@ export function TheaterView({
             {/* ─── Live findings feed ─── */}
             <section className="flex flex-col gap-3 rounded-2xl border border-outline-variant bg-surface-container-low p-4 lg:row-span-2">
               <header className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-foreground">
-                  Hallazgos en vivo
-                </h2>
-                <span className="font-mono text-xs text-on-surface-variant">
-                  {findings.length}
+                <div>
+                  <h2 className="text-sm font-semibold text-foreground">
+                    Hallazgos en vivo
+                  </h2>
+                  <p className="text-xs text-on-surface-variant">
+                    Selecciona uno para inspeccionar evidencia y remediación.
+                  </p>
+                </div>
+                <span className="rounded-full bg-surface-container px-2.5 py-1 font-mono text-xs text-on-surface-variant">
+                  {feed.length}
                 </span>
               </header>
               <div className="flex flex-col gap-2">
@@ -304,11 +339,12 @@ export function TheaterView({
                 ) : (
                   feed.map((f) => (
                     <FindingFeedItem
-                      key={f.key}
+                      key={"id" in f ? f.id : f.key}
                       severity={f.severity}
                       title={f.title}
                       category={f.category}
                       source={f.source}
+                      onClick={() => setSelectedFinding(f)}
                       live
                     />
                   ))
@@ -330,7 +366,9 @@ export function TheaterView({
                 score={liveAgentic}
                 grade={terminal ? initialScan.agenticGrade : null}
                 label="Agéntico"
-                icon={<AgenticChip className="size-4 text-on-surface-variant" />}
+                icon={
+                  <AgenticChip className="size-4 text-on-surface-variant" />
+                }
                 size={132}
                 emptyHint={agenticHint}
               />
@@ -367,12 +405,15 @@ export function TheaterView({
                         className="shrink-0 font-semibold"
                         style={{
                           color:
-                            LOG_TYPE_COLOR[l.type] ?? "var(--on-surface-variant)",
+                            LOG_TYPE_COLOR[l.type] ??
+                            "var(--on-surface-variant)",
                         }}
                       >
                         {l.type.padEnd(12, " ")}
                       </span>
-                      <span className="text-on-surface-variant">{l.message}</span>
+                      <span className="text-on-surface-variant">
+                        {l.message}
+                      </span>
                     </div>
                   ))
                 )}
@@ -381,6 +422,13 @@ export function TheaterView({
           </div>
         )}
       </div>
+      <FindingDetailDialog
+        finding={selectedFinding}
+        open={selectedFinding !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedFinding(null);
+        }}
+      />
     </div>
   );
 }

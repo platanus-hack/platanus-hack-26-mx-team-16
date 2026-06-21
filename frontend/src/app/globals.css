@@ -458,55 +458,55 @@
 
 /* Live-View "war room" — M3 dark, pastel-neon. Apply on the scan/live route only. */
 .soc {
-  --background: #121a18;
-  --foreground: #dce6e2;
-  --card: #1e2623;
-  --card-foreground: #dce6e2;
-  --popover: #1e2623;
-  --popover-foreground: #dce6e2;
-  --primary: #86dede; /* cian = actividad */
+  --background: #090704;
+  --foreground: #e0ded8;
+  --card: #110f0a;
+  --card-foreground: #e0ded8;
+  --popover: #110f0a;
+  --popover-foreground: #e0ded8;
+  --primary: #58cdc9; /* cian = actividad */
   --primary-foreground: #06302e;
-  --primary-container: #21403b;
-  --on-primary-container: #86dede;
-  --secondary: #243430;
-  --secondary-foreground: #dce6e2;
-  --secondary-container: #243430;
-  --on-secondary-container: #dce6e2;
+  --primary-container: #163d3a;
+  --on-primary-container: #58cdc9;
+  --secondary: #1a1813;
+  --secondary-foreground: #e0ded8;
+  --secondary-container: #1a1813;
+  --on-secondary-container: #e0ded8;
   --tertiary: #d1cbff; /* violeta = herramienta corriendo */
   --on-tertiary: #3124a0;
   --tertiary-container: #4e40d4;
   --on-tertiary-container: #ece9ff;
-  --muted: #1e2623;
-  --muted-foreground: #8a958f;
-  --accent: #21403b;
-  --accent-foreground: #86dede;
-  --destructive: #ef8a86; /* coral = hallazgo crítico */
+  --muted: #110f0a;
+  --muted-foreground: #a6a49f;
+  --accent: #163d3a;
+  --accent-foreground: #58cdc9;
+  --destructive: #e05c42; /* coral = hallazgo crítico */
   --destructive-foreground: #3a0907;
-  --destructive-deep: #ef8a86;
-  --border: #34403b;
-  --input: #34403b;
-  --ring: #86dede;
-  --outline: #8a958f;
-  --outline-variant: #34403b;
-  --surface-container-lowest: #0c1311;
-  --surface-container-low: #1a211e;
-  --surface-container: #1e2623;
-  --surface-container-high: #29302d;
-  --surface-container-highest: #343b38;
-  --success: #92dca8;
+  --destructive-deep: #e05c42;
+  --border: #45423b;
+  --input: #45423b;
+  --ring: #58cdc9;
+  --outline: #a6a49f;
+  --outline-variant: #45423b;
+  --surface-container-lowest: #090704;
+  --surface-container-low: #110f0a;
+  --surface-container: #1a1813;
+  --surface-container-high: #24211a;
+  --surface-container-highest: #302c23;
+  --success: #6ecf9a;
   --success-foreground: #07351f;
-  --success-deep: #92dca8;
+  --success-deep: #6ecf9a;
   --warning: #f4c77e;
   --warning-foreground: #2a1f00;
   --warning-deep: #f4c77e;
-  --sidebar: #1a211e;
-  --sidebar-foreground: #dce6e2;
-  --sidebar-primary: #86dede;
+  --sidebar: #110f0a;
+  --sidebar-foreground: #e0ded8;
+  --sidebar-primary: #58cdc9;
   --sidebar-primary-foreground: #06302e;
-  --sidebar-accent: #21403b;
-  --sidebar-accent-foreground: #86dede;
-  --sidebar-border: #34403b;
-  --sidebar-ring: #86dede;
+  --sidebar-accent: #163d3a;
+  --sidebar-accent-foreground: #58cdc9;
+  --sidebar-border: #45423b;
+  --sidebar-ring: #58cdc9;
 }
 
 @layer base {

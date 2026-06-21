@@ -69,6 +69,18 @@ export type DoneEventPayload = { outcome?: "success" | "cancelled" };
 export type FindingEventPayload = {
   id?: string;
   source?: "owasp" | "agentic";
+  tool?: string;
   category?: string;
   title?: string;
+  confidence?: "alta" | "media" | "baja";
+  cvss?: number | null;
+  description?: string;
+  evidence?: Record<string, unknown>;
+  affectedUrl?: string | null;
+  affected_url?: string | null;
+  endpoint?: string | null;
+  param?: string | null;
+  impact?: string;
+  remediation?: string;
+  references?: string[];
 };

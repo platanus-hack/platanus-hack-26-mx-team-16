@@ -1,4 +1,6 @@
 /**
+ * biome-ignore-all assist/source/organizeImports: barrel exports are grouped by product area for discoverability.
+ *
  * Owliver design-system barrel — the stable import surface for screen agents.
  * Import components from here, e.g.:
  *   import { GradeBadge, Gauge, SeverityChip } from "@/src/presentation/owliver";
@@ -14,7 +16,10 @@ export type { GaugeProps } from "./components/gauge";
 export { SeverityChip } from "./components/severity-chip";
 export type { SeverityChipProps } from "./components/severity-chip";
 export { StatusBadge, CoverageBadges } from "./components/status-badge";
-export type { StatusBadgeProps, StatusBadgeVariant } from "./components/status-badge";
+export type {
+  StatusBadgeProps,
+  StatusBadgeVariant,
+} from "./components/status-badge";
 export { ScaleLegend } from "./components/scale-legend";
 export type { ScaleLegendProps } from "./components/scale-legend";
 export { ProgressBar } from "./components/progress-bar";
@@ -23,6 +28,8 @@ export { OwlMascot } from "./components/owl-mascot";
 export type { OwlMascotProps, OwlState } from "./components/owl-mascot";
 export { FindingFeedItem } from "./components/finding-feed-item";
 export type { FindingFeedItemProps } from "./components/finding-feed-item";
+export { FindingDetailDialog } from "./components/finding-detail-dialog";
+export type { FindingDetailDialogProps } from "./components/finding-detail-dialog";
 
 // ─── Theater (SOC) ───
 export { ToolChip } from "./theater/tool-chip";

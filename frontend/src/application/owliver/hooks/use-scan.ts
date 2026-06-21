@@ -9,16 +9,16 @@
  */
 "use client";
 
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { firstErrorMessage } from "../lib/envelope";
-import { parseData } from "../lib/envelope";
+import { firstErrorMessage, parseData, parsePage } from "../lib/envelope";
+import {
+  type Finding,
+  findingSchema,
+  type Scan,
+  scanSchema,
+} from "../schemas/api";
 import { owliverKeys } from "./query-keys";
-import { type Scan, scanSchema } from "../schemas/api";
 
 export type ScanQueryError = { status: number; message: string };
 
@@ -43,6 +43,21 @@ async function fetchScan(id: string): Promise<Scan> {
   return parseData(scanSchema, body);
 }
 
+async function fetchScanFindings(id: string): Promise<Finding[]> {
+  const res = await fetch(`/api/owliver/scans/${id}/findings`, {
+    credentials: "same-origin",
+    headers: { Accept: "application/json" },
+  });
+  const body = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    throw new Error(
+      firstErrorMessage(body, "No se pudieron cargar los hallazgos")
+    );
+  }
+  return parsePage(findingSchema, body).data;
+}
+
 export function useScan(id: string, enabled = true) {
   return useQuery<Scan, ScanQueryError>({
     queryKey: owliverKeys.scan(id),
@@ -51,6 +66,20 @@ export function useScan(id: string, enabled = true) {
     // The theater header is seeded once; live state flows via SSE, not polling.
     staleTime: 30_000,
     retry: (count, err) => err.status !== 404 && count < 2,
+  });
+}
+
+export function useScanFindings(
+  id: string,
+  enabled = true,
+  pollWhileRunning = false
+) {
+  return useQuery<Finding[], Error>({
+    queryKey: owliverKeys.findings(id),
+    queryFn: () => fetchScanFindings(id),
+    enabled: enabled && Boolean(id),
+    staleTime: 10_000,
+    refetchInterval: pollWhileRunning ? 5_000 : false,
   });
 }
 

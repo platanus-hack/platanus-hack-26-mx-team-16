@@ -154,13 +154,13 @@ export default function WatcherPage() {
         <TabsList aria-label="Secciones de la watchlist">
           <TabsTrigger
             value="sitios"
-            className="data-[active]:bg-primary data-[active]:text-primary-foreground"
+            className="data-[active]:bg-primary-action data-[active]:text-primary-action-foreground"
           >
             Sitios
           </TabsTrigger>
           <TabsTrigger
             value="config"
-            className="data-[active]:bg-primary data-[active]:text-primary-foreground"
+            className="data-[active]:bg-primary-action data-[active]:text-primary-action-foreground"
           >
             Config
           </TabsTrigger>
