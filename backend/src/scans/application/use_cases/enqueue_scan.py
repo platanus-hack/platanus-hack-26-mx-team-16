@@ -32,11 +32,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from src.common.domain.buses.commands import CommandBus
-from src.common.domain.enums.scans import ScanLevel
+from src.common.domain.enums.scans import ScanLevel, ScanVisibility
 from src.common.domain.interfaces.use_case import UseCase
 from src.common.domain.legal import (
     default_visibility,
     enforce_attestation,
+    is_active,
     resolve_host_flags,
 )
 from src.common.domain.models.user import User
@@ -57,7 +58,7 @@ class EnqueueScan(UseCase):
     url: str
     level: ScanLevel
     authorized: bool
-    user: User
+    user: User | None
     site_repository: SiteRepository
     scan_repository: ScanRepository
     command_bus: CommandBus
@@ -76,6 +77,14 @@ class EnqueueScan(UseCase):
         visibility = default_visibility(
             is_gov=flags.is_gov, level=self.level, has_owner=False
         )
+        # Anonymous passive scan (the public ``/scan`` page): there is no account
+        # to keep it private *to*, and a basic scan is 100% passive public data
+        # (Mozilla Observatory / SSL-Labs-equivalent), so serve it ``public`` —
+        # otherwise a ``private`` scan with ``requested_by=NULL`` is readable by
+        # nobody and the requester lands on "no encontrado". Active levels (which
+        # may carry exploit detail) are never auto-published this way.
+        if self.user is None and not is_active(self.level):
+            visibility = ScanVisibility.PUBLIC
 
         # 4. Layer 1 — short-circuit on a live scan for (site, level) ⇒ 200 hit.
         existing = await self.scan_repository.find_active(site.uuid, level_value)
@@ -90,7 +99,7 @@ class EnqueueScan(UseCase):
             site.uuid,
             level_value,
             visibility=str(visibility),
-            requested_by=self.user.uuid,
+            requested_by=self.user.uuid if self.user is not None else None,
             authorized=self.authorized,
         )
 

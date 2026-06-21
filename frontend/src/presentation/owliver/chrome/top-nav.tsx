@@ -1,12 +1,9 @@
 /**
- * TopNav — the public Owliver header (§F3): BrandLockup + nav links + the amber
- * "Escanear mi sitio" CTA (tertiary = owl-eyes). NO sidebar — this serves both
- * the anonymous viral audience and the signed-in watchlist user from one bar.
- *
- * Server-component friendly (the nav links are plain anchors). The CTA is a
- * `tertiary` Button styled as a link. Sticky, hairline-bottom, theme-aware so it
- * survives the light shell (it never renders inside the SOC theater).
+ * TopNav — public Owliver header (§F3): brand, compact navigation, account entry
+ * and the primary audit action. Server-component friendly.
  */
+
+import { LogIn, Radar } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/src/application/lib/utils";
@@ -21,46 +18,39 @@ export type TopNavProps = {
 
 const NAV_LINKS = [
   { href: "/", label: "Hall of Shame" },
-  { href: "/como-funciona", label: "Cómo Funciona" },
+  { href: "/como-funciona", label: "Cómo funciona" },
 ];
+
+const navLinkClass =
+  "rounded-full px-3.5 py-2 text-sm font-medium text-on-surface-variant outline-none transition-colors hover:bg-background hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring";
 
 export function TopNav({ showWatchlist = false, className }: TopNavProps) {
   return (
     <header
       data-slot="top-nav"
       className={cn(
-        "sticky top-0 z-40 w-full border-b border-outline-variant bg-background/85 backdrop-blur-md",
+        "sticky top-0 z-40 w-full border-b border-outline-variant/80 bg-background/92 backdrop-blur-md",
         className
       )}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
-        <div className="flex items-center gap-6">
+      <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between gap-3 px-4 md:px-6">
+        <div className="flex min-w-0 items-center gap-5">
           <BrandLockup size="md" />
           <nav
-            className="hidden items-center gap-1 md:flex"
+            className="hidden items-center gap-1 rounded-full bg-surface-container-low px-1.5 py-1 md:flex"
             aria-label="Principal"
           >
             {NAV_LINKS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="rounded-full px-3 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container hover:text-foreground"
-              >
+              <Link key={l.href} href={l.href} className={navLinkClass}>
                 {l.label}
               </Link>
             ))}
             {showWatchlist && (
               <>
-                <Link
-                  href="/watchlist"
-                  className="rounded-full px-3 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container hover:text-foreground"
-                >
+                <Link href="/watchlist" className={navLinkClass}>
                   Watchlist
                 </Link>
-                <Link
-                  href="/onboarding"
-                  className="rounded-full px-3 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container hover:text-foreground"
-                >
+                <Link href="/onboarding" className={navLinkClass}>
                   Primeros pasos
                 </Link>
               </>
@@ -70,9 +60,30 @@ export function TopNav({ showWatchlist = false, className }: TopNavProps) {
 
         <div className="flex items-center gap-2">
           <Link
-            href="/scan"
-            className={buttonVariants({ variant: "tertiary", size: "default" })}
+            href="/login"
+            aria-label="Entrar a cuenta"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "icon" }),
+              "sm:hidden"
+            )}
           >
+            <LogIn className="size-4" />
+          </Link>
+          <Link
+            href="/login"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "default" }),
+              "hidden sm:inline-flex"
+            )}
+          >
+            <LogIn className="size-4" />
+            Entrar
+          </Link>
+          <Link
+            href="/scan"
+            className={buttonVariants({ variant: "default", size: "default" })}
+          >
+            <Radar className="size-4" />
             Auditar URL
           </Link>
         </div>

@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/src/presentation/components/ui/card";
 import { ScanForm } from "@/src/presentation/owliver/scan/scan-form";
 
 export const metadata: Metadata = {
-  title: "Auditar un sitio · Owliver",
+  title: "Auditar un sitio",
   description:
     "Ingresa una URL y elige el nivel de auditoría. Owliver escanea OWASP web + la superficie agéntica (chatbots e IA).",
 };

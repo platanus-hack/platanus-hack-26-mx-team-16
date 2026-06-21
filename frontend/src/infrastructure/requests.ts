@@ -11,7 +11,7 @@ export const getCommonHeaders = (
   accessToken?: string | null
 ) => {
   const version = Settings.version;
-  const client = `web:app.llamitai.web/latest:${version}`;
+  const client = `web:app.owliver.web/latest:${version}`;
 
   let headers: Record<string, string> = {
     "X-Client": client,

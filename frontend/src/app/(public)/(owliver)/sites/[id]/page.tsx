@@ -177,7 +177,7 @@ export default async function SiteHistoryPage({
         </div>
         <div className="mt-5 flex justify-center">
           <Link
-            href={`/scans/${scan.id}/report`}
+            href={`/scans/${scan.scanId}/report`}
             className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
           >
             Ver reporte completo

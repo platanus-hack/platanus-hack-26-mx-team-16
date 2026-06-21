@@ -66,7 +66,7 @@ services:
       - .env
     environment:
       - PYTHONPATH=/app
-      - PROCESS_LABEL=worker
+      - PROCESS_LABEL=workflow-worker
       - MAILPIT_API_URL=http://mailpit:8025
     depends_on:
       postgres:

@@ -60,7 +60,7 @@ export const sidebarConfig: SidebarConfig = {
   },
   teams: [
     {
-      name: "LlamitAI",
+      name: "Owliver",
       logo: Settings,
       plan: "Enterprise",
     },

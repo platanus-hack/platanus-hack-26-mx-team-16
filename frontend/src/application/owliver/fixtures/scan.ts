@@ -17,7 +17,7 @@ export const SAT_SCAN_ID = "scan-sat-demo-0001";
 export const SAT_SITE_ID = "site-sat-gob-mx";
 
 export const scanFixture: Scan = {
-  id: SAT_SCAN_ID,
+  scanId: SAT_SCAN_ID,
   siteId: SAT_SITE_ID,
   host: "sat.gob.mx",
   level: "basico",
@@ -40,14 +40,14 @@ export const scanFixture: Scan = {
     garak: "done",
     promptfoo: "done",
   },
-  coverage: {
-    nuclei: "ok",
-    testssl: "ok",
-    zap: "ok",
-    nikto: "ok",
-    garak: "ok",
-    promptfoo: "ok",
-  },
+  coverage: [
+    { tool: "nuclei", status: "ok" },
+    { tool: "testssl", status: "ok" },
+    { tool: "zap", status: "ok" },
+    { tool: "nikto", status: "ok" },
+    { tool: "garak", status: "ok" },
+    { tool: "promptfoo", status: "ok" },
+  ],
   partialCoverage: false,
   error: null,
   startedAt: new Date(Date.now() - 88_000).toISOString(),

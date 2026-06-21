@@ -7,17 +7,35 @@
  */
 "use client";
 
+import { cn } from "@/src/application/lib/utils";
 import { CountUp } from "@/src/presentation/components/common/count-up";
 
 export type HeroStatsProps = {
   total: number;
   failing: number;
+  className?: string;
 };
 
-export function HeroStats({ total, failing }: HeroStatsProps) {
+export function HeroStats({ total, failing, className }: HeroStatsProps) {
+  if (total === 0) {
+    return (
+      <p
+        className={cn(
+          "text-base font-medium text-on-surface-variant",
+          className
+        )}
+      >
+        Ranking esperando datos auditados.
+      </p>
+    );
+  }
+
   return (
-    <p className="mt-3 text-lg text-on-surface-variant">
-      <CountUp to={total} className="font-mono font-semibold tabular-nums text-foreground" />{" "}
+    <p className={cn("text-lg text-on-surface-variant", className)}>
+      <CountUp
+        to={total}
+        className="font-mono font-semibold tabular-nums text-foreground"
+      />{" "}
       sitios auditados ·{" "}
       <span className="font-semibold text-grade-f">
         <CountUp to={failing} className="font-mono tabular-nums" /> reprobados

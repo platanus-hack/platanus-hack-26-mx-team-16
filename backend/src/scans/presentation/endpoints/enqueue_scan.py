@@ -27,7 +27,9 @@ from src.common.infrastructure.dependencies.common import (
     DomainContextDep,
     RedisClientDep,
 )
-from src.common.infrastructure.dependencies.session import get_authenticated_user
+from src.common.infrastructure.dependencies.session import (
+    get_optional_authenticated_user,
+)
 from src.common.infrastructure.responses.api_json import ApiJSONResponse
 from src.common.infrastructure.services.rate_limiter import (
     RateLimiter,
@@ -43,14 +45,22 @@ _SCAN_LIMIT, _SCAN_WINDOW = API_SCAN_RATE_LIMIT
 async def _enforce_scan_rate_limit(
     request: Request,
     redis_client: RedisClientDep,
-    user: Annotated[User, Depends(get_authenticated_user)],
-) -> User:
-    """Per-user fixed-window limit on ``POST /scans`` (5/h). Raises
-    ``RateLimitExceededError`` (→ 429 + Retry-After) when exceeded."""
+    user: Annotated[User | None, Depends(get_optional_authenticated_user)],
+) -> User | None:
+    """Per-requester fixed-window limit on ``POST /scans`` (5/h). The public
+    ``/scan`` page enqueues anonymously (12-api lists ``POST /scans`` without the
+    ``(auth)`` marker), so auth is optional: authenticated callers are keyed by
+    user id, anonymous callers by client IP. Raises ``RateLimitExceededError``
+    (→ 429 + Retry-After) when exceeded."""
+    if user is not None:
+        bucket = f"scans:{user.uuid}"
+    else:
+        client_ip = request.client.host if request.client else "unknown"
+        bucket = f"scans:ip:{client_ip}"
     rate_limiter = RateLimiter(redis_client=redis_client)
     try:
         _, remaining, _ = await rate_limiter.check_rate_limit(
-            key=f"scans:{user.uuid}",
+            key=bucket,
             limit=_SCAN_LIMIT,
             window=_SCAN_WINDOW,
             strategy="fixed_window",
@@ -70,7 +80,7 @@ async def enqueue_scan(
     request: EnqueueScanRequest,
     domain_context: DomainContextDep,
     bus_context: BusContextDep,
-    user: Annotated[User, Depends(_enforce_scan_rate_limit)],
+    user: Annotated[User | None, Depends(_enforce_scan_rate_limit)],
 ) -> ApiJSONResponse:
     result = await EnqueueScan(
         url=request.url,

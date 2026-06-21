@@ -46,14 +46,14 @@ export default async function ReportPage({
           <p className="mt-1 text-sm text-on-surface-variant">
             Nivel {scan.level} ·{" "}
             <Link
-              href={`/scans/${scan.id}`}
+              href={`/scans/${scan.scanId}`}
               className="text-primary hover:underline"
             >
               ver escaneo en vivo
             </Link>
           </p>
         </div>
-        <ReportActions scanId={scan.id} />
+        <ReportActions scanId={scan.scanId} />
       </header>
 
       {/* Layer 1 — executive */}

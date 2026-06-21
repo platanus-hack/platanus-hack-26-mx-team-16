@@ -31,7 +31,7 @@ services:
     image: ghcr.io/xiberty/owliver-worker-dev:${IMAGE_TAG:-latest}
     environment:
       <<: *common-env
-      PROCESS_LABEL: worker
+      PROCESS_LABEL: workflow-worker
     command: /start
     restart: unless-stopped
     volumes:

@@ -34,7 +34,7 @@ export function LeaderboardRow({ row, pulse }: LeaderboardRowProps) {
       href={`/sites/${row.siteId}`}
       data-grade={row.overallGrade}
       className={cn(
-        "group flex items-center gap-3 rounded-2xl border bg-card p-3 shadow-xs transition-colors hover:bg-surface-container-low md:gap-4 md:p-4",
+        "group flex items-center gap-3 rounded-2xl border bg-card p-3 shadow-xs outline-none transition-[background-color,box-shadow,transform] hover:bg-surface-container-low focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.995] md:gap-4 md:p-4",
         failing ? "border-grade-f/30" : "border-outline-variant"
       )}
     >
@@ -53,7 +53,7 @@ export function LeaderboardRow({ row, pulse }: LeaderboardRowProps) {
         </p>
         {/* Hover reveals the "why" — the row's top finding (§F4 wow). */}
         {row.topFinding ? (
-          <p className="mt-1 hidden truncate text-xs text-on-surface-variant/80 group-hover:block">
+          <p className="mt-1 hidden truncate text-xs text-on-surface-variant group-hover:block group-focus-visible:block">
             <span className="text-grade-f">●</span> {row.topFinding}
           </p>
         ) : null}
@@ -76,7 +76,10 @@ export function LeaderboardRow({ row, pulse }: LeaderboardRowProps) {
         </span>
       </div>
 
-      <TrendIndicator trend={row.trend} className="hidden shrink-0 md:inline-flex" />
+      <TrendIndicator
+        trend={row.trend}
+        className="hidden shrink-0 md:inline-flex"
+      />
 
       <CoverageBadges
         agenticStatus={row.agenticStatus}

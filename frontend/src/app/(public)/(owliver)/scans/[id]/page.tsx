@@ -18,7 +18,7 @@ import { TheaterView } from "@/src/presentation/owliver/theater/theater-view";
 import { TheaterNotFound } from "@/src/presentation/owliver/theater/theater-not-found";
 
 export const metadata: Metadata = {
-  title: "Escaneo en vivo · Owliver",
+  title: "Escaneo en vivo",
   description: "Pentest automatizado en tiempo real.",
 };
 

@@ -50,7 +50,7 @@ export function BrandLockup({
       {!markOnly && (
         <span
           className={cn(
-            "font-semibold tracking-tight text-foreground",
+            "font-display font-semibold uppercase tracking-[0.15em] text-primary",
             TEXT_SIZE[size]
           )}
         >

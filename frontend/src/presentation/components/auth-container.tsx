@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { LocaleSwitcher } from "@/src/presentation/components/locale-switcher";
+import { BrandLockup } from "@/src/presentation/owliver/chrome/brand-lockup";
 
 interface AuthContainerProps {
   icon: LucideIcon;
@@ -10,6 +11,12 @@ interface AuthContainerProps {
   children: ReactNode;
 }
 
+/**
+ * Shared shell for the auth forms (register, reset-password, …). Mirrors the
+ * Owliver login page: a single centered card led by the brand lockup (owl +
+ * wordmark), with the per-page lucide icon as a small accent above the title —
+ * one visual language across every auth surface.
+ */
 export function AuthContainer({
   icon: Icon,
   title,
@@ -17,32 +24,30 @@ export function AuthContainer({
   children,
 }: AuthContainerProps) {
   return (
-    <div className="grid min-h-screen lg:grid-cols-[3fr_2fr] relative">
+    <div className="relative grid min-h-screen place-items-center bg-background px-4 py-12">
       <div className="absolute top-4 right-4 z-10">
         <LocaleSwitcher />
       </div>
 
-      <div className="hidden lg:flex items-center justify-center bg-muted/30 p-12">
-        <div className="max-w-md space-y-6 text-center">
-          <div className="mx-auto h-48 w-48 rounded-full bg-muted/50 flex items-center justify-center">
-            <div className="h-24 w-24 rounded-lg bg-muted/80" />
-          </div>
-        </div>
-      </div>
+      <div className="w-full max-w-md">
+        <div className="flex flex-col items-center gap-8 rounded-3xl border border-border bg-card p-8 shadow-sm sm:p-10">
+          <BrandLockup href="/" size="lg" owlState="idle" />
 
-      <div className="flex items-center justify-center p-8">
-        <div className="w-full max-w-md space-y-8">
-          <div className="space-y-4 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <Icon className="h-6 w-6 text-primary" />
+          <div className="flex flex-col items-center gap-3 text-center">
+            <div className="flex size-11 items-center justify-center rounded-full bg-primary/10">
+              <Icon className="size-5 text-primary" aria-hidden />
             </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-              <p className="text-sm text-muted-foreground">{description}</p>
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                {title}
+              </h1>
+              <p className="text-sm text-pretty text-muted-foreground">
+                {description}
+              </p>
             </div>
           </div>
 
-          {children}
+          <div className="w-full">{children}</div>
         </div>
       </div>
     </div>

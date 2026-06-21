@@ -55,9 +55,15 @@ class ScanListItemPresenter(Presenter[Scan]):
 
 @dataclass
 class ScanDetailPresenter(Presenter[Scan]):
-    """Full state + scores + observability for ``GET /scans/{id}``."""
+    """Full state + scores + observability for ``GET /scans/{id}``.
+
+    ``host`` is the audited hostname, loaded from the ``sites`` row by the
+    endpoint (the ``scans`` row only carries ``site_id``); the live-view/report
+    render it as the title.
+    """
 
     instance: Scan
+    host: str | None = None
 
     @property
     def to_dict(self) -> dict[str, Any]:
@@ -65,6 +71,7 @@ class ScanDetailPresenter(Presenter[Scan]):
         return {
             "scanId": str(scan.uuid),
             "siteId": str(scan.site_id),
+            "host": self.host,
             "level": scan.level,
             "status": scan.status,
             "visibility": scan.visibility,
@@ -80,6 +87,9 @@ class ScanDetailPresenter(Presenter[Scan]):
             "currentPhase": scan.current_phase,
             "toolsStatus": scan.tools_status,
             "coverage": scan.coverage,
+            # True when the run degraded to partial coverage (a tool failed/timed
+            # out) → grade capped at C; the UI shows a "cobertura parcial" badge.
+            "partialCoverage": scan.status == "partial",
             "error": scan.error,
             "summary": scan.summary,
             "startedAt": scan.started_at,

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { cache, Suspense } from "react";
 
 import { Settings } from "@/src/settings";
+import { BrandLockup } from "@/src/presentation/owliver/chrome/brand-lockup";
 import { AcceptInvitationForm } from "./accept-invitation-form";
 
 interface InvitationView {
@@ -51,6 +52,9 @@ function CenteredCard({ children }: { children: React.ReactNode }) {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md space-y-6 rounded-lg border border-border bg-card p-8 shadow-sm">
+        <div className="flex justify-center">
+          <BrandLockup href="/" size="lg" owlState="idle" />
+        </div>
         {children}
       </div>
     </main>

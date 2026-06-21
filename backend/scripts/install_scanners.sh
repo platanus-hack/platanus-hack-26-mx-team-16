@@ -20,6 +20,7 @@ FFUF_VERSION="2.1.0"
 SUBFINDER_VERSION="2.6.6"
 DNSX_VERSION="1.2.1"
 TESTSSL_VERSION="3.2.1"
+NIKTO_VERSION="2.6.0"
 
 dl() { # dl <url> <out>
   curl -fsSL "$1" -o "$2"
@@ -49,6 +50,16 @@ rm -f /tmp/ffuf /tmp/ffuf.tar.gz
 # testssl.sh (shell script, pinned tag)
 git clone --depth 1 --branch "v${TESTSSL_VERSION}" https://github.com/drwetter/testssl.sh.git /opt/testssl
 ln -sf /opt/testssl/testssl.sh "${BIN_DIR}/testssl.sh"
+
+# nikto (Perl; NOT packaged in Debian bookworm apt) — pinned clone + a wrapper
+# launcher so nikto.pl resolves its plugin/db dirs from the real path (a bare
+# symlink breaks that). perl + libnet-ssleay-perl are installed in the image.
+git clone --depth 1 --branch "${NIKTO_VERSION}" https://github.com/sullo/nikto.git /opt/nikto
+cat >"${BIN_DIR}/nikto" <<'EOF'
+#!/usr/bin/env bash
+exec perl /opt/nikto/program/nikto.pl "$@"
+EOF
+chmod +x "${BIN_DIR}/nikto"
 
 # sqlmap (apt provides a recent build; pin via system package)
 apt-get update && apt-get install -y --no-install-recommends sqlmap && rm -rf /var/lib/apt/lists/*

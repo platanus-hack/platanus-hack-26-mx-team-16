@@ -1,11 +1,11 @@
 {
-  "name": "Doxiq — Extracción Inteligente de Documentos",
-  "short_name": "Doxiq",
-  "description": "Automatiza la extracción de datos y el análisis de reglas de negocio con inteligencia artificial",
+  "name": "Owliver — Pentesting automatizado con IA",
+  "short_name": "Owliver",
+  "description": "Audita la seguridad web y la superficie agéntica (chatbots y widgets de IA) de cualquier sitio, con una calificación A–F.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0d9488",
+  "background_color": "#fcfaf4",
+  "theme_color": "#9f7d45",
   "orientation": "portrait-primary",
   "icons": [
     {

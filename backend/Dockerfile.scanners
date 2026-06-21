@@ -20,24 +20,26 @@ ENV UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/venv \
     PATH="/venv/bin:/opt/scanners/bin:${PATH}"
 
-# OS packages: docker CLI (client only, for DooD), CA certs, DNS utils, and the
-# apt-available scanners (nmap, nikto, whatweb). Go/Node-based binaries are
-# installed by the pinned-version script below.
+# OS packages: docker CLI (client only, for DooD), CA certs, DNS utils, the
+# apt-available scanners (nmap, whatweb) and perl + Net::SSLeay for nikto (which
+# is NOT in Debian bookworm apt and is git-cloned by the script below). Go/Node
+# binaries are installed by the pinned-version script too.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         docker.io \
         ca-certificates \
         dnsutils \
         nmap \
-        nikto \
         whatweb \
+        perl \
+        libnet-ssleay-perl \
         git \
         curl \
         wget \
         unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# nuclei, testssl.sh, katana, ffuf, subfinder, dnsx, sqlmap, security-headers —
-# installed at PINNED versions (NEVER :latest, spec §7) by the script.
+# nuclei, testssl.sh, katana, ffuf, subfinder, dnsx, sqlmap, nikto,
+# security-headers — installed at PINNED versions (NEVER :latest, spec §7).
 COPY scripts/install_scanners.sh /tmp/install_scanners.sh
 RUN chmod +x /tmp/install_scanners.sh && /tmp/install_scanners.sh
 

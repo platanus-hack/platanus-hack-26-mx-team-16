@@ -201,7 +201,7 @@
     "confirmPasswordLabel": "Confirm password",
     "minChars": "Minimum 8 characters.",
     "passwordsDontMatch": "Passwords do not match.",
-    "existingAccountNote": "You already have an account on Doxiq. By continuing, we'll add you to this tenant using your current password.",
+    "existingAccountNote": "You already have an account on Owliver. By continuing, we'll add you to this tenant using your current password.",
     "accepting": "Accepting…",
     "acceptLabel": "Accept invitation",
     "joinTenant": "Join tenant",
@@ -440,7 +440,7 @@
     "deleteDescriptionFallback": "Are you sure you want to delete this role?"
   },
   "Metadata": {
-    "title": "Doxiq - Intelligent Document Processing Platform",
-    "description": "Automate data extraction and business rule analysis on your documents with artificial intelligence. Powered by Llamitai."
+    "title": "Owliver — AI-orchestrated automated pentesting",
+    "description": "Owliver audits any site's web security and agentic surface — chatbots and LLM widgets — probing for prompt injection and jailbreaks, and returns an A–F grade with an easy-to-read report."
   }
 }

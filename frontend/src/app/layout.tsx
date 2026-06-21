@@ -2,15 +2,20 @@ import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import "./globals.css";
+import { Albert_Sans, Alumni_Sans, Roboto_Mono } from "next/font/google";
 import { SessionProvider } from "@/src/application/contexts/session";
 import { QueryProvider } from "@/src/application/providers/query-provider";
-import { Roboto_Flex, Roboto_Mono } from "next/font/google";
 
 import { ThemeProvider } from "@/src/presentation/common/theme-provider";
 
-const robotoFlex = Roboto_Flex({
+const albertSans = Albert_Sans({
   subsets: ["latin"],
-  variable: "--font-roboto-flex",
+  variable: "--font-albert-sans",
+  display: "swap",
+});
+const alumniSans = Alumni_Sans({
+  subsets: ["latin"],
+  variable: "--font-alumni-sans",
   display: "swap",
 });
 const robotoMono = Roboto_Mono({
@@ -27,29 +32,29 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(
-      process.env.NEXT_PUBLIC_APP_URL || "https://llamitai.com"
+      process.env.NEXT_PUBLIC_APP_URL || "https://owliver.mx"
     ),
     title: {
       default: title,
-      template: "%s | Doxiq",
+      template: "%s | Owliver",
     },
     description,
-    authors: [{ name: "Llamitai" }],
-    creator: "Llamitai",
-    publisher: "Llamitai",
+    authors: [{ name: "Owliver" }],
+    creator: "Owliver",
+    publisher: "Owliver",
     openGraph: {
       type: "website",
       locale: locale === "es" ? "es_ES" : "en_US",
-      url: "https://llamitai.com",
+      url: "https://owliver.mx",
       title,
       description,
-      siteName: "Doxiq",
+      siteName: "Owliver",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      creator: "@llamitai",
+      creator: "@owliver",
     },
     robots: {
       index: true,
@@ -71,7 +76,7 @@ export async function generateMetadata(): Promise<Metadata> {
     appleWebApp: {
       capable: true,
       statusBarStyle: "default",
-      title: "Doxiq",
+      title: "Owliver",
     },
   };
 }
@@ -92,7 +97,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${robotoFlex.variable} ${robotoMono.variable}`}
+      className={`${albertSans.variable} ${alumniSans.variable} ${robotoMono.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased font-sans">

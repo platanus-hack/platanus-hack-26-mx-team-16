@@ -4,8 +4,8 @@ import { Button as ButtonPrimitive } from "@base-ui/react/button";
 
 import { cn } from "@/src/application/lib/utils";
 import {
-  buttonVariants,
   type ButtonVariantProps,
+  buttonVariants,
 } from "@/src/presentation/components/ui/button-variants";
 
 function Button({

@@ -11,6 +11,7 @@
  */
 "use client";
 
+import Link from "next/link";
 import * as React from "react";
 
 import { cn } from "@/src/application/lib/utils";
@@ -21,6 +22,7 @@ import {
 import { GRADES, gradeColorVar } from "@/src/application/owliver/lib/grade";
 import type { Grade, RankingRow } from "@/src/application/owliver/schemas/api";
 import { Button } from "@/src/presentation/components/ui/button";
+import { buttonVariants } from "@/src/presentation/components/ui/button-variants";
 import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 import { LeaderboardRow } from "@/src/presentation/owliver/leaderboard/leaderboard-row";
 
@@ -52,8 +54,8 @@ export function LeaderboardBoard({
   // there is zero loading flash on first paint. Once interactive, the query
   // (which the BFF also serves from the same fixture) drives the board.
   const rows: RankingRow[] = filtersActive
-    ? query.data?.pages.flatMap((p) => p.data) ?? []
-    : query.data?.pages.flatMap((p) => p.data) ?? initialRows;
+    ? (query.data?.pages.flatMap((p) => p.data) ?? [])
+    : (query.data?.pages.flatMap((p) => p.data) ?? initialRows);
 
   const isFiltering = filtersActive && query.isFetching && !query.data;
 
@@ -61,7 +63,7 @@ export function LeaderboardBoard({
     <section aria-label="Ranking de sitios del Estado">
       {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <span className="mr-1 text-xs font-medium uppercase tracking-wide text-on-surface-variant/70">
+        <span className="mr-1 font-mono text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
           Filtrar
         </span>
         <FilterChip
@@ -104,9 +106,13 @@ export function LeaderboardBoard({
       {isFiltering ? (
         <RowSkeletons />
       ) : rows.length === 0 ? (
-        <p className="rounded-2xl border border-outline-variant bg-card p-8 text-center text-sm text-on-surface-variant">
-          Ningún sitio coincide con el filtro.
-        </p>
+        <EmptyRankingState
+          filtersActive={filtersActive}
+          onReset={() => {
+            setGrade(null);
+            setWorst(null);
+          }}
+        />
       ) : (
         <ol className="space-y-2">
           {rows.map((row, i) => (
@@ -133,6 +139,44 @@ export function LeaderboardBoard({
   );
 }
 
+function EmptyRankingState({
+  filtersActive,
+  onReset,
+}: {
+  filtersActive: boolean;
+  onReset: () => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-outline-variant bg-surface-container-low px-5 py-8 text-center sm:px-8">
+      <div className="mx-auto max-w-lg">
+        <p className="font-semibold text-foreground">
+          {filtersActive
+            ? "Ningún sitio coincide con ese filtro"
+            : "Aún no hay sitios en el ranking"}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+          {filtersActive
+            ? "Prueba otra combinación o vuelve al ranking completo para revisar la muestra disponible."
+            : "Cuando el backend tenga resultados, aparecerán aquí ordenados de peor a mejor. Mientras tanto puedes auditar una URL específica."}
+        </p>
+        <div className="mt-5 flex flex-col items-center justify-center gap-2 sm:flex-row">
+          {filtersActive ? (
+            <Button type="button" variant="secondary" onClick={onReset}>
+              Ver todos
+            </Button>
+          ) : null}
+          <Link
+            href="/scan"
+            className={buttonVariants({ variant: "default", size: "default" })}
+          >
+            Auditar una URL
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FilterChip({
   active,
   onClick,
@@ -150,7 +194,7 @@ function FilterChip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors",
+        "inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium outline-none transition-[background-color,color,border-color,transform] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98]",
         active
           ? "border-transparent bg-primary text-primary-foreground"
           : "border-outline-variant bg-card text-on-surface-variant hover:bg-surface-container-low"
@@ -173,7 +217,6 @@ function RowSkeletons() {
     <ol className="space-y-2" aria-hidden>
       {Array.from({ length: 8 }).map((_, i) => (
         <li
-          // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton placeholders
           key={i}
           className="flex h-[68px] animate-pulse items-center gap-4 rounded-2xl border border-outline-variant bg-surface-container-low p-4"
         >

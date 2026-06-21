@@ -11,7 +11,7 @@ const history: ScanHistoryEntry[] = [
   { scanId: "scan-sat-h2", overallGrade: "D", webScore: 68, agenticScore: 38, scannedAt: new Date(Date.now() - 60 * 86_400_000).toISOString() },
   { scanId: "scan-sat-h3", overallGrade: "E", webScore: 70, agenticScore: 30, scannedAt: new Date(Date.now() - 30 * 86_400_000).toISOString() },
   { scanId: "scan-sat-h4", overallGrade: "E", webScore: 71, agenticScore: 27, scannedAt: new Date(Date.now() - 7 * 86_400_000).toISOString() },
-  { scanId: scanFixture.id, overallGrade: "E", webScore: 72, agenticScore: 24, scannedAt: new Date().toISOString() },
+  { scanId: scanFixture.scanId, overallGrade: "E", webScore: 72, agenticScore: 24, scannedAt: new Date().toISOString() },
 ];
 
 export const siteFixture: Site = {

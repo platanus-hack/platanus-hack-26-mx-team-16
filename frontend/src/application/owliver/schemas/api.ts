@@ -142,7 +142,9 @@ export type AgenticSurface = z.infer<typeof agenticSurfaceSchema>;
 // ─── Scan (GET /scans/{id}) ───
 
 export const scanSchema = z.object({
-  id: z.string(),
+  /** PK surfaced as `scanId` (UUIDv4, non-enumerable) — matches the backend
+   * `ScanDetailPresenter`/`POST /scans` contract across the app. */
+  scanId: z.string(),
   siteId: z.string(),
   host: z.string(),
   level: scanLevelSchema,
@@ -155,6 +157,7 @@ export const scanSchema = z.object({
   /** 0..100 sub-scores (server-computed; null until done). */
   webScore: z.number().nullable().optional(),
   agenticScore: z.number().nullable().optional(),
+  overallScore: z.number().nullable().optional(),
   /** Authoritative overall grade (null until done). */
   overallGrade: gradeSchema.nullable().optional(),
   /** Display-only per-dimension grades (07-scoring §5.1). */
@@ -165,13 +168,17 @@ export const scanSchema = z.object({
   agenticStatus: agenticStatusSchema,
   /** `{ nuclei: 'done', zap: 'running' }`. */
   toolsStatus: z.record(z.string(), toolStatusSchema).default({}),
-  /** Per-tool coverage `{ tool: 'ok'|'failed'|'timeout' }`. */
-  coverage: z.record(z.string(), toolStatusSchema).default({}),
+  /** Per-tool coverage `[{ tool, status }]` (the backend emits a list). */
+  coverage: z
+    .array(z.object({ tool: z.string(), status: toolStatusSchema }))
+    .default([]),
   /** True when status=partial → grade capped at C. */
   partialCoverage: z.boolean().default(false),
   error: z.string().nullable().optional(),
   startedAt: z.string().nullable().optional(),
   finishedAt: z.string().nullable().optional(),
+  createdAt: z.string().nullable().optional(),
+  updatedAt: z.string().nullable().optional(),
 });
 export type Scan = z.infer<typeof scanSchema>;
 

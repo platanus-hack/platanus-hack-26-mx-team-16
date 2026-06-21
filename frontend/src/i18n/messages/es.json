@@ -201,7 +201,7 @@
     "confirmPasswordLabel": "Confirmar contraseña",
     "minChars": "Mínimo 8 caracteres.",
     "passwordsDontMatch": "Las contraseñas no coinciden.",
-    "existingAccountNote": "Ya tienes una cuenta en Doxiq. Al continuar, te uniremos a este tenant con tu contraseña actual.",
+    "existingAccountNote": "Ya tienes una cuenta en Owliver. Al continuar, te uniremos a este tenant con tu contraseña actual.",
     "accepting": "Aceptando…",
     "acceptLabel": "Aceptar invitación",
     "joinTenant": "Unirme al tenant",
@@ -440,7 +440,7 @@
     "deleteDescriptionFallback": "¿Estás seguro de que deseas eliminar este rol?"
   },
   "Metadata": {
-    "title": "Doxiq - Plataforma de procesamiento inteligente de documentos",
-    "description": "Automatiza la extracción de datos y el análisis de reglas de negocio en tus documentos con inteligencia artificial. Potenciado por Llamitai."
+    "title": "Owliver — Pentesting automatizado orquestado con IA",
+    "description": "Owliver audita la seguridad web y la superficie agéntica —chatbots y widgets de IA— de cualquier sitio, sondeando inyección de prompts y jailbreaks, y devuelve una calificación A–F con un reporte fácil de entender."
   }
 }

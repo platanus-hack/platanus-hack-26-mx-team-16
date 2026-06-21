@@ -1,23 +1,23 @@
 ---
 name: Owliver
-description: AI-orchestrated pentest platform — Material 3 Expressive. Kintsugi palette — kinpaku-gold primary + patina-teal on warm-lacquer neutrals, Albert Sans, A–F grade scale, dark SOC live-view.
+description: AI-orchestrated pentest platform — Material 3 Expressive. Lime-seam palette — clear-lime primary + patina-teal on warm-lacquer neutrals, Albert Sans, A–F grade scale, dark SOC live-view.
 register: product
 designLanguage: Material 3 Expressive
 colors:
-  # M3 light scheme — Kintsugi: kinpaku gold + patina teal on warm-lacquer neutral (reference hex; canonical OKLCH in sidecar)
-  primary: "#9F7D45"                 # kinpaku-deep — filled CTAs, active nav, focus, primary charts
-  on-primary: "#171105"             # lacquer ink — dark text on gold (4.91:1)
-  primary-container: "#F4DBA9"      # pale gold well — selected/hover tint (shadcn --accent)
-  on-primary-container: "#48300D"
+  # M3 light scheme — Lime seam: clear lime + patina teal on warm-lacquer neutral (reference hex; canonical OKLCH in sidecar)
+  primary: "#A8C94A"                 # lime-deep — filled CTAs, active nav, focus, primary charts
+  on-primary: "#172004"             # lacquer ink — dark text on lime (AA)
+  primary-container: "#EAF7B9"      # pale lime well — selected/hover tint (shadcn --accent)
+  on-primary-container: "#324300"
   secondary: "#146F69"               # patina-deep teal — links, secondary actions
   on-secondary: "#FFFFFF"
   secondary-container: "#B3E3DD"
   on-secondary-container: "#00403D"
-  tertiary: "#DDAB46"                # kinpaku-rich — the bright-gold accent pop (hero CTA, owl-eyes)
-  on-tertiary: "#1D1406"
-  tertiary-container: "#F7DEAD"
-  on-tertiary-container: "#4B2E01"
-  kinpaku: "#FFB900"                 # gold leaf — wordmark + the gold seam/focus glint (large/emphasis only)
+  tertiary: "#CDEB61"                # lime-rich — the bright-lime accent pop (hero CTA, owl-eyes)
+  on-tertiary: "#1B2204"
+  tertiary-container: "#F0F9BE"
+  on-tertiary-container: "#384600"
+  lime-flash: "#D9FF5A"              # lime flash — wordmark + the lime seam/focus glint (large/emphasis only)
   error: "#B23B1D"                   # vermilion — destructive/danger only
   on-error: "#FFFFFF"
   error-container: "#FDD3C8"
@@ -46,7 +46,7 @@ colors:
   soc-on-surface: "#E0DED8"
   soc-on-surface-variant: "#A6A49F"
   soc-cyan: "#58CDC9"                 # patina — activity
-  soc-amber: "#FFB900"               # kinpaku gold — tool running
+  soc-lime: "#D9FF5A"                # clear lime — tool running
   soc-red: "#E05C42"                 # vermilion — critical
   soc-green: "#6ECF9A"               # jade — ok
 typography:
@@ -117,7 +117,7 @@ components:
   switch:          { track: "{colors.surface-container-highest}", thumbOn: "{colors.on-primary}", trackOn: "{colors.primary}", shape: "{shape.full}" }
   grade-badge:     { container: "{colors.grade-*}", label: "Roboto Mono", shape: "{shape.lg}–{shape.xl} squircle" }
   gauge:           { track: "{colors.surface-container-highest}", value: "{colors.grade-*}", style: "semicircular, rounded caps, count-up" }
-  wordmark:        { label: "{colors.kinpaku}", font: "displayFont", case: "uppercase", tracking: "0.15em" }
+  wordmark:        { label: "{colors.lime-flash}", font: "displayFont", case: "uppercase", tracking: "0.15em" }
 ---
 
 # Design System: Owliver — Material 3 Expressive
@@ -126,12 +126,12 @@ components:
 
 **Creative North Star: "The Inspection Bench, finished in kintsugi."**
 
-Owliver is the owl that watches over web and AI security: a user submits a URL + attack level, an Agno agent team runs a pentest, and Owliver returns an easy-to-read but technically valuable report with an **A–F grade**. The interface is still an inspection bench — every tool within reach, attention on the findings and the score, never on the chrome — but now that bench is finished in **kintsugi**: the Japanese craft of mending broken pottery with **gold**. Owliver finds the cracks in a site and traces them in **kinpaku gold**; the seam *is* the point of view. The bench speaks **Material 3 Expressive** — tonal color, generous rounding, tactile state layers, and **motion as a first-class material**. Expressiveness here is *functional energy*, not decoration. Springs and emphasized easing make the product feel alive and confident; they never get between the reviewer and the data.
+Owliver is the owl that watches over web and AI security: a user submits a URL + attack level, an Agno agent team runs a pentest, and Owliver returns an easy-to-read but technically valuable report with an **A–F grade**. The interface is still an inspection bench — every tool within reach, attention on the findings and the score, never on the chrome — but now that bench is marked by a **clear-lime seam**: a sharp, luminous repair line that makes cracks inspectable. Owliver finds the cracks in a site and traces them in **clear lime**; the seam *is* the point of view. The bench speaks **Material 3 Expressive** — tonal color, generous rounding, tactile state layers, and **motion as a first-class material**. Expressiveness here is *functional energy*, not decoration. Springs and emphasized easing make the product feel alive and confident; they never get between the reviewer and the data.
 
-Owliver keeps its three personality pillars — **sharp, trustworthy, approachable** — and its anti-references: it is **not** a generic SaaS/admin template, **not** the trendy purple "AI-app" look (even though it runs on AI), and **not** legacy enterprise clutter. M3 Expressive supplies the structure (color roles, shape, elevation, motion); Owliver supplies the point of view (**kinpaku-gold seams** over warm lacquer, **patina-teal** as the second metal, the A–F grade as the only state color, the dark SOC live-view).
+Owliver keeps its three personality pillars — **sharp, trustworthy, approachable** — and its anti-references: it is **not** a generic SaaS/admin template, **not** the trendy purple "AI-app" look (even though it runs on AI), and **not** legacy enterprise clutter. M3 Expressive supplies the structure (color roles, shape, elevation, motion); Owliver supplies the point of view (**clear-lime seams** over warm lacquer, **patina-teal** as the second color, the A–F grade as the only state color, the dark SOC live-view).
 
 **Key characteristics**
-- **Dynamic tonal color** built on M3 color roles (primary/secondary/tertiary + containers, tonal surfaces), with **kinpaku gold** as primary and **patina teal** as the secondary metal — two metals on warm-lacquer neutrals.
+- **Dynamic tonal color** built on M3 color roles (primary/secondary/tertiary + containers, tonal surfaces), with **clear lime** as primary and **patina teal** as the secondary color — two crisp accents on warm-lacquer neutrals.
 - **Expressive shape**: large corners, pill buttons, squircle badges, and shape-morph on interaction.
 - **Tonal elevation**: depth from surface-container levels + a soft (warm) shadow that grows with state — not hairline rings.
 - **Motion is the system's signature**: emphasized easing + physical springs; grades count up, gauges sweep, findings spring in, the owl reacts.
@@ -142,25 +142,25 @@ Owliver keeps its three personality pillars — **sharp, trustworthy, approachab
 
 Material 3 **color roles**, not ad-hoc swatches. Every fill maps to a role so theming and contrast stay correct.
 
-The palette is **kintsugi-inspired** (adapted from impeccable.style): **two metals — kinpaku gold and patina teal — on warm-lacquer neutral surfaces.** Surfaces are warm near-white (hue ≈ 95, ultra-low chroma); the brand energy is carried by the gold seam, with patina as the quieter second metal and the A–F grade scale reserved for status. (Values below are reference hex; the canonical OKLCH lives in `.impeccable/design.json`.)
+The palette is **seam-inspired** (adapted from impeccable.style): **clear lime and patina teal on warm-lacquer neutral surfaces.** Surfaces are warm near-white (hue ≈ 95, ultra-low chroma); the brand energy is carried by the lime seam, with patina as the quieter second color and the A–F grade scale reserved for status. (Values below are reference hex; the canonical OKLCH lives in `.impeccable/design.json`.)
 
 ### Core roles (light)
-- **Primary** `#9F7D45` (kinpaku-deep gold) / **on-primary** `#171105` (lacquer ink, **4.91:1**) — filled buttons, active nav, focus, primary charts. Filled CTAs are **gold container + dark ink**, not white. **Primary-container** `#F4DBA9` / on `#48300D` for quiet wells and selected states (the hover/selected tint, a.k.a. shadcn `--accent`).
+- **Primary** `#A8C94A` (lime-deep) / **on-primary** `#172004` (lacquer ink) — filled buttons, active nav, focus, primary charts. Filled CTAs are **lime container + dark ink**, not white. **Primary-container** `#EAF7B9` / on `#324300` for quiet wells and selected states (the hover/selected tint, a.k.a. shadcn `--accent`).
 - **Secondary** `#146F69` (patina-deep teal) + **secondary-container** `#B3E3DD` — links, tonal buttons, neutral grouped actions. As a link on paper it reads **5.74:1**; white text on the solid teal reads **5.99:1**.
-- **Tertiary** `#DDAB46` (kinpaku-rich) + **tertiary-container** `#F7DEAD` — the bright-gold accent pop: hero CTAs, the owl's eyes, "needs attention" emphasis. The second, brighter tone of the same gold.
-- **Kinpaku (gold leaf)** `#FFB900` — the wordmark and the literal **gold seam / focus glint**. Bright and low-contrast on paper (3.66:1), so it is reserved for **large text, the wordmark, strokes, and glints**, never body copy.
+- **Tertiary** `#CDEB61` (lime-rich) + **tertiary-container** `#F0F9BE` — the bright-lime accent pop: hero CTAs, the owl's eyes, "needs attention" emphasis. The second, brighter tone of the same lime.
+- **Lime flash** `#D9FF5A` — the wordmark and the literal **lime seam / focus glint**. Bright and low-contrast on paper, so it is reserved for **large text, the wordmark, strokes, and glints**, never body copy.
 - **Error** `#B23B1D` (vermilion) + **error-container** `#FDD3C8` — destructive/danger only.
 
 ### Tonal surfaces (elevation by color) — warm near-white lacquer
 `surface` `#FCFAF4` → `surface-container-low` `#F7F5EE` → `surface-container` `#F1EFE6` → `-high` `#EAE8DE` → `-highest` `#E4E1D7`. Text: **on-surface** `#242218` (**15.3:1**), **on-surface-variant** `#58554C` (**7.1:1**). Lines: **outline** `#828078`, **outline-variant** `#D0CEC5`.
 
 ### Grade scale — the single source of *state* color (pastel)
-A `#5FC487` · B `#9FD06E` · C `#ECCB68` · D `#F0A05E` · E `#EC7E63` · F `#E0635F`. Softened to pastel, but F still reads clearly as the worst — the Hall-of-Shame red wall is gentler, not gone. This ramp is the **only** place semantic green/amber/red appears as *grade* (chips, gauges, leaderboard rows, the Hall-of-Shame "F" wall). It is intentionally **not** themed away by M3 — a grade's color is data. (It is deliberately distinct from the brand's gold/teal so a high grade never reads as "brand color.")
+A `#5FC487` · B `#9FD06E` · C `#ECCB68` · D `#F0A05E` · E `#EC7E63` · F `#E0635F`. Softened to pastel, but F still reads clearly as the worst — the Hall-of-Shame red wall is gentler, not gone. This ramp is the **only** place semantic green/amber/red appears as *grade* (chips, gauges, leaderboard rows, the Hall-of-Shame "F" wall). It is intentionally **not** themed away by M3 — a grade's color is data. (It is deliberately distinct from the brand's lime/teal so a high grade never reads as "brand color.")
 
 ### SOC dark-expressive (live-view only)
-The Live Pentest Theater uses an M3 **dark, warm-lacquer** scheme: surface `#090704`, container `#110F0A`, container-high `#1A1813`, outline `#45423B`, on-surface `#E0DED8` (**15:1**). Kintsugi neon, functional only — patina-cyan `#58CDC9` (activity, 10.5:1), kinpaku-amber `#FFB900` (tool running, 11.7:1), vermilion `#E05C42` (critical, 5.5:1), jade `#6ECF9A` (ok, 10.6:1) — never decorative.
+The Live Pentest Theater uses an M3 **dark, warm-lacquer** scheme: surface `#090704`, container `#110F0A`, container-high `#1A1813`, outline `#45423B`, on-surface `#E0DED8` (**15:1**). Dark SOC neon, functional only — patina-cyan `#58CDC9` (activity, 10.5:1), clear-lime `#D9FF5A` (tool running), vermilion `#E05C42` (critical, 5.5:1), jade `#6ECF9A` (ok, 10.6:1) — never decorative.
 
-**Named rules.** *The Gold-Seam Rule:* kinpaku gold traces what matters — the primary action, the active path, the headline grade's emphasis, the wordmark — like gold filling a crack; if gold isn't marking attention or repair, make it neutral. *The Two-Metal Rule:* gold leads, patina-teal is the only second metal (links / secondary / quiet structure); never introduce a third brand hue — vermilion is danger, the A–F ramp is data. *The Grade-Is-Data Rule:* the A–F ramp is the only semantic color; don't recolor it for mood.
+**Named rules.** *The Lime-Seam Rule:* clear lime traces what matters — the primary action, the active path, the headline grade's emphasis, the wordmark — like a luminous inspection mark; if lime isn't marking attention or repair, make it neutral. *The Two-Color Rule:* lime leads, patina-teal is the only second brand color (links / secondary / quiet structure); never introduce a third brand hue — vermilion is danger, the A–F ramp is data. *The Grade-Is-Data Rule:* the A–F ramp is the only semantic color; don't recolor it for mood.
 
 ## 3. Typography
 
@@ -195,10 +195,10 @@ Motion is a material, not a finish. It follows the M3 **emphasized** set and **s
 
 ### Signature Owliver animations
 - **Grade reveal:** the A–F letter **counts up** and the two semicircular **gauges sweep 0→value** on `emphasized-decelerate`, ~700ms. The headline grade lands with a subtle spring overshoot.
-- **The gold seam:** when a finding resolves to the report, its crack is **traced in kinpaku gold** — a stroke that draws on along the path (`emphasized-decelerate`), the kintsugi gesture made literal.
+- **The lime seam:** when a finding resolves to the report, its crack is **traced in clear lime** — a stroke that draws on along the path (`emphasized-decelerate`), the inspection gesture made literal.
 - **Finding enters the live feed:** **fade + spring slide-up** (spatial-default); **critical** findings **pulse once** in vermilion (effects spring) to demand the eye.
-- **Owl mascot (activity indicator):** state changes are spring transitions — *idle* (eyes closed) → *watching* (patina-cyan eyes, slow head tilt) → *alert* (kinpaku-gold eyes ignite + glow pulse). The owl is the product's heartbeat.
-- **Tool chips ignite:** in the SOC theater each tool chip springs in scale and lights its status dot (idle → running amber pulse → ok green / failed red).
+- **Owl mascot (activity indicator):** state changes are spring transitions — *idle* (eyes closed) → *watching* (patina-cyan eyes, slow head tilt) → *alert* (clear-lime eyes ignite + glow pulse). The owl is the product's heartbeat.
+- **Tool chips ignite:** in the SOC theater each tool chip springs in scale and lights its status dot (idle → running lime pulse → ok green / failed red).
 - **Wavy progress:** the scan progress uses the **M3 Expressive wavy/squiggly** active indicator; the wave animates along its length while running and flattens on complete.
 - **Buttons/FAB:** state-layer cross-fade (short) + shape-morph on press (spring); the FAB grows/settles with spatial-default.
 
@@ -208,13 +208,13 @@ Motion is a material, not a finish. It follows the M3 **emphasized** set and **s
 
 M3 Expressive components, themed to Owliver. Authored states: enabled / hover / focus-visible / pressed / disabled / loading, using M3 **state layers** (8/10/12%).
 
-- **Buttons (pill / `full`):** **Filled** (primary CTA — gold container + dark ink, one per region), **Tonal** (secondary-container / patina), **Elevated** (level-1 shadow), **Outlined**, **Text**. Default height 40px; an **expressive large** 56px exists for hero CTAs. Label is Albert Sans, normal case. Plus **segmented button groups** for filters (grade, dimension).
-- **FAB:** tertiary-container (pale gold), `shape-lg`, level-3 shadow — e.g. "Audita una URL." Morphs/extends on scroll.
+- **Buttons (pill / `full`):** **Filled** (primary CTA — lime container + dark ink, one per region), **Tonal** (secondary-container / patina), **Elevated** (level-1 shadow), **Outlined**, **Text**. Default height 40px; an **expressive large** 56px exists for hero CTAs. Label is Albert Sans, normal case. Plus **segmented button groups** for filters (grade, dimension).
+- **FAB:** tertiary-container (pale lime), `shape-lg`, level-3 shadow — e.g. "Audita una URL." Morphs/extends on scroll.
 - **Chips:** assist / filter / input, `shape-sm`, state layers; chip text is the mono uppercase label. **SeverityChip** is a grade-colored pill (Roboto Mono label). **ToolChip** carries a status dot (SOC).
 - **Cards:** `shape-xl` (hero) / `shape-lg` (lists), tonal elevation + soft warm shadow, 24px padding. Cards are containers, not the default reflex — never nest a card in a card.
-- **Text fields:** M3 **filled** style, `surface-container-highest`, rounded-top, **kinpaku-gold active indicator**; same focus signature everywhere.
+- **Text fields:** M3 **filled** style, `surface-container-highest`, rounded-top, **clear-lime active indicator**; same focus signature everywhere.
 - **Progress:** **wavy linear** (signature) + circular determinate.
-- **Wordmark:** Alumni Sans, uppercase, +0.15em tracking, in kinpaku gold — the only place gold leaf is set as type.
+- **Wordmark:** Alumni Sans, uppercase, +0.15em tracking, in lime flash — the only place bright lime is set as type.
 - **Owliver-specific:** **GradeBadge** (squircle, grade color, Roboto Mono), **Gauge** (semicircular, rounded, count-up), **OwlMascot** (3 motion states), **AgentLane** and **FindingFeedItem** (SOC theater), **AttestationGate** (the legal control as UI).
 
 ## 8. Do's and Don'ts
@@ -222,16 +222,16 @@ M3 Expressive components, themed to Owliver. Authored states: enabled / hover / 
 ### Do
 - **Do** map every color to an M3 **role** and let tonal surfaces (containers) carry elevation; add a soft warm shadow only as it rises.
 - **Do** make corners large and friendly — **pill buttons, `xl` cards, squircle badges** — and use shape-morph sparingly for delight.
-- **Do** treat **motion as a material**: spring physics, emphasized easing, count-up grades, the gold-seam trace, spring-in findings — and always ship a `prefers-reduced-motion` fallback.
-- **Do** keep **kinpaku gold** for the primary action and the seam, **patina teal** as the only second metal, and the **A–F ramp** as the only semantic state color.
-- **Do** fill primary buttons with **gold + dark ink** (4.9:1); reserve bright `kinpaku #FFB900` for the wordmark, strokes, and large/emphasis text — never body copy on paper.
+- **Do** treat **motion as a material**: spring physics, emphasized easing, count-up grades, the lime-seam trace, spring-in findings — and always ship a `prefers-reduced-motion` fallback.
+- **Do** keep **clear lime** for the primary action and the seam, **patina teal** as the only second brand color, and the **A–F ramp** as the only semantic state color.
+- **Do** fill primary buttons with **lime + dark ink**; reserve bright lime `#D9FF5A` for the wordmark, strokes, and large/emphasis text — never body copy on paper.
 - **Do** drive type hierarchy with Albert Sans weight at the M3 scale; set display in Alumni Sans; reserve Roboto Mono for measured values, payloads, grades, and uppercase eyebrows.
 - **Do** author every interaction state with M3 state layers and one consistent focus ring.
 
 ### Don't
 - **Don't** revert to hairline-ring-as-primary-separator, tiny radii, or flat-static surfaces — that's the old system, not Expressive.
 - **Don't** animate for decoration; every motion must report a real state change (no perpetual ambient motion).
-- **Don't** recolor the grade scale for mood, introduce a third brand hue, or spend gold on anything that isn't a primary action, a seam, or the wordmark.
-- **Don't** set body text in `kinpaku #FFB900`, or use mono-uppercase on button labels — keep buttons Albert Sans and approachable.
+- **Don't** recolor the grade scale for mood, introduce a third brand hue, or spend lime on anything that isn't a primary action, a seam, or the wordmark.
+- **Don't** set body text in bright lime `#D9FF5A`, or use mono-uppercase on button labels — keep buttons Albert Sans and approachable.
 - **Don't** drift into the **purple AI-app** look, **generic SaaS** card grids, or **legacy enterprise** clutter. Expressive ≠ noisy.
 - **Don't** use `clamp()`/fluid headings in the app shell (display sizes on marketing surfaces only), or on-surface-variant text below 4.5:1 contrast; keep AA in both light and SOC themes.

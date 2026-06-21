@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 
 import { refreshServerSession } from "@/src/infrastructure/auth/server-session";
 import { UnassignedView } from "@/src/presentation/auth/unassigned-view";
+import { BrandLockup } from "@/src/presentation/owliver/chrome/brand-lockup";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,8 @@ export default async function UnassignedPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-8 p-4">
+      <BrandLockup href="/" size="lg" owlState="idle" />
       <UnassignedView />
     </div>
   );
