@@ -32,5 +32,17 @@ async def list_scans(
         cursor=cursor,
     ).execute()
 
-    page.apply_presenter(ScanListItemPresenter)
+    # The scans row only carries site_id, so resolve the hostname for the row
+    # title from the sites table — once per DISTINCT site (a user's history
+    # usually spans few sites) rather than per row.
+    scans = page.items or []
+    hosts: dict[UUID, str | None] = {}
+    for sid in {scan.site_id for scan in scans}:
+        site = await domain_context.site_repository.find(sid)
+        hosts[sid] = site.hostname if site is not None else None
+
+    page.items = [
+        ScanListItemPresenter(scan, host=hosts.get(scan.site_id)).to_dict
+        for scan in scans
+    ]
     return ApiJSONResponse(content=page, status_code=status.HTTP_200_OK)

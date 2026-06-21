@@ -42,7 +42,6 @@ import {
   OwlMascot,
   ProgressBar,
 } from "@/src/presentation/owliver";
-import { BrandMark } from "@/src/presentation/owliver/chrome/brand-mark";
 import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 
 export type TheaterViewProps = {
@@ -88,6 +87,28 @@ function useElapsed(startedAt: string | null | undefined, running: boolean) {
     return () => clearInterval(t);
   }, [running]);
   return Math.max(0, Math.floor((now - start) / 1000));
+}
+
+function TheaterBrandMark({
+  size = 42,
+  priority,
+}: {
+  size?: number;
+  priority?: boolean;
+}) {
+  return (
+    // biome-ignore lint/performance/noImgElement: route-scoped official brand PNG.
+    <img
+      src="/owliver_eyes_white.png"
+      alt=""
+      aria-hidden
+      width={size}
+      height={size}
+      loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : "auto"}
+      className="object-contain"
+    />
+  );
 }
 
 export function TheaterView({
@@ -171,26 +192,29 @@ export function TheaterView({
   const errored = runStatus === "error";
 
   return (
-    <div className="soc fixed inset-0 z-50 overflow-y-auto bg-background text-foreground">
-      {/* Official white mark for the black SOC surface. */}
-      {/* biome-ignore lint/performance/noImgElement: official SVG mark is a fixed static asset. */}
+    <div
+      data-slot="scan-theater"
+      className="soc fixed inset-0 z-50 overflow-y-auto bg-background text-foreground"
+    >
+      {/* Official white eyes mark for the black SOC surface. */}
+      {/* biome-ignore lint/performance/noImgElement: official PNG mark is a fixed static asset. */}
       <img
-        src="/owliver-icon-white.svg"
+        src="/owliver_eyes_white.png"
         alt=""
         aria-hidden
-        className="pointer-events-none fixed -right-20 -top-24 h-96 w-96 opacity-[0.035] md:-right-28 md:-top-32 md:h-[34rem] md:w-[34rem]"
+        className="pointer-events-none fixed -right-20 -top-24 h-80 w-80 object-contain opacity-[0.055] md:-right-28 md:-top-32 md:h-[30rem] md:w-[30rem]"
       />
 
       <div className="relative mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8">
         {/* ─── Header: target + level + grade-in-construction + progress ─── */}
-        <header className="mb-6 rounded-2xl border border-outline-variant bg-surface-container-low p-4 md:p-6">
+        <header className="mb-6 rounded-2xl border border-outline-variant bg-surface-container-low p-4 shadow-[0_1px_2px_rgba(0,0,0,0.22)] md:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-black ring-1 ring-outline-variant">
-                <BrandMark size={42} priority />
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-surface-container-high ring-1 ring-outline-variant">
+                <TheaterBrandMark size={42} priority />
               </span>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="mb-1 flex flex-wrap items-center gap-2">
                   <Radio
                     className={cn(
                       "size-3.5",
@@ -200,15 +224,18 @@ export function TheaterView({
                     )}
                     aria-hidden
                   />
-                  <span className="font-mono text-xs uppercase tracking-wide text-on-surface-variant">
+                  <span className="rounded-full bg-surface-container px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant ring-1 ring-outline-variant">
                     {terminal
                       ? "transmisión finalizada"
                       : connection === "open"
                         ? "en vivo"
                         : "conectando…"}
                   </span>
+                  <span className="rounded-full bg-surface-container px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-wide text-muted-foreground ring-1 ring-outline-variant">
+                    {scanId.slice(0, 8)}
+                  </span>
                 </div>
-                <h1 className="font-mono text-xl font-semibold text-foreground md:text-2xl">
+                <h1 className="break-words font-mono text-xl font-semibold text-foreground md:text-2xl">
                   {initialScan.host}
                 </h1>
                 <p className="text-xs text-on-surface-variant">
@@ -217,7 +244,7 @@ export function TheaterView({
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex w-full flex-wrap items-center justify-between gap-3 sm:w-auto sm:justify-end">
               {/* Grade-in-construction: placeholder until the run is terminal. */}
               {initialScan.overallGrade && terminal ? (
                 <GradeBadge grade={initialScan.overallGrade} size="lg" />
@@ -234,6 +261,7 @@ export function TheaterView({
               {terminal ? (
                 <Link
                   href={`/scans/${scanId}/report`}
+                  aria-label="Ver reporte completo del escaneo"
                   className={buttonVariants({
                     variant: "tertiary",
                     size: "lg",
@@ -246,6 +274,7 @@ export function TheaterView({
               ) : (
                 <Button
                   variant="outline"
+                  aria-label="Cancelar escaneo"
                   onClick={() => cancel.mutate()}
                   disabled={cancel.isPending}
                 >
@@ -296,7 +325,7 @@ export function TheaterView({
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-outline-variant bg-surface-container-low py-16 text-center">
             <OwlMascot state="idle" size={64} />
             <p className="font-mono text-sm text-on-surface-variant">
-              En cola — el búho está dormido, esperando turno…
+              En cola — esperando turno de ejecución…
             </p>
           </div>
         ) : (
@@ -331,13 +360,19 @@ export function TheaterView({
                   {feed.length}
                 </span>
               </header>
-              <div className="flex flex-col gap-2">
+              <div className="flex max-h-[34rem] flex-col gap-2 overflow-y-auto pr-1">
                 {feed.length === 0 ? (
-                  <p className="py-8 text-center text-xs text-on-surface-variant">
-                    Aún sin hallazgos. El búho sigue cazando…
-                  </p>
+                  <div className="rounded-xl border border-dashed border-outline-variant bg-surface-container-lowest px-4 py-8 text-center">
+                    <p className="text-sm font-medium text-foreground">
+                      Sin hallazgos todavía
+                    </p>
+                    <p className="mt-1 text-xs text-on-surface-variant">
+                      Cuando el stream confirme evidencia, aparecerá aquí para
+                      inspección.
+                    </p>
+                  </div>
                 ) : (
-                  feed.map((f) => (
+                  feed.map((f, index) => (
                     <FindingFeedItem
                       key={"id" in f ? f.id : f.key}
                       severity={f.severity}
@@ -346,6 +381,7 @@ export function TheaterView({
                       source={f.source}
                       onClick={() => setSelectedFinding(f)}
                       live
+                      delay={Math.min(index, 6) * 35}
                     />
                   ))
                 )}
@@ -376,15 +412,23 @@ export function TheaterView({
 
             {/* ─── Monospace terminal log ─── */}
             <section className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-3 lg:col-span-3">
-              <div className="mb-2 flex items-center gap-2">
-                <span className="size-2 rounded-full bg-primary" aria-hidden />
-                <span className="font-mono text-xs uppercase tracking-wide text-on-surface-variant">
-                  telemetría
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="size-2 rounded-full bg-primary"
+                    aria-hidden
+                  />
+                  <span className="font-mono text-xs uppercase tracking-wide text-on-surface-variant">
+                    telemetría
+                  </span>
+                </div>
+                <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+                  {log.length} eventos
                 </span>
               </div>
               <div
                 ref={logRef}
-                className="max-h-48 overflow-y-auto font-mono text-[12px] leading-relaxed"
+                className="max-h-48 overflow-y-auto overflow-x-hidden font-mono text-[12px] leading-relaxed"
                 role="log"
                 aria-live="polite"
                 aria-label="Registro de telemetría del escaneo"
@@ -395,7 +439,7 @@ export function TheaterView({
                   </p>
                 ) : (
                   log.map((l) => (
-                    <div key={l.seq} className="flex gap-2">
+                    <div key={l.seq} className="flex min-w-0 gap-2">
                       <span className="shrink-0 text-muted-foreground tabular-nums">
                         {new Date(l.ts).toLocaleTimeString("es-MX", {
                           hour12: false,
@@ -411,7 +455,7 @@ export function TheaterView({
                       >
                         {l.type.padEnd(12, " ")}
                       </span>
-                      <span className="text-on-surface-variant">
+                      <span className="min-w-0 break-words text-on-surface-variant">
                         {l.message}
                       </span>
                     </div>

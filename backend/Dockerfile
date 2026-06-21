@@ -27,6 +27,7 @@ ENV PATH="/venv/bin:$PATH"
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y bash curl gettext nginx build-essential libpq-dev python3-dev ca-certificates poppler-utils \
+    libpango-1.0-0 libpangocairo-1.0-0 libpangoft2-1.0-0 libgdk-pixbuf-2.0-0 libffi8 shared-mime-info fonts-dejavu-core \
     && curl -1sLf 'https://artifacts-cli.infisical.com/setup.deb.sh' | bash \
     && apt-get update && apt-get install -y infisical \
     && apt-get clean \
@@ -53,7 +54,10 @@ FROM python:3.13-slim-bookworm AS development
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
+# poppler-utils (PDF tooling) + WeasyPrint's Pango/Cairo runtime libs so the
+# report.pdf endpoint (PDF_ENGINE=weasyprint) renders locally too.
 RUN apt-get update && apt-get install -y --no-install-recommends poppler-utils \
+    libpango-1.0-0 libpangocairo-1.0-0 libpangoft2-1.0-0 libgdk-pixbuf-2.0-0 libffi8 shared-mime-info fonts-dejavu-core \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENV UV_LINK_MODE=copy \

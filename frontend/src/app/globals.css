@@ -509,6 +509,16 @@
   --sidebar-ring: #58cdc9;
 }
 
+/* The live scan theater owns the viewport; hide the public chrome underneath. */
+body:has([data-slot="scan-theater"]) {
+  overflow: hidden;
+}
+
+body:has([data-slot="scan-theater"]) [data-slot="top-nav"],
+body:has([data-slot="scan-theater"]) [data-slot="owliver-footer"] {
+  display: none;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

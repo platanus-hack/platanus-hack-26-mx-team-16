@@ -19,6 +19,7 @@ export {
   scanHistoryFixture,
   findScanFixtureById,
   buildReportFixtureFor,
+  buildScanEventsFor,
   type ScanHistoryItem,
 } from "./scan-history";
 export { scanEventsFixture, scanEventsAsSSEWire } from "./scan-events";

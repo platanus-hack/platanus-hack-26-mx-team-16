@@ -1,11 +1,11 @@
 /**
- * AgentLane (SOC theater, §F6) — one subagent's column: its 🦉 mascot, a title,
+ * AgentLane (SOC theater, §F6) — one subagent's column: its Owliver eyes mark, a title,
  * the latest `agent_status` line, and the row of ToolChips igniting/finishing.
  * Driven entirely by an `AgentLaneState` slice from the theater store.
  *
  * The two lanes are 🛡️ OWASP Scanner and 🤖 Agentic Surface Auditor
- * (05-agent-team). The owl is `running` while the lane has active tools and
- * flips to `alert` when a tool just failed (a hit). Dark SOC palette via tokens.
+ * (05-agent-team). Tool state is reported by the chips and latest status line.
+ * Dark SOC palette via tokens.
  */
 "use client";
 
@@ -16,7 +16,6 @@ import type {
   AgentLaneState,
   TheaterRunStatus,
 } from "@/src/application/owliver/stores/theater-store";
-import { OwlMascot, type OwlState } from "@/src/presentation/owliver/components/owl-mascot";
 import { ToolChip } from "@/src/presentation/owliver/theater/tool-chip";
 
 export type AgentLaneProps = {
@@ -30,26 +29,34 @@ export type AgentLaneProps = {
   className?: string;
 };
 
-function laneOwlState(
-  lane: AgentLaneState,
-  runStatus?: TheaterRunStatus
-): OwlState {
-  const tools = lane.toolOrder.map((t) => lane.tools[t]);
-  if (tools.some((t) => t?.state === "failed")) return "alert";
-  if (runStatus === "done" || runStatus === "cancelled" || runStatus === "error")
-    return "idle";
-  if (tools.some((t) => t?.state === "running")) return "running";
-  return lane.status ? "running" : "idle";
+function AgentLaneMark({ size = 40 }: { size?: number }) {
+  return (
+    <span
+      aria-hidden
+      className="relative inline-block shrink-0 select-none"
+      style={{ width: size, height: size }}
+    >
+      {/* biome-ignore lint/performance/noImgElement: small route-scoped brand PNG. */}
+      <img
+        src="/owliver_eyes_black.png"
+        alt=""
+        width={size}
+        height={size}
+        className="block object-contain dark:hidden [.soc_&]:hidden"
+      />
+      {/* biome-ignore lint/performance/noImgElement: small route-scoped brand PNG. */}
+      <img
+        src="/owliver_eyes_white.png"
+        alt=""
+        width={size}
+        height={size}
+        className="absolute inset-0 hidden object-contain dark:block [.soc_&]:block"
+      />
+    </span>
+  );
 }
 
-export function AgentLane({
-  lane,
-  title,
-  icon,
-  runStatus,
-  className,
-}: AgentLaneProps) {
-  const owl = laneOwlState(lane, runStatus);
+export function AgentLane({ lane, title, icon, className }: AgentLaneProps) {
   const tools = lane.toolOrder.map((t) => lane.tools[t]).filter(Boolean);
 
   return (
@@ -62,7 +69,7 @@ export function AgentLane({
       )}
     >
       <header className="flex items-center gap-3">
-        <OwlMascot state={owl} size={40} />
+        <AgentLaneMark size={40} />
         <div className="min-w-0">
           <h3 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
             {icon && <span aria-hidden>{icon}</span>}

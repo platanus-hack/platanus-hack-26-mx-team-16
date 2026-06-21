@@ -192,8 +192,11 @@ class Settings(BaseSettings):
     # mechanics live in 04-scanning-engine §10; 02 only consumes the boolean.
     ENABLE_HEXSTRIKE: bool = False
     # Real production budget for the advanced level (ZAP full active + Nuclei
-    # fuzzing + sqlmap), enforced by 04's watchdog. ~8 min.
-    SCAN_GLOBAL_BUDGET_SECONDS: int = 480
+    # fuzzing + sqlmap), enforced by 04's watchdog. ~20 min — the full advanced
+    # toolchain (subfinder + zap_baseline + nuclei + nikto + katana + ffuf +
+    # zap_full_active) plus the agentic phase does not fit in 8 min, so a real
+    # advanced scan was being cancelled before scoring/agentic ever ran.
+    SCAN_GLOBAL_BUDGET_SECONDS: int = 1200
     # Hard timeout for the curated demo profile (Nuclei subset + testssl + 1 probe
     # against the own bot). MUST stay <= 90s and is intentionally distinct from
     # SCAN_GLOBAL_BUDGET_SECONDS — the two numbers are never interchangeable.

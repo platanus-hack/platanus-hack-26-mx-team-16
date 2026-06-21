@@ -33,15 +33,23 @@ class ScanCreatedPresenter(Presenter[Scan]):
 
 @dataclass
 class ScanListItemPresenter(Presenter[Scan]):
-    """Row shape for ``GET /scans`` (list)."""
+    """Row shape for ``GET /scans`` (list).
+
+    ``host`` is the audited hostname (the list view renders it as the row title);
+    like ``ScanDetailPresenter`` it is loaded from the ``sites`` row by the
+    endpoint, since the ``scans`` row only carries ``site_id``. It stays optional
+    so ``Page.apply_presenter`` (single-arg) callers still work.
+    """
 
     instance: Scan
+    host: str | None = None
 
     @property
     def to_dict(self) -> dict[str, Any]:
         return {
             "scanId": str(self.instance.uuid),
             "siteId": str(self.instance.site_id),
+            "host": self.host,
             "level": self.instance.level,
             "status": self.instance.status,
             "visibility": self.instance.visibility,

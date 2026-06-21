@@ -187,6 +187,32 @@ export const scanSchema = z.object({
 });
 export type Scan = z.infer<typeof scanSchema>;
 
+// ─── Scan list row (GET /scans — the lean `ScanListItemPresenter`) ───
+
+/**
+ * Row shape returned by `GET /scans` (the user's run history). Deliberately a
+ * SUBSET of {@link scanSchema}: the backend list presenter only emits the columns
+ * the index needs. `host` / `departmentName` are not in the presenter yet, so
+ * they stay optional here (forward-compat); the loader fills the rest of the
+ * `ScanHistoryItem` shape with safe defaults.
+ */
+export const scanListRowSchema = z.object({
+  scanId: z.string(),
+  siteId: z.string(),
+  level: scanLevelSchema,
+  status: scanStatusSchema,
+  visibility: visibilitySchema,
+  overallGrade: gradeSchema.nullable().optional(),
+  overallScore: z.number().nullable().optional(),
+  progress: z.number().min(0).max(100).default(0),
+  createdAt: z.string().nullable().optional(),
+  finishedAt: z.string().nullable().optional(),
+  // Not in the list presenter today — accepted if the backend adds them later.
+  host: z.string().nullable().optional(),
+  departmentName: z.string().nullable().optional(),
+});
+export type ScanListRow = z.infer<typeof scanListRowSchema>;
+
 // ─── Report (executive layer + findings; 09-reporting) ───
 
 export const reportSchema = z.object({

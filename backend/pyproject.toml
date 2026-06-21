@@ -37,6 +37,12 @@ dependencies = [
     "structlog>=25.5.0",
     "sse-starlette>=2.1.0,<3.0",
     "greenlet>=3.2.4",
+    # HTML->PDF engine for the owner report download (GET /scans/{id}/report.pdf,
+    # 09-reporting). This is the DEFAULT `PDF_ENGINE=weasyprint` (spec §4): a
+    # pure-Python, browser-free renderer, so it ships in the API image (the worker
+    # uses Chromium for the agentic probe, but the API never launches a browser).
+    # Needs Pango/Cairo system libs — installed in the API Dockerfile stages.
+    "weasyprint>=62",
 ]
 
 [dependency-groups]

@@ -21,7 +21,9 @@ import type {
   Source,
   Trend,
 } from "../schemas/api";
+import type { ScanEvent } from "../schemas/sse";
 import { HERO_SCAN_ID, HERO_SITE_ID, reportFixture } from "./scan";
+import { scanEventsFixture } from "./scan-events";
 
 /**
  * A row in the history list: the authoritative `Scan` plus the small,
@@ -39,6 +41,9 @@ export type ScanHistoryItem = Scan & {
   criticalCount: number;
   /** Top finding one-liner, revealed on hover (the "why"). */
   topFinding?: string | null;
+  /** Lane the topFinding belongs to, so the synthesized lead finding (report +
+   * live) is attributed to the right tool/category. Defaults to "owasp". */
+  topFindingSource?: Source | null;
   /** ▲▼ vs the site's previous scan (display only). */
   trend?: Trend | null;
 };
@@ -73,6 +78,7 @@ type Seed = {
   findingsCount?: number;
   criticalCount?: number;
   topFinding?: string | null;
+  topFindingSource?: Source;
   trend?: Trend | null;
 };
 
@@ -127,6 +133,7 @@ function build(seed: Seed): ScanHistoryItem {
     updatedAt: finishedAt ?? startedAt ?? createdAt,
     findingsCount: seed.findingsCount ?? 0,
     criticalCount: seed.criticalCount ?? 0,
+    topFindingSource: seed.topFindingSource ?? "owasp",
     topFinding: seed.topFinding ?? null,
     trend: seed.trend ?? null,
   };
@@ -303,6 +310,7 @@ export const scanHistoryFixture: ScanHistoryItem[] = [
     findingsCount: 5,
     criticalCount: 0,
     topFinding: "El asistente revela la versión del modelo ante un sondeo",
+    topFindingSource: "agentic",
     trend: "down",
   }),
 ];
@@ -437,14 +445,65 @@ const FINDING_TEMPLATES: {
   },
 ];
 
+/** Where to enter the severity rota (high→info) so it tracks the grade. */
+function fillerStartIndex(grade: Grade | null | undefined): number {
+  switch (grade) {
+    case "A":
+      return 3; // info
+    case "B":
+      return 2; // low
+    case "C":
+      return 1; // medium
+    default:
+      return 0; // high (D/E/F or ungraded)
+  }
+}
+
+/** A lead finding attributed to the agentic lane (prompt-injection probe). */
+function makeAgenticFinding(
+  item: ScanHistoryItem,
+  id: string,
+  severity: Severity
+): Finding {
+  return {
+    id,
+    source: "agentic",
+    tool: "promptfoo",
+    category: "LLM01",
+    title: item.topFinding ?? "El asistente de IA respondió de forma insegura",
+    severity,
+    cvss: severity === "critical" ? 9.1 : 7.5,
+    confidence: "alta",
+    description: `El asistente de IA de ${item.host} respondió de forma insegura ante las sondas de inyección de prompt de Owliver.`,
+    evidence: {},
+    affectedUrl: `https://${item.host}/asistente`,
+    endpoint: "/asistente/chat",
+    param: "message",
+    impact:
+      "Permite mapear las restricciones del asistente y diseñar jailbreaks dirigidos para obtener respuestas no autorizadas en nombre de la marca.",
+    remediation:
+      "Aislar el system-prompt del contexto del usuario y aplicar filtros de salida que detecten fugas de prompt o jailbreaks.",
+    references: ["OWASP-LLM01", "CWE-200"],
+  };
+}
+
 function findingsFor(item: ScanHistoryItem): Finding[] {
   const total = item.findingsCount;
   if (total <= 0) return [];
 
   const findings: Finding[] = [];
+  // When the row's "why" is an agentic finding, the lead is attributed to the
+  // agentic lane (LLM01/promptfoo) — not OWASP/nuclei.
+  const agenticLead = item.topFindingSource === "agentic" && !!item.topFinding;
 
   // Criticals first — the row's `topFinding` leads the list when present.
   for (let i = 0; i < item.criticalCount && findings.length < total; i++) {
+    if (i === 0 && agenticLead) {
+      findings.push(
+        makeAgenticFinding(item, `${item.scanId}-f-${findings.length}`, "critical")
+      );
+      continue;
+    }
     findings.push({
       id: `${item.scanId}-f-${findings.length}`,
       source: "owasp",
@@ -469,9 +528,19 @@ function findingsFor(item: ScanHistoryItem): Finding[] {
   }
 
   // Fill the rest by cycling the severity rota; `topFinding` leads if no critical.
+  // Start the rota at a severity that matches the grade so a clean A/B scan does
+  // not synthesize a "high" finding (FINDING_TEMPLATES is ordered high → info).
+  const start = fillerStartIndex(item.overallGrade);
   let t = 0;
   while (findings.length < total) {
-    const tpl = FINDING_TEMPLATES[t % FINDING_TEMPLATES.length];
+    const tpl = FINDING_TEMPLATES[(start + t) % FINDING_TEMPLATES.length];
+    if (findings.length === 0 && agenticLead) {
+      findings.push(
+        makeAgenticFinding(item, `${item.scanId}-f-${findings.length}`, tpl.severity)
+      );
+      t++;
+      continue;
+    }
     const lead =
       findings.length === 0 && item.topFinding ? item.topFinding : null;
     const title =
@@ -522,4 +591,307 @@ export function buildReportFixtureFor(id: string): Report {
     surfaces: surfacesFor(item),
     findings,
   };
+}
+
+// ─── Live-view SSE synthesis (offline theater) ───────────────────────────────
+//
+// The theater's offline stream used to replay ONE hard-coded reel (fabrikam) for
+// every scan, so a row for salud.gob.mx played fabrikam's findings. We synthesize
+// the event sequence FROM the row instead, so the live feed matches both the row
+// and the report (both derive findings from `findingsFor`). The hero keeps its
+// hand-authored reel; unknown ids (e.g. a fresh `/scan` submit with no backend)
+// fall back to it so the cinematic demo still plays.
+
+/** The embedded Finding fields a `finding` event carries (06-data-model §6). */
+function findingEventPayload(f: Finding): Record<string, unknown> {
+  return {
+    id: f.id,
+    source: f.source,
+    tool: f.tool,
+    category: f.category,
+    title: f.title,
+    confidence: f.confidence,
+    cvss: f.cvss,
+    description: f.description,
+    evidence: f.evidence,
+    affectedUrl: f.affectedUrl,
+    endpoint: f.endpoint,
+    param: f.param,
+    impact: f.impact,
+    remediation: f.remediation,
+    references: f.references,
+  };
+}
+
+/** Synthesize a coherent SSE run from a single history row. */
+function synthEventsFor(item: ScanHistoryItem): ScanEvent[] {
+  const events: ScanEvent[] = [];
+  let seq = 0;
+  const t0 = Date.now();
+  // Running rows hold at their current progress; nothing emitted exceeds it.
+  const maxProgress =
+    item.status === "running"
+      ? Math.max(0, Math.min(95, item.progress ?? 50))
+      : 100;
+  const prog = (p: number) => Math.min(p, maxProgress);
+  const push = (
+    e: Omit<ScanEvent, "scan_id" | "seq" | "ts"> & { progress?: number | null }
+  ) => {
+    seq += 1;
+    events.push({
+      scan_id: item.scanId,
+      seq,
+      ts: new Date(t0 + seq * 900).toISOString(),
+      ...e,
+    });
+  };
+
+  const host = item.host;
+  const hasAgentic =
+    item.agenticStatus === "tested" ||
+    item.agenticStatus === "detected_not_tested";
+
+  // Queued: not started — the seed shows "en cola"; the stream just holds open.
+  if (item.status === "queued") {
+    push({
+      type: "phase",
+      message: `En cola — ${host} esperando un worker`,
+      progress: 0,
+      payload: {},
+    });
+    return events;
+  }
+
+  // ── Lead-in (every run) ──
+  push({
+    type: "phase",
+    message: `Iniciando escaneo de ${host}`,
+    progress: prog(3),
+    payload: {},
+  });
+  push({
+    type: "agent_status",
+    agent: "owasp",
+    message: "OWASP Scanner en línea",
+    payload: {},
+  });
+  if (hasAgentic) {
+    push({
+      type: "agent_status",
+      agent: "agentic",
+      message: "Agentic Surface Auditor en línea",
+      payload: {},
+    });
+  }
+  push({
+    type: "phase",
+    message: "Detectando tecnologías…",
+    progress: prog(12),
+    payload: {},
+  });
+  push({
+    type: "tool_start",
+    agent: "owasp",
+    tool: "nuclei",
+    message: "nuclei: plantillas de exposición",
+    payload: {},
+  });
+  push({
+    type: "tool_start",
+    agent: "owasp",
+    tool: "testssl",
+    message: "testssl: análisis de TLS",
+    payload: {},
+  });
+
+  // ── Failed run → stop early with the row's error (terminal) ──
+  if (item.status === "failed") {
+    push({
+      type: "phase",
+      message: "Estableciendo conexión con el objetivo…",
+      progress: prog(18),
+      payload: {},
+    });
+    push({
+      type: "tool_end",
+      agent: "owasp",
+      tool: "testssl",
+      message: "testssl: la conexión falló",
+      severity: "high",
+      payload: { status: "failed" },
+    });
+    push({
+      type: "error",
+      message: item.error ?? "El escaneo no pudo completarse.",
+      payload: {},
+    });
+    return events;
+  }
+
+  // ── Findings drop in (host-correct, same set as the report), split by lane ──
+  const findings = findingsFor(item);
+  const owaspFindings = findings.filter((f) => f.source !== "agentic");
+  const agenticFindings = findings.filter((f) => f.source === "agentic");
+  push({
+    type: "tool_start",
+    agent: "owasp",
+    tool: "zap",
+    message: "zap: escaneo pasivo",
+    payload: {},
+  });
+  owaspFindings.forEach((f, i) => {
+    push({
+      type: "phase",
+      message: `Analizando ${host}…`,
+      progress: prog(20 + Math.round(((i + 1) / owaspFindings.length) * 45)),
+      payload: {},
+    });
+    push({
+      type: "tool_end",
+      agent: "owasp",
+      tool: f.tool,
+      message: `${f.tool}: ${f.title}`,
+      severity: f.severity,
+      payload: { status: "ok" },
+    });
+    push({
+      type: "finding",
+      agent: "owasp",
+      severity: f.severity,
+      message: f.title,
+      payload: findingEventPayload(f),
+    });
+  });
+  if (typeof item.webScore === "number") {
+    push({
+      type: "score",
+      agent: "owasp",
+      message: "Puntaje web parcial",
+      payload: { web_score: item.webScore },
+    });
+  }
+
+  // ── Agentic lane ──
+  if (hasAgentic) {
+    const tested = item.agenticStatus === "tested";
+    const running = item.status === "running";
+    push({
+      type: "phase",
+      message: "Sondeando la superficie agéntica…",
+      progress: prog(72),
+      payload: {},
+    });
+    push({
+      type: "agent_status",
+      agent: "agentic",
+      message: `Chatbot detectado en ${host}/asistente`,
+      payload: {},
+    });
+    push({
+      type: "tool_start",
+      agent: "agentic",
+      tool: "promptfoo",
+      message: "promptfoo: sondas de inyección de prompt",
+      payload: {},
+    });
+    // A running scan is still probing — leave the probe in flight (no tool_end /
+    // findings / score until it finishes). Terminal scans complete the lane.
+    if (!running) {
+      push({
+        type: "tool_end",
+        agent: "agentic",
+        tool: "promptfoo",
+        message: tested
+          ? "promptfoo: sondas completadas"
+          : "promptfoo: superficie detectada, sin auditar",
+        severity: tested ? "medium" : "info",
+        payload: { status: tested ? "ok" : "timeout" },
+      });
+      agenticFindings.forEach((f) => {
+        push({
+          type: "finding",
+          agent: "agentic",
+          severity: f.severity,
+          message: f.title,
+          payload: findingEventPayload(f),
+        });
+      });
+      if (typeof item.agenticScore === "number") {
+        push({
+          type: "score",
+          agent: "agentic",
+          message: "Puntaje agéntico parcial",
+          payload: { agentic_score: item.agenticScore },
+        });
+      }
+    }
+  }
+
+  // ── Running → hold here (no terminal); the seed carries the in-flight phase ──
+  if (item.status === "running") {
+    push({
+      type: "phase",
+      message: item.currentPhase ?? "Escaneando…",
+      progress: prog(maxProgress),
+      payload: {},
+    });
+    return events;
+  }
+
+  // ── Terminal wrap-up (done | partial | cancelled) ──
+  const finalScore: Record<string, number> = {};
+  if (typeof item.webScore === "number") finalScore.web_score = item.webScore;
+  if (typeof item.agenticScore === "number")
+    finalScore.agentic_score = item.agenticScore;
+  push({
+    type: "score",
+    message: "Puntajes finales",
+    payload: finalScore,
+  });
+  push({
+    type: "phase",
+    message: "Consolidando resultados…",
+    progress: 92,
+    payload: {},
+  });
+  push({
+    type: "phase",
+    message: "Generando reporte…",
+    progress: 98,
+    payload: {},
+  });
+  if (item.status === "cancelled") {
+    push({
+      type: "done",
+      message: "Escaneo cancelado",
+      progress: 100,
+      payload: { outcome: "cancelled" },
+    });
+  } else {
+    // `outcome` only carries success|cancelled; partial coverage rides in the
+    // message so the live wording matches the report's "cobertura parcial".
+    const gradeSuffix = item.overallGrade ? ` — grado ${item.overallGrade}` : "";
+    push({
+      type: "done",
+      message:
+        item.status === "partial"
+          ? `Escaneo completo (cobertura parcial)${gradeSuffix}`
+          : `Escaneo completo${gradeSuffix}`,
+      progress: 100,
+      payload: { outcome: "success" },
+    });
+  }
+  return events;
+}
+
+/**
+ * The demo SSE event sequence for an id (offline theater). Hero → the polished
+ * hand-authored reel; any history row → events synthesized from its own data;
+ * unknown id → the reel (so a fresh `/scan` submit still plays a full run).
+ */
+export function buildScanEventsFor(id: string): ScanEvent[] {
+  if (id === HERO_SCAN_ID) return scanEventsFixture;
+  const item = HISTORY_BY_ID.get(id);
+  if (!item) return scanEventsFixture;
+  return synthEventsFor(item);
 }

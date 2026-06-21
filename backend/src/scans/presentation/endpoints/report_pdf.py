@@ -11,6 +11,7 @@ so this module imports even when no PDF library is installed; if the configured
 
 from __future__ import annotations
 
+import asyncio
 from typing import Annotated
 
 from fastapi import Depends, HTTPException
@@ -51,7 +52,10 @@ async def report_pdf(
     # works before the orchestrator patches settings.py.
     base_url = str(getattr(settings, "STATIC_BASE_URL", "") or "http://localhost:8200")
     try:
-        pdf_bytes = render_report_pdf(report, base_url=base_url)
+        # The render is blocking (WeasyPrint is CPU-bound; the Playwright engine
+        # uses the SYNC API, which raises if called inside a running event loop).
+        # Offload to a worker thread so it never blocks — or breaks — the loop.
+        pdf_bytes = await asyncio.to_thread(render_report_pdf, report, base_url=base_url)
     except PdfEngineError as exc:
         # PDF is a recortable M3 deliverable; surface a clean 503 if the engine
         # dependency is not installed instead of a 500.

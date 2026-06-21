@@ -152,11 +152,21 @@ def render_report_pdf(report: dict[str, Any], *, base_url: str) -> bytes:
     if engine == "weasyprint":
         try:
             from weasyprint import HTML  # type: ignore[import-not-found]
+
+            return HTML(string=document, base_url=base_url).write_pdf()
         except ImportError as exc:  # pragma: no cover - dep not installed on host
             raise PdfEngineError(
                 "PDF_ENGINE=weasyprint but 'weasyprint' is not installed."
             ) from exc
-        return HTML(string=document, base_url=base_url).write_pdf()
+        except OSError as exc:  # pragma: no cover - native libs missing on host
+            # WeasyPrint dlopen's Pango/Cairo/GObject at render time; a half-install
+            # (wheel present, system libs absent) raises OSError. Map it to the same
+            # clean 503 as a missing dependency instead of a 500 — the PDF is a
+            # recortable deliverable, not a hard requirement.
+            raise PdfEngineError(
+                "PDF_ENGINE=weasyprint but its native libraries "
+                f"(Pango/Cairo/GObject) are unavailable: {exc}"
+            ) from exc
 
     if engine == "playwright":
         return _render_with_playwright(document)
