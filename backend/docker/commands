@@ -1,6 +1,8 @@
 #!/bin/bash
 
+# Migrations run here (single place). The API is HTTP-only — background jobs run
+# in the dedicated `owliver-worker` service (fat scanners image with dnsx/nuclei/
+# testssl + the Playwright bridge), never inline in this thin API image.
 alembic upgrade head
 
-saq config.tasks.worker_settings &
 uvicorn config.main:app --host 0.0.0.0 --port 8200

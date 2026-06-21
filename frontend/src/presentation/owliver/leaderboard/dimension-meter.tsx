@@ -7,16 +7,19 @@
  * When a dimension has no score (e.g. agentic `detected_not_tested` /
  * `no_surface`) we render a muted "—" so the row never implies a clean pass.
  */
+import type { ReactNode } from "react";
+
 import { cn } from "@/src/application/lib/utils";
 import {
   gradeColorVar,
   gradeFromScore,
 } from "@/src/application/owliver/lib/grade";
 import type { Grade } from "@/src/application/owliver/schemas/api";
+import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 
 type DimensionMeterRowProps = {
-  /** Emoji glyph + a11y label. */
-  icon: string;
+  /** Dimension icon + a11y label. */
+  icon: ReactNode;
   label: string;
   score: number | null | undefined;
   /** Authoritative per-dimension letter (display only fallback to bands). */
@@ -32,9 +35,7 @@ function MeterRow({ icon, label, score, grade }: DimensionMeterRowProps) {
 
   return (
     <div className="flex items-center gap-2" aria-label={`${label}: ${hasScore ? score : "sin datos"}`}>
-      <span aria-hidden className="text-xs leading-none">
-        {icon}
-      </span>
+      <span className="flex leading-none">{icon}</span>
       <div
         className="relative h-1.5 w-12 overflow-hidden rounded-full bg-surface-container-high"
         aria-hidden
@@ -74,9 +75,14 @@ export function DimensionMeter({
 }: DimensionMeterProps) {
   return (
     <div className={cn("flex flex-col gap-1", className)}>
-      <MeterRow icon="🛡️" label="Web" score={webScore} grade={webGrade} />
       <MeterRow
-        icon="🤖"
+        icon={<ShieldWeb className="size-3.5 text-primary" />}
+        label="Web"
+        score={webScore}
+        grade={webGrade}
+      />
+      <MeterRow
+        icon={<AgenticChip className="size-3.5 text-tertiary" />}
         label="Agéntico"
         score={agenticScore}
         grade={agenticGrade}

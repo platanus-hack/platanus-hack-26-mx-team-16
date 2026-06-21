@@ -5,19 +5,20 @@
  * vs 🤖 Agéntico (prompt-injection / jailbreaks of embedded chatbots), the thing
  * "casi nadie mide". Reinforces the passive/public-data defensibility framing.
  */
-import { Bot, Shield } from "lucide-react";
-
 import { ScaleLegend } from "@/src/presentation/owliver/components/scale-legend";
+import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 
 const DIMENSIONS = [
   {
-    icon: Shield,
-    title: "🛡️ Seguridad Web",
+    icon: ShieldWeb,
+    iconColor: "text-primary",
+    title: "Seguridad Web",
     body: "El OWASP de siempre: TLS, cabeceras, inyecciones, configuración. Pruebas 100% pasivas y públicas — como Mozilla Observatory o SSL Labs.",
   },
   {
-    icon: Bot,
-    title: "🤖 Superficie Agéntica",
+    icon: AgenticChip,
+    iconColor: "text-tertiary",
+    title: "Superficie Agéntica",
     body: "Lo que casi nadie mide: chatbots, cajas de prompt y widgets de IA embebidos, sondeados por inyección de prompt y jailbreaks.",
   },
 ];
@@ -54,7 +55,7 @@ export function MethodologyBand() {
             className="rounded-2xl border border-outline-variant bg-card p-5"
           >
             <div className="mb-2 flex items-center gap-2">
-              <d.icon className="size-5 text-primary" aria-hidden />
+              <d.icon className={`size-5 ${d.iconColor}`} />
               <h3 className="font-semibold text-foreground">{d.title}</h3>
             </div>
             <p className="text-sm text-on-surface-variant">{d.body}</p>

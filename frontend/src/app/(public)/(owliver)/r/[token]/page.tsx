@@ -11,18 +11,21 @@
  */
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Link2Off } from "lucide-react";
 
 import { fetchPublicReport } from "@/src/application/owliver/lib/report-data";
 import { buttonVariants } from "@/src/presentation/components/ui/button-variants";
+import { OwlMark } from "@/src/presentation/owliver/icons";
 import { ReportExecutive } from "@/src/presentation/owliver/report/report-executive";
 import { ReportTechnical } from "@/src/presentation/owliver/report/report-technical";
 
 function ExpiredState() {
   return (
     <div className="mx-auto max-w-md px-4 py-24 text-center">
-      <div className="mb-4 text-5xl" aria-hidden>
-        🔗
-      </div>
+      <Link2Off
+        className="mx-auto mb-4 size-12 text-on-surface-variant"
+        aria-hidden
+      />
       <h1 className="text-2xl font-semibold text-foreground">
         Este enlace expiró
       </h1>
@@ -62,8 +65,9 @@ export default async function PublicReportPage({
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 md:px-6">
       <header className="mb-8">
-        <p className="font-mono text-sm text-on-surface-variant">
-          Reporte público · Owliver 🦉
+        <p className="inline-flex items-center gap-1.5 font-mono text-sm text-on-surface-variant">
+          Reporte público · Owliver
+          <OwlMark className="size-4" />
         </p>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           {title}

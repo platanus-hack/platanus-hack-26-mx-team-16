@@ -1,33 +1,11 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Fragment, type ReactNode } from "react";
 
-import { COOKIE_REFRESH_TOKEN } from "@/src/constants";
-import { isErrorFeedback } from "@/src/domain/errors/error-feeback";
-import { serverHttp } from "@/src/infrastructure/http/client";
-import { HttpAuthRepository } from "@/src/infrastructure/repositories/http-auth";
+import { refreshServerSession } from "@/src/infrastructure/auth/server-session";
 import { SessionSync } from "@/src/presentation/common/session-sync";
 import { StoreInitializer } from "@/src/presentation/common/store-initializer";
 
 export const dynamic = "force-dynamic";
-
-const authRepository = new HttpAuthRepository(serverHttp);
-
-async function refreshServerSession() {
-  const cookieStore = await cookies();
-  const refreshToken = cookieStore.get(COOKIE_REFRESH_TOKEN)?.value;
-
-  if (!refreshToken) {
-    return null;
-  }
-
-  const result = await authRepository.refresh(refreshToken);
-  if (isErrorFeedback(result)) {
-    return null;
-  }
-
-  return result.data;
-}
 
 interface ProtectedLayoutProps {
   children: ReactNode;

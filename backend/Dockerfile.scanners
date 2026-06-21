@@ -48,19 +48,36 @@ FROM scanners-base AS worker
 
 WORKDIR /app
 
+# Infisical CLI for prod/dev secret injection (parity with the API image). Local
+# dev overrides the compose `command:` to run saq directly with .env, so this is
+# only exercised by the prod/dev `/start` (docker/start-prod-worker).
+RUN curl -1sLf 'https://artifacts-cli.infisical.com/setup.deb.sh' | bash \
+    && apt-get update && apt-get install -y --no-install-recommends infisical \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Install Python deps exactly like the main Dockerfile (uv, locked).
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --locked --no-install-project --no-dev
+    uv sync --locked --no-install-project --no-dev --group worker
+
+# Chromium for the agentic-surface bridge (03). Baked into the worker image only;
+# the API image never installs a browser. `--with-deps` pulls the OS libs Chromium
+# needs (apt-get update is run by the playwright CLI itself).
+RUN playwright install --with-deps chromium
 
 COPY . /app
 
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked --no-dev
+    uv sync --locked --no-dev --group worker
 
 ENV PYTHONPATH=/app \
     PROCESS_LABEL=worker
 
-# The worker is launched by the compose `command:` (saq config.tasks.worker_settings).
+# Prod/dev entrypoint: infisical-login then `infisical run -- saq …`. The remote
+# compose sets `command: /start`; local dev overrides `command:` to run saq.
+COPY docker/start-prod-worker /start
+RUN sed -i 's/\r$//g' /start && chmod +x /start
+
+# Default CMD for local dev (compose overrides it). Prod/dev use `command: /start`.
 CMD ["saq", "config.tasks.worker_settings"]

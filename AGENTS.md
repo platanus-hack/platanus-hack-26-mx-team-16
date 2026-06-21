@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Doxiq (by Llamitai) is a minimal multi-tenant SaaS starter boilerplate: authentication, users, tenants, roles/permissions and invitations, plus a generic asynchronous background-job mechanism (SAQ).
+Owliver is an AI-orchestrated pentest platform. Users submit a URL and attack level, an Agno agent team runs coordinated checks, and Owliver returns a readable A-F grade with findings, evidence, and technical detail.
 
 ## Design Context
 
@@ -12,9 +12,9 @@ Frontend design work is governed by two root files maintained via the `/impeccab
 - **`DESIGN.md`** (visual): tokens, typography, components, Do's/Don'ts — Stitch DESIGN.md format, with a machine-readable mirror + drop-in component snippets in `.impeccable/design.json`.
 
 Quick reference:
-- **Register:** `product` (authenticated app UI; no marketing surface).
-- **Personality:** sharp, trustworthy, approachable. North Star: *"The Inspection Bench."*
-- **Visual system:** teal primary `oklch(0.59 0.095 180.54)` on cool-gray neutrals, Figtree + Geist Mono, 0.75rem base radius, near-flat (hairline rings + whisper shadows). Live tokens in `frontend/src/app/globals.css`.
+- **Register:** `product` (authenticated app UI plus product-led public surfaces).
+- **Personality:** sharp, trustworthy, approachable. North Star: *"The Inspection Bench," rebuilt in Material 3 Expressive.*
+- **Visual system:** Material 3 Expressive roles, Mercury-inspired violet primary, near-white tonal surfaces, A-F grade ramp as the only semantic status color, and dark SOC live-view. Live tokens in `frontend/src/app/globals.css`.
 - **Anti-references:** generic SaaS templates, the trendy AI-app look, legacy enterprise clutter.
 
 Before building or restyling UI, read `PRODUCT.md` and `DESIGN.md` first.
@@ -32,7 +32,7 @@ algo ya zanjado; las decisiones **nuevas** van como ADRs vía `adr-writer`.
 ## Repository Structure
 
 ```
-doxiq/
+owliver/
   backend/        # FastAPI API (Python 3.12, async SQLAlchemy, PostgreSQL)
   frontend/       # Next.js App (TypeScript, Tailwind CSS v4, shadcn + Base UI)
   product/        # Specs y planes del proyecto

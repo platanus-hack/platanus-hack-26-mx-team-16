@@ -51,7 +51,7 @@ Definidas en `.codex/rules/project-rules.md`:
 
 ## Configuración Global
 
-Codex también lee `~/.codex/config.toml` donde este proyecto está registrado con `trust_level = "trusted"`.
+Codex también lee `~/.codex/config.toml`. Este proyecto se identifica localmente como `/Users/vic/Projects/experiments/owliver`.
 
 ## Uso
 

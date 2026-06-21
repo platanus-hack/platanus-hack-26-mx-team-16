@@ -20,8 +20,8 @@ export type TopNavProps = {
 };
 
 const NAV_LINKS = [
-  { href: "/", label: "Leaderboard" },
-  { href: "/scan", label: "Escanear" },
+  { href: "/", label: "Hall of Shame" },
+  { href: "/como-funciona", label: "Cómo Funciona" },
 ];
 
 export function TopNav({ showWatchlist = false, className }: TopNavProps) {
@@ -36,7 +36,10 @@ export function TopNav({ showWatchlist = false, className }: TopNavProps) {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
         <div className="flex items-center gap-6">
           <BrandLockup size="md" />
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Principal">
+          <nav
+            className="hidden items-center gap-1 md:flex"
+            aria-label="Principal"
+          >
             {NAV_LINKS.map((l) => (
               <Link
                 key={l.href}
@@ -47,12 +50,20 @@ export function TopNav({ showWatchlist = false, className }: TopNavProps) {
               </Link>
             ))}
             {showWatchlist && (
-              <Link
-                href="/watchlist"
-                className="rounded-full px-3 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container hover:text-foreground"
-              >
-                Watchlist
-              </Link>
+              <>
+                <Link
+                  href="/watchlist"
+                  className="rounded-full px-3 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container hover:text-foreground"
+                >
+                  Watchlist
+                </Link>
+                <Link
+                  href="/onboarding"
+                  className="rounded-full px-3 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container hover:text-foreground"
+                >
+                  Primeros pasos
+                </Link>
+              </>
             )}
           </nav>
         </div>
@@ -62,7 +73,7 @@ export function TopNav({ showWatchlist = false, className }: TopNavProps) {
             href="/scan"
             className={buttonVariants({ variant: "tertiary", size: "default" })}
           >
-            Escanear mi sitio
+            Auditar URL
           </Link>
         </div>
       </div>

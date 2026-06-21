@@ -21,6 +21,7 @@ import {
 import { GRADES, gradeColorVar } from "@/src/application/owliver/lib/grade";
 import type { Grade, RankingRow } from "@/src/application/owliver/schemas/api";
 import { Button } from "@/src/presentation/components/ui/button";
+import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 import { LeaderboardRow } from "@/src/presentation/owliver/leaderboard/leaderboard-row";
 
 export type LeaderboardBoardProps = {
@@ -87,7 +88,7 @@ export function LeaderboardBoard({
           active={worst === "web"}
           onClick={() => setWorst((cur) => (cur === "web" ? null : "web"))}
         >
-          🛡️ Peor web
+          <ShieldWeb className="size-3.5" /> Peor web
         </FilterChip>
         <FilterChip
           active={worst === "agentic"}
@@ -95,7 +96,7 @@ export function LeaderboardBoard({
             setWorst((cur) => (cur === "agentic" ? null : "agentic"))
           }
         >
-          🤖 Peor agéntico
+          <AgenticChip className="size-3.5" /> Peor agéntico
         </FilterChip>
       </div>
 

@@ -7,6 +7,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Loader2, Play, Trash2 } from "lucide-react";
 
 import { gradeColorVar } from "@/src/application/owliver/lib/grade";
@@ -19,6 +20,7 @@ import { Button } from "@/src/presentation/components/ui/button";
 import { Switch } from "@/src/presentation/components/ui/switch";
 import { GradeBadge } from "@/src/presentation/owliver/components/grade-badge";
 import { CoverageBadges } from "@/src/presentation/owliver/components/status-badge";
+import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 
 function lastScanLabel(iso: string | null | undefined): string {
   if (!iso) return "Nunca escaneado";
@@ -33,12 +35,12 @@ function MiniGrade({
   label,
   grade,
 }: {
-  label: string;
+  label: ReactNode;
   grade: WatchlistRow["webGrade"];
 }) {
   return (
     <span className="inline-flex items-center gap-1 font-mono text-xs">
-      <span className="text-on-surface-variant">{label}</span>
+      <span className="flex text-on-surface-variant">{label}</span>
       {grade ? (
         <span
           className="font-semibold"
@@ -80,8 +82,14 @@ export function WatchlistRowItem({ row }: { row: WatchlistRow }) {
           {row.host}
         </p>
         <div className="mt-1.5 flex flex-wrap items-center gap-3">
-          <MiniGrade label="🛡️" grade={row.webGrade} />
-          <MiniGrade label="🤖" grade={row.agenticGrade} />
+          <MiniGrade
+            label={<ShieldWeb className="size-3.5 text-primary" />}
+            grade={row.webGrade}
+          />
+          <MiniGrade
+            label={<AgenticChip className="size-3.5 text-tertiary" />}
+            grade={row.agenticGrade}
+          />
           <span className="font-mono text-xs text-on-surface-variant">
             {lastScanLabel(row.lastScanAt)}
           </span>

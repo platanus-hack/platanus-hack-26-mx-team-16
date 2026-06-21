@@ -1,15 +1,17 @@
 /**
- * Gauge — semicircular sub-score dial (🛡️ Web / 🤖 Agéntico, §F7/§F9).
- * Dependency-free SVG (no recharts): a 180° arc that sweeps 0→value on
- * `emphasized-decelerate`, with a center score + grade letter in Roboto Mono.
+ * Gauge — semicircular sub-score dial (Web / Agéntico, §F7/§F9), built on
+ * **recharts** `RadialBarChart` (the charting library DESIGN.md specifies). A
+ * 180°→0° half-gauge: a tonal track plus a value arc in the grade-ramp color
+ * with rounded caps. The score counts up (rAF, `emphasized-decelerate`) and the
+ * recharts bar tracks the same animated value, so number and arc stay in sync.
  *
- * The arc color is the grade ramp (`gradeColorVar`). Honors reduced-motion (no
- * sweep). The grade is rendered from the server value when provided; otherwise a
- * display-only band is derived (`gradeFromScore`).
+ * Honors reduced-motion (no count-up/sweep). The grade is taken from the server
+ * value when provided, else derived from the score band (`gradeFromScore`).
  */
 "use client";
 
 import * as React from "react";
+import { PolarAngleAxis, RadialBar, RadialBarChart } from "recharts";
 
 import { useReducedMotion } from "@/src/application/hooks/use-reduced-motion";
 import { duration, easeFn } from "@/src/application/lib/motion";
@@ -27,29 +29,13 @@ export type GaugeProps = {
   grade?: Grade | null;
   /** Dimension label, e.g. "Web" / "Agéntico". */
   label?: string;
-  /** Optional leading glyph (emoji/icon node). */
+  /** Optional leading glyph (icon node). */
   icon?: React.ReactNode;
   size?: number;
   className?: string;
   /** Shown instead of the score when null (e.g. "sin auditar"). */
   emptyHint?: string;
 };
-
-const STROKE = 12;
-
-function polar(cx: number, cy: number, r: number, deg: number) {
-  const rad = (deg * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-}
-
-/** Semicircle arc path from 180° (left) sweeping `frac` toward 0° (right). */
-function arcPath(cx: number, cy: number, r: number, frac: number) {
-  const start = polar(cx, cy, r, 180);
-  const endDeg = 180 - 180 * Math.max(0, Math.min(1, frac));
-  const end = polar(cx, cy, r, endDeg);
-  const largeArc = 0;
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`;
-}
 
 export function Gauge({
   score,
@@ -82,69 +68,84 @@ export function Gauge({
     return () => cancelAnimationFrame(raf);
   }, [target, reduced, hasScore]);
 
-  const cx = size / 2;
-  const r = (size - STROKE) / 2;
-  const cy = r + STROKE / 2;
-  const height = cy + STROKE / 2 + 4;
-
   const effectiveGrade: Grade | null =
     grade ?? (hasScore ? gradeFromScore(target) : null);
   const color = effectiveGrade ? gradeColorVar(effectiveGrade) : "var(--outline)";
+
+  // Geometry: a half-gauge anchored at the bottom of the chart box.
+  const stroke = Math.max(8, Math.round(size * 0.092));
+  const chartHeight = Math.round(size / 2 + stroke / 2 + 8);
+  const outer = size / 2 - 2;
+  const inner = outer - stroke;
+
+  const display = Math.round(animated);
 
   return (
     <div
       data-slot="gauge"
       className={cn("inline-flex flex-col items-center", className)}
     >
-      <svg
-        width={size}
-        height={height}
-        viewBox={`0 0 ${size} ${height}`}
+      <div
+        className="relative"
+        style={{ width: size, height: chartHeight }}
         role="img"
-        aria-label={`${label ?? "Score"}: ${hasScore ? Math.round(target) : emptyHint}${effectiveGrade ? `, grado ${effectiveGrade}` : ""}`}
+        aria-label={`${label ?? "Score"}: ${
+          hasScore ? display : emptyHint
+        }${effectiveGrade ? `, grado ${effectiveGrade}` : ""}`}
       >
-        {/* Track */}
-        <path
-          d={arcPath(cx, cy, r, 1)}
-          fill="none"
-          stroke="var(--surface-container-highest)"
-          strokeWidth={STROKE}
-          strokeLinecap="round"
-        />
-        {/* Value */}
-        {hasScore && (
-          <path
-            d={arcPath(cx, cy, r, animated / 100)}
-            fill="none"
-            stroke={color}
-            strokeWidth={STROKE}
-            strokeLinecap="round"
-          />
-        )}
-        {/* Center readout — score + grade stacked INSIDE the arc. Both must
-           stay above the baseline (cy); placing the grade below it pushed the
-           glyph past the SVG bottom edge and clipped it. */}
-        <text
-          x={cx}
-          y={cy - size * (effectiveGrade ? 0.17 : 0.08)}
-          textAnchor="middle"
-          className="font-mono tabular-nums"
-          style={{ fontSize: size * 0.2, fontWeight: 600, fill: "var(--foreground)" }}
+        <RadialBarChart
+          width={size}
+          height={chartHeight}
+          cx={size / 2}
+          cy={chartHeight - 2}
+          innerRadius={inner}
+          outerRadius={outer}
+          barSize={stroke}
+          startAngle={180}
+          endAngle={0}
+          margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+          data={[{ value: hasScore ? animated : 0 }]}
         >
-          {hasScore ? Math.round(animated) : "—"}
-        </text>
-        {effectiveGrade && (
-          <text
-            x={cx}
-            y={cy - size * 0.02}
-            textAnchor="middle"
-            className="font-mono"
-            style={{ fontSize: size * 0.14, fontWeight: 700, fill: color }}
+          <PolarAngleAxis
+            type="number"
+            domain={[0, 100]}
+            angleAxisId={0}
+            tick={false}
+          />
+          <RadialBar
+            background={{ fill: "var(--surface-container-highest)" }}
+            dataKey="value"
+            angleAxisId={0}
+            cornerRadius={stroke / 2}
+            fill={color}
+            isAnimationActive={false}
+          />
+        </RadialBarChart>
+
+        {/* Center readout — score + grade stacked in the clear dome interior. */}
+        <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
+          <span
+            className="font-mono font-semibold tabular-nums leading-none text-foreground"
+            style={{ fontSize: size * 0.2 }}
           >
-            {effectiveGrade}
-          </text>
-        )}
-      </svg>
+            {hasScore ? display : "—"}
+          </span>
+          {effectiveGrade && (
+            <span
+              className="font-mono font-bold leading-none"
+              style={{
+                fontSize: size * 0.135,
+                marginTop: size * 0.03,
+                marginBottom: size * 0.04,
+                color,
+              }}
+            >
+              {effectiveGrade}
+            </span>
+          )}
+        </div>
+      </div>
+
       {label && (
         <div className="mt-1 flex items-center gap-1.5 text-sm font-medium text-on-surface-variant">
           {icon}

@@ -7,7 +7,10 @@
 import Link from "next/link";
 
 import { cn } from "@/src/application/lib/utils";
-import { OwlMascot, type OwlState } from "@/src/presentation/owliver/components/owl-mascot";
+import {
+  OwlMascot,
+  type OwlState,
+} from "@/src/presentation/owliver/components/owl-mascot";
 
 export type BrandLockupProps = {
   /** href for the lockup (default "/"). Pass null to render a non-link span. */

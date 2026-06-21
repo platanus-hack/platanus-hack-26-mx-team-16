@@ -17,6 +17,11 @@ import { Reveal } from "@/src/presentation/components/common/reveal";
 import { GradeBadge } from "@/src/presentation/owliver/components/grade-badge";
 import { Gauge } from "@/src/presentation/owliver/components/gauge";
 import { CoverageBadges } from "@/src/presentation/owliver/components/status-badge";
+import {
+  AgenticChip,
+  OwlMark,
+  ShieldWeb,
+} from "@/src/presentation/owliver/icons";
 
 export type ReportExecutiveProps = {
   scan: Scan;
@@ -63,14 +68,14 @@ export function ReportExecutive({
             score={scan.webScore}
             grade={scan.webGrade}
             label="Web"
-            icon="🛡️"
+            icon={<ShieldWeb className="size-4 text-primary" />}
             emptyHint="sin datos"
           />
           <Gauge
             score={scan.agenticScore}
             grade={scan.agenticGrade}
             label="Agéntico"
-            icon="🤖"
+            icon={<AgenticChip className="size-4 text-tertiary" />}
             emptyHint={
               scan.agenticStatus === "detected_not_tested"
                 ? "sin auditar"
@@ -89,9 +94,7 @@ export function ReportExecutive({
       {/* "Owliver te explica" synthesis */}
       <Reveal className="rounded-2xl border border-outline-variant bg-surface-container-low p-5 md:p-6">
         <div className="mb-2 flex items-center gap-2">
-          <span aria-hidden className="text-lg">
-            🦉
-          </span>
+          <OwlMark className="size-5 text-primary" />
           <h2 className="text-base font-semibold text-foreground">
             Owliver te explica
           </h2>
@@ -144,9 +147,7 @@ export function ReportExecutive({
                 key={s.locationUrl}
                 className="flex flex-wrap items-center gap-3 rounded-2xl border border-outline-variant bg-card p-4 shadow-xs"
               >
-                <span aria-hidden className="text-lg">
-                  🤖
-                </span>
+                <AgenticChip className="size-5 text-tertiary" />
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-foreground">
                     {s.vendor ?? "Chatbot"} · {s.type}

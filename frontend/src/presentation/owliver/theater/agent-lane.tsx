@@ -9,6 +9,8 @@
  */
 "use client";
 
+import type { ReactNode } from "react";
+
 import { cn } from "@/src/application/lib/utils";
 import type {
   AgentLaneState,
@@ -21,8 +23,8 @@ export type AgentLaneProps = {
   lane: AgentLaneState;
   /** Display title, e.g. "OWASP Scanner". */
   title: string;
-  /** Leading glyph (🛡️ / 🤖). */
-  icon?: string;
+  /** Leading icon (ShieldWeb / AgenticChip). */
+  icon?: ReactNode;
   /** Overall run status — when terminal the owl rests. */
   runStatus?: TheaterRunStatus;
   className?: string;

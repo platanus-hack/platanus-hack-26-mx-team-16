@@ -1,10 +1,10 @@
-# Project-specific Codex configuration for Doxiq
+# Project-specific Codex configuration for Owliver
 # This extends the global ~/.codex/config.toml
 
 [project]
-name = "doxiq"
-description = "Document extraction and business rule analysis platform"
-root = "/Users/vic/Projects/llamitai/doxiq"
+name = "owliver"
+description = "AI-orchestrated pentest platform with graded security reports"
+root = "/Users/vic/Projects/experiments/owliver"
 
 # MCP Servers (merged with global config)
 [mcp_servers.codegraph]
@@ -57,5 +57,5 @@ directory = ".codex/skills"
 directory = ".codex/rules"
 
 # Trust level for this project
-[projects."/Users/vic/Projects/llamitai/doxiq"]
+[projects."/Users/vic/Projects/experiments/owliver"]
 trust_level = "trusted"

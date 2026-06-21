@@ -207,12 +207,27 @@ class Settings(BaseSettings):
     #
     # MODEL_PROVIDER swaps the WHOLE Team (coordinator + members + agentic judge)
     # between providers via ModelFactory (src/scans/worker/models.py):
-    #   "anthropic" (default) → agno Claude     (uses OPUS_MODEL_ID / SONNET_MODEL_ID)
-    #   "minimax"             → agno OpenAILike  (MiniMax,  OpenAI-compatible endpoint)
-    #   "glm"                 → agno OpenAILike  (Zhipu/Z.ai GLM, OpenAI-compatible)
+    #   "anthropic" (default) → agno Claude      (uses OPUS_MODEL_ID / SONNET_MODEL_ID)
+    #   "openai"              → agno OpenAIChat   (OpenAI native; OPENAI_*_MODEL_ID)
+    #   "gemini"              → agno Gemini       (Google native; GEMINI_*_MODEL_ID)
+    #   "openrouter"          → agno OpenRouter   (OpenRouter gateway; OPENROUTER_*_MODEL_ID)
+    #   "minimax"             → agno OpenAILike   (MiniMax,  OpenAI-compatible endpoint)
+    #   "glm"                 → agno OpenAILike   (Zhipu/Z.ai GLM, OpenAI-compatible)
+    # The API keys for openai/gemini/openrouter reuse the EXTRACTION/OCR keys above
+    # (OPENAI_API_KEY / GEMINI_API_KEY / OPENROUTER_API_KEY).
     MODEL_PROVIDER: str = "anthropic"
     OPUS_MODEL_ID: str = "claude-opus-4-8"
     SONNET_MODEL_ID: str = "claude-sonnet-4-6"
+    # OpenAI (native). Distinct ids per tier (flagship coordinator / mini member).
+    OPENAI_COORDINATOR_MODEL_ID: str = "gpt-5.2"
+    OPENAI_MEMBER_MODEL_ID: str = "gpt-5-mini"
+    # Gemini (native, Google). Distinct ids per tier (pro coordinator / flash member).
+    # Latest = Gemini 3 family (gemini-3-pro-preview / gemini-3-flash-preview).
+    GEMINI_COORDINATOR_MODEL_ID: str = "gemini-3-pro-preview"
+    GEMINI_MEMBER_MODEL_ID: str = "gemini-3-flash-preview"
+    # OpenRouter (gateway). Namespaced ids (provider/model) per tier.
+    OPENROUTER_COORDINATOR_MODEL_ID: str = "openai/gpt-5.2"
+    OPENROUTER_MEMBER_MODEL_ID: str = "openai/gpt-5-mini"
     # MiniMax (OpenAI-compatible). One model id serves both tiers; set *_MODEL_ID
     # to the exact id your account exposes (e.g. MiniMax-M2).
     MINIMAX_API_KEY: str | None = None

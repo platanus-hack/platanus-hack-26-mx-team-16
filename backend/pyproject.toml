@@ -61,6 +61,13 @@ dev = [
     "ipython>=9.3.0",
     "debugpy>=1.8.20",
 ]
+worker = [
+    # Headless-browser bridge for the agentic-surface probe (03-agentic-surface).
+    # Only the worker image installs it (+ `playwright install chromium` in
+    # Dockerfile.scanners); the API never launches a browser, so it is kept out of
+    # the API image. Lazy-imported in src/scans/worker/agentic/bridge.py.
+    "playwright>=1.49.0",
+]
 
 [tool.anyio]
 test_mode = "asyncio"

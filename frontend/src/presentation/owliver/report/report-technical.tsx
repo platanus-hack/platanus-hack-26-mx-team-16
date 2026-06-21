@@ -17,14 +17,23 @@ import type {
 } from "@/src/application/owliver/schemas/api";
 import { bySeverityDesc, severityLabel } from "@/src/application/owliver/lib/grade";
 import { cn } from "@/src/application/lib/utils";
+import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 import { FindingAccordion } from "./finding-accordion";
 
 type AnyFinding = Finding | RedactedFinding;
 
 const SEVERITY_FILTERS: Severity[] = ["critical", "high", "medium", "low"];
-const SOURCE_LABEL: Record<Source, string> = {
-  owasp: "🛡️ Web",
-  agentic: "🤖 Agéntico",
+const SOURCE_LABEL: Record<Source, React.ReactNode> = {
+  owasp: (
+    <span className="inline-flex items-center gap-1.5">
+      <ShieldWeb className="size-3.5" /> Web
+    </span>
+  ),
+  agentic: (
+    <span className="inline-flex items-center gap-1.5">
+      <AgenticChip className="size-3.5" /> Agéntico
+    </span>
+  ),
 };
 
 function FilterPill({

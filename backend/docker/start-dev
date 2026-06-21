@@ -3,6 +3,8 @@
 set -o errexit
 set -o nounset
 
-saq config.tasks.worker_settings &
+# The API is HTTP-only. Background jobs (scans, emails, cron) run in the dedicated
+# `worker` service (fat scanners image: dnsx/nuclei/testssl + Playwright bridge),
+# so they are never dispatched to this thin API image that lacks the toolchain.
 uvicorn config.main:app --host=0.0.0.0 --port=8200 --reload
 

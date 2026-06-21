@@ -18,7 +18,7 @@ Frontend design work is governed by two root files maintained via the `/impeccab
 Quick reference:
 - **Register:** `product` (authenticated app UI; no marketing surface).
 - **Personality:** sharp, trustworthy, approachable. North Star: *"The Inspection Bench."*
-- **Visual system:** teal primary `oklch(0.59 0.095 180.54)` on cool-gray neutrals, Figtree + Geist Mono, 0.75rem base radius, near-flat (hairline rings + whisper shadows). Live tokens in `frontend/src/app/globals.css`.
+- **Visual system:** violet primary `#5648E8` (Material 3 Expressive) on cool-gray neutrals, Roboto Flex + Roboto Mono, 1rem base radius, tonal-surface elevation + soft shadows (M3, not hairline rings). Live tokens in `frontend/src/app/globals.css`.
 - **Anti-references:** generic SaaS templates, the trendy AI-app look, legacy enterprise clutter.
 
 Before building or restyling UI, read `PRODUCT.md` and `DESIGN.md` first.

@@ -37,7 +37,8 @@ export default async function HallOfShamePage() {
       {/* Hero — provocative */}
       <section className="mb-10">
         <p className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-grade-f/12 px-3 py-1 text-xs font-medium text-grade-f">
-          🔴 El Estado bajo la lupa
+          <span className="size-2 rounded-full bg-grade-f" aria-hidden />
+          El Estado bajo la lupa
         </p>
         <h1 className="text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
           ¿Qué tan segura es la IA del gobierno?

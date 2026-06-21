@@ -171,18 +171,19 @@
     }
   },
   "Unassigned": {
-    "metadataTitle": "Sin acceso | Doxiq",
-    "metadataDescription": "Tu cuenta no está asignada a ninguna organización.",
-    "title": "Usuario sin asignar",
-    "description": "Tu cuenta no está asignada a ninguna organización y no tienes acceso a la plataforma.",
-    "alert": "Para obtener acceso, debes ser asignado a una organización por un administrador.",
-    "nextStepsTitle": "¿Qué hacer a continuación?",
-    "step1": "Contacta con el administrador de tu organización",
-    "step2": "Proporciona tu correo electrónico registrado",
-    "step3": "Espera a que te asignen a la organización correspondiente",
-    "support": "Soporte",
-    "logout": "Salir",
-    "footer": "Una vez asignado a una organización, podrás acceder a todas las funcionalidades de la plataforma."
+    "metadataTitle": "Crea tu organización | Owliver",
+    "metadataDescription": "Configura tu organización para empezar a ejecutar pentests con Owliver.",
+    "title": "Crea tu organización",
+    "description": "Todavía no perteneces a ninguna organización. Crea una para empezar — serás su propietario.",
+    "nameLabel": "Nombre de la organización",
+    "namePlaceholder": "p. ej. Secretaría de Economía",
+    "countryLabel": "País",
+    "countryPlaceholder": "Elegir…",
+    "submit": "Crear organización",
+    "submitting": "Creando…",
+    "error": "No pudimos crear tu organización. Inténtalo de nuevo.",
+    "footer": "Podrás invitar a tu equipo y gestionar todo desde tu panel.",
+    "logout": "Usar otra cuenta"
   },
   "Invitations": {
     "tag": "Invitación",

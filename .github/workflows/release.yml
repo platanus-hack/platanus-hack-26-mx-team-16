@@ -55,6 +55,31 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Extract worker docker metadata
+        id: meta-worker
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.WORKER_REPOSITORY_URI }}
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,format=short
+            type=raw,value=stable
+
+      - name: Build and push worker image
+        uses: docker/build-push-action@v6
+        with:
+          cache-from: type=gha,scope=worker
+          cache-to: type=gha,mode=max,scope=worker
+          context: backend
+          file: backend/Dockerfile.scanners
+          push: true
+          target: worker
+          tags: ${{ steps.meta-worker.outputs.tags }}
+          labels: ${{ steps.meta-worker.outputs.labels }}
+
       - name: Deploy backend to Portainer
         uses: cssnr/portainer-stack-deploy-action@v1
         with:

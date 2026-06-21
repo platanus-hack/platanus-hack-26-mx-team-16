@@ -14,6 +14,7 @@ import { cn } from "@/src/application/lib/utils";
 import type { Severity } from "@/src/application/owliver/schemas/api";
 import { Reveal } from "@/src/presentation/components/common/reveal";
 import { SeverityChip } from "@/src/presentation/owliver/components/severity-chip";
+import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 
 export type FindingFeedItemProps = {
   severity: Severity;
@@ -30,9 +31,12 @@ export type FindingFeedItemProps = {
   onClick?: () => void;
 };
 
-const SOURCE_LABEL: Record<"owasp" | "agentic", string> = {
-  owasp: "🛡️ Web",
-  agentic: "🤖 Agéntico",
+const SOURCE_META: Record<
+  "owasp" | "agentic",
+  { label: string; Icon: typeof ShieldWeb }
+> = {
+  owasp: { label: "Web", Icon: ShieldWeb },
+  agentic: { label: "Agéntico", Icon: AgenticChip },
 };
 
 export function FindingFeedItem({
@@ -67,11 +71,16 @@ export function FindingFeedItem({
               {category}
             </span>
           )}
-          {source && (
-            <span className="text-[11px] text-on-surface-variant">
-              {SOURCE_LABEL[source]}
-            </span>
-          )}
+          {source &&
+            (() => {
+              const { label, Icon } = SOURCE_META[source];
+              return (
+                <span className="inline-flex items-center gap-1 text-[11px] text-on-surface-variant">
+                  <Icon className="size-3" />
+                  {label}
+                </span>
+              );
+            })()}
         </div>
         <p className="text-sm font-medium leading-snug text-foreground">{title}</p>
       </div>

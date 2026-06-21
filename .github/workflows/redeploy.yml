@@ -50,6 +50,11 @@ jobs:
           docker manifest inspect "${{ vars.BACKEND_REPOSITORY_URI }}:${{ inputs.version }}" > /dev/null
           echo "Image ${{ vars.BACKEND_REPOSITORY_URI }}:${{ inputs.version }} found."
 
+      - name: Verify worker image exists
+        run: |
+          docker manifest inspect "${{ vars.WORKER_REPOSITORY_URI }}:${{ inputs.version }}" > /dev/null
+          echo "Image ${{ vars.WORKER_REPOSITORY_URI }}:${{ inputs.version }} found."
+
       - name: Deploy backend to Portainer
         uses: cssnr/portainer-stack-deploy-action@v1
         with:

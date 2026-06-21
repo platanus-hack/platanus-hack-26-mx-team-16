@@ -11,7 +11,8 @@
  */
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, ArrowDownRight, ArrowUpRight, Bot, Landmark, Minus, Shield } from "lucide-react";
+import type { ReactNode } from "react";
+import { ArrowRight, ArrowDownRight, ArrowUpRight, Landmark, Minus } from "lucide-react";
 
 import { siteFixture } from "@/src/application/owliver/fixtures";
 import { backendGet } from "@/src/application/owliver/lib/bff";
@@ -21,6 +22,7 @@ import { siteSchema } from "@/src/application/owliver/schemas/api";
 import { Gauge } from "@/src/presentation/owliver/components/gauge";
 import { GradeBadge } from "@/src/presentation/owliver/components/grade-badge";
 import { CoverageBadges } from "@/src/presentation/owliver/components/status-badge";
+import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 import { GradeTrend } from "@/src/presentation/owliver/site/grade-trend";
 
 export const dynamic = "force-dynamic";
@@ -56,7 +58,7 @@ function deriveChanges(history: Site["history"]) {
   return { web, agentic, prevGrade: prev.overallGrade, currGrade: curr.overallGrade };
 }
 
-function DeltaPill({ label, delta }: { label: string; delta: number }) {
+function DeltaPill({ label, delta }: { label: ReactNode; delta: number }) {
   const improving = delta > 0; // higher score = better
   const flat = delta === 0;
   const Icon = flat ? Minus : improving ? ArrowUpRight : ArrowDownRight;
@@ -158,14 +160,14 @@ export default async function SiteHistoryPage({
             score={scan.webScore}
             grade={scan.webGrade}
             label="Web"
-            icon={<Shield className="size-4" aria-hidden />}
+            icon={<ShieldWeb className="size-4 text-primary" />}
             emptyHint="sin datos"
           />
           <Gauge
             score={scan.agenticScore}
             grade={scan.agenticGrade}
             label="Agéntico"
-            icon={<Bot className="size-4" aria-hidden />}
+            icon={<AgenticChip className="size-4 text-tertiary" />}
             emptyHint={
               scan.agenticStatus === "detected_not_tested"
                 ? "sin auditar"
@@ -209,8 +211,22 @@ export default async function SiteHistoryPage({
             last_seen a nivel sitio).
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <DeltaPill label="🛡️ Web" delta={changes.web} />
-            <DeltaPill label="🤖 Agéntico" delta={changes.agentic} />
+            <DeltaPill
+              label={
+                <span className="inline-flex items-center gap-1.5">
+                  <ShieldWeb className="size-4 text-primary" /> Web
+                </span>
+              }
+              delta={changes.web}
+            />
+            <DeltaPill
+              label={
+                <span className="inline-flex items-center gap-1.5">
+                  <AgenticChip className="size-4 text-tertiary" /> Agéntico
+                </span>
+              }
+              delta={changes.agentic}
+            />
           </div>
         </section>
       )}
@@ -227,7 +243,7 @@ export default async function SiteHistoryPage({
                 key={s.locationUrl}
                 className="flex flex-wrap items-center gap-3 rounded-xl border border-outline-variant bg-card px-4 py-3"
               >
-                <Bot className="size-4 text-on-surface-variant" aria-hidden />
+                <AgenticChip className="size-4 text-on-surface-variant" />
                 <span className="font-medium text-foreground">
                   {s.vendor ?? "Asistente genérico"}
                 </span>
@@ -261,8 +277,12 @@ export default async function SiteHistoryPage({
                   <p className="text-sm font-medium text-foreground">
                     {formatDate(h.scannedAt)}
                   </p>
-                  <p className="font-mono text-xs text-on-surface-variant">
-                    🛡️ {h.webScore ?? "—"} · 🤖 {h.agenticScore ?? "—"}
+                  <p className="flex items-center gap-1.5 font-mono text-xs text-on-surface-variant">
+                    <ShieldWeb className="size-3.5 text-primary" />
+                    {h.webScore ?? "—"}
+                    <span className="text-outline">·</span>
+                    <AgenticChip className="size-3.5 text-tertiary" />
+                    {h.agenticScore ?? "—"}
                   </p>
                 </div>
                 <ArrowRight

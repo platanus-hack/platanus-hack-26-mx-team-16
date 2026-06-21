@@ -18,7 +18,7 @@ build-all: build-backend build-frontend
 
 # ─── BACKEND — port 8200 ───────────────────────────────────────
 
-# Start backend with docker-compose (API + Postgres + Redis)
+# Start backend with docker-compose (API + worker + Postgres + Redis)
 dev-backend:
     cd backend && docker compose up
 
@@ -32,11 +32,11 @@ build-backend:
 
 # Build the fat scanners image + worker (04-scanning-engine)
 build-scanners:
-    cd backend && docker compose -f docker-compose.yml -f docker-compose.scanners.yml build scanners worker
+    cd backend && docker compose build worker
 
-# Start the engine worker (scanners image, DooD) over the base stack
+# Start just the engine worker (scanners image, DooD); `dev-backend` already runs it
 dev-worker:
-    cd backend && docker compose -f docker-compose.yml -f docker-compose.scanners.yml up worker
+    cd backend && docker compose up worker
 
 # Warm cold-start: pre-pull pinned heavy images + nuclei templates to volume (spec §7)
 warm-scanners:

@@ -20,6 +20,7 @@ import type {
   RedactedFinding,
 } from "@/src/application/owliver/schemas/api";
 import { cn } from "@/src/application/lib/utils";
+import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 import {
   Collapsible,
   CollapsibleContent,
@@ -165,8 +166,16 @@ export function FindingAccordionItem({
             <span className="rounded bg-surface-container px-1.5 py-0.5 font-mono text-[10px] font-semibold text-on-surface-variant">
               {finding.category}
             </span>
-            <span className="text-[11px] text-on-surface-variant">
-              {finding.source === "agentic" ? "🤖 Agéntico" : "🛡️ Web"}
+            <span className="inline-flex items-center gap-1 text-[11px] text-on-surface-variant">
+              {finding.source === "agentic" ? (
+                <>
+                  <AgenticChip className="size-3 text-tertiary" /> Agéntico
+                </>
+              ) : (
+                <>
+                  <ShieldWeb className="size-3 text-primary" /> Web
+                </>
+              )}
             </span>
           </div>
           <p className="text-sm font-medium leading-snug text-foreground">

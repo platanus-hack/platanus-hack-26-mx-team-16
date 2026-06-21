@@ -1,11 +1,11 @@
-# Codex Project Rules - Doxiq
+# Codex Project Rules - Owliver
 
 ## Project Overview
-Doxiq (by Llamitai) is a document extraction and business rule analysis platform. It uses OCR + LLM to extract structured data from documents and evaluate configurable business rules against the extracted data.
+Owliver is an AI-orchestrated pentest platform. Users submit a URL and attack level, an Agno agent team runs coordinated checks, and Owliver returns a readable A-F grade with findings, evidence, and technical detail.
 
 ## Repository Structure
 ```
-doxiq/
+owliver/
   backend/        # FastAPI API (Python 3.12, async SQLAlchemy, PostgreSQL)
   frontend/       # Next.js App (TypeScript, Tailwind CSS v4, shadcn + Base UI)
   docs/           # Project documentation
@@ -52,9 +52,9 @@ Governed by two root files maintained via the `/impeccable` skill:
 - **`DESIGN.md`** (visual): tokens, typography, components, Do's/Don'ts
 
 Quick reference:
-- **Register:** `product` (authenticated app UI; no marketing surface)
-- **Personality:** sharp, trustworthy, approachable. North Star: *"The Inspection Bench."*
-- **Visual system:** teal primary `oklch(0.59 0.095 180.54)` on cool-gray neutrals, Figtree + Geist Mono, 0.75rem base radius, near-flat (hairline rings + whisper shadows)
+- **Register:** `product` (authenticated app UI plus product-led public surfaces)
+- **Personality:** sharp, trustworthy, approachable. North Star: *"The Inspection Bench," rebuilt in Material 3 Expressive.*
+- **Visual system:** Material 3 Expressive roles, Mercury-inspired violet primary, near-white tonal surfaces, A-F grade ramp as the only semantic status color, and dark SOC live-view
 - **Anti-references:** generic SaaS templates, the trendy AI-app look, legacy enterprise clutter
 
 ## Development Commands

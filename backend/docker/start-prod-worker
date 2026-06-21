@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+# Prod/dev entrypoint for the SAQ worker (fat scanners image). Mirrors
+# docker/start-prod but the final process is the worker, not the API: log in to
+# Infisical with the machine identity, then run `saq` with the secrets injected.
+
+# shellcheck disable=SC2155,SC2046,SC2086
+export INFISICAL_DISABLE_UPDATE_CHECK=true
+# shellcheck disable=SC2155,SC2046,SC2086
+export INFISICAL_TOKEN=$(infisical login --method=universal-auth --client-id=$INFISICAL_MACHINE_CLIENT_ID --client-secret=$INFISICAL_MACHINE_CLIENT_SECRET --domain=$INFISICAL_API_URL --plain --silent)
+# shellcheck disable=SC2086
+exec infisical run \
+    --token $INFISICAL_TOKEN \
+    --projectId $PROJECT_ID \
+    --env $INFISICAL_SECRET_ENV \
+    --domain $INFISICAL_API_URL \
+    -- saq config.tasks.worker_settings

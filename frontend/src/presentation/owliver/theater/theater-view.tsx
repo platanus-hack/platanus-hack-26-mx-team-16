@@ -37,6 +37,7 @@ import {
   ProgressBar,
   FindingFeedItem,
 } from "@/src/presentation/owliver";
+import { AgenticChip, ShieldWeb } from "@/src/presentation/owliver/icons";
 
 export type TheaterViewProps = {
   scanId: string;
@@ -264,14 +265,14 @@ export function TheaterView({
             <AgentLane
               lane={lanes.owasp}
               title="OWASP Scanner"
-              icon="🛡️"
+              icon={<ShieldWeb className="size-4 text-primary" />}
               runStatus={runStatus}
             />
             {/* ─── Lane: Agentic Surface Auditor ─── */}
             <AgentLane
               lane={lanes.agentic}
               title="Agentic Surface Auditor"
-              icon="🤖"
+              icon={<AgenticChip className="size-4 text-tertiary" />}
               runStatus={runStatus}
             />
 
@@ -311,7 +312,7 @@ export function TheaterView({
                 score={liveWeb}
                 grade={terminal ? initialScan.webGrade : null}
                 label="Web"
-                icon={<span aria-hidden>🛡️</span>}
+                icon={<ShieldWeb className="size-4 text-on-surface-variant" />}
                 size={132}
                 emptyHint="midiendo…"
               />
@@ -319,7 +320,7 @@ export function TheaterView({
                 score={liveAgentic}
                 grade={terminal ? initialScan.agenticGrade : null}
                 label="Agéntico"
-                icon={<span aria-hidden>🤖</span>}
+                icon={<AgenticChip className="size-4 text-on-surface-variant" />}
                 size={132}
                 emptyHint="midiendo…"
               />

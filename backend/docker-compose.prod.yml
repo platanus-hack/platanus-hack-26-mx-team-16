@@ -23,6 +23,35 @@ services:
     networks:
       - shared-network
 
+  owliver-worker:
+    # SAQ background worker on the fat scanners image (dnsx/nuclei/testssl +
+    # Playwright bridge). Built from Dockerfile.scanners and pushed by CI to
+    # WORKER_REPOSITORY_URI. The API is HTTP-only (docker/commands), so scans run
+    # here. `command: /start` -> docker/start-prod-worker (infisical run -- saq).
+    image: ghcr.io/xiberty/owliver-worker-prod:${IMAGE_TAG:-latest}
+    environment:
+      <<: *common-env
+      PROCESS_LABEL: worker
+    command: /start
+    restart: unless-stopped
+    volumes:
+      # DooD (NEVER DinD): launch sibling scanners via the host docker daemon.
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /data/scans:/data/scans
+      - nuclei_templates:/root/nuclei-templates
+    networks:
+      - shared-network
+      - owliver_egress
+
+volumes:
+  nuclei_templates:
+
 networks:
   shared-network:
     external: true
+  owliver_egress:
+    # Untrusted scanner siblings (DooD `docker run --network owliver_egress …`)
+    # run here, isolated from the app on shared-network. Literal name avoids the
+    # compose project prefix so the worker's `docker run` resolves it.
+    name: owliver_egress
+    driver: bridge

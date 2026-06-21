@@ -1,6 +1,33 @@
 name: owliver-backend
 
 services:
+  admin:
+    image: directus/directus:12.0.2
+    restart: unless-stopped
+    ports:
+      - "8055:8055"
+    volumes:
+      - ./admin/database:/directus/database
+      - ./admin/uploads:/directus/uploads
+      - ./admin/extensions:/directus/extensions
+    environment:
+      SECRET: "7VxOs9fa4HKAy4IkzDpZSNst0QE9ynryoZG7MA11sAc="
+      ADMIN_EMAIL: "team@owliver.com"
+      ADMIN_PASSWORD: "12345678x"
+      DB_CLIENT: "postgres"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_DATABASE: "postgres"
+      DB_USER: "postgres"
+      DB_PASSWORD: "postgres"
+      PUBLIC_URL: "http://localhost:8000"
+      WEBSOCKETS_ENABLED: "true"
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./admin/extensions
+          target: /directus/extensions
+
   api:
     platform: linux/amd64
     build:
@@ -23,6 +50,49 @@ services:
     volumes:
       - .:/app
     command: /start
+
+  worker:
+    # SAQ background worker on the fat scanners image (dnsx / nuclei / testssl / …
+    # + the Playwright agentic bridge). This is the SINGLE background processor:
+    # the API is HTTP-only (docker/start-dev), so scans never land on the thin API
+    # image that lacks the toolchain. Consolidated here (was the separate, easy-to-
+    # forget docker-compose.scanners.yml) so it always runs with `docker compose up`.
+    # No platform pin: build native so Playwright's Chromium runs un-emulated.
+    build:
+      context: .
+      dockerfile: Dockerfile.scanners
+      target: worker
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - PROCESS_LABEL=worker
+      - MAILPIT_API_URL=http://mailpit:8025
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    volumes:
+      - .:/app
+      # DooD (NEVER DinD): launch heavy sibling scanners via the host daemon.
+      - /var/run/docker.sock:/var/run/docker.sock
+      - scan_data:/data/scans
+      - nuclei_templates:/root/nuclei-templates
+    networks:
+      - default
+      - owliver_egress
+    command: saq config.tasks.worker_settings
+
+  hexstrike:
+    # Heavy Kali-based MCP container — OFF by default (only with `--profile
+    # hexstrike`). Joins egress only; never reaches postgres/redis (spec §10).
+    image: hexstrike/hexstrike-ai:stable
+    profiles: ["hexstrike"]
+    environment:
+      - HEXSTRIKE_PORT=8888
+    networks:
+      - owliver_egress
 
   postgres:
     image: postgres:17
@@ -52,6 +122,18 @@ services:
     ports:
       - "6791:6379"
 
+  minio:
+    image: quay.io/minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./public:/data
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+
   mailpit:
     image: axllent/mailpit
     environment:
@@ -63,3 +145,14 @@ services:
 
 volumes:
   postgres_data:
+  scan_data:
+  nuclei_templates:
+
+networks:
+  # Untrusted scanner siblings (DooD: `docker run --network owliver_egress …`) and
+  # the optional hexstrike container run here, isolated from postgres/redis which
+  # stay on the default network. The literal `name:` avoids the compose project
+  # prefix so the worker's `docker run --network owliver_egress` resolves it.
+  owliver_egress:
+    name: owliver_egress
+    driver: bridge

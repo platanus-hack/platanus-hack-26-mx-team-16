@@ -8,14 +8,16 @@ import Link from "next/link";
 
 import { cn } from "@/src/application/lib/utils";
 import { BrandLockup } from "@/src/presentation/owliver/chrome/brand-lockup";
+import { OwlMark } from "@/src/presentation/owliver/icons";
 
 export type FooterProps = {
   className?: string;
 };
 
 const FOOTER_LINKS = [
-  { href: "/", label: "Leaderboard" },
-  { href: "/scan", label: "Escanear un sitio" },
+  { href: "/", label: "Hall of Shame" },
+  { href: "/scan", label: "Auditar URL" },
+  { href: "/como-funciona", label: "Cómo Funciona" },
   { href: "/login", label: "Iniciar sesión" },
 ];
 
@@ -58,8 +60,9 @@ export function Footer({ className }: FooterProps) {
           </nav>
         </div>
 
-        <p className="mt-8 text-xs text-on-surface-variant/70">
-          🦉 Owliver por Llamitai · {new Date().getFullYear()}
+        <p className="mt-8 inline-flex items-center gap-1.5 text-xs text-on-surface-variant/70">
+          <OwlMark className="size-4" /> Owliver por Llamitai ·{" "}
+          {new Date().getFullYear()}
         </p>
       </div>
     </footer>

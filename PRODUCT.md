@@ -6,45 +6,46 @@ product
 
 ## Users
 
-Doxiq is a multi-tenant SaaS boilerplate; out of the box it serves two roles inside a tenant:
+Owliver serves teams that need a fast, readable security assessment without losing technical usefulness:
 
-- **Tenant admins** — set up the workspace, invite members, define roles and permissions, and manage tenant settings. Their context is occasional but high-stakes setup that everyone else depends on.
-- **Members** — sign in, work inside the tenant, and use whatever product surfaces a builder adds on top of the boilerplate. Their context is everyday use of the authenticated app.
+- **Security leads and founders** — submit URLs, choose an attack level, compare results, and decide what needs action now.
+- **Engineers** — read findings, inspect payloads and evidence, understand severity, and verify what must be fixed.
+- **Operators and stakeholders** — track grades and watchlist movement without parsing raw scanner output.
 
-The center of gravity is everything a real product shares before it has features: signing in, belonging to a tenant, and managing who can do what.
+The center of gravity is the authenticated product surface: run a pentest, watch the agent team work, then review a graded report.
 
 ## Product Purpose
 
-Doxiq (by Llamitai) is a minimal multi-tenant SaaS starter. It exists to give a new product its foundations — authentication, users, tenants, roles/permissions, invitations, and a generic asynchronous background-job mechanism — so builders start from a clean, opinionated base instead of wiring the same plumbing again.
+Owliver is an AI-orchestrated pentest platform. A user submits a URL and attack level, an Agno agent team runs coordinated checks, and Owliver returns a clear A-F grade with findings, evidence, and technical detail.
 
-Success looks like: a developer can clone Doxiq, run it, sign in, create a tenant, invite a member, and enqueue a background job within minutes — then build their actual product on top without fighting the scaffolding.
+Success looks like: a user can start a scan in seconds, understand whether the target is safe enough at a glance, then drill into precise, fixable findings without leaving the product.
 
 ## Brand Personality
 
 Three words: **sharp, trustworthy, approachable.**
 
-- **Sharp & efficient** — dense where density helps, fast, keyboard-first. Respects the reviewer clearing their hundredth document of the day.
-- **Trustworthy & rigorous** — the interface conveys "this value is correct and auditable." Confidence without flash; provenance and state are visible, nothing is silently wrong.
-- **Approachable & clear** — plain language and friendly affordances so non-technical configurers act with confidence.
+- **Sharp & operational** — dense where density helps, fast, and tuned for security review rather than generic SaaS browsing.
+- **Trustworthy & rigorous** — grades, gauges, findings, and telemetry feel measured. Severity colors are data, not mood.
+- **Approachable & lively** — Material 3 Expressive shape and motion make the product feel responsive without hiding the technical substance.
 
-Emotional goal: quiet competence. The tool earns trust by getting out of the way, not by decorating itself.
+Emotional goal: confident inspection. Owliver should feel like a focused security bench with a living agent team behind it.
 
 ## Anti-references
 
-- **Generic SaaS / admin-kit templates** — identical card grids, icon + heading + text repeated endlessly, no point of view. Familiar is fine; characterless is not.
-- **The trendy AI-app look** — purple gradients, glassmorphism, gradient text, chatbot-forward layouts. Doxiq uses AI; it should not cosplay as "an AI app."
-- **Legacy enterprise clutter** — SAP / old-ERP density done badly: gray-on-gray, cramped toolbars, dated chrome. Density yes, clutter no.
+- **Generic SaaS / admin-kit templates** — identical card grids, placeholder dashboards, and feature blocks with no security point of view.
+- **The trendy AI-app look** — purple gradient text, glassmorphism, chatbot-first layouts, and vague "AI magic" framing.
+- **Legacy enterprise security clutter** — terminal cosplay, gray-on-gray density, noisy tables, and dashboards that bury the decision.
 
 ## Design Principles
 
-1. **The number must be trustworthy.** Extracted values carry visible provenance and confidence; surface uncertainty rather than hiding it. A wrong value shown confidently is the worst outcome.
-2. **Disappear into the review.** The primary path is read → verify → correct → approve. Every screen on it minimizes clicks, supports the keyboard, and keeps source and extraction side by side. The tool is invisible when it works.
-3. **Configuration without fear.** Doctype, rule, and knowledge-base authoring is high-stakes and done by non-developers. Make it legible, reversible, and validated before it reaches the pipeline.
-4. **One vocabulary, every screen.** Ops, compliance, admin, and developer surfaces share one component language. The same control means the same thing everywhere; consistency is the feature, surprise is the bug.
-5. **Earned restraint.** Avoid all three traps at once (template blandness, AI gloss, enterprise clutter). Quiet and confident, with a single teal point of view that carries identity, not decoration.
+1. **The grade must be trustworthy.** The A-F grade is the headline, but it must be backed by visible findings, evidence, and severity logic.
+2. **Live work should feel inspectable.** The theater can be expressive, but activity, agent state, tool status, and errors must be legible.
+3. **Severity color is data.** The A-F ramp is the only semantic status palette; do not recolor it for decoration.
+4. **Motion reports state.** Count-ups, gauges, live-feed arrivals, and agent reactions communicate progress or outcome. Decorative motion is noise.
+5. **One product language.** Marketing, scan setup, live view, report, leaderboard, and watchlist share the same Material 3 Expressive roles.
 
 ## Accessibility & Inclusion
 
-- **Target: WCAG 2.1 AA.** Contrast ≥4.5:1 for body text, visible focus states, labelled controls, semantic structure throughout.
-- **Keyboard-first.** Power reviewers need full keyboard navigation and shortcuts for the review / correct / approve loop, not mouse-only flows.
-- **Reduced motion** honored as a baseline: motion conveys state (loading, transition, feedback), never decoration, and every animation has a `prefers-reduced-motion` alternative.
+- **Target: WCAG 2.1 AA.** Contrast >=4.5:1 for body text, visible focus states, labelled controls, semantic structure throughout.
+- **Keyboard-first review.** Scan setup, report navigation, accordions, and finding review should not require mouse-only interaction.
+- **Reduced motion is mandatory.** Every expressive animation needs a `prefers-reduced-motion` fallback that preserves state clarity.
