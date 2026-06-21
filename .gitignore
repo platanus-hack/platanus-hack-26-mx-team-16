@@ -61,3 +61,8 @@ node-compile-cache/
 .impeccable/
 .astro/
 .recon/
+
+# Demo recording artifacts
+xiberty-avanzado-scan.webm
+xiberty-avanzado-timelapse.gif
+xiberty-avanzado-timelapse.mp4

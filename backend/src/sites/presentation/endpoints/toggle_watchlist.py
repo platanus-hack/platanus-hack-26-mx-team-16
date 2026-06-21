@@ -18,7 +18,7 @@ from src.sites.application.use_cases.toggle_watchlist_monitor import (
     ToggleWatchlistMonitor,
 )
 from src.sites.domain.models.watchlist import WatchlistEntry
-from src.sites.presentation.presenters.watchlist_item import WatchlistItemPresenter
+from src.sites.presentation.presenters.watchlist_row import WatchlistRowPresenter
 from src.sites.presentation.requests.toggle_watchlist import ToggleWatchlistRequest
 
 
@@ -28,14 +28,16 @@ async def toggle_watchlist(
     entry: Annotated[WatchlistEntry, Depends(require_watchlist_owner)],
     user: Annotated[User, Depends(get_authenticated_user)],
 ) -> ApiJSONResponse:
-    updated = await ToggleWatchlistMonitor(
+    row = await ToggleWatchlistMonitor(
         user_id=user.uuid,
         site_id=entry.site_id,
         monitor=request.monitor,
         watchlist_repository=domain_context.watchlist_repository,
+        site_repository=domain_context.site_repository,
+        scan_repository=domain_context.scan_repository,
     ).execute()
 
     return ApiJSONResponse(
-        content=WatchlistItemPresenter(updated).to_dict,
+        content=WatchlistRowPresenter(row).to_dict,
         status_code=status.HTTP_200_OK,
     )
