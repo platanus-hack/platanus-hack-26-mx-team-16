@@ -39,9 +39,10 @@ SCAN_BUDGET_S: int = settings.SCAN_GLOBAL_BUDGET_SECONDS
 class ScanBudgetExceeded(Exception):
     """Raised by :func:`run_with_watchdog` when the global budget is exhausted.
 
-    The scan closes as ``partial`` (it produced whatever findings it had before
-    the budget ran out); it never hangs. NOT a ``DomainError`` — this is an
-    internal worker-flow signal, not a user-facing API error.
+    The scan closes as ``cancelled``, persisting the accumulated partial findings
+    (whatever it produced before the budget ran out); it never hangs. NOT a
+    ``DomainError`` — this is an internal worker-flow signal, not a user-facing
+    API error.
     """
 
 
@@ -103,8 +104,8 @@ async def run_with_watchdog(
 
     On timeout it cancels the coroutine (aborting in-flight tools) and raises
     :class:`ScanBudgetExceeded`. The caller (05's worker flow) catches it, closes
-    the scan as ``partial`` and persists the accumulated findings — the scan never
-    hangs the worker.
+    the scan as ``cancelled`` and persists the accumulated partial findings — the
+    scan never hangs the worker.
     """
     timeout = SCAN_BUDGET_S if budget_s is None else budget_s
     try:

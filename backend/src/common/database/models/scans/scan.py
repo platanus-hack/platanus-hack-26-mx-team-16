@@ -40,8 +40,12 @@ class ScanORM(Base, UUIDTimestampMixin):
             unique=True,
             postgresql_where=text("status IN ('queued','running')"),
         ),
-        # Leaderboard order "worst first": grade ASC, penalty_raw DESC (§4).
-        Index("ix_scans_leaderboard", "overall_grade", text("penalty_raw DESC")),
+        # Leaderboard order "worst first": overall_grade DESC, penalty_raw DESC (§4).
+        Index(
+            "ix_scans_leaderboard",
+            text("overall_grade DESC"),
+            text("penalty_raw DESC"),
+        ),
     )
 
     site_id: Mapped[UUID] = mapped_column(

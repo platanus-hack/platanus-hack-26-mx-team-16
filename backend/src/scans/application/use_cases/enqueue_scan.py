@@ -15,10 +15,13 @@ Idempotent, attested scan enqueue. The endpoint only maps ``EnqueueResult`` to
    - **Layer 1 (partial unique index, 06):** if a live scan already exists for
      ``(site_id, level)`` we return it (``created=False`` → 200). The repo's
      ``enqueue`` also catches the ``IntegrityError`` from the partial index on a
-     lost race and returns the live scan, so a burst collapses to one row.
+     lost race and returns the live scan with ``created=False``, so a burst
+     collapses to one row. ``enqueue`` returns ``(scan, created)`` where
+     ``created`` is ``True`` only on the branch that actually inserted the row.
    - **Layer 2 (SAQ job key):** the shared ``SaqCommandEnqueuer`` does **not**
      accept a ``key``/``retries`` today (see plan §2), so we lean on Layer 1 and
-     only dispatch the ``RunScanCommand`` once, for a freshly-created scan.
+     dispatch the ``RunScanCommand`` exactly once — only when the repo reports
+     ``created=True`` (never inferred from requester/status).
 
 Rate-limit (5/h per user) is applied by the endpoint via the existing Redis
 ``create_rate_limit_dependency`` factory — not here.
@@ -79,7 +82,11 @@ class EnqueueScan(UseCase):
         if existing is not None:
             return EnqueueResult(scan=existing, created=False)
 
-        scan = await self.scan_repository.enqueue(
+        # The repo reports ``created`` authoritatively: ``True`` only on the
+        # fresh-INSERT-won branch, ``False`` on the pre-check hit and the
+        # lost-race branch. We no longer infer it from requester/status, so a
+        # concurrent same-user enqueue can never dispatch twice for one row.
+        scan, created = await self.scan_repository.enqueue(
             site.uuid,
             level_value,
             visibility=str(visibility),
@@ -87,9 +94,6 @@ class EnqueueScan(UseCase):
             authorized=self.authorized,
         )
 
-        # The repo returns the live scan on a lost race; if that scan is not the
-        # one we requested (different requester) it was an idempotent hit.
-        created = scan.requested_by == self.user.uuid and existing is None
         if created:
             # Layer 2 — dispatch exactly once for a freshly created scan.
             await self.command_bus.dispatch(

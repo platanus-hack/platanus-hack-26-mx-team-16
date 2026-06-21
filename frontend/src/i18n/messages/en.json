@@ -86,6 +86,23 @@
       "connectionError": "Connection error"
     }
   },
+  "LoginOwliver": {
+    "title": "Sign in to Owliver",
+    "description": "Your session unlocks your watchlists and active scans.",
+    "continueWithGoogle": "Continue with Google",
+    "connecting": "Connecting…",
+    "verifying": "Verifying your session…",
+    "redirecting": "Done, redirecting…",
+    "legal": "Owliver watches the security of the State and your AI — what no one else is measuring.",
+    "back": "Back to home",
+    "errors": {
+      "title": "We couldn't sign you in",
+      "oauth": "Google cancelled or denied access. Please try again.",
+      "config": "Google sign-in isn't configured in this environment.",
+      "exchange": "We couldn't validate your Google access. Please try again.",
+      "retry": "Retry"
+    }
+  },
   "Register": {
     "title": "Create Account",
     "description": "Complete the form to sign up",
@@ -344,7 +361,17 @@
     "passwordsDontMatch": "Passwords do not match",
     "passwordSuccess": "Password updated successfully",
     "changePassword": "Change password",
-    "changing": "Changing..."
+    "changing": "Changing...",
+    "security": "Security",
+    "securityDescription": "Update your account password.",
+    "accessMethod": "Access method",
+    "googleConnected": "Connected with Google",
+    "googleConnectedDescription": "You sign in with Google; your account has no password.",
+    "language": "Language",
+    "languageDescription": "Owliver interface language.",
+    "deleteAccount": "Delete account",
+    "deleteAccountDescription": "Permanently delete your account and data. This action cannot be undone.",
+    "comingSoon": "Coming soon"
   },
   "Settings": {
     "title": "Settings",

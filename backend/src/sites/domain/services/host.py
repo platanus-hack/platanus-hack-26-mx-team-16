@@ -1,7 +1,8 @@
 """Host resolution service (06-data-model §3.1).
 
 ``is_gov`` is computed here at insert time, **never** accepted from the client:
-``is_gov = hostname.endswith('.gob.mx')``. This is the source of the global
+``is_gov = (host == 'gob.mx' or host.endswith('.gob.mx'))`` (the bare apex
+``gob.mx`` matches too, not only sub-domains). This is the source of the global
 ``.gob.mx`` leaderboard (08-ranking-watchlists).
 
 The canonical implementation now lives in the dependency-free legal package

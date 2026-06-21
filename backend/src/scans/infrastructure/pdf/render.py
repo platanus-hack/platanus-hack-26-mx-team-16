@@ -3,8 +3,9 @@
 ``render_report_pdf(report, *, base_url)`` turns the **authenticated** report dict
 (``ReportPresenter(public=False).to_dict``) into PDF ``bytes``. The HTML template
 is the same two-layer report rendered in-app; evidence screenshots are embedded
-from the static route ``base_url + /data/scans/{scan_id}/{n}.png`` (§3.3), so the
-binary is never duplicated.
+from the static route ``base_url + /static/scans/{scan_id}/{n}.png`` (§3.3) — the
+SAME prefix the worker persists in ``Finding.evidence`` and the FastAPI static
+mount serves (``STATIC_SCANS_PREFIX``) — so the binary is never duplicated.
 
 The renderer is selected by ``settings.PDF_ENGINE``:
 
@@ -58,6 +59,13 @@ def render_report_html(report: dict[str, Any], *, base_url: str) -> str:
 
     base = base_url.rstrip("/")
     scan_id = meta.get("scanId", "")
+    # Single source of truth for the evidence URL prefix: the same constant the
+    # worker persists into Finding.evidence and the FastAPI static mount serves.
+    # Read defensively so a malformed/relative shot path still resolves and so
+    # this module imports cleanly where settings lacks the key.
+    prefix = str(
+        getattr(settings, "STATIC_SCANS_PREFIX", "/static/scans") or "/static/scans"
+    ).strip("/")
 
     badges = "".join(
         f'<span class="badge">{_esc(b)}</span>' for b in executive.get("badges", [])
@@ -82,8 +90,16 @@ def render_report_html(report: dict[str, Any], *, base_url: str) -> str:
         if isinstance(evidence, dict):
             for shot in evidence.get("screenshots", []) or []:
                 # Embed evidence images from the static route so the PDF reuses the
-                # exact same binary the in-app report serves (§3.3).
-                src = f"{base}/data/scans/{_esc(scan_id)}/{_esc(shot)}"
+                # exact same binary the in-app report serves (§3.3). If the stored
+                # screenshot is already a full evidence URL (begins with the static
+                # prefix), embed it as-is rather than double-prefixing.
+                shot_str = str(shot)
+                if shot_str.startswith(f"/{prefix}/") or shot_str.startswith(
+                    f"{prefix}/"
+                ):
+                    src = f"{base}/{shot_str.lstrip('/')}"
+                else:
+                    src = f"{base}/{prefix}/{_esc(scan_id)}/{_esc(shot)}"
                 screenshots += f'<img class="evidence" src="{src}" />'
         redacted = (
             '<p class="redacted">Evidencia oculta en el reporte público</p>'

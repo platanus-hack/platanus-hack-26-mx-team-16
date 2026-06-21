@@ -1,20 +1,16 @@
-"""Pure grade-comparison + new-critical extraction for monitoring alerts
-(08-ranking-watchlists §4.2/§4.3).
+"""Pure grade-comparison for monitoring alerts (08-ranking-watchlists §4.2/§4.3).
 
 This module never recomputes a grade or a score — scoring (07) already wrote
-``overall_grade``. It only compares two already-written ``char(1)`` grades and
-filters findings that are *new* at the site level. No I/O, no repos.
+``overall_grade``. It only compares two already-written ``char(1)`` grades. New
+critical detection is owned by ``FindingRepository.criticals_first_seen_in`` (the
+single source of truth); this module stays pure with no I/O and no repos.
 """
 
 from __future__ import annotations
 
-from src.scans.domain.models.finding import FindingRecord
-
 # Worst-first ordering: F is the worst grade, A the best. A site's grade
 # "dropped" when it moved to a worse grade between two consecutive scans.
 _GRADE_RANK = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5}
-
-_CRITICAL = "critical"
 
 
 def grade_rank(grade: str | None) -> int | None:
@@ -37,22 +33,3 @@ def compare_grade(prev: str | None, curr: str | None) -> bool:
     if prev_rank is None or curr_rank is None:
         return False
     return curr_rank > prev_rank
-
-
-def new_criticals(
-    findings: list[FindingRecord], *, scan_first_seen_keys: set[str]
-) -> list[FindingRecord]:
-    """Filter ``findings`` to the **new critical** ones for this scan.
-
-    A finding is a *new critical* when its severity is ``critical`` and its
-    ``dedupe_key`` is in ``scan_first_seen_keys`` — the set of dedupe keys whose
-    ``first_seen`` corresponds to this scan (i.e. they did not exist in the
-    site's history before). A critical that already existed (older ``first_seen``)
-    is excluded, so repeat cycles never re-alert on the same finding (§5.2).
-    """
-    return [
-        finding
-        for finding in findings
-        if finding.severity == _CRITICAL
-        and finding.dedupe_key in scan_first_seen_keys
-    ]

@@ -200,6 +200,48 @@ class Settings(BaseSettings):
     # web requests. Rate-limit + UA policy detail lives in 01-legal-ethics.
     SCANNER_USER_AGENT: str = "Owliver-Scanner/1.0 (+contacto)"
 
+    # -> AGENT TEAM (05-agent-team) — Agno Team model selection + summary caps.
+    # All read via getattr-defaults by the worker, so the worker boots without
+    # them; declared here so a real LLM run can override via env. agno + the
+    # provider SDK are LAZY-imported only inside the worker, never at import time.
+    #
+    # MODEL_PROVIDER swaps the WHOLE Team (coordinator + members + agentic judge)
+    # between providers via ModelFactory (src/scans/worker/models.py):
+    #   "anthropic" (default) → agno Claude     (uses OPUS_MODEL_ID / SONNET_MODEL_ID)
+    #   "minimax"             → agno OpenAILike  (MiniMax,  OpenAI-compatible endpoint)
+    #   "glm"                 → agno OpenAILike  (Zhipu/Z.ai GLM, OpenAI-compatible)
+    MODEL_PROVIDER: str = "anthropic"
+    OPUS_MODEL_ID: str = "claude-opus-4-8"
+    SONNET_MODEL_ID: str = "claude-sonnet-4-6"
+    # MiniMax (OpenAI-compatible). One model id serves both tiers; set *_MODEL_ID
+    # to the exact id your account exposes (e.g. MiniMax-M2).
+    MINIMAX_API_KEY: str | None = None
+    MINIMAX_BASE_URL: str = "https://api.minimax.io/v1"
+    MINIMAX_MODEL_ID: str = "MiniMax-M2"
+    # GLM / Zhipu (Z.ai, OpenAI-compatible). Use open.bigmodel.cn for the CN region.
+    GLM_API_KEY: str | None = None
+    GLM_BASE_URL: str = "https://api.z.ai/api/paas/v4"
+    GLM_MODEL_ID: str = "glm-4.6"
+    # Cap on the compact executive-summary prompt sent to Opus (summary.py).
+    OPUS_SUMMARY_MAX_TOKENS: int = 2000
+    # How many top findings Opus sees when synthesizing the summary.
+    OPUS_SUMMARY_TOP_N: int = 12
+
+    # -> AGENTIC SURFACE (03-agentic-surface) — active prompt-injection probing.
+    # Hard per-chatbot payload caps by level (basico sends ZERO; gov never probes
+    # actively). Enforced in agentic/probe.py; legal gate lives in _should_probe.
+    AGENTIC_PAYLOAD_CAP_INTERMEDIO: int = 8
+    AGENTIC_PAYLOAD_CAP_AVANZADO: int = 20
+    # Per-payload Playwright-bridge timeout (seconds).
+    AGENTIC_PAYLOAD_TIMEOUT_S: int = 30
+    # LLM-judge model id; falls back to SONNET_MODEL_ID when None.
+    AGENTIC_JUDGE_MODEL_ID: str | None = None
+    # Demo bot target on localhost for the star-finding smoke E2E.
+    PLANTED_BOT_URL: str | None = None
+    # Comma-separated extra demo hosts the loopback-egress guard may reach
+    # (localhost/127.0.0.1/planted-bot are allow-listed by default in probe.py).
+    AGENTIC_ALLOWED_DEMO_HOSTS: str | None = None
+
     # -> SCANNING ENGINE (04-scanning-engine §8, §10)
     # Shared evidence-volume root the worker writes screenshots/artefacts into.
     SCAN_DATA_DIR: str = "/data/scans"
@@ -222,7 +264,8 @@ class Settings(BaseSettings):
     # -> REPORTING (09-reporting)
     # HTML->PDF engine: "weasyprint" | "playwright" (render lazy-imports it).
     PDF_ENGINE: str = "weasyprint"
-    # Base URL the PDF embeds evidence screenshots from (/data/scans/{id}/{n}.png).
+    # Base URL the PDF embeds evidence screenshots from
+    # (/static/scans/{id}/{n}.png — the STATIC_SCANS_PREFIX route).
     STATIC_BASE_URL: str = "http://localhost:8200"
     # Directory FastAPI mounts as StaticFiles at /data for evidence screenshots.
     DATA_DIR: str = "/data"

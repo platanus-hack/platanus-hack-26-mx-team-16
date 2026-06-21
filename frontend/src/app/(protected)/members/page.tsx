@@ -1,21 +1,15 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-
-import { AppShell } from "@/src/presentation/common/app-shell";
 import { PermissionGuard } from "@/src/presentation/common/permission-guard";
 import { MembersView } from "@/src/presentation/members/members-view";
+import { SettingsShell } from "@/src/presentation/owliver/settings/settings-shell";
 
 export default function MembersPage() {
-  const t = useTranslations("Nav");
   return (
     <PermissionGuard permission="tenant_users.view">
-      <AppShell
-        activePath="/members"
-        breadcrumbItems={[{ label: t("members") }]}
-      >
+      <SettingsShell activePath="/members">
         <MembersView />
-      </AppShell>
+      </SettingsShell>
     </PermissionGuard>
   );
 }

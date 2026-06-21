@@ -9,6 +9,8 @@ export interface User {
   phoneNumber?: RawPhoneNumber | null;
   emailAddress?: RawEmailAddress | null;
   photoUrl?: string | null;
+  /** True when the account has a password set. False for Google-only sign-in. */
+  hasPassword?: boolean;
   isSuperuser?: boolean;
   /** E5 · ADR 0001: fila activa en `staff_users` (consola /staff). */
   isStaff?: boolean;

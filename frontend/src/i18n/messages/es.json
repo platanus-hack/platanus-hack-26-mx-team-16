@@ -86,6 +86,23 @@
       "connectionError": "Error de conexión"
     }
   },
+  "LoginOwliver": {
+    "title": "Entra a Owliver",
+    "description": "Tu sesión te da acceso a tus watchlists y escaneos activos.",
+    "continueWithGoogle": "Entrar con Google",
+    "connecting": "Conectando…",
+    "verifying": "Verificando tu sesión…",
+    "redirecting": "Listo, redirigiendo…",
+    "legal": "Owliver vigila la seguridad del Estado y de tu IA — lo que nadie más está midiendo.",
+    "back": "Volver al inicio",
+    "errors": {
+      "title": "No pudimos iniciar tu sesión",
+      "oauth": "Google canceló o rechazó el acceso. Inténtalo de nuevo.",
+      "config": "El acceso con Google no está configurado en este entorno.",
+      "exchange": "No pudimos validar tu acceso con Google. Inténtalo de nuevo.",
+      "retry": "Reintentar"
+    }
+  },
   "Register": {
     "title": "Crear Cuenta",
     "description": "Completa el formulario para registrarte",
@@ -344,7 +361,17 @@
     "passwordsDontMatch": "Las contraseñas no coinciden",
     "passwordSuccess": "Contraseña actualizada correctamente",
     "changePassword": "Cambiar contraseña",
-    "changing": "Cambiando..."
+    "changing": "Cambiando...",
+    "security": "Seguridad",
+    "securityDescription": "Actualiza la contraseña de tu cuenta.",
+    "accessMethod": "Método de acceso",
+    "googleConnected": "Conectado con Google",
+    "googleConnectedDescription": "Inicias sesión con Google; tu cuenta no usa contraseña.",
+    "language": "Idioma",
+    "languageDescription": "Idioma de la interfaz de Owliver.",
+    "deleteAccount": "Eliminar cuenta",
+    "deleteAccountDescription": "Elimina tu cuenta y tus datos de forma permanente. Esta acción no se puede deshacer.",
+    "comingSoon": "Próximamente"
   },
   "Settings": {
     "title": "Settings",

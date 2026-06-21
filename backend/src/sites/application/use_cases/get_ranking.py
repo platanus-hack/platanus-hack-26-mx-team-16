@@ -1,7 +1,7 @@
 """``GetRanking`` — ``GET /ranking?country=mx`` (12-api §"Lectura"; 08-ranking).
 
 Global gov leaderboard, worst-first. The ordering contract
-(``overall_grade ASC, penalty_raw DESC``) is owned by 07-scoring
+(``overall_grade DESC, penalty_raw DESC`` — worst-first) is owned by 07-scoring
 (``LEADERBOARD_ORDER``) and applied by the repo's ``leaderboard`` query, which is
 already filtered to ``sites.is_gov`` and each site's latest scan — i.e. only the
 automatic public gov surface, never a private scan. This use case wraps the

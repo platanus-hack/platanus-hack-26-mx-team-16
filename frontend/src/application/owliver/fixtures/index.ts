@@ -1,0 +1,20 @@
+/**
+ * Owliver fixtures barrel — every screen renders against these so the UI works
+ * without a live backend (§F15: "funcionando contra fixtures desde la hora 2").
+ *
+ * Import individual fixtures by name, e.g.:
+ *   import { rankingFixture } from "@/src/application/owliver/fixtures";
+ */
+export { rankingFixture, satRow } from "./ranking";
+export {
+  SAT_SCAN_ID,
+  SAT_SITE_ID,
+  scanFixture,
+  surfacesFixture,
+  findingsFixture,
+  reportFixture,
+  publicReportFixture,
+} from "./scan";
+export { scanEventsFixture, scanEventsAsSSEWire } from "./scan-events";
+export { siteFixture } from "./site";
+export { watchlistFixture, alertPrefsFixture } from "./watchlist";

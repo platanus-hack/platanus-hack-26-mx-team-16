@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "vendors": [
+    {
+      "vendor": "Intercom",
+      "script_hosts": ["js.intercomcdn.com", "widget.intercom.io", "api-iam.intercom.io"],
+      "window_globals": ["Intercom", "intercomSettings"],
+      "launcher_selectors": [".intercom-launcher", "#intercom-container", ".intercom-launcher-frame"]
+    },
+    {
+      "vendor": "Drift",
+      "script_hosts": ["js.driftt.com", "js.drift.com", "widget.drift.com"],
+      "window_globals": ["drift", "driftt"],
+      "launcher_selectors": ["#drift-widget", ".drift-open-chat", "#drift-frame-controller"]
+    },
+    {
+      "vendor": "Zendesk",
+      "script_hosts": ["static.zdassets.com/ekr", "static.zdassets.com", "ekr.zdassets.com"],
+      "window_globals": ["$zopim", "zE", "zEmbed"],
+      "launcher_selectors": ["#launcher", ".zopim", "iframe#webWidget"]
+    },
+    {
+      "vendor": "Tidio",
+      "script_hosts": ["code.tidio.co", "widget.tidio"],
+      "window_globals": ["tidioChatApi", "tidioChatLang"],
+      "launcher_selectors": ["#tidio-chat", "#tidio-chat-iframe"]
+    },
+    {
+      "vendor": "Crisp",
+      "script_hosts": ["client.crisp.chat", "settings.crisp.chat"],
+      "window_globals": ["$crisp", "CRISP_WEBSITE_ID"],
+      "launcher_selectors": [".crisp-client", "#crisp-chatbox"]
+    },
+    {
+      "vendor": "LivePerson",
+      "script_hosts": ["lptag.liveperson.net", "lpcdn.lpsnmedia.net"],
+      "window_globals": ["lpTag", "LP_WINDOW"],
+      "launcher_selectors": [".lp-window", "#lpChat"]
+    },
+    {
+      "vendor": "HubSpot",
+      "script_hosts": ["js.usemessages.com", "js.hs-scripts.com"],
+      "window_globals": ["HubSpotConversations"],
+      "launcher_selectors": ["#hubspot-messages-iframe-container"]
+    },
+    {
+      "vendor": "Freshchat",
+      "script_hosts": ["wchat.freshchat.com", "wchat.in.freshchat.com"],
+      "window_globals": ["fcWidget", "fcSettings"],
+      "launcher_selectors": ["#fc_frame", "#freshchat-widget"]
+    },
+    {
+      "vendor": "Tawk.to",
+      "script_hosts": ["embed.tawk.to", "va.tawk.to"],
+      "window_globals": ["Tawk_API", "Tawk_LoadStart"],
+      "launcher_selectors": ["#tawkchat-container", ".tawk-min-container"]
+    },
+    {
+      "vendor": "Zoho SalesIQ",
+      "script_hosts": ["salesiq.zoho.com", "salesiq.zohopublic.com"],
+      "window_globals": ["$zoho", "ZohoSIQ"],
+      "launcher_selectors": ["#zsiq_float", ".zsiq_floatmain"]
+    },
+    {
+      "vendor": "Kommunicate",
+      "script_hosts": ["widget.kommunicate.io"],
+      "window_globals": ["Kommunicate", "kommunicateSettings"],
+      "launcher_selectors": [".kommunicate-custom-iframe", "#kommunicate-widget-iframe"]
+    },
+    {
+      "vendor": "OpenAI/Anthropic SDK",
+      "script_hosts": ["api.openai.com", "api.anthropic.com", "cdn.openai.com"],
+      "window_globals": ["OpenAI"],
+      "launcher_selectors": []
+    }
+  ]
+}

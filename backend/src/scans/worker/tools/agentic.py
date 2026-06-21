@@ -1,10 +1,11 @@
-"""Agentic-surface tool — **STUB** with the seam 03-agentic-surface implements.
+"""Agentic-surface tool — the seam 03-agentic-surface fills, now LANDED.
 
-The base OWASP scan must run end-to-end NOW, before 03 lands. This module ships a
-placeholder agentic probe that reports ``no_surface`` and contributes no findings,
-so the worker, scoring and persistence all work today. Feature 03 replaces the
-stub by providing a real :data:`AgenticProbe` implementation; nothing else in the
-worker changes.
+03 has shipped: :data:`DEFAULT_AGENTIC_PROBE` is the **real** Playwright-native
+attack-bridge + LLM-judge + canary probe (``agentic/probe.py``). It is the
+default the worker, scoring and persistence run against today.
+:func:`stub_agentic_probe` remains only as an injectable test fake (reports
+``no_surface``, contributes no findings) for callers that want a deterministic,
+dependency-free probe — it is never the default.
 
 =========================  THE 03 SEAM (frozen contract)  =====================
 
@@ -32,17 +33,18 @@ It MUST return one :class:`src.scans.domain.contracts.finding.AgenticResult` wit
                                  confidence "alta" when a canary/regex fired, "media"
                                  for an LLM-judge verdict)
 
-03 wires its implementation in two equivalent ways (pick one):
+The real probe is wired as :data:`DEFAULT_AGENTIC_PROBE`; a caller can still
+override it in two equivalent ways (e.g. tests injecting a fake):
   (a) pass ``agentic_probe=<impl>`` to ``build_agentic_agent`` / ``build_team``
       / ``WorkerFlow`` (dependency injection — preferred, keeps imports lazy); or
-  (b) replace :data:`DEFAULT_AGENTIC_PROBE` in this module.
+  (b) reassign :data:`DEFAULT_AGENTIC_PROBE` in this module.
 
 The worker calls the probe directly (deterministic path) AND exposes it as the
 ``agentic_agent`` tool; either way the returned ``AgenticResult`` is what drives
 ``scans.agentic_status`` and the agentic sub-score (07). The agentic surface ROW
-persistence (``AgenticSurfaceRepository.add``) is wired by 03 once it adds
-``agentic_surface_repository`` to ``DomainContext`` (today it is not in the
-context, so the worker tolerates its absence and persists no agentic row).
+persistence (``AgenticSurfaceRepository.add``) is wired: 03 added
+``agentic_surface_repository`` to ``DomainContext``, so the worker persists the
+agentic row when the result describes a real surface.
 """
 
 from __future__ import annotations
@@ -71,11 +73,13 @@ async def stub_agentic_probe(
     emit: ScanEventEmitter | None = None,
     host_shared_dir: str = "",
 ) -> AgenticResult:
-    """Placeholder probe: report ``no_surface``, contribute no findings.
+    """Injectable test fake: report ``no_surface``, contribute no findings.
 
-    Replaced by 03 with the real Playwright-native attack bridge + LLM-judge +
-    canary. Keeping the same signature means 03 is a drop-in. Emits a single
-    ``agent_status`` so the live view shows the agentic carril ran.
+    This is NOT the default (03 has landed — :data:`DEFAULT_AGENTIC_PROBE` is the
+    real Playwright-native attack bridge + LLM-judge + canary). It shares the
+    probe signature so tests can inject it as a deterministic, dependency-free
+    drop-in. Emits a single ``agent_status`` so the live view shows the agentic
+    carril ran.
     """
     if emit is not None:
         await emit.agent_status(
@@ -93,8 +97,15 @@ async def stub_agentic_probe(
     )
 
 
-#: Module-level default; 03 may overwrite this OR inject its own probe.
-DEFAULT_AGENTIC_PROBE: AgenticProbe = stub_agentic_probe
+#: Module-level default — the real Playwright-native attack-bridge + LLM-judge +
+#: canary implementation (``agentic/probe.py``), shipped by 03. The
+#: import is CI-safe: ``probe`` keeps playwright/agno/anthropic lazy (imported
+#: inside the bridge / judge), so this module still loads without those packages.
+#: DI still wins — passing ``probe=`` to ``make_agentic_tool`` / ``build_team`` /
+#: ``WorkerFlow`` overrides this default (e.g. tests inject fakes).
+from src.scans.worker.agentic.probe import agentic_probe as _real_agentic_probe
+
+DEFAULT_AGENTIC_PROBE: AgenticProbe = _real_agentic_probe
 
 
 def make_agentic_tool(
@@ -109,10 +120,11 @@ def make_agentic_tool(
 ) -> Callable[..., Awaitable[str]]:
     """Build the closed-over agentic tool-function for the Sonnet agent.
 
-    Runs ``probe`` (defaulting to the stub / module default), pushes its
-    ``AgenticResult`` into ``session_state['agentic']`` and its findings into
-    ``session_state['findings']``, and returns a short status string. 03 supplies
-    the real ``probe``; the rest of the worker is unchanged.
+    Runs ``probe`` (defaulting to :data:`DEFAULT_AGENTIC_PROBE`, the real 03
+    probe), pushes its ``AgenticResult`` into ``session_state['agentic']`` and its
+    findings into ``session_state['findings']``, and returns a short status
+    string. Callers may inject a fake ``probe`` (e.g. :func:`stub_agentic_probe`)
+    for deterministic tests; the rest of the worker is unchanged.
     """
     active_probe = probe or DEFAULT_AGENTIC_PROBE
 

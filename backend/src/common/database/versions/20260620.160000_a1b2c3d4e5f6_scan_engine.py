@@ -109,11 +109,11 @@ def upgrade() -> None:
         unique=True,
         postgresql_where=sa.text("status IN ('queued','running')"),
     )
-    # Leaderboard "worst first": grade ASC, penalty_raw DESC (§4).
+    # Leaderboard order "worst first": overall_grade DESC, penalty_raw DESC (§4).
     op.create_index(
         "ix_scans_leaderboard",
         "scans",
-        ["overall_grade", sa.text("penalty_raw DESC")],
+        [sa.text("overall_grade DESC"), sa.text("penalty_raw DESC")],
         unique=False,
     )
 

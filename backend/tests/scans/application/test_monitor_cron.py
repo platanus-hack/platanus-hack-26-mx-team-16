@@ -74,7 +74,8 @@ async def test_enqueue_creates_and_dispatches_run_scan():
     site_id = uuid4()
     scan_repo = AsyncMock()
     scan_repo.find_active.return_value = None
-    scan_repo.enqueue.return_value = _scan(site_id, status="queued")
+    # ``enqueue`` reports ``(scan, created)``; created=True ⇒ dispatch once.
+    scan_repo.enqueue.return_value = (_scan(site_id, status="queued"), True)
     bus = AsyncMock()
 
     scan, created = await enqueue_automatic_scan(
@@ -104,7 +105,7 @@ async def test_cron_reenqueues_watchlist_and_gov_seed():
     ]
     scan_repo = AsyncMock()
     scan_repo.find_active.return_value = None
-    scan_repo.enqueue.side_effect = lambda site_id, level, **kw: _scan(site_id)
+    scan_repo.enqueue.side_effect = lambda site_id, level, **kw: (_scan(site_id), True)
     bus = AsyncMock()
 
     handler = MonitorCronHandler(
@@ -135,7 +136,7 @@ async def test_cron_dedupes_site_present_in_both_watchlist_and_gov():
     ]
     scan_repo = AsyncMock()
     scan_repo.find_active.return_value = None
-    scan_repo.enqueue.side_effect = lambda site_id, level, **kw: _scan(site_id)
+    scan_repo.enqueue.side_effect = lambda site_id, level, **kw: (_scan(site_id), True)
     bus = AsyncMock()
 
     handler = MonitorCronHandler(

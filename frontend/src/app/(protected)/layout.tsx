@@ -39,7 +39,8 @@ export default async function ProtectedLayout({
   const session = await refreshServerSession();
 
   if (!session) {
-    redirect("/");
+    // Login moved off `/` (now the Hall of Shame) to `/login`.
+    redirect("/login");
   }
 
   if (!session.tenant) {

@@ -64,7 +64,7 @@ def test_html_references_static_screenshot_route():
     html = render_report_html(report, base_url="http://host:8200")
     scan_id = report["meta"]["scanId"]
 
-    expect(html).to(contain(f"http://host:8200/data/scans/{scan_id}/1.png"))
+    expect(html).to(contain(f"http://host:8200/static/scans/{scan_id}/1.png"))
     expect(html).to(contain("Owliver te explica"))
 
 

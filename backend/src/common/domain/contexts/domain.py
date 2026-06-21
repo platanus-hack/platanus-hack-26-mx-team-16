@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from src.assets.domain.services.storage import StorageService
 from src.common.domain.services.token_service import TokenService
+from src.scans.domain.repositories.agentic_surface import AgenticSurfaceRepository
 from src.scans.domain.repositories.finding import FindingRepository
 from src.scans.domain.repositories.public_report import PublicReportRepository
 from src.scans.domain.repositories.scan import ScanRepository
@@ -49,3 +50,4 @@ class DomainContext:
     finding_repository: FindingRepository
     public_report_repository: PublicReportRepository
     scan_event_repository: ScanEventRepository
+    agentic_surface_repository: AgenticSurfaceRepository

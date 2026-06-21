@@ -11,16 +11,46 @@ import {
 } from "@/src/constants";
 import { Settings } from "@/src/settings";
 
-const PUBLIC_EXACT_ROUTES = ["/", "/register", "/reset-password"];
-// Token-bearing public flows. Anything under these prefixes is reachable
-// without auth so links sent by email keep working when the recipient
-// is signed out.
-const PUBLIC_PREFIX_ROUTES = ["/invitations/", "/reset-password/"];
+const PUBLIC_EXACT_ROUTES = [
+  "/", // Hall of Shame leaderboard (Owliver)
+  "/register",
+  "/reset-password",
+  "/login",
+  "/scan", // scan form (basic level is anonymous)
+];
+// Token-bearing / anonymous public flows. Anything under these prefixes is
+// reachable without auth so links sent by email keep working when the recipient
+// is signed out, and so Owliver's viral surfaces (reports, sites, live theater)
+// are anonymous. Per-scan AuthZ is decided by the backend via `visibility`.
+const PUBLIC_PREFIX_ROUTES = [
+  "/invitations/",
+  "/reset-password/",
+  "/login/", // Google OAuth callback (`/login/callback`) — anon until cookie set
+
+  "/scans/", // live theater + report (backend gates by visibility → 404)
+  "/sites/", // site history (anonymous)
+  "/r/", // public redacted report (token)
+];
 const LOGIN_REDIRECT_PATH = "/dashboard";
+// Where unauthenticated users are sent when hitting a protected route.
+const LOGIN_PATH = "/login";
+
+// Auth-entry routes: a signed-in user landing here is bounced to the app
+// (they don't need to log in again). Owliver's anonymous content surfaces
+// (leaderboard `/`, `/scan`, reports, sites) are public but NOT auth-entry —
+// a signed-in user can browse them freely without being redirected away.
+const AUTH_ENTRY_ROUTES = ["/login", "/register", "/reset-password"];
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_EXACT_ROUTES.includes(pathname)) return true;
   return PUBLIC_PREFIX_ROUTES.some((p) => pathname.startsWith(p));
+}
+
+function isAuthEntryPath(pathname: string): boolean {
+  return (
+    AUTH_ENTRY_ROUTES.includes(pathname) ||
+    pathname.startsWith("/reset-password/")
+  );
 }
 
 export const config = {
@@ -73,10 +103,12 @@ export async function proxy(req: NextRequest) {
   const refreshToken = getRefreshTokenFromRequest(req);
   const isPublic = isPublicPath(url.pathname);
 
-  // Authenticated user on public route -> would normally redirect to dashboard.
-  // But if the user keeps bouncing back to a public route, the RT is broken
-  // (revoked / signing secret rotated). Count attempts and bail after MAX_REFRESH_ATTEMPTS.
-  if (refreshToken && isPublic) {
+  // Authenticated user on an AUTH-ENTRY route (login/register/reset) -> redirect
+  // to the app. Owliver's anonymous content routes (`/`, `/scan`, reports…) are
+  // public but NOT auth-entry, so a signed-in user browses them without a bounce.
+  // If the user keeps bouncing back, the RT is broken (revoked / secret rotated):
+  // count attempts and bail after MAX_REFRESH_ATTEMPTS.
+  if (refreshToken && isAuthEntryPath(url.pathname)) {
     const attempts = readAttempts(req);
 
     if (attempts >= MAX_REFRESH_ATTEMPTS) {
@@ -101,7 +133,7 @@ export async function proxy(req: NextRequest) {
 
   // Unauthenticated user on protected route -> redirect to login
   if (!refreshToken && !isPublic) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL(LOGIN_PATH, req.url));
   }
 
   return NextResponse.next();

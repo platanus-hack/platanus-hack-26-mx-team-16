@@ -1,0 +1,119 @@
+/**
+ * BFF: GET /api/owliver/scans/{id}/stream → backend GET /v1/scans/{id}/stream
+ * (§F6, 10-realtime-live-view). Proxies the upstream SSE body straight through
+ * (replay-then-tail), forwarding `?since_seq=` / `Last-Event-ID`.
+ *
+ * Streaming correctness (the whole point of a dedicated route, vs. the generic
+ * proxy): we set `X-Accel-Buffering: no` + `Cache-Control: no-transform` and pin
+ * `Content-Encoding: identity` so neither nginx nor Next buffers/compresses the
+ * stream — events must reach the browser the instant the backend emits them.
+ *
+ * Offline / fixture fallback: when the backend is unreachable (no live worker in
+ * the demo), we synthesize the SSE wire from `scanEventsFixture` on a timer so the
+ * theater still plays the full run (the cinematic replay the demo depends on).
+ */
+import { type NextRequest } from "next/server";
+
+import { COOKIE_ACCESS_TOKEN } from "@/src/constants";
+import { Settings } from "@/src/settings";
+import { scanEventsFixture } from "@/src/application/owliver/fixtures";
+
+// SSE must never be statically optimized or buffered.
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+const SSE_HEADERS: Record<string, string> = {
+  "Content-Type": "text/event-stream; charset=utf-8",
+  "Cache-Control": "no-cache, no-transform",
+  Connection: "keep-alive",
+  // Disable proxy buffering (nginx / Cloudflare) so frames flush immediately.
+  "X-Accel-Buffering": "no",
+  // Defeat any compression middleware that would buffer the stream.
+  "Content-Encoding": "identity",
+};
+
+function frame(type: string, id: number, data: unknown): string {
+  return `event: ${type}\nid: ${id}\ndata: ${JSON.stringify(data)}\n\n`;
+}
+
+/**
+ * Replay `scanEventsFixture` as an SSE stream on a timer, honoring `since_seq`
+ * (skip already-seen events so reloads are idempotent like the real backend).
+ */
+function fixtureStream(sinceSeq: number): ReadableStream<Uint8Array> {
+  const enc = new TextEncoder();
+  const events = scanEventsFixture.filter((e) => e.seq > sinceSeq);
+  let i = 0;
+
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      // Prime the connection so the client flips to "open" instantly.
+      controller.enqueue(enc.encode(": owliver-stream-open\n\n"));
+
+      const tick = () => {
+        if (i >= events.length) {
+          controller.close();
+          return;
+        }
+        const e = events[i++];
+        controller.enqueue(enc.encode(frame(e.type, e.seq, e)));
+        // Cadence: fast enough to feel live, slow enough to read the tension.
+        const delay = e.type === "done" ? 400 : 650;
+        setTimeout(tick, delay);
+      };
+      // Small lead-in before the first event lands.
+      setTimeout(tick, 350);
+    },
+  });
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const url = new URL(request.url);
+  const sinceSeq = Number.parseInt(url.searchParams.get("since_seq") ?? "0", 10);
+  const streamToken = url.searchParams.get("stream_token");
+
+  // Build the upstream URL preserving the replay cursor + private-scan token.
+  const upstream = new URL(`${Settings.apiBaseUrl}/v1/scans/${id}/stream`);
+  if (Number.isFinite(sinceSeq) && sinceSeq > 0) {
+    upstream.searchParams.set("since_seq", String(sinceSeq));
+  }
+  if (streamToken) upstream.searchParams.set("stream_token", streamToken);
+
+  const lastEventId = request.headers.get("last-event-id");
+
+  try {
+    const accessToken = request.cookies.get(COOKIE_ACCESS_TOKEN)?.value;
+    const headers: Record<string, string> = {
+      Accept: "text/event-stream",
+      "X-Api-Key": Settings.apiKey,
+    };
+    if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+    if (lastEventId) headers["Last-Event-ID"] = lastEventId;
+
+    const res = await fetch(upstream.toString(), {
+      headers,
+      // Stream the response; do not let fetch buffer.
+      cache: "no-store",
+      signal: request.signal,
+    });
+
+    if (res.ok && res.body) {
+      return new Response(res.body, { status: 200, headers: SSE_HEADERS });
+    }
+    // Forward a real 404 (private scan, no permission) — don't fall back to fixtures.
+    if (res.status === 404) {
+      return new Response("Not found", { status: 404 });
+    }
+  } catch {
+    // Backend unreachable → fall through to the fixture replay below.
+  }
+
+  return new Response(fixtureStream(Number.isFinite(sinceSeq) ? sinceSeq : 0), {
+    status: 200,
+    headers: SSE_HEADERS,
+  });
+}

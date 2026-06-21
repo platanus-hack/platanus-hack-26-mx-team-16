@@ -40,12 +40,13 @@ def _scan(site_id, *, requested_by=None, status=ScanStatus.QUEUED, level=ScanLev
     )
 
 
-def _build(user, site, *, find_active=None, enqueued=None):
+def _build(user, site, *, find_active=None, enqueued=None, created=True):
     site_repo = AsyncMock()
     site_repo.get_or_create.return_value = site
     scan_repo = AsyncMock()
     scan_repo.find_active.return_value = find_active
-    scan_repo.enqueue.return_value = enqueued
+    # ``enqueue`` now returns ``(scan, created)``; the repo owns the flag.
+    scan_repo.enqueue.return_value = (enqueued, created)
     command_bus = AsyncMock()
     return site_repo, scan_repo, command_bus
 
@@ -124,12 +125,46 @@ async def test_fresh_create_enqueues_and_dispatches_run_scan_command():
 
 
 async def test_race_lost_returns_existing_and_does_not_dispatch():
-    """find_active was None, but enqueue returned a scan owned by another user
-    (the partial-index race winner) ⇒ idempotent hit, no dispatch."""
+    """find_active was None, but the repo lost the partial-index race and
+    returned the live scan with created=False ⇒ idempotent hit, no dispatch.
+    The use case must NOT dispatch — it trusts the repo-reported flag, never
+    inferring 'created' from the requester/status."""
     user = _user()
     site = _site()
     other_winner = _scan(site.uuid, requested_by=uuid4())
-    site_repo, scan_repo, command_bus = _build(user, site, find_active=None, enqueued=other_winner)
+    site_repo, scan_repo, command_bus = _build(
+        user, site, find_active=None, enqueued=other_winner, created=False
+    )
+
+    result = await EnqueueScan(
+        url="https://example.com",
+        level=ScanLevel.BASICO,
+        authorized=False,
+        user=user,
+        site_repository=site_repo,
+        scan_repository=scan_repo,
+        command_bus=command_bus,
+    ).execute()
+
+    expect(result.created).to(be_false)
+    command_bus.dispatch.assert_not_called()
+
+
+async def test_same_user_lost_race_dispatches_exactly_once():
+    """Regression: a concurrent same-user enqueue for the same (site, level)
+    loses the partial-index race. The repo returns the live scan — owned by the
+    SAME user — with created=False. The old heuristic (requested_by==user and
+    existing is None) would have mis-read this as a fresh create and dispatched a
+    SECOND RunScanCommand for the one row. With the repo-reported flag the use
+    case dispatches exactly zero times here (the winning call already dispatched
+    its one)."""
+    user = _user()
+    site = _site()
+    # The race winner is the same user's scan; only created=False distinguishes it.
+    winner = _scan(site.uuid, requested_by=user.uuid)
+    site_repo, scan_repo, command_bus = _build(
+        user, site, find_active=None, enqueued=winner, created=False
+    )
 
     result = await EnqueueScan(
         url="https://example.com",

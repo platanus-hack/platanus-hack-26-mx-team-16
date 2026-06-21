@@ -61,14 +61,16 @@ async def enqueue_automatic_scan(
     if existing is not None:
         return existing, False
 
-    scan = await scan_repository.enqueue(
+    # ``enqueue`` reports ``created`` authoritatively: True only on the branch
+    # that won the INSERT, False on the lost-race branch. Dispatch exactly once,
+    # gated on that flag — never inferred from status.
+    scan, created = await scan_repository.enqueue(
         site_id,
         level_value,
         visibility=str(visibility),
         requested_by=None,  # cron/seed origin (§4.2)
         authorized=authorized,
     )
-    created = scan.status == "queued" and existing is None
     if created:
         await command_bus.dispatch(
             RunScanCommand(scan_id=scan.uuid), run_async=True

@@ -1,7 +1,8 @@
 """Ranking-item presenter — leaderboard ``Scan`` → camelCase (12-api §"Lectura").
 
 Each row is a gov site's latest public scan, worst-first
-(``overall_grade ASC, penalty_raw DESC`` — 07-scoring's ``LEADERBOARD_ORDER``).
+(``overall_grade DESC, penalty_raw DESC`` — worst-first; 07-scoring's
+``LEADERBOARD_ORDER``).
 """
 
 from __future__ import annotations

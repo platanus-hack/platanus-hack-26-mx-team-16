@@ -45,11 +45,11 @@ class SQLScanRepository(ScanRepository):
         visibility: str,
         requested_by: UUID | None = None,
         authorized: bool = False,
-    ) -> Scan:
-        # First chance: return the live scan if one already exists.
+    ) -> tuple[Scan, bool]:
+        # First chance: return the live scan if one already exists (created=False).
         existing = await self._find_active_orm(site_id, level)
         if existing is not None:
-            return build_scan(existing)
+            return build_scan(existing), False
 
         orm = ScanORM(
             uuid=uuid.uuid4(),
@@ -66,15 +66,17 @@ class SQLScanRepository(ScanRepository):
                 await self.session.flush()
             except IntegrityError:
                 # Lost the race against the partial unique index — the other
-                # insert won; return the live scan instead of raising
-                # (§4 idempotency). Roll back the poisoned transaction first,
-                # then re-query the existing live scan.
+                # insert won; return the live scan instead of raising, with
+                # created=False so the caller does NOT dispatch a second
+                # RunScanCommand for the same row (§4 idempotency). Roll back the
+                # poisoned transaction first, then re-query the existing scan.
                 await self.session.rollback()
                 existing = await self._find_active_orm(site_id, level)
                 if existing is not None:
-                    return build_scan(existing)
+                    return build_scan(existing), False
                 raise
-        return build_scan(orm)
+        # The fresh INSERT succeeded — this call owns the row (created=True).
+        return build_scan(orm), True
 
     async def persist(self, scan: Scan) -> Scan:
         data = scan.model_dump(exclude={"created_at", "updated_at"})
@@ -91,6 +93,15 @@ class SQLScanRepository(ScanRepository):
                 for key, value in data.items():
                     setattr(orm, key, value)
             await self.session.flush()
+        # The UPDATE path triggers ``onupdate=func.now()`` for ``updated_at``
+        # (server-side); SQLAlchemy expires that attribute after the flush since
+        # it can't know the server-computed value (eager RETURNING is only used
+        # for INSERT defaults, not UPDATE onupdate). Reading it later in
+        # ``build_scan`` -> ``Scan.model_validate`` would lazily reload it,
+        # triggering async IO outside a greenlet (MissingGreenlet). Re-fetch the
+        # row inside the greenlet so the timestamps are populated before we read
+        # them — same pattern as ``SQLWatchlistRepository.add``.
+        await self.session.refresh(orm)
         return build_scan(orm)
 
     async def update_progress(

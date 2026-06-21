@@ -99,9 +99,9 @@ def _dump_users(users):
     return [
         {
             "model": "User",
-            "pk": str(u.id),
+            "pk": str(u.uuid),
             "fields": {
-                "email": u.email,
+                "username": u.username,
             },
         }
         for u in users
@@ -135,8 +135,6 @@ def dump(
             ).all()
 
         # ----- 2. Serializar a la estructura de fixture -----
-        email_lookup = {u.id: u.email for u in users}
-
         objects = _dump_users(users)
 
         # ----- 3. Escribir a disco en JSON o YAML -----
@@ -166,6 +164,7 @@ def seed_gov(seed_path: str = "fixtures/gob_mx.txt"):
         from src.common.infrastructure.bus_builder import build_async_bus
         from src.common.infrastructure.domain_builder import build_async_domain
         from src.sites.application.commands.seed_gov import (
+            SeedGovCommand,
             SeedGovHandler,
             read_gov_seed,
         )
@@ -190,7 +189,7 @@ def seed_gov(seed_path: str = "fixtures/gob_mx.txt"):
                 site_repository=domain.site_repository,
                 scan_repository=domain.scan_repository,
                 command_bus=bus.command_bus,
-            ).execute(type("Cmd", (), {"seed_path": seed_path})())
+            ).execute(SeedGovCommand(seed_path=seed_path))
             if redis is not None:
                 await redis.aclose()
         typer.echo("✅  Gov seed completado")

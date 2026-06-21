@@ -28,10 +28,15 @@ class ScanRepository(ABC):
         visibility: str,
         requested_by: UUID | None = None,
         authorized: bool = False,
-    ) -> Scan:
-        """Idempotently create a ``queued`` scan. If an active scan for
-        ``(site_id, level)`` already exists (partial unique index on status in
-        {queued, running}), return the existing one instead of inserting (§4)."""
+    ) -> tuple[Scan, bool]:
+        """Idempotently create a ``queued`` scan, returning ``(scan, created)``.
+
+        ``created`` is ``True`` only when this call performed the fresh INSERT
+        that won the row; it is ``False`` when an active scan for
+        ``(site_id, level)`` already existed — whether detected by the pre-check
+        or by losing the partial-unique-index race (``IntegrityError``). Callers
+        dispatch ``RunScanCommand`` only when ``created`` is ``True`` so a
+        concurrent burst collapses to exactly one dispatch (§4)."""
         raise NotImplementedError
 
     @abstractmethod
@@ -56,7 +61,7 @@ class ScanRepository(ABC):
 
     @abstractmethod
     async def leaderboard(self, *, limit: int = 50, cursor: str | None = None) -> list[Scan]:
-        """Gov sites ranked worst-first: ``overall_grade ASC, penalty_raw DESC``,
+        """Gov sites ranked worst-first: ``overall_grade DESC, penalty_raw DESC``,
         filtered to ``sites.is_gov`` (§4, 08-ranking-watchlists)."""
         raise NotImplementedError
 
