@@ -50,6 +50,16 @@
   .ic-sm { width: 18px; height: 18px; }
   .ic-lg { width: 34px; height: 34px; }
 
+  /* ============ Top nav ============ */
+  .topnav{position:sticky;top:0;z-index:50;background:rgba(246,246,251,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+  .topnav .wrap{display:flex;align-items:center;gap:18px;height:56px;}
+  .topnav .home{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--ink);text-decoration:none;font-size:15px;}
+  .topnav .home .ic{color:var(--violet);}
+  .topnav .links{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+  .topnav .links a{font-size:13px;color:var(--muted);text-decoration:none;padding:6px 11px;border-radius:9px;}
+  .topnav .links a.active,.topnav .links a:hover{background:var(--violet-100);color:var(--violet-600);}
+  @media(max-width:680px){ .topnav .links{display:none;} }
+
   /* ============ Hero ============ */
   header.hero {
     position: relative; color: #fff; padding: 72px 0 120px; overflow: hidden;
@@ -310,6 +320,21 @@
     </symbol>
   </defs>
 </svg>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="wrap">
+    <a class="home" href="index.html"><svg class="ic"><use href="#ic-owl"/></svg> Owliver · Docs</a>
+    <div class="links">
+      <a href="index.html">Índice</a>
+      <a href="scans.html" class="active">Escaneo</a>
+      <a href="data-model.html">Modelo de datos</a>
+      <a href="infrastructure.html">Infraestructura</a>
+      <a href="legal.html">Legal</a>
+      <a href="report.html">Reporte</a>
+    </div>
+  </div>
+</nav>
 
 <!-- ============================ HERO ============================ -->
 <header class="hero">

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Owliver — Infraestructura: dónde corre qué y cómo escala</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..800&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --violet:#5648E8;--violet-600:#4839d6;--violet-300:#8b7ff5;--violet-100:#e9e7fd;
+    --teal:#0ea5a3;--cyan:#0891b2;--amber:#c2700a;--red:#d63c41;
+    --ink:#14151f;--ink-soft:#3a3c4e;--muted:#6b6e85;--line:#e3e3ee;--bg:#f6f6fb;--surface:#fff;
+    --panel:#14152a;--panel-2:#1d1e3a;--panel-line:#2e2f55;--panel-ink:#c9cbf0;
+    --radius:16px;--radius-lg:24px;
+    --shadow:0 1px 2px rgba(20,21,42,.04), 0 8px 24px rgba(20,21,42,.06);
+    --shadow-lg:0 4px 12px rgba(20,21,42,.08), 0 24px 60px rgba(46,40,120,.14);
+    --mono:"Roboto Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --sans:"Roboto Flex", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  *{box-sizing:border-box;} html{scroll-behavior:smooth;}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  h1,h2,h3{font-weight:700;letter-spacing:-.02em;line-height:1.12;margin:0;}
+  p{margin:0;} a{color:var(--violet);}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 24px;}
+  .mono{font-family:var(--mono);}
+  .ic{width:24px;height:24px;display:inline-block;vertical-align:middle;flex:none;}
+  .ic-sm{width:18px;height:18px;} .ic-lg{width:32px;height:32px;}
+
+  .topnav{position:sticky;top:0;z-index:50;background:rgba(246,246,251,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+  .topnav .wrap{display:flex;align-items:center;gap:18px;height:56px;}
+  .topnav .home{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--ink);text-decoration:none;font-size:15px;}
+  .topnav .home .ic{color:var(--violet);}
+  .topnav .links{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;}
+  .topnav .links a{font-size:13px;color:var(--muted);text-decoration:none;padding:6px 11px;border-radius:9px;}
+  .topnav .links a:hover{background:var(--violet-100);color:var(--violet-600);}
+  @media(max-width:760px){ .topnav .links{display:none;} }
+
+  header.hero{position:relative;color:#fff;padding:64px 0 110px;overflow:hidden;
+    background:radial-gradient(1100px 560px at 82% -10%, rgba(86,72,232,.45), transparent 60%),
+      radial-gradient(820px 480px at 8% 8%, rgba(8,145,178,.22), transparent 55%),
+      linear-gradient(160deg,#14152a 0%,#1b1c38 55%,#232153 100%);}
+  .hero .wrap{position:relative;z-index:2;}
+  .badge{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--violet-300);background:rgba(139,127,245,.12);border:1px solid rgba(139,127,245,.3);padding:7px 14px 7px 11px;border-radius:999px;}
+  .hero h1{font-size:clamp(32px,5.5vw,56px);margin:22px 0 16px;max-width:18ch;}
+  .hero h1 .accent{color:var(--violet-300);}
+  .hero p.lead{font-size:clamp(16px,2.1vw,20px);color:#c9cbf0;max-width:62ch;font-weight:300;}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px;}
+  .pill{display:inline-flex;align-items:center;gap:9px;font-size:14px;color:#d9daf2;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);padding:9px 15px;border-radius:999px;}
+  .pill b{color:#fff;font-weight:600;} .pill .ic-sm{color:var(--violet-300);}
+
+  section{padding:78px 0;}
+  .eyebrow{color:var(--violet);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .sec-title{font-size:clamp(26px,4vw,38px);max-width:26ch;}
+  .sec-sub{color:var(--muted);font-size:18px;max-width:68ch;margin-top:14px;font-weight:300;}
+
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in{opacity:1;transform:none;}
+  .reveal.d1{transition-delay:.08s;} .reveal.d2{transition-delay:.16s;} .reveal.d3{transition-delay:.24s;}
+
+  .panel{background:radial-gradient(800px 400px at 90% -20%, rgba(86,72,232,.2), transparent 60%),linear-gradient(150deg,var(--panel),var(--panel-2));color:var(--panel-ink);border-radius:var(--radius-lg);border:1px solid var(--panel-line);box-shadow:var(--shadow-lg);padding:32px clamp(18px,3.5vw,40px) 36px;}
+  .panel h3{color:#fff;}
+  .diagram{width:100%;height:auto;display:block;}
+  .legend{display:flex;flex-wrap:wrap;gap:16px 24px;margin-top:22px;}
+  .legend>div{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--panel-ink);}
+  .dot{width:11px;height:11px;border-radius:50%;flex:none;} .ln{width:22px;height:0;border-top:2px solid;flex:none;}
+  .sw{width:16px;height:16px;border-radius:5px;flex:none;border:1px solid;}
+
+  /* service cards */
+  .group-label{display:flex;align-items:center;gap:10px;margin:34px 0 16px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+  .group-label::after{content:"";flex:1;height:1px;background:var(--line);}
+  .sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;}
+  .scard{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;}
+  .scard .th{padding:16px 18px 8px;display:flex;align-items:center;gap:10px;}
+  .scard .th .ic-sm{color:var(--accent);}
+  .scard .tname{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--ink);}
+  .scard .runs{margin-left:auto;font-size:10px;letter-spacing:.03em;text-transform:uppercase;color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, #fff);border:1px solid color-mix(in srgb, var(--accent) 30%, #fff);padding:2px 8px;border-radius:6px;white-space:nowrap;}
+  .scard .desc{padding:0 18px 14px;font-size:13.5px;color:var(--ink-soft);}
+  .scard .meta{margin-top:auto;padding:11px 18px;font-size:12.5px;background:#fafafe;border-top:1px solid var(--line);color:var(--muted);}
+  .scard .meta b{color:var(--ink-soft);}
+
+  /* split cards */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px;}
+  @media(max-width:820px){ .split{grid-template-columns:1fr;} }
+  .featcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);}
+  .featcard .ic-lg{color:var(--violet);margin-bottom:12px;}
+  .featcard h4{font-size:17px;margin:0 0 8px;} .featcard p{font-size:14px;color:var(--ink-soft);}
+  .featcard code,.inline-c{font-family:var(--mono);font-size:12px;background:#f1f1f8;border:1px solid var(--line);padding:1px 6px;border-radius:5px;color:var(--ink-soft);}
+  .pro{color:#1f6b43;} .con{color:#9a4a00;}
+  .vs-row{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;margin-top:8px;color:var(--ink-soft);}
+  .vs-row .ic-sm{flex:none;margin-top:2px;}
+
+  /* table */
+  .tablewrap{overflow-x:auto;margin-top:26px;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);}
+  table{border-collapse:collapse;width:100%;background:var(--surface);font-size:13.5px;min-width:560px;}
+  th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);}
+  thead th{background:#f3f2fb;color:var(--ink-soft);font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
+  tbody tr:last-child td{border-bottom:0;}
+  td .mono{font-size:12.5px;color:var(--ink);}
+  .tg{display:inline-block;padding:2px 9px;border-radius:7px;font-size:11.5px;font-weight:600;font-family:var(--mono);}
+  .tg.sub{background:#e9e7fd;color:#4839d6;} .tg.dood{background:#fff0e6;color:#c2700a;} .tg.flag{background:#fdecec;color:#c2333a;}
+
+  /* security / scale cards */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px;}
+  @media(max-width:820px){ .grid3{grid-template-columns:1fr;} }
+  .mcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);}
+  .mcard .ic-lg{color:var(--violet);margin-bottom:10px;}
+  .mcard h4{font-size:15px;margin:0 0 6px;} .mcard p{font-size:13.5px;color:var(--muted);}
+
+  .callout{display:flex;gap:12px;align-items:flex-start;background:#fff7ec;border:1px solid #ffd9a8;border-radius:var(--radius);padding:16px 18px;margin-top:24px;color:#8a4b00;font-size:14px;}
+  .callout .ic{color:var(--amber);flex:none;}
+
+  /* glossary */
+  .glossary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-top:18px;}
+  .term{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);}
+  .term .t{font-family:var(--mono);font-weight:600;color:var(--violet-600);font-size:14px;}
+  .term p{font-size:13.5px;color:var(--ink-soft);margin-top:8px;}
+
+  footer{background:var(--panel);color:var(--panel-ink);padding:46px 0;}
+  footer .wrap{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+  footer .brand{font-weight:700;color:#fff;font-size:18px;display:inline-flex;align-items:center;gap:9px;}
+  footer .brand .ic{color:var(--violet-300);} footer p{font-size:13px;color:#8e90c0;max-width:52ch;}
+  footer a{color:var(--violet-300);}
+
+  @keyframes dash{to{stroke-dashoffset:-1000;}}
+  @media(prefers-reduced-motion:reduce){ .reveal{transition:none;opacity:1;transform:none;} [style*="animation"]{animation:none!important;} }
+</style>
+</head>
+<body>
+
+<!-- ICON SPRITE -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <symbol id="ic-owl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4l2 2M18 4l-2 2" stroke-linecap="round"/><path d="M12 21c4 0 7-3 7-8 0-4-3-7-7-7s-7 3-7 7c0 5 3 8 7 8Z"/><circle cx="9" cy="11" r="2.3"/><circle cx="15" cy="11" r="2.3"/><circle cx="9" cy="11" r=".7" fill="currentColor" stroke="none"/><circle cx="15" cy="11" r=".7" fill="currentColor" stroke="none"/><path d="M11 14h2l-1 1.4-1-1.4Z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ic-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="ic-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3 4 7v10l8 4 8-4V7l-8-4Z"/><path d="M4 7l8 4 8-4M12 11v10" stroke-linecap="round"/></symbol>
+  <symbol id="ic-network" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5 6.5 17M12 7.5 17.5 17M7.5 19h9" stroke-linecap="round"/></symbol>
+  <symbol id="ic-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1 .5-8 5 5 0 0 1 9.6 1.4A3.5 3.5 0 0 1 17 18H7Z"/></symbol>
+  <symbol id="ic-cog" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1" stroke-linecap="round"/></symbol>
+  <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 13l9 5 9-5M3 16.5l9 5 9-5" stroke-linecap="round"/></symbol>
+  <symbol id="ic-trend" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17 10 11l4 4 6-7"/><path d="M15 8h5v5"/></symbol>
+  <symbol id="ic-plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6M15 2v6"/><path d="M7 8h10v3a5 5 0 0 1-10 0V8Z"/><path d="M12 16v6"/></symbol>
+  <symbol id="ic-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></symbol>
+  <symbol id="ic-db" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></symbol>
+  <symbol id="ic-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z"/></symbol>
+  <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 2.6 15.4 0 18M12 3c-2.6 2.6-2.6 15.4 0 18"/></symbol>
+  <symbol id="ic-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4" stroke-linecap="round"/></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.5 3 7 7 8 4-1 7-3.5 7-8V6l-7-3Z"/><path d="m9 12 2 2 4-4" stroke-linecap="round"/></symbol>
+  <symbol id="ic-robot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 5v3" stroke-linecap="round"/><circle cx="12" cy="4" r="1.2" fill="currentColor" stroke="none"/><circle cx="9.6" cy="13" r="1.3" fill="currentColor" stroke="none"/><circle cx="14.4" cy="13" r="1.3" fill="currentColor" stroke="none"/><path d="M2.5 12v3M21.5 12v3" stroke-linecap="round"/></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+  <symbol id="ic-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1.3" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ic-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V4Z"/><path d="M5 18a2 2 0 0 1 2-2h11"/><path d="M9 8h5M9 11h4" stroke-linecap="round"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="m8.3 12 2.4 2.4 4.9-4.9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ic-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9" stroke-width="1.6"/><path d="m9 9 6 6M15 9l-6 6"/></symbol>
+  <symbol id="ic-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+</defs></svg>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="wrap">
+    <a class="home" href="index.html"><svg class="ic"><use href="#ic-owl"/></svg> Owliver · Docs</a>
+    <div class="links">
+      <a href="index.html">Índice</a>
+      <a href="scans.html">Escaneo</a>
+      <a href="data-model.html">Modelo de datos</a>
+      <a href="infrastructure.html" class="active">Infraestructura</a>
+      <a href="legal.html">Legal</a>
+      <a href="report.html">Reporte</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="badge"><svg class="ic-sm"><use href="#ic-server"/></svg> Infraestructura</span>
+    <h1>Dónde corre qué <span class="accent">y cómo escala</span></h1>
+    <p class="lead">
+      Owliver es un conjunto de servicios en contenedores que viven en un servidor. Aquí explicamos qué
+      servicio hace qué, cómo se aíslan los escáneres para no comprometer la seguridad, dónde se ejecuta
+      cada herramienta y cómo debería crecer la plataforma a medida que llegan más usuarios y dominios.
+    </p>
+    <div class="hero-meta">
+      <span class="pill"><svg class="ic-sm"><use href="#ic-server"/></svg> Corre en un <b>VPS Linux</b> (no PaaS)</span>
+      <span class="pill"><svg class="ic-sm"><use href="#ic-box"/></svg> <b>8 servicios</b> en docker-compose</span>
+      <span class="pill"><svg class="ic-sm"><use href="#ic-cog"/></svg> el <b>worker</b> es el cuello de botella</span>
+    </div>
+  </div>
+</header>
+
+<!-- TOPOLOGY -->
+<section id="topologia">
+  <div class="wrap">
+    <p class="eyebrow reveal">El mapa físico</p>
+    <h2 class="sec-title reveal d1">Cómo está montado todo</h2>
+    <p class="sec-sub reveal d2">
+      Todo vive en un único servidor (VPS) orquestado con <b>docker-compose</b>. El navegador habla con el
+      frontend, este con la API, la API encola el trabajo en Redis, y el <b>worker</b> lo toma y ejecuta las
+      herramientas. Lo clave: los escáneres salen a internet por una red separada y <b>nunca</b> pueden tocar
+      la base de datos.
+    </p>
+
+    <div class="panel reveal d2" style="margin-top:30px;">
+      <svg class="diagram" viewBox="0 0 1160 660" role="img" aria-label="Topología de infraestructura">
+        <defs>
+          <linearGradient id="wire" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5648E8"/><stop offset="1" stop-color="#8b7ff5"/></linearGradient>
+          <marker id="ah" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#8b7ff5"/></marker>
+          <marker id="ahr" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#e0a44a"/></marker>
+          <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+
+        <!-- host boundary -->
+        <rect x="118" y="92" width="858" height="548" rx="18" fill="none" stroke="#3a3b66" stroke-width="1.6" stroke-dasharray="7 6"/>
+        <text x="138" y="120" font-family="Roboto Mono, monospace" font-size="12.5" fill="#9a9cce" letter-spacing=".5">VPS Linux · docker-compose</text>
+
+        <!-- internal network zone -->
+        <rect x="690" y="138" width="268" height="150" rx="13" fill="rgba(14,165,163,.08)" stroke="#2bb3b1" stroke-width="1.4" stroke-dasharray="5 5"/>
+        <text x="706" y="160" font-family="Roboto Mono, monospace" font-size="11" fill="#5fd6d3">owliver_internal · sin egress</text>
+        <!-- egress network zone -->
+        <rect x="556" y="356" width="402" height="240" rx="13" fill="rgba(86,72,232,.1)" stroke="#8b7ff5" stroke-width="1.4" stroke-dasharray="5 5"/>
+        <text x="572" y="378" font-family="Roboto Mono, monospace" font-size="11" fill="#b9bbee">owliver_egress · salida a internet</text>
+
+        <!-- connectors -->
+        <g fill="none" stroke="#6f6bc0" stroke-width="1.7">
+          <path d="M112,179 H198" marker-end="url(#ah)"/>            <!-- browser->web -->
+          <path d="M370,179 H446" marker-end="url(#ah)"/>            <!-- web->api -->
+          <path d="M642,170 C680,176 690,195 712,200" marker-end="url(#ah)"/>  <!-- api->redis -->
+          <path d="M548,204 C600,250 660,250 712,255" marker-end="url(#ah)"/>  <!-- api->postgres (read) -->
+          <path d="M360,266 C520,266 600,225 712,210" marker-end="url(#ah)"/>  <!-- scheduler->redis -->
+          <path d="M824,232 C760,300 560,330 470,392" marker-end="url(#ah)"/>  <!-- redis->worker (queue) -->
+          <path d="M472,392 C600,330 690,272 712,262" marker-end="url(#ah)"/>  <!-- worker->postgres (write) -->
+        </g>
+        <!-- worker -> docker.sock -> egress -->
+        <g fill="none" stroke="#8b7ff5" stroke-width="1.8">
+          <path d="M474,470 C510,480 528,470 548,464" marker-end="url(#ah)"/>
+        </g>
+        <!-- egress -> internet -->
+        <g fill="none" stroke="#e0a44a" stroke-width="1.8">
+          <path d="M872,470 C980,470 1000,500 1030,506" marker-end="url(#ahr)"/>
+        </g>
+        <!-- shared volume dashed -->
+        <g fill="none" stroke="#5a5a9a" stroke-width="1.4" stroke-dasharray="4 5" opacity=".6">
+          <path d="M360,520 C300,520 300,470 320,440"/>
+          <path d="M520,540 C620,540 700,500 712,476"/>
+        </g>
+
+        <!-- particles -->
+        <circle r="4.5" fill="#fff" filter="url(#glow)"><animateMotion dur="3s" repeatCount="indefinite" path="M112,179 H446"/></circle>
+        <circle r="4" fill="#8b7ff5" filter="url(#glow)"><animateMotion dur="3.4s" begin="1s" repeatCount="indefinite" path="M824,232 C760,300 560,330 470,392"/></circle>
+        <circle r="4.5" fill="#f0c483" filter="url(#glow)"><animateMotion dur="2.6s" begin=".4s" repeatCount="indefinite" path="M872,470 C980,470 1000,500 1030,506"/></circle>
+
+        <g font-family="Roboto Flex, sans-serif" text-anchor="middle">
+          <!-- browser (outside) -->
+          <rect x="24" y="150" width="88" height="58" rx="11" fill="#101126" stroke="#4a4c80" stroke-width="1.5"/>
+          <use href="#ic-monitor" x="56" y="160" width="22" height="22" style="color:#cdd0ff"/>
+          <text x="68" y="200" font-size="10.5" fill="#9a9cce">Navegador</text>
+          <!-- web -->
+          <rect x="198" y="152" width="172" height="54" rx="11" fill="#1d1e3a" stroke="#8b7ff5" stroke-width="1.7"/>
+          <use href="#ic-box" x="212" y="166" width="16" height="16" style="color:#b9bbee"/>
+          <text x="292" y="176" font-family="Roboto Mono, monospace" font-size="13.5" font-weight="600" fill="#fff">web</text>
+          <text x="290" y="195" font-size="10.5" fill="#9a9cce">Next.js · frontend</text>
+          <!-- api -->
+          <rect x="446" y="152" width="196" height="54" rx="11" fill="#1d1e3a" stroke="#8b7ff5" stroke-width="1.7"/>
+          <use href="#ic-box" x="460" y="166" width="16" height="16" style="color:#b9bbee"/>
+          <text x="548" y="176" font-family="Roboto Mono, monospace" font-size="13.5" font-weight="600" fill="#fff">api</text>
+          <text x="546" y="195" font-size="10.5" fill="#9a9cce">FastAPI · :8200</text>
+          <!-- scheduler -->
+          <rect x="180" y="240" width="180" height="50" rx="11" fill="#1d1e3a" stroke="#8b7ff5" stroke-width="1.7"/>
+          <use href="#ic-clock" x="194" y="252" width="16" height="16" style="color:#b9bbee"/>
+          <text x="274" y="262" font-family="Roboto Mono, monospace" font-size="13" font-weight="600" fill="#fff">scheduler</text>
+          <text x="272" y="279" font-size="10" fill="#9a9cce">cron de re-escaneos</text>
+          <!-- redis -->
+          <rect x="712" y="178" width="230" height="44" rx="10" fill="#13231f" stroke="#2bb3b1" stroke-width="1.7"/>
+          <use href="#ic-bolt" x="726" y="190" width="15" height="15" style="color:#7fe3e0"/>
+          <text x="832" y="205" font-family="Roboto Mono, monospace" font-size="12.5" font-weight="600" fill="#fff">redis · cola SAQ + pub/sub</text>
+          <!-- postgres -->
+          <rect x="712" y="238" width="230" height="44" rx="10" fill="#13231f" stroke="#2bb3b1" stroke-width="1.7"/>
+          <use href="#ic-db" x="726" y="250" width="15" height="15" style="color:#7fe3e0"/>
+          <text x="834" y="265" font-family="Roboto Mono, monospace" font-size="12.5" font-weight="600" fill="#fff">postgres · scans, findings…</text>
+
+          <!-- worker (hub) -->
+          <rect x="300" y="392" width="248" height="150" rx="13" fill="#241f54" stroke="#a99bff" stroke-width="2"/>
+          <use href="#ic-cog" x="318" y="408" width="18" height="18" style="color:#cbb8ff"/>
+          <text x="430" y="422" font-family="Roboto Mono, monospace" font-size="14" font-weight="600" fill="#fff">worker</text>
+          <text x="424" y="441" font-size="11" fill="#b9bbee">Python · Agno · max_jobs=1</text>
+          <rect x="320" y="455" width="208" height="34" rx="7" fill="#1a1640" stroke="#3a2f7a"/>
+          <text x="424" y="470" font-size="10" fill="#cbb8ff">= imagen scanners</text>
+          <text x="424" y="483" font-size="9.5" fill="#9a9cce">CLIs ligeras → subprocess</text>
+          <text x="424" y="512" font-size="10" fill="#9a9cce">orquesta el equipo de IA</text>
+
+          <!-- docker.sock plug -->
+          <use href="#ic-plug" x="540" y="448" width="20" height="20" style="color:#f0c483"/>
+          <text x="556" y="486" font-size="9" fill="#c2a06a">docker.sock</text>
+
+          <!-- ZAP -->
+          <rect x="600" y="408" width="150" height="58" rx="11" fill="#1d1e3a" stroke="#8b7ff5" stroke-width="1.7"/>
+          <use href="#ic-box" x="614" y="422" width="15" height="15" style="color:#b9bbee"/>
+          <text x="682" y="434" font-family="Roboto Mono, monospace" font-size="13" font-weight="600" fill="#fff">ZAP</text>
+          <text x="675" y="453" font-size="10" fill="#9a9cce">sibling (DooD)</text>
+          <!-- hexstrike -->
+          <rect x="772" y="408" width="166" height="58" rx="11" fill="#1d1e3a" stroke="#5a5a9a" stroke-width="1.6" stroke-dasharray="4 4"/>
+          <use href="#ic-box" x="786" y="422" width="15" height="15" style="color:#8a8cc8"/>
+          <text x="858" y="434" font-family="Roboto Mono, monospace" font-size="13" font-weight="600" fill="#d6d7f0">hexstrike</text>
+          <text x="855" y="453" font-size="10" fill="#8a8cc8">opcional (Kali)</text>
+          <text x="757" y="525" font-size="10" fill="#a9aad6">contenedores pesados lanzados por el</text>
+          <text x="757" y="540" font-size="10" fill="#a9aad6">worker vía socket (DooD, NO DinD)</text>
+
+          <!-- shared volume -->
+          <rect x="300" y="560" width="248" height="44" rx="10" fill="#1a1b34" stroke="#4a4c80" stroke-width="1.5"/>
+          <use href="#ic-db" x="314" y="572" width="15" height="15" style="color:#aeb0e6"/>
+          <text x="430" y="587" font-family="Roboto Mono, monospace" font-size="12" font-weight="600" fill="#dcdef5">/data/scans · volumen compartido</text>
+
+          <!-- internet cloud (outside) -->
+          <rect x="1024" y="470" width="112" height="74" rx="12" fill="#101126" stroke="#4a4c80" stroke-width="1.5"/>
+          <use href="#ic-cloud" x="1068" y="482" width="24" height="24" style="color:#f0c483"/>
+          <text x="1080" y="522" font-size="10" fill="#9a9cce">Internet</text>
+          <text x="1080" y="536" font-size="9" fill="#7f82b8">.gob.mx / demo</text>
+        </g>
+      </svg>
+
+      <div class="legend">
+        <div><span class="sw" style="background:rgba(14,165,163,.18);border-color:#2bb3b1"></span> Red interna (postgres, redis) — sin salida a internet</div>
+        <div><span class="sw" style="background:rgba(86,72,232,.2);border-color:#8b7ff5"></span> Red de egress (escáneres) — sí sale a internet</div>
+        <div><span class="ln" style="border-color:#e0a44a"></span> Tráfico de escaneo hacia los targets</div>
+        <div><span class="ln" style="border-color:#5a5a9a;border-top-style:dashed"></span> Volumen de evidencia compartido</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="servicios" style="background:linear-gradient(180deg,#fff,#f6f6fb);">
+  <div class="wrap">
+    <p class="eyebrow reveal">Servicio por servicio</p>
+    <h2 class="sec-title reveal d1">Los 8 contenedores y qué hace cada uno</h2>
+    <p class="sec-sub reveal d2">Cada servicio es un contenedor del <span class="mono">docker-compose</span>. La etiqueta de la derecha dice en qué red o con qué rol corre.</p>
+
+    <div class="group-label reveal"><svg class="ic-sm" style="color:var(--violet)"><use href="#ic-box"/></svg> Cara visible y orquestación</div>
+    <div class="sgrid">
+      <div class="scard reveal" style="--accent:var(--violet)">
+        <div class="th"><svg class="ic-sm"><use href="#ic-box"/></svg><span class="tname">web</span><span class="runs">frontend</span></div>
+        <div class="desc">La aplicación Next.js que ve el usuario: formulario de escaneo, live-view, reportes y ranking.</div>
+        <div class="meta"><b>Corre:</b> contenedor ligero. Habla con <span class="mono">api</span>; nunca toca la base de datos directo.</div>
+      </div>
+      <div class="scard reveal d1" style="--accent:var(--violet)">
+        <div class="th"><svg class="ic-sm"><use href="#ic-box"/></svg><span class="tname">api</span><span class="runs">:8200</span></div>
+        <div class="desc">El backend FastAPI. Recibe las peticiones, encola escaneos, sirve reportes/ranking y el stream del live-view (SSE).</div>
+        <div class="meta"><b>Corre:</b> contenedor ligero. Lee/escribe <span class="mono">postgres</span> y usa <span class="mono">redis</span> para cola y eventos.</div>
+      </div>
+      <div class="scard reveal d2" style="--accent:var(--violet)">
+        <div class="th"><svg class="ic-sm"><use href="#ic-cog"/></svg><span class="tname">worker</span><span class="runs">el motor</span></div>
+        <div class="desc">El cerebro de ejecución: toma el job de la cola, orquesta el equipo de agentes (Agno) y corre las herramientas.</div>
+        <div class="meta"><b>Corre:</b> <b>dentro de la imagen <span class="mono">scanners</span></b> con <span class="mono">max_jobs=1</span>. Es el componente más pesado.</div>
+      </div>
+    </div>
+
+    <div class="group-label reveal"><svg class="ic-sm" style="color:var(--teal)"><use href="#ic-db"/></svg> Estado y mensajería</div>
+    <div class="sgrid">
+      <div class="scard reveal" style="--accent:var(--teal)">
+        <div class="th"><svg class="ic-sm"><use href="#ic-bolt"/></svg><span class="tname">redis</span><span class="runs">red interna</span></div>
+        <div class="desc">Doble función: la <b>cola de trabajos</b> (SAQ) que alimenta al worker, y el <b>pub/sub</b> que transmite los eventos del live-view en tiempo real.</div>
+        <div class="meta"><b>Corre:</b> en <span class="mono">owliver_internal</span>, sin salida a internet.</div>
+      </div>
+      <div class="scard reveal d1" style="--accent:var(--teal)">
+        <div class="th"><svg class="ic-sm"><use href="#ic-db"/></svg><span class="tname">postgres</span><span class="runs">red interna</span></div>
+        <div class="desc">La base de datos. Guarda sites, scans, findings, eventos y todo lo demás (ver el modelo de datos).</div>
+        <div class="meta"><b>Corre:</b> en <span class="mono">owliver_internal</span>, aislada de los escáneres.</div>
+      </div>
+    </div>
+
+    <div class="group-label reveal"><svg class="ic-sm" style="color:var(--amber)"><use href="#ic-layers"/></svg> Herramientas y automatización</div>
+    <div class="sgrid">
+      <div class="scard reveal" style="--accent:var(--amber)">
+        <div class="th"><svg class="ic-sm"><use href="#ic-layers"/></svg><span class="tname">scanners</span><span class="runs">imagen base</span></div>
+        <div class="desc">Una imagen "gorda" con todas las CLIs de pentest preinstaladas (Nuclei, testssl, Nikto, sqlmap, ffuf…). Es la base sobre la que corre el worker.</div>
+        <div class="meta"><b>Corre:</b> es la imagen del <span class="mono">worker</span>; las CLIs ligeras se ejecutan por <span class="mono">subprocess</span>.</div>
+      </div>
+      <div class="scard reveal d1" style="--accent:var(--amber)">
+        <div class="th"><svg class="ic-sm"><use href="#ic-box"/></svg><span class="tname">hexstrike</span><span class="runs">opcional</span></div>
+        <div class="desc">Contenedor pesado (imagen Kali, varios GB) con 150+ herramientas. Es un power-up <b>recortado a cero</b> desde el inicio del plan.</div>
+        <div class="meta"><b>Corre:</b> sibling vía socket, detrás de <span class="mono">ENABLE_HEXSTRIKE</span> + healthcheck.</div>
+      </div>
+      <div class="scard reveal d2" style="--accent:var(--amber)">
+        <div class="th"><svg class="ic-sm"><use href="#ic-clock"/></svg><span class="tname">scheduler</span><span class="runs">cron</span></div>
+        <div class="desc">Programa los re-escaneos periódicos (ranking gob.mx, watchlists). Encola trabajos pasivos en Redis.</div>
+        <div class="meta"><b>Corre:</b> contenedor ligero. Solo escaneos automáticos = pasivos.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXECUTION PATTERN -->
+<section id="ejecucion">
+  <div class="wrap">
+    <p class="eyebrow reveal">Cómo se lanza cada herramienta</p>
+    <h2 class="sec-title reveal d1">Dos formas de ejecutar, una decisión congelada</h2>
+    <p class="sec-sub reveal d2">
+      El worker ya <b>es</b> un contenedor; nunca lanza una herramienta "en el aire". Usa un patrón híbrido decidido
+      de antemano: las herramientas ligeras corren dentro de su propia imagen, y las pesadas se lanzan como
+      contenedores "hermanos" pidiéndoselo al Docker del servidor.
+    </p>
+
+    <div class="split">
+      <div class="featcard reveal">
+        <svg class="ic-lg"><use href="#ic-terminal"/></svg>
+        <h4>Ligeras → <span class="mono" style="font-size:.85em">subprocess</span></h4>
+        <p>Nuclei, testssl, Nikto, katana, ffuf, sqlmap, subfinder, dnsx… vienen preinstaladas en la imagen <span class="inline-c">scanners</span>. El worker simplemente las ejecuta como un comando más, sin Docker de por medio.</p>
+        <div class="vs-row con"><svg class="ic-sm"><use href="#ic-check"/></svg><span>Rápidas, sin sockets ni permisos especiales.</span></div>
+      </div>
+      <div class="featcard reveal d1">
+        <svg class="ic-lg"><use href="#ic-plug"/></svg>
+        <h4>Pesadas → <span class="mono" style="font-size:.85em">run_tool()</span> (DooD)</h4>
+        <p>ZAP y hexstrike son contenedores enormes. El worker los lanza como "hermanos" montando el socket del servidor (<span class="inline-c">/var/run/docker.sock</span>) a través de un único helper que aplica red, límites de RAM/CPU y timeout.</p>
+        <div class="vs-row con"><svg class="ic-sm"><use href="#ic-check"/></svg><span>Aislamiento real sin meter Docker dentro de Docker.</span></div>
+      </div>
+    </div>
+
+    <div class="callout reveal">
+      <svg class="ic"><use href="#ic-x"/></svg>
+      <div><b>NO se usa DinD (Docker dentro de Docker).</b> Exige modo <span class="inline-c">--privileged</span>, es lento y se rompe en la nube. Por eso los contenedores pesados son "hermanos" (DooD) y el montaje <span class="inline-c">-v</span> apunta al path del <b>servidor</b>, no del worker — el socket habla con el Docker del host, que solo conoce rutas del host.</div>
+    </div>
+
+    <h3 class="reveal" style="font-size:18px;margin:40px 0 4px;">Tiempos: cada herramienta tiene su límite</h3>
+    <p class="reveal d1" style="color:var(--muted);font-size:15px;max-width:64ch;">Un escaneo colgado bloquea la cola y arruina el live-view. Por eso hay un timeout duro por herramienta, un presupuesto global de ~8 minutos y un <b>watchdog</b> que aborta lo que falte. Si una herramienta falla, se anota y se continúa: nunca se pierden los hallazgos ya obtenidos.</p>
+    <div class="tablewrap reveal d1">
+      <table>
+        <thead><tr><th>Herramienta</th><th>Mecanismo</th><th>Timeout</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">nuclei</td><td><span class="tg sub">subprocess</span></td><td>90s</td></tr>
+          <tr><td class="mono">testssl</td><td><span class="tg sub">subprocess</span></td><td>60s</td></tr>
+          <tr><td class="mono">security-headers</td><td><span class="tg sub">subprocess</span></td><td>30s</td></tr>
+          <tr><td class="mono">whatweb</td><td><span class="tg sub">subprocess</span></td><td>30s</td></tr>
+          <tr><td class="mono">nikto</td><td><span class="tg sub">subprocess</span></td><td>90s</td></tr>
+          <tr><td class="mono">katana</td><td><span class="tg sub">subprocess</span></td><td>60s</td></tr>
+          <tr><td class="mono">ffuf / gobuster</td><td><span class="tg sub">subprocess</span></td><td>90s</td></tr>
+          <tr><td class="mono">sqlmap</td><td><span class="tg sub">subprocess</span></td><td>120s</td></tr>
+          <tr><td class="mono">subfinder / dnsx</td><td><span class="tg sub">subprocess</span></td><td>60s</td></tr>
+          <tr><td class="mono">ZAP baseline</td><td><span class="tg dood">run_tool · DooD</span></td><td>120s</td></tr>
+          <tr><td class="mono">ZAP full active</td><td><span class="tg dood">run_tool · DooD</span></td><td>240s</td></tr>
+          <tr><td class="mono">garak</td><td><span class="tg sub">subprocess</span></td><td>180s</td></tr>
+          <tr><td class="mono">promptfoo</td><td><span class="tg sub">subprocess</span></td><td>120s</td></tr>
+          <tr><td class="mono">hexstrike-ai</td><td><span class="tg flag">run_tool · flag</span></td><td>time-boxed</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ISOLATION -->
+<section id="aislamiento" style="background:linear-gradient(180deg,#f6f6fb,#fff);">
+  <div class="wrap">
+    <p class="eyebrow reveal">Seguridad de la propia plataforma</p>
+    <h2 class="sec-title reveal d1">Aislar los escáneres para no comprometerse a sí misma</h2>
+    <p class="sec-sub reveal d2">
+      Los escáneres atacan internet, así que son la parte más "peligrosa" dentro del servidor. Si no se aíslan,
+      un atacante podría usarlos para llegar a la base de datos o a las credenciales del servidor (un SSRF lateral).
+      El aislamiento se hace con redes de Docker separadas.
+    </p>
+    <div class="grid3">
+      <div class="mcard reveal">
+        <svg class="ic-lg"><use href="#ic-network"/></svg>
+        <h4>Red de egress para escáneres</h4>
+        <p>Todo escáner se lanza en <span class="mono">owliver_egress</span>: puede salir a internet hacia los targets, pero no ve la red interna.</p>
+      </div>
+      <div class="mcard reveal d1">
+        <svg class="ic-lg"><use href="#ic-lock"/></svg>
+        <h4>Red interna sin salida</h4>
+        <p>Postgres y Redis viven en <span class="mono">owliver_internal</span>, sin egress y sin acceso desde la red de escáneres. La base de datos queda fuera de su alcance.</p>
+      </div>
+      <div class="mcard reveal d2">
+        <svg class="ic-lg"><use href="#ic-shield"/></svg>
+        <h4>Metadata bloqueada</h4>
+        <p>Se bloquean las IPs privadas y la de metadata del cloud (<span class="mono">169.254.169.254</span>), y el servidor del demo no monta credenciales: aunque un escáner la alcance, no hay secreto que robar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE VIEW + COLD START -->
+<section id="transporte">
+  <div class="wrap">
+    <p class="eyebrow reveal">Dos detalles que hacen que funcione</p>
+    <h2 class="sec-title reveal d1">El live-view y el arranque en frío</h2>
+    <div class="split">
+      <div class="featcard reveal">
+        <svg class="ic-lg"><use href="#ic-bolt"/></svg>
+        <h4>Live-view: la verdad vive en Postgres</h4>
+        <p>Redis pub/sub no recuerda lo que ya pasó: quien abre el stream tarde se perdería el inicio. Por eso cada evento se <b>guarda en Postgres antes</b> de publicarse, y el endpoint hace <b>replay-then-tail</b>: primero reproduce lo perdido desde la DB (ordenado por <span class="inline-c">seq</span>), luego sigue en vivo por Redis.</p>
+        <div class="vs-row"><svg class="ic-sm" style="color:var(--teal)"><use href="#ic-check"/></svg><span>SSE con heartbeat de ~20s y compresión desactivada en esa ruta; auth por cookie (no por header).</span></div>
+      </div>
+      <div class="featcard reveal d1">
+        <svg class="ic-lg"><use href="#ic-layers"/></svg>
+        <h4>Arranque en frío: todo pre-calentado</h4>
+        <p>ZAP pesa ~2 GB y Nuclei descarga 12k+ plantillas en su primer uso —que falla por DNS dentro del contenedor—. Si eso pasa en vivo, el nivel básico no produciría hallazgos. Por eso, en el setup:</p>
+        <div class="vs-row"><svg class="ic-sm" style="color:var(--violet)"><use href="#ic-check"/></svg><span><span class="inline-c">docker pull</span> de todo con tags fijos (<span class="inline-c">:stable</span>, nunca <span class="inline-c">:latest</span>).</span></div>
+        <div class="vs-row"><svg class="ic-sm" style="color:var(--violet)"><use href="#ic-check"/></svg><span>Plantillas de Nuclei pre-descargadas a un volumen + flag <span class="inline-c">-duc</span> en cada run.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCALING -->
+<section id="escala" style="background:linear-gradient(180deg,#fff,#f6f6fb);">
+  <div class="wrap">
+    <p class="eyebrow reveal"><svg class="ic-sm" style="color:var(--violet)"><use href="#ic-trend"/></svg> Cómo debería escalar</p>
+    <h2 class="sec-title reveal d1">El worker es el cuello de botella</h2>
+    <p class="sec-sub reveal d2">
+      Hoy todo corre en un solo servidor con <span class="mono">max_jobs=1</span>: un escaneo a la vez, porque cada uno
+      consume varios GB de RAM (ZAP, garak). El frontend, la API, Redis y Postgres apenas se inmutan. Para crecer,
+      lo que hay que multiplicar es el <b>worker</b>.
+    </p>
+
+    <div class="panel reveal d2" style="margin-top:30px;">
+      <h3 style="margin-bottom:6px;">Escalado horizontal del worker</h3>
+      <p style="color:var(--panel-ink);font-size:14px;margin-bottom:14px;">Como la cola vive en Redis (SAQ), basta con conectar más workers —en el mismo o en otros servidores— y todos toman trabajos de la misma cola.</p>
+      <svg class="diagram" viewBox="0 0 1000 300" role="img" aria-label="Escalado horizontal de workers">
+        <defs>
+          <marker id="ah2" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#8b7ff5"/></marker>
+        </defs>
+        <!-- queue -->
+        <rect x="60" y="120" width="200" height="64" rx="13" fill="#13231f" stroke="#2bb3b1" stroke-width="1.8"/>
+        <use href="#ic-bolt" x="80" y="140" width="20" height="20" style="color:#7fe3e0"/>
+        <text x="170" y="148" font-family="Roboto Mono, monospace" font-size="14" font-weight="600" fill="#fff" text-anchor="middle">redis · cola</text>
+        <text x="170" y="168" font-size="11" fill="#8fb9c9" text-anchor="middle">una sola fila de trabajos</text>
+        <!-- branches to workers -->
+        <g fill="none" stroke="#6f6bc0" stroke-width="1.8">
+          <path d="M260,140 C360,140 380,72 470,72" marker-end="url(#ah2)"/>
+          <path d="M260,152 H470" marker-end="url(#ah2)"/>
+          <path d="M260,164 C360,164 380,232 470,232" marker-end="url(#ah2)"/>
+        </g>
+        <circle r="4.5" fill="#fff"><animateMotion dur="2.4s" repeatCount="indefinite" path="M260,152 H470"/></circle>
+        <circle r="4" fill="#8b7ff5"><animateMotion dur="2.8s" begin=".5s" repeatCount="indefinite" path="M260,140 C360,140 380,72 470,72"/></circle>
+        <circle r="4" fill="#8b7ff5"><animateMotion dur="3s" begin="1s" repeatCount="indefinite" path="M260,164 C360,164 380,232 470,232"/></circle>
+        <!-- workers -->
+        <g font-family="Roboto Flex, sans-serif" text-anchor="middle">
+          <g>
+            <rect x="470" y="44" width="210" height="56" rx="12" fill="#241f54" stroke="#a99bff" stroke-width="1.8"/>
+            <use href="#ic-cog" x="486" y="58" width="17" height="17" style="color:#cbb8ff"/>
+            <text x="592" y="68" font-family="Roboto Mono, monospace" font-size="13" font-weight="600" fill="#fff">worker #1</text>
+            <text x="588" y="86" font-size="10" fill="#b9bbee">VPS · docker.sock + egress</text>
+          </g>
+          <g>
+            <rect x="470" y="124" width="210" height="56" rx="12" fill="#241f54" stroke="#a99bff" stroke-width="1.8"/>
+            <use href="#ic-cog" x="486" y="138" width="17" height="17" style="color:#cbb8ff"/>
+            <text x="592" y="148" font-family="Roboto Mono, monospace" font-size="13" font-weight="600" fill="#fff">worker #2</text>
+            <text x="588" y="166" font-size="10" fill="#b9bbee">VPS · docker.sock + egress</text>
+          </g>
+          <g>
+            <rect x="470" y="204" width="210" height="56" rx="12" fill="#241f54" stroke="#a99bff" stroke-width="1.8"/>
+            <use href="#ic-cog" x="486" y="218" width="17" height="17" style="color:#cbb8ff"/>
+            <text x="592" y="228" font-family="Roboto Mono, monospace" font-size="13" font-weight="600" fill="#fff">worker #N</text>
+            <text x="588" y="246" font-size="10" fill="#b9bbee">se añaden según demanda</text>
+          </g>
+          <!-- internet -->
+          <g fill="none" stroke="#e0a44a" stroke-width="1.6">
+            <path d="M680,72 C780,72 800,140 860,150"/>
+            <path d="M680,152 H860"/>
+            <path d="M680,232 C780,232 800,164 860,154"/>
+          </g>
+          <rect x="860" y="120" width="100" height="64" rx="12" fill="#101126" stroke="#4a4c80" stroke-width="1.5"/>
+          <use href="#ic-cloud" x="898" y="134" width="24" height="24" style="color:#f0c483"/>
+          <text x="910" y="174" font-size="10" fill="#9a9cce">Internet</text>
+        </g>
+      </svg>
+      <div class="legend">
+        <div><span class="dot" style="background:#2bb3b1"></span> Una cola compartida reparte el trabajo</div>
+        <div><span class="dot" style="background:#a99bff"></span> Cada worker procesa un escaneo a la vez, en su propio servidor</div>
+      </div>
+    </div>
+
+    <div class="tablewrap reveal" style="margin-top:34px;">
+      <table>
+        <thead><tr><th>Componente</th><th>Hoy (demo)</th><th>Cómo escala</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">worker</td><td>1 instancia, <span class="mono">max_jobs=1</span></td><td><b>Más instancias</b> consumiendo la misma cola Redis; cada una en su VPS con socket + egress. El lever principal.</td></tr>
+          <tr><td class="mono">web · api</td><td>1 contenedor c/u</td><td>Sin estado → réplicas detrás de un balanceador. El live-view (SSE) escala solo: la verdad está en Postgres y el tail en Redis, cualquier réplica lo sirve.</td></tr>
+          <tr><td class="mono">redis</td><td>1 instancia (cola + pub/sub)</td><td>Separar cola y pub/sub; instancia gestionada o cluster cuando el fan-out de eventos crezca.</td></tr>
+          <tr><td class="mono">postgres</td><td>1 instancia</td><td>Réplicas de lectura para ranking/reportes; particionar <span class="mono">scan_events</span> si el historial crece mucho.</td></tr>
+          <tr><td>evidencia</td><td>Volumen local <span class="mono">/data/scans</span></td><td>Mover a almacenamiento de objetos (S3/MinIO). Como en la DB solo se guarda una URL relativa, el cambio es localizado.</td></tr>
+          <tr><td class="mono">scanners pesados</td><td>ZAP/hexstrike en el mismo host</td><td>Pool dedicado de hosts para contenedores pesados; <span class="mono">run_tool()</span> ya centraliza dónde se lanzan.</td></tr>
+          <tr><td class="mono">scheduler</td><td>Cron simple, seed pre-horneado</td><td>Repartir los re-escaneos en el tiempo y por prioridad en la cola, para no saturar a los workers de golpe.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout reveal">
+      <svg class="ic"><use href="#ic-warn"/></svg>
+      <div><b>Restricción que no desaparece al crecer:</b> el tier de workers necesita un host con <b>socket de Docker</b> y <b>egress libre</b> a internet. Por eso no puede vivir en un PaaS gestionado típico: se escala con una flota de VPS / máquinas virtuales, aunque Postgres y Redis sí puedan migrar a servicios gestionados.</div>
+    </div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<section id="glosario">
+  <div class="wrap">
+    <p class="eyebrow reveal"><svg class="ic-sm" style="color:var(--violet)"><use href="#ic-book"/></svg> Glosario</p>
+    <h2 class="sec-title reveal d1">Términos de infraestructura, en simple</h2>
+    <div class="glossary-grid">
+      <div class="term reveal"><span class="t">Contenedor / imagen</span><p>Una "caja" que empaqueta un programa con todo lo que necesita para correr. La imagen es la plantilla; el contenedor es una copia en ejecución.</p></div>
+      <div class="term reveal"><span class="t">docker-compose</span><p>Un archivo que describe varios contenedores y cómo se conectan, para levantarlos todos juntos con un comando.</p></div>
+      <div class="term reveal"><span class="t">VPS</span><p>Un servidor virtual que rentas (DigitalOcean, Hetzner…). Tienes control total: puedes montar el socket de Docker y salir libremente a internet.</p></div>
+      <div class="term reveal"><span class="t">PaaS gestionado</span><p>Plataforma que corre tu app por ti (más cómoda) pero con restricciones: normalmente no expone el socket de Docker, que Owliver necesita.</p></div>
+      <div class="term reveal"><span class="t">Socket de Docker</span><p>El "teléfono" para darle órdenes al Docker del servidor (<span class="mono">/var/run/docker.sock</span>). El worker lo usa para lanzar contenedores hermanos.</p></div>
+      <div class="term reveal"><span class="t">DooD vs DinD</span><p>DooD = Docker-fuera-de-Docker: el worker pide al Docker del host que lance contenedores "hermanos". DinD = Docker-dentro-de-Docker: más pesado y frágil; aquí se descarta.</p></div>
+      <div class="term reveal"><span class="t">subprocess</span><p>Ejecutar un comando como un proceso hijo del worker. Se usa para las herramientas ligeras que ya están en la imagen.</p></div>
+      <div class="term reveal"><span class="t">SAQ</span><p>La librería de cola de trabajos (sobre Redis) que reparte los escaneos a los workers de forma asíncrona.</p></div>
+      <div class="term reveal"><span class="t">Redis pub/sub</span><p>Mecanismo de mensajería en vivo: publica eventos a quien esté suscrito. No guarda historial, por eso la verdad vive en Postgres.</p></div>
+      <div class="term reveal"><span class="t">SSE</span><p>Server-Sent Events: una conexión por la que el servidor envía eventos al navegador en tiempo real. Alimenta el live-view.</p></div>
+      <div class="term reveal"><span class="t">Egress</span><p>El tráfico de salida hacia internet. Los escáneres lo necesitan; la base de datos no debe tenerlo.</p></div>
+      <div class="term reveal"><span class="t">SSRF lateral</span><p>Ataque donde se abusa de un componente con egress para alcanzar servicios internos o la metadata del cloud. Las redes separadas lo previenen.</p></div>
+      <div class="term reveal"><span class="t">Red bridge</span><p>Una red virtual de Docker que conecta contenedores. Owliver usa dos: una interna (sin internet) y una de egress (con internet).</p></div>
+      <div class="term reveal"><span class="t">Volumen</span><p>Almacenamiento persistente compartido entre contenedores. Aquí guarda la evidencia (capturas) en <span class="mono">/data/scans</span>.</p></div>
+      <div class="term reveal"><span class="t">Watchdog</span><p>Un vigilante que aborta el escaneo si se pasa del presupuesto de tiempo, para que una herramienta lenta no bloquee todo.</p></div>
+      <div class="term reveal"><span class="t">Escalado horizontal</span><p>Crecer añadiendo más máquinas iguales (más workers) en vez de una sola más grande. Es la vía principal de Owliver.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="brand"><svg class="ic"><use href="#ic-owl"/></svg> Owliver</div>
+      <p style="margin-top:8px;">Infraestructura del motor de pentest. Ver también: <a href="scans.html">cómo escanea</a> · <a href="data-model.html">modelo de datos</a>.</p>
+    </div>
+    <p style="text-align:right;">Documento explicativo · infraestructura y escalado<br/>by Llamitai</p>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

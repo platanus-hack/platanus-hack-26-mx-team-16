@@ -116,6 +116,13 @@ e2e-headed:
 e2e-spec spec:
     cd frontend && pnpm exec cypress run --spec "cypress/e2e/{{spec}}" --browser chrome
 
+# ─── DOCS — port 8090 ───────────────────────────────────────────
+
+# Serve the static docs/ site (index + scans + data-model + infrastructure) on a port (default 8090): just serve-docs [port]
+serve-docs port="8090":
+    @echo "Serving docs at http://localhost:{{port}}/  (Ctrl+C to stop)"
+    cd docs && python3 -m http.server {{port}} --bind 127.0.0.1
+
 # ─── DOCKER (production) ────────────────────────────────────────
 
 # Build production backend image

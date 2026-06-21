@@ -105,12 +105,6 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str | None = None
     ANTHROPIC_API_KEY: str | None = None
     OPENROUTER_API_KEY: str | None = None
-    GOOGLE_APPLICATION_CREDENTIALS: str | None = None
-    OCR_MAX_PAGE_THREADS: int = 20
-    EXTRACTION_MAX_DOC_WORKERS: int = 8
-    EXTRACTION_LAMBDA_ENABLED: bool = True
-    EXTRACTION_LAMBDA_EXTRACTOR: str = "textract_layout"
-    VNEXT_LAMBDA_PREFIX: str = "vnext-tools"
 
     # -> ANALYSIS PIPELINE: override del provider por agente.
     # Valores válidos: "anthropic" | "openai" | "gemini" | "openrouter".
@@ -188,12 +182,13 @@ class Settings(BaseSettings):
     ADMIN_API_KEY: str = secrets.token_urlsafe(32)
 
     # -> SCANNING / ATTACK LEVELS (owned by 02-attack-levels)
-    # Feature-flag gate for hexstrike-ai. Default OFF: hexstrike is cut to zero
-    # from the start of the plan. When True, the advanced level *may* receive the
-    # hexstrike tool, but ONLY if the worker healthcheck also passes (the boolean
-    # `hexstrike_ok` fed to resolve_toolset). The healthcheck mechanics live in
-    # 04-scanning-engine §10; 02 only consumes the resulting boolean.
-    ENABLE_HEXSTRIKE: bool = False
+    # Feature-flag gate for hexstrike-ai. Default ON: the advanced level *may*
+    # receive the hexstrike tool, but ONLY if the worker healthcheck also passes
+    # (the boolean `hexstrike_ok` fed to resolve_toolset) — so a missing/unhealthy
+    # container still degrades gracefully to ZAP + nuclei + sqlmap. To turn it off
+    # entirely, set `ENABLE_HEXSTRIKE=false` in the environment. The healthcheck
+    # mechanics live in 04-scanning-engine §10; 02 only consumes the boolean.
+    ENABLE_HEXSTRIKE: bool = True
     # Real production budget for the advanced level (ZAP full active + Nuclei
     # fuzzing + sqlmap), enforced by 04's watchdog. ~8 min.
     SCAN_GLOBAL_BUDGET_SECONDS: int = 480
